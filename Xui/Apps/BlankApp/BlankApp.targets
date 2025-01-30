@@ -1,0 +1,19 @@
+<Project>
+
+  <PropertyGroup>
+    <RootNamespace>Xui.Apps.BlankApp</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <ApplicationTitle>Xui BlankApp</ApplicationTitle>
+    <ApplicationId>com.xuiapps.BlankApp</ApplicationId>
+
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+	  <ApplicationVersion>1</ApplicationVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Add your PackageReferences here -->
+  </ItemGroup>
+
+</Project>
