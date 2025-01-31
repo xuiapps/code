@@ -1,23 +1,33 @@
-using System;
+using Xui.Core.Abstract;
+using Xui.Core.Actual;
 
-public static class Program
+namespace FirstApp;
+
+public class App : Application
 {
-    public static int Main(string[] args)
+    static int Main(string[] argv)
     {
-        #if EMULATOR && MACOS
-        Console.WriteLine("Emulator running on macOS...");
-        #elif EMULATOR && WINDOWS
-        Console.WriteLine("Emulator running on Windows...");
-        #elif WINDOWS
-        Console.WriteLine("Windows app");
-        #elif MACOS
-        Console.WriteLine("macOS app");
-        #elif IOS
-        Console.WriteLine("iOS app");
-        #elif ANDROID
-        Console.WriteLine("Android app");
-        #endif
+// #if MACOS && EMULATOR
+//         Platform.Current = new Xui.Emulator.Actual.EmulatorPlatform(
+//             Xui.MacOS.Actual.MacOSPlatform.Instance);
+// #elif WINDOWS && EMULATOR
+//         Platform.Current = new Xui.Emulator.Actual.EmulatorPlatform(
+//             Xui.Windows.Actual.Win32Platform.Instance);
+// #elif IOS
+//         Platform.Current = Xui.IOS.Actual.IOSPlatform.Instance;
+// #elif MACOS
+//         Platform.Current = Xui.MacOS.Actual.MacOSPlatform.Instance;
+// #elif WINDOWS
+//         Platform.Current = Xui.Windows.Actual.Win32Platform.Instance;
+// #endif
 
-        return 0;
+        return new App().Run();;
+    }
+
+    public override void Start()
+    {
+        var window = new MainWindow();
+        window.Title = "APP# FirstApp";
+        window.Show();
     }
 }
