@@ -40,4 +40,31 @@
     <Compile Remove="Platforms/**/*" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Add your PackageReferences here -->
+
+    <!-- Core -->
+    <ProjectReference Include="../../Core/Core.csproj" />
+
+    <!-- Middleware -->
+    <ProjectReference
+        Condition=" $(XuiEmulator) == 'true' "
+        Include="../../Middleware/Emulator/Emulator.csproj" />
+
+    <!-- Runtimes -->
+    <ProjectReference
+        Condition=" $(XuiWindows) == 'true' "
+        Include="../../Runtime/Windows/Window.csproj" />
+    <ProjectReference
+        Condition=" $(XuiMacOS) == 'true' "
+        Include="../../Runtime/MacOS/MacOS.csproj" />
+    <ProjectReference
+        Condition=" $(XuiWindows) == 'true' "
+        Include="../../Runtime/Windows/Window.csproj" />
+    <ProjectReference
+        Condition=" $(XuiIOS) == 'true' "
+        Include="../../Runtime/IOS/IOS.csproj" />
+    <!-- TODO: Android -->
+    <!-- TODO: WASM -->
+  </ItemGroup>
 </Project>

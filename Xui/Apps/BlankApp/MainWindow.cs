@@ -7,7 +7,15 @@ using static Xui.Core.Canvas.Colors;
 using Xui.Core.Math2D;
 using Xui.Core.Actual;
 
-namespace FirstApp;
+using Window = Xui.Core.Abstract.Window;
+using Point = Xui.Core.Math2D.Point;
+using Rect = Xui.Core.Math2D.Rect;
+using Color = Xui.Core.Canvas.Color;
+using Colors = Xui.Core.Canvas.Colors;
+using Font = Xui.Core.Canvas.Font;
+using CornerRadius = Xui.Core.Canvas.CornerRadius;
+
+namespace Xui.Apps.BlankApp;
 
 public class MainWindow : Window
 {
@@ -30,7 +38,7 @@ public class MainWindow : Window
         base.OnScrollWheel(ref e);
     }
 
-    private Point touchPoint;
+    private Xui.Core.Math2D.Point touchPoint;
     private Vector scrollInertia = Vector.Zero;
     private bool runScrollInertia = false;
 
@@ -130,7 +138,7 @@ public class MainWindow : Window
     {
         var rect = render.Rect;
 
-        using var ctx = Runtime.DrawingContext!;
+        using var ctx = Xui.Core.Actual.Runtime.DrawingContext!;
 
         try
         {
