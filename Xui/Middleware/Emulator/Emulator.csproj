@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <LangVersion>13</LangVersion>
     <RootNamespace>Xui.Middleware.Emulator</RootNamespace>
+    <AssemblyName>Xui.Middleware.Emulator</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

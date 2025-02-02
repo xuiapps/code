@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFrameworks>net9.0</TargetFrameworks>
 
     <Nullable>enable</Nullable>
     <LangVersion>13</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <RootNamespace>Xui.Runtime.Windows</RootNamespace>
-    <AssemblyName>Xui.Runtime.Windows</AssemblyName>
-  
+    <RootNamespace>Xui.Runtime.Browser</RootNamespace>
+    <AssemblyName>Xui.Runtime.Browser</AssemblyName>
+    
     <IsTrimmable>false</IsTrimmable>
   </PropertyGroup>
 

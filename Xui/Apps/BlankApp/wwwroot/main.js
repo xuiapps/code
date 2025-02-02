@@ -7,26 +7,63 @@ const { setModuleImports, getAssemblyExports, getConfig, runMain } = await dotne
     .withApplicationArguments("start")
     .create();
 
+const xuiCanvas = document.getElementById("xui-canvas");
+const xuiCanvasContext = xuiCanvas.getContext("2d");
+
 setModuleImports('main.js', {
     dom: {
         setInnerText: (selector, time) => document.querySelector(selector).innerText = time
+    },
+    Xui: {
+        Runtime: {
+            Browser: {
+                Actual: {
+                    BrowserWindow: {
+                        setTitle(title) {
+                            document.title = title;
+                        }
+                    },
+                    BrowserDrawingContext: {
+                        setFillStyle(fillStyle) {
+                            xuiCanvasContext.fillStyle = fillStyle;
+                        },
+                        fillRect(x, y, width, height) {
+                            xuiCanvasContext.fillRect(x, y, width, height);
+                        }
+                    }
+                }
+            }
+        }
     }
 });
+
+const xui = await getAssemblyExports("Xui.Runtime.Browser");
+const onAnimationFrame = xui.Xui.Runtime.Browser.Actual.BrowserWindow.OnAnimationFrame;
+const onMouseMove = xui.Xui.Runtime.Browser.Actual.BrowserWindow.OnMouseMove;
 
 const config = getConfig();
 const exports = await getAssemblyExports(config.mainAssemblyName);
 
-document.getElementById('reset').addEventListener('click', e => {
-    exports.StopwatchSample.Reset();
-    e.preventDefault();
+// document.getElementById('reset').addEventListener('click', e => {
+//     exports.StopwatchSample.Reset();
+//     e.preventDefault();
+// });
+
+// const pauseButton = document.getElementById('pause');
+// pauseButton.addEventListener('click', e => {
+//     const isRunning = exports.StopwatchSample.Toggle();
+//     pauseButton.innerText = isRunning ? 'Pause' : 'Start';
+//     e.preventDefault();
+// });
+
+xuiCanvas.addEventListener("mousemove", event => {
+    onMouseMove(event.offsetX, event.offsetY);
 });
 
-const pauseButton = document.getElementById('pause');
-pauseButton.addEventListener('click', e => {
-    const isRunning = exports.StopwatchSample.Toggle();
-    pauseButton.innerText = isRunning ? 'Pause' : 'Start';
-    e.preventDefault();
-});
+const onAnimationFrameCallback = (timestamp) => {
+    onAnimationFrame(timestamp);
+    window.requestAnimationFrame(onAnimationFrameCallback);
+};
+window.requestAnimationFrame(onAnimationFrameCallback);
 
-// run the C# Main() method and keep the runtime process running and executing further API calls
 await runMain();

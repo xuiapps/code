@@ -73,6 +73,8 @@
         Condition=" $(XuiIOS) == 'true' "
         Include="../../Runtime/IOS/IOS.csproj" />
     <!-- TODO: Android -->
-    <!-- TODO: WASM -->
+    <ProjectReference
+        Condition=" $(XuiBrowser) == 'true' "
+        Include="../../Runtime/Browser/Browser.csproj" />
   </ItemGroup>
 </Project>
