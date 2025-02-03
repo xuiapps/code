@@ -70,6 +70,7 @@ public partial class BrowserWindow : Xui.Core.Actual.IWindow
             Rect rect = new Rect(0, 0, 300, 150);
             RenderEventRef renderEventRef = new RenderEventRef(rect, frameEventRef);
 
+            BrowserDrawingContext.CanvasReset();
             this.Abstract.Render(ref renderEventRef);
         }
     }
