@@ -36,9 +36,14 @@
     <DefineConstants>$(DefineConstants);ANDROID;MOBILE</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" ($(UsingMicrosoftNETSdkWebAssembly) == 'true') ">
+  <PropertyGroup Condition=" ($(UsingMicrosoftNETSdkWebAssembly) == 'true') And ('$(XuiDevEmulator)' == 'true') ">
+    <XuiEmulator>true</XuiEmulator>
     <XuiBrowser>true</XuiBrowser>
-    <DefineConstants>$(DefineConstants);BROWSER</DefineConstants>
+    <DefineConstants>$(DefineConstants);BROWSER;EMULATOR</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" ($(UsingMicrosoftNETSdkWebAssembly) == 'true') And !('$(XuiDevEmulator)' == 'true') ">
+    <XuiBrowser>true</XuiBrowser>
+    <DefineConstants>$(DefineConstants);BROWSER;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == '' And !($(UsingMicrosoftNETSdkWebAssembly) == 'true') ">

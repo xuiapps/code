@@ -195,9 +195,11 @@ const exports = await getAssemblyExports(config.mainAssemblyName);
 
 xuiCanvas.addEventListener("mousemove", event => {
     onMouseMove(event.offsetX, event.offsetY);
+    event.preventDefault();
 });
 xuiCanvas.addEventListener("wheel", event => {
-    onWheel(event.offsetX, event.offsetY, event.deltaX, event.deltaY);
+    onWheel(event.offsetX, event.offsetY, -event.deltaX, -event.deltaY);
+    event.preventDefault();
 });
 
 const onAnimationFrameCallback = (timestamp) => {

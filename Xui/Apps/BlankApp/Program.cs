@@ -8,8 +8,11 @@ public class App : Xui.Core.Abstract.Application
         Xui.Core.Actual.Runtime.Current = new Xui.Middleware.Emulator.Actual.EmulatorPlatform(
             Xui.Runtime.MacOS.Actual.MacOSPlatform.Instance);
 #elif WINDOWS && EMULATOR
-        Xui.Core.Actual.Runtime.Current = new Xui.Emulator.Emulator.Actual.EmulatorPlatform(
+        Xui.Core.Actual.Runtime.Current = new Xui.Middleware.Emulator.Actual.EmulatorPlatform(
             Xui.Runtime.Windows.Actual.Win32Platform.Instance);
+#elif BROWSER && EMULATOR
+        Xui.Core.Actual.Runtime.Current = new Xui.Middleware.Emulator.Actual.EmulatorPlatform(
+            Xui.Runtime.Browser.Actual.BrowserPlatform.Instance);
 #elif IOS
         Xui.Core.Actual.Runtime.Current = Xui.Runtime.IOS.Actual.IOSPlatform.Instance;
 #elif MACOS

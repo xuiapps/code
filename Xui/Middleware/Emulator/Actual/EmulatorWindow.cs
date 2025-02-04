@@ -76,8 +76,12 @@ public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
         {
             ctx.Save();
 
+            ctx.BeginPath();
             ctx.RoundRect(emulatorRect, screenCornerRadius);
             ctx.Clip();
+
+            ctx.BeginPath();
+
             ctx.Translate((borderWidth, titleHeight + gap + borderWidth));
 
             RenderEventRef emulatorRender = new RenderEventRef(
@@ -97,6 +101,7 @@ public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
             ctx.Restore();
 
             // Pinch-hole:
+            ctx.BeginPath();
             ctx.RoundRect(
                 rect: new Rect(
                     x: render.Rect.Width / 2f - 45f,
@@ -108,6 +113,7 @@ public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
             ctx.SetFill(0x111111FF);
             ctx.Fill();
 
+            ctx.BeginPath();
             ctx.RoundRect(
                 rect: emulatorRect.Expand(borderWidth * 0.5f),
                 radius: screenCornerRadius + borderWidth * 0.5f);
@@ -115,6 +121,7 @@ public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
             ctx.LineWidth = borderWidth;
             ctx.Stroke();
 
+            ctx.BeginPath();
             ctx.RoundRect(
                 rect: emulatorRect.Expand(borderWidth - borderOutline * 0.5f),
                 radius: screenCornerRadius + borderWidth * 0.5f + 0.25f * borderOutline);
@@ -123,6 +130,7 @@ public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
             ctx.Stroke();
 
             // Window title
+            ctx.BeginPath();
             ctx.RoundRect(titleRect, 10f);
             ctx.SetFill(new Color(0x333333FF));
             ctx.Fill();
