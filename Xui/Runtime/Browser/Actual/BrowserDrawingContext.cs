@@ -14,8 +14,20 @@ public partial class BrowserDrawingContext : IContext
     [JSImport("Xui.Runtime.Browser.Actual.BrowserDrawingContext.setFillStyle", "main.js")]
     internal static partial void CanvasSetFillStyle(string fillStyle);
 
+    [JSImport("Xui.Runtime.Browser.Actual.BrowserDrawingContext.setLinearGradientFillStyle", "main.js")]
+    internal static partial void CanvasSetLinearGradientFillStyle(double startX, double startY, double endX, double endY, double[] offsets, string[] colors);
+
+    [JSImport("Xui.Runtime.Browser.Actual.BrowserDrawingContext.setRadialGradientFillStyle", "main.js")]
+    internal static partial void CanvasSetRadialGradientFillStyle(double startX, double startY, double startR, double endX, double endY, double endR, double[] offsets, string[] colors);
+
     [JSImport("Xui.Runtime.Browser.Actual.BrowserDrawingContext.setStrokeStyle", "main.js")]
     internal static partial void CanvasSetStrokeStyle(string strokeStyle);
+
+    [JSImport("Xui.Runtime.Browser.Actual.BrowserDrawingContext.setLinearGradientStrokeStyle", "main.js")]
+    internal static partial void CanvasSetLinearGradientStrokeStyle(double startX, double startY, double endX, double endY, double[] offsets, string[] colors);
+
+    [JSImport("Xui.Runtime.Browser.Actual.BrowserDrawingContext.setRadialGradientStrokeStyle", "main.js")]
+    internal static partial void CanvasSetRadialGradientStrokeStyle(double startX, double startY, double startR, double endX, double endY, double endR, double[] offsets, string[] colors);
 
     [JSImport("Xui.Runtime.Browser.Actual.BrowserDrawingContext.fillRect", "main.js")]
     internal static partial void CanvasFillRect(double x, double y, double width, double height);
@@ -103,6 +115,21 @@ public partial class BrowserDrawingContext : IContext
 
     [JSImport("Xui.Runtime.Browser.Actual.BrowserDrawingContext.scale", "main.js")]
     internal static partial void CanvasScale(double x, double y);
+
+    [JSImport("Xui.Runtime.Browser.Actual.BrowserDrawingContext.translate", "main.js")]
+    internal static partial void CanvasTranslate(double x, double y);
+
+    [JSImport("Xui.Runtime.Browser.Actual.BrowserDrawingContext.transform", "main.js")]
+    internal static partial void CanvasTransform(double a, double b, double c, double d, double e, double f);
+
+    [JSImport("Xui.Runtime.Browser.Actual.BrowserDrawingContext.setTransform", "main.js")]
+    internal static partial void CanvasSetTransform(double a, double b, double c, double d, double e, double f);
+
+    [JSImport("Xui.Runtime.Browser.Actual.BrowserDrawingContext.stroke", "main.js")]
+    internal static partial void CanvasStroke();
+
+    [JSImport("Xui.Runtime.Browser.Actual.BrowserDrawingContext.setLineDash", "main.js")]
+    internal static partial void CanvasSetLineDash(double[] segments);
 
     public static readonly BrowserDrawingContext Instance = new BrowserDrawingContext();
 
@@ -228,12 +255,44 @@ public partial class BrowserDrawingContext : IContext
 
     public void SetFill(LinearGradient linearGradient)
     {
-        throw new NotImplementedException();
+        var start = linearGradient.StartPoint;
+        var end = linearGradient.EndPoint;
+        
+        double[] offsets = new double[linearGradient.GradientStops.Length];
+        string[] colors = new string[linearGradient.GradientStops.Length];
+        
+        for (var i = 0; i < linearGradient.GradientStops.Length; i++)
+        {
+            var gradientStop = linearGradient.GradientStops[i];
+            var offset = gradientStop.Offset;
+            var color = gradientStop.Color;
+            offsets[i] = offset;
+            colors[i] = $"rgba({color.Red * 255}, {color.Green * 255}, {color.Blue * 255}, {color.Alpha})";
+        }
+
+        CanvasSetLinearGradientFillStyle(start.X, start.Y, end.X, end.Y, offsets, colors);
     }
 
     public void SetFill(RadialGradient radialGradient)
     {
-        throw new NotImplementedException();
+        double[] offsets = new double[radialGradient.GradientStops.Length];
+        string[] colors = new string[radialGradient.GradientStops.Length];
+        
+        for (var i = 0; i < radialGradient.GradientStops.Length; i++)
+        {
+            var gradientStop = radialGradient.GradientStops[i];
+            var offset = gradientStop.Offset;
+            var color = gradientStop.Color;
+            offsets[i] = offset;
+            colors[i] = $"rgba({color.Red * 255}, {color.Green * 255}, {color.Blue * 255}, {color.Alpha})";
+        }
+
+        CanvasSetRadialGradientFillStyle(
+            radialGradient.StartCenter.X, radialGradient.StartCenter.Y, radialGradient.StartRadius,
+            radialGradient.EndCenter.X, radialGradient.EndCenter.Y, radialGradient.EndRadius,
+            offsets,
+            colors
+        );
     }
 
     public void SetFont(Font font)
@@ -269,43 +328,72 @@ public partial class BrowserDrawingContext : IContext
 
     public void SetLineDash(ReadOnlySpan<NFloat> segments)
     {
-        throw new NotImplementedException();
+        // TODO: Try to do these things without garbage...
+        double[] s = new double[segments.Length];
+        for(var i = 0; i < segments.Length; i++)
+        {
+            s[i] = segments[i];
+        }
+        CanvasSetLineDash(s);
     }
 
     public void SetStroke(Color color) =>
         CanvasSetStrokeStyle($"rgba({color.Red * 255}, {color.Green * 255}, {color.Blue * 255}, {color.Alpha})");
 
-
     public void SetStroke(LinearGradient linearGradient)
     {
-        throw new NotImplementedException();
+        var start = linearGradient.StartPoint;
+        var end = linearGradient.EndPoint;
+        
+        double[] offsets = new double[linearGradient.GradientStops.Length];
+        string[] colors = new string[linearGradient.GradientStops.Length];
+        
+        for (var i = 0; i < linearGradient.GradientStops.Length; i++)
+        {
+            var gradientStop = linearGradient.GradientStops[i];
+            var offset = gradientStop.Offset;
+            var color = gradientStop.Color;
+            offsets[i] = offset;
+            colors[i] = $"rgba({color.Red * 255}, {color.Green * 255}, {color.Blue * 255}, {color.Alpha})";
+        }
+
+        CanvasSetLinearGradientStrokeStyle(start.X, start.Y, end.X, end.Y, offsets, colors);
     }
 
     public void SetStroke(RadialGradient radialGradient)
     {
-        throw new NotImplementedException();
+        double[] offsets = new double[radialGradient.GradientStops.Length];
+        string[] colors = new string[radialGradient.GradientStops.Length];
+        
+        for (var i = 0; i < radialGradient.GradientStops.Length; i++)
+        {
+            var gradientStop = radialGradient.GradientStops[i];
+            var offset = gradientStop.Offset;
+            var color = gradientStop.Color;
+            offsets[i] = offset;
+            colors[i] = $"rgba({color.Red * 255}, {color.Green * 255}, {color.Blue * 255}, {color.Alpha})";
+        }
+
+        CanvasSetRadialGradientStrokeStyle(
+            radialGradient.StartCenter.X, radialGradient.StartCenter.Y, radialGradient.StartRadius,
+            radialGradient.EndCenter.X, radialGradient.EndCenter.Y, radialGradient.EndRadius,
+            offsets,
+            colors
+        );
     }
 
-    public void SetTransform(AffineTransform transform)
-    {
-        throw new NotImplementedException();
-    }
 
-    public void Stroke()
-    {
-        throw new NotImplementedException();
-    }
+    public void SetTransform(AffineTransform transform) =>
+        CanvasSetTransform(transform.A, transform.B, transform.C, transform.D, transform.Tx, transform.Ty);
+
+    public void Stroke() => CanvasStroke();
 
     public void StrokeRect(Rect rect) =>
         CanvasStrokeRect(rect.X, rect.Y, rect.Width, rect.Height);
 
-    public void Transform(AffineTransform matrix)
-    {
-        throw new NotImplementedException();
-    }
+    public void Transform(AffineTransform matrix) =>
+        CanvasTransform(matrix.A, matrix.B, matrix.C, matrix.D, matrix.Tx, matrix.Ty);
 
-    public void Translate(Vector vector)
-    {
-        throw new NotImplementedException();
-    }
+    public void Translate(Vector vector) =>
+        CanvasTranslate(vector.X, vector.Y);
 }

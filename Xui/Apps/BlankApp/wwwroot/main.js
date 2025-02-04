@@ -33,8 +33,38 @@ setModuleImports('main.js', {
                         setFillStyle(fillStyle) {
                             xuiCanvasContext.fillStyle = fillStyle;
                         },
+                        setLinearGradientFillStyle(x0, y0, x1, y1, offsets, colors) {
+                            let gradient = xuiCanvasContext.createLinearGradient(x0, y0, x1, y1);
+                            for (let i = 0; i < colors.length; i++) {
+                                gradient.addColorStop(offsets[i], colors[i]);
+                            }
+                            xuiCanvasContext.fillStyle = gradient;
+                        },
+                        setRadialGradientFillStyle(x0, y0, r0, x1, y1, r1, offsets, colors) {
+                            let gradient = xuiCanvasContext.createRadialGradient(x0, y0, r0, x1, y1, r1);
+                            for (let i = 0; i < colors.length; i++) {
+                                const offset = offsets[i];
+                                const color = colors[i];
+                                gradient.addColorStop(offset, color);
+                            }
+                            xuiCanvasContext.fillStyle = gradient;
+                        },
                         setStrokeStyle(strokeStyle) {
                             xuiCanvasContext.strokeStyle = strokeStyle;
+                        },
+                        setLinearGradientStrokeStyle(x0, y0, x1, y1, offsets, colors) {
+                            let gradient = xuiCanvasContext.createLinearGradient(x0, y0, x1, y1);
+                            for (let i = 0; i < colors.length; i++) {
+                                gradient.addColorStop(offsets[i], colors[i]);
+                            }
+                            xuiCanvasContext.strokeStyle = gradient;
+                        },
+                        setRadialGradientStrokeStyle(x0, y0, r0, x1, y1, r1, offsets, colors) {
+                            let gradient = xuiCanvasContext.createRadialGradient(x0, y0, r0, x1, y1, r1);
+                            for (let i = 0; i < colors.length; i++) {
+                                gradient.addColorStop(offsets[i], colors[i]);
+                            }
+                            xuiCanvasContext.strokeStyle = gradient;
                         },
                         fillRect(x, y, width, height) {
                             xuiCanvasContext.fillRect(x, y, width, height);
@@ -110,16 +140,31 @@ setModuleImports('main.js', {
                             xuiCanvasContext.rotate(angle);
                         },
                         roundRect(x, y, width, height, radii) {
-                            xuiCanvasContext.rotate(x, y, width, height, radii);
+                            xuiCanvasContext.roundRect(x, y, width, height, radii);
                         },
                         roundRect4(x, y, width, height, topLeft, topRight, bottomRight, bottomLeft) {
-                            xuiCanvasContext.rotate(x, y, width, height, [topLeft, topRight, bottomRight, bottomLeft]);
+                            xuiCanvasContext.roundRect(x, y, width, height, [topLeft, topRight, bottomRight, bottomLeft]);
                         },
                         save() {
                             xuiCanvasContext.save();
                         },
                         scale(x, y) {
                             xuiCanvasContext.scale(x, y);
+                        },
+                        translate(x, y) {
+                            xuiCanvasContext.translate(x, y);
+                        },
+                        transform(a, b, c, d, e, f) {
+                            xuiCanvasContext.transform(a, b, c, d, e, f);
+                        },
+                        setTransform(a, b, c, d, e, f) {
+                            xuiCanvasContext.setTransform(a, b, c, d, e, f);
+                        },
+                        stroke() {
+                            xuiCanvasContext.stroke();
+                        },
+                        setLineDash(segments) {
+                            xuiCanvasContext.setLineDash(segments);
                         }
                     }
                 }
@@ -131,6 +176,7 @@ setModuleImports('main.js', {
 const xui = await getAssemblyExports("Xui.Runtime.Browser");
 const onAnimationFrame = xui.Xui.Runtime.Browser.Actual.BrowserWindow.OnAnimationFrame;
 const onMouseMove = xui.Xui.Runtime.Browser.Actual.BrowserWindow.OnMouseMove;
+const onWheel = xui.Xui.Runtime.Browser.Actual.BrowserWindow.OnWheel;
 
 const config = getConfig();
 const exports = await getAssemblyExports(config.mainAssemblyName);
@@ -150,9 +196,20 @@ const exports = await getAssemblyExports(config.mainAssemblyName);
 xuiCanvas.addEventListener("mousemove", event => {
     onMouseMove(event.offsetX, event.offsetY);
 });
+xuiCanvas.addEventListener("wheel", event => {
+    onWheel(event.offsetX, event.offsetY, event.deltaX, event.deltaY);
+});
 
 const onAnimationFrameCallback = (timestamp) => {
-    onAnimationFrame(timestamp);
+    const w = xuiCanvas.offsetWidth;
+    const h = xuiCanvas.offsetHeight;
+    if (xuiCanvas.width != w) {
+        xuiCanvas.width = w;
+    }
+    if (xuiCanvas.height != h) {
+        xuiCanvas.height = h;
+    }
+    onAnimationFrame(xuiCanvas.width, xuiCanvas.height, timestamp);
     window.requestAnimationFrame(onAnimationFrameCallback);
 };
 window.requestAnimationFrame(onAnimationFrameCallback);

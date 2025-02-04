@@ -13,10 +13,13 @@ public partial class BrowserWindow : Xui.Core.Actual.IWindow
     internal static partial void SetTitle(string title);
 
     [JSExport]
-    internal static void OnAnimationFrame(double timestamp) => Instance?.SendAnimationFrameEvent(timestamp);
+    internal static void OnAnimationFrame(double width, double height, double timestamp) => Instance?.SendAnimationFrameEvent(width, height, timestamp);
 
     [JSExport]
     internal static void OnMouseMove(double x, double y) => Instance?.SendMouseMoveEvent(x, y);
+
+    [JSExport]
+    internal static void OnWheel(double x, double y, double deltaX, double deltaY) => Instance?.SendWheelEvent(x, y, deltaX, deltaY);
 
     public static BrowserWindow? Instance { get; internal set; }
 
@@ -53,7 +56,7 @@ public partial class BrowserWindow : Xui.Core.Actual.IWindow
     {
     }
 
-    private void SendAnimationFrameEvent(double timestamp)
+    private void SendAnimationFrameEvent(double width, double height, double timestamp)
     {
         var previous = TimeSpan.FromMilliseconds(timestamp);
         // TODO: Imagine 60fps in all browsers, probably find an API or track FPS.
@@ -66,8 +69,7 @@ public partial class BrowserWindow : Xui.Core.Actual.IWindow
         {
             this.invalidated = false;
 
-            // TODO: Get the canvas size from the browser...
-            Rect rect = new Rect(0, 0, 300, 150);
+            Rect rect = new Rect(0, 0, (NFloat)width, (NFloat)height);
             RenderEventRef renderEventRef = new RenderEventRef(rect, frameEventRef);
 
             BrowserDrawingContext.CanvasReset();
@@ -77,10 +79,19 @@ public partial class BrowserWindow : Xui.Core.Actual.IWindow
 
     private void SendMouseMoveEvent(double x, double y)
     {
-        MouseMoveEventRef eventRef = new MouseMoveEventRef()
+        MouseMoveEventRef mouseMoveEventRef = new MouseMoveEventRef()
         {
             Position = new Core.Math2D.Point((NFloat)x, (NFloat)y)
         };
-        this.Abstract.OnMouseMove(ref eventRef);
+        this.Abstract.OnMouseMove(ref mouseMoveEventRef);
+    }
+
+    private void SendWheelEvent(double x, double y, double deltaX, double deltaY)
+    {
+        ScrollWheelEventRef scrollWheelEventRef = new ScrollWheelEventRef()
+        {
+            Delta = new Vector((NFloat)deltaX, (NFloat)deltaY)
+        };
+        this.Abstract.OnScrollWheel(ref scrollWheelEventRef);
     }
 }

@@ -163,6 +163,7 @@ public class MainWindow : Window
                 FontStyle = FontStyle.CustomOblique(14f), // FontStyle.Italic,
                 LineHeight = 32
             });
+
             for (int x = left; x <= right; x++)
             {
                 for (int y = top; y <= bottom; y++)
@@ -214,8 +215,12 @@ public class MainWindow : Window
                 ctx.SetFill(Gray);
                 ctx.SetStroke(LightGray);
             }
+
+            ctx.BeginPath();
             ctx.RoundRect(btn1Rect, 5);
             ctx.Fill();
+
+            ctx.BeginPath();
             ctx.RoundRect(btn1Rect, 5);
             ctx.Stroke();
 
@@ -240,6 +245,7 @@ public class MainWindow : Window
                         new (1, 0x2222AAFF),
                     ]));
             }
+            ctx.BeginPath();
             ctx.RoundRect(new (100.5f, 100.5f, 200, 32), 5);
             ctx.Fill();
 
@@ -268,6 +274,7 @@ public class MainWindow : Window
                         ]
                     ));
             }
+            ctx.BeginPath();
             ctx.RoundRect(btn3Rect, 5);
             ctx.Fill();
 
@@ -280,10 +287,12 @@ public class MainWindow : Window
                         new (1, 0xFF22AAFF),
                     ]
                 ));
+            ctx.BeginPath();
             ctx.RoundRect(new (100.5f, 150.5f, 200, 32), 5);
             ctx.LineWidth = 2;
             ctx.Stroke();
 
+            ctx.BeginPath();
             ctx.RoundRect(
                 new Rect(100.5f, 200.5f, 200, 32),
                 new CornerRadius(5, 20, 5, 20));
