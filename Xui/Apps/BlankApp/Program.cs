@@ -1,6 +1,3 @@
-using Xui.Core.Abstract;
-using Xui.Core.Actual;
-
 namespace Xui.Apps.BlankApp;
 
 public class App : Xui.Core.Abstract.Application
@@ -19,9 +16,11 @@ public class App : Xui.Core.Abstract.Application
         Xui.Core.Actual.Runtime.Current = Xui.Runtime.MacOS.Actual.MacOSPlatform.Instance;
 #elif WINDOWS
         Xui.Core.Actual.Runtime.Current = Xui.Runtime.Windows.Actual.Win32Platform.Instance;
+#elif BROWSER
+        Xui.Core.Actual.Runtime.Current = Xui.Runtime.Browser.Actual.BrowserPlatform.Instance;
 #endif
 
-        return new App().Run();;
+        return new App().Run();
     }
 
     public override void Start()

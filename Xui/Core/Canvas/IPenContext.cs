@@ -10,7 +10,7 @@ public interface IPenContext
 
     public nfloat LineWidth { set; }
 
-    public nfloat MitterLimit { set; }
+    public nfloat MiterLimit { set; }
 
     public nfloat LineDashOffset { set; }
 

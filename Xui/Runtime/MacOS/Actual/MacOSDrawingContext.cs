@@ -34,7 +34,7 @@ public class MacOSDrawingContext : IContext
     LineCap IPenContext.LineCap { set => CGContextRef.CGContextSetLineCap(this.cgContextRef, (CGLineCap)value); }
     LineJoin IPenContext.LineJoin { set => CGContextRef.CGContextSetLineJoin(this.cgContextRef, (CGLineJoin)value); }
     NFloat IPenContext.LineWidth { set => CGContextRef.CGContextSetLineWidth(this.cgContextRef, value); }
-    NFloat IPenContext.MitterLimit
+    NFloat IPenContext.MiterLimit
     {
         set
         {

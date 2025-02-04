@@ -70,7 +70,7 @@ public partial class Direct2DContext : IDisposable, IContext
     LineCap IPenContext.LineCap { set => this.StrokeStyle.LineCap = value; }
     Xui.Core.Canvas.LineJoin IPenContext.LineJoin { set => this.StrokeStyle.LineJoin = value; }
     NFloat IPenContext.LineWidth { set => this.lineWidth = (float)value; }
-    NFloat IPenContext.MitterLimit { set => this.StrokeStyle.MitterLimit = value; }
+    NFloat IPenContext.MiterLimit { set => this.StrokeStyle.MiterLimit = value; }
 
     NFloat IPenContext.LineDashOffset { set => this.StrokeStyle.LineDashOffset = value; }
 
@@ -453,7 +453,7 @@ public partial class Direct2DContext : IDisposable, IContext
 
         private Xui.Core.Canvas.LineJoin lineJoin;
 
-        private float mitterLimit;
+        private float miterLimit;
 
         private float lineDashOffset;
 
@@ -461,7 +461,7 @@ public partial class Direct2DContext : IDisposable, IContext
         {
             this.Factory = factory;
             this.dashList = new List<float>();
-            this.mitterLimit = 10f;
+            this.miterLimit = 10f;
             this.lineDashOffset = 0f;
         }
 
@@ -491,13 +491,13 @@ public partial class Direct2DContext : IDisposable, IContext
             }
         }
 
-        public NFloat MitterLimit
+        public NFloat MiterLimit
         {
             set
             {
-                if (this.mitterLimit != value)
+                if (this.miterLimit != value)
                 {
-                    this.mitterLimit = (float)value;
+                    this.miterLimit = (float)value;
                     this.InvalidateStroke();
                 }
             }
@@ -538,8 +538,8 @@ public partial class Direct2DContext : IDisposable, IContext
             {
                 if (this.dashList.Count > 0 ||
                     this.lineCap != LineCap.Butt ||
-                    this.lineJoin != Xui.Core.Canvas.LineJoin.Mitter ||
-                    this.mitterLimit != 10 ||
+                    this.lineJoin != Xui.Core.Canvas.LineJoin.Miter ||
+                    this.miterLimit != 10 ||
                     this.lineDashOffset != 0)
                 {
                     // There are non-default values, build StrokeStyle
@@ -550,7 +550,7 @@ public partial class Direct2DContext : IDisposable, IContext
                         EndCap = capStyle,
                         DashCap = capStyle,
                         LineJoin = Map(this.lineJoin),
-                        MiterLimit = this.mitterLimit,
+                        MiterLimit = this.miterLimit,
                         DashStyle = this.dashList.Count == 0 ? DashStyle.Solid : DashStyle.Custom,
                         DashOffset = this.lineDashOffset
                     };

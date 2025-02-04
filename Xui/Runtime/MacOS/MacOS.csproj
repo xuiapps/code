@@ -6,7 +6,8 @@
     <Nullable>enable</Nullable>
     <LangVersion>13</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <RootNamespace>Xui.MacOS</RootNamespace>
+    <RootNamespace>Xui.Runtime.MacOS</RootNamespace>
+    <AssemblyName>Xui.Runtime.MacOS</AssemblyName>
 
     <IsTrimmable>false</IsTrimmable>
   </PropertyGroup>

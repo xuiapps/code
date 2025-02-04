@@ -33,7 +33,7 @@ public class IOSDrawingContext : IContext
     LineCap IPenContext.LineCap { set => CGContextRef.CGContextSetLineCap(this.cgContextRef, (CGLineCap)value); }
     LineJoin IPenContext.LineJoin { set => CGContextRef.CGContextSetLineJoin(this.cgContextRef, (CGLineJoin)value); }
     NFloat IPenContext.LineWidth { set => CGContextRef.CGContextSetLineWidth(this.cgContextRef, value); }
-    NFloat IPenContext.MitterLimit { set => CGContextRef.CGContextSetMiterLimit(this.cgContextRef, value); }
+    NFloat IPenContext.MiterLimit { set => CGContextRef.CGContextSetMiterLimit(this.cgContextRef, value); }
 
     // TODO: Handle change and verify
     public NFloat LineDashOffset { get; set; }
