@@ -4,19 +4,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type='module' src="./main.js"></script>
     <style>
-        body {
+        body.desktop {
             display: grid;
             margin: 0px;
+            width: 100%;
+            height: 100%;
+        }
+        body.desktop>#xui-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        body.emulator {
+            display: grid;
+            margin: 0px;
+            width: 100%;
+            height: 100%;
             align-items: center;
             justify-content: center;
         }
-        #xui-canvas {
+        body.emulator>#xui-canvas {
             height: 550px;
             width: 300px;
         }
     </style>
 </head>
-<body>
+<body class="desktop">
     <canvas id="xui-canvas"></canvas>
 </body>
 </html>
