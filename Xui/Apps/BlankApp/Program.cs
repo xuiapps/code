@@ -2,7 +2,7 @@ namespace Xui.Apps.BlankApp;
 
 public class App : Xui.Core.Abstract.Application
 {
-    static int Main(string[] argv)
+    public static int Main(string[] argv)
     {
 #if MACOS && EMULATOR
         Xui.Core.Actual.Runtime.Current = new Xui.Middleware.Emulator.Actual.EmulatorPlatform(
@@ -15,6 +15,8 @@ public class App : Xui.Core.Abstract.Application
             Xui.Runtime.Browser.Actual.BrowserPlatform.Instance);
 #elif IOS
         Xui.Core.Actual.Runtime.Current = Xui.Runtime.IOS.Actual.IOSPlatform.Instance;
+#elif ANDROID
+        Xui.Core.Actual.Runtime.Current = Xui.Runtime.Android.Actual.AndroidPlatform.Instance;
 #elif MACOS
         Xui.Core.Actual.Runtime.Current = Xui.Runtime.MacOS.Actual.MacOSPlatform.Instance;
 #elif WINDOWS

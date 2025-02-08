@@ -1,30 +1,21 @@
 ﻿using Android.App;
-using Android.Content.PM;
 using Android.OS;
-using Microsoft.Maui.Platform;
+using Android.Content.PM;
+using Xui.Runtime.Android.Actual;
 
-namespace Xui.Apps;
+namespace Xui.Apps.BlankApp;
 
 [Activity(
     MainLauncher = true,
     Theme = "@style/Theme.AppCompat",
     LaunchMode = LaunchMode.SingleTop,
-    Name = "com.xuiapps.XuiMainActivity",
+    Name = "xui.apps.blankapp.MainActivity",
     ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
-public class XuiMainActivity : AndroidX.AppCompat.App.AppCompatActivity
+public class MainActivity : XuiActivity
 {
     protected override void OnCreate(Bundle? savedInstanceState)
     {
-        this.SupportActionBar?.Hide();
-
         base.OnCreate(savedInstanceState);
-
-        var windowFlags = Android.Views.WindowManagerFlags.LayoutNoLimits;
-        this.Window!.SetFlags(windowFlags, windowFlags);
-        var ui = new Android.Views.View(this);
-        this.SetContentView(ui);
-
-        // TODO: Implement canvas inside a custom View class
-        // TODO: For Vulcan - add a root group view with Vulcan and transparent UI view overlay
+        Xui.Apps.BlankApp.App.Main(new string[0]);
     }
 }

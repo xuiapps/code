@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlankApp.Browser", "Xui\App
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Browser", "Xui\Runtime\Browser\Browser.csproj", "{FBA08BA9-0E5D-4081-A1F1-9F05C7AD67B8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Android", "Xui\Runtime\Android\Android.csproj", "{C675F843-CD63-40AF-8614-47B709D2FC2E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +87,10 @@ Global
 		{FBA08BA9-0E5D-4081-A1F1-9F05C7AD67B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FBA08BA9-0E5D-4081-A1F1-9F05C7AD67B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FBA08BA9-0E5D-4081-A1F1-9F05C7AD67B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C675F843-CD63-40AF-8614-47B709D2FC2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C675F843-CD63-40AF-8614-47B709D2FC2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C675F843-CD63-40AF-8614-47B709D2FC2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C675F843-CD63-40AF-8614-47B709D2FC2E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -102,5 +108,6 @@ Global
 		{16E42A15-A0A7-47A3-943F-F9BB238BDAB1} = {FBF56CC3-7AE6-AD2D-3F14-7F97FD322CD6}
 		{417CEFBA-9667-4940-AF94-1E6E79854359} = {F666F7D7-5FF3-C8F9-7A71-FB5E9A2953A5}
 		{FBA08BA9-0E5D-4081-A1F1-9F05C7AD67B8} = {B9B45A75-0C0F-0D50-E9F8-ABF69D9594D8}
+		{C675F843-CD63-40AF-8614-47B709D2FC2E} = {B9B45A75-0C0F-0D50-E9F8-ABF69D9594D8}
 	EndGlobalSection
 EndGlobal

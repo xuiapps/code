@@ -77,7 +77,9 @@
     <ProjectReference
         Condition=" $(XuiIOS) == 'true' "
         Include="../../Runtime/IOS/IOS.csproj" />
-    <!-- TODO: Android -->
+    <ProjectReference
+        Condition=" $(XuiAndroid) == 'true' "
+        Include="../../Runtime/Android/Android.csproj" />
     <ProjectReference
         Condition=" $(XuiBrowser) == 'true' "
         Include="../../Runtime/Browser/Browser.csproj" />
