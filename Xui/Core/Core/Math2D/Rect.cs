@@ -19,40 +19,49 @@ public struct Rect : INonEnumerableSet<Point>
     }
 
     [DebuggerStepThrough]
-    public Rect(Point topLeft, Vector size)
+    public Rect(Point topLeft, Size size)
     {
         this.X = topLeft.X;
         this.Y = topLeft.Y;
-        this.Width = size.X;
-        this.Height = size.Y;
+        this.Width = size.Width;
+        this.Height = size.Height;
     }
 
     [DebuggerStepThrough]
-    public Rect(Vector topLeft, Vector size)
+    public Rect(Vector topLeft, Size size)
     {
         this.X = topLeft.X;
         this.Y = topLeft.Y;
-        this.Width = size.X;
-        this.Height = size.Y;
+        this.Width = size.Width;
+        this.Height = size.Height;
     }
 
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public Point TopLeft => new (X, Y);
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public Point TopRight => new (X + Width, Y);
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public Point BottomRight => new (X + Width, Y + Height);
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public Point BottomLeft => new (X, Y + Height);
 
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public nfloat Right => this.X + this.Width;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public nfloat Bottom => this.Y + this.Height;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public nfloat Left => this.X;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public nfloat Top => this.Y;
 
-    public Vector Size
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public Size Size
     {
         get => new (this.Width, this.Height);
         set
         {
-            this.Width = value.X;
-            this.Height = value.Y;
+            this.Width = value.Width;
+            this.Height = value.Height;
         }
     }
 
@@ -91,4 +100,10 @@ public struct Rect : INonEnumerableSet<Point>
         );
 
     public static implicit operator Rect(ValueTuple<nfloat, nfloat, nfloat, nfloat> tuple) => new (tuple.Item1, tuple.Item2, tuple.Item3, tuple.Item4);
+
+    public static Rect operator+(Rect rect, Frame frame) =>
+        new Rect(rect.X - frame.Left, rect.Y - frame.Top, rect.Width + frame.Left + frame.Right, rect.Height + frame.Top + frame.Bottom);        
+    
+    public static Rect operator-(Rect rect, Frame frame) =>
+        new Rect(rect.X + frame.Left, rect.Y + frame.Top, rect.Width - frame.Left - frame.Right, rect.Height - frame.Top - frame.Bottom);
 }

@@ -10,11 +10,23 @@ public static partial class UIKit
 
     public static readonly nint Lib;
 
-    public static readonly Protocol UIApplicationDelegate = new Protocol("UIApplicationDelegate");
+    public static readonly Protocol UIApplicationDelegate;
+
+    public static readonly Protocol UITextInput;
+    public static readonly Protocol UIKeyInput;
+    public static readonly Protocol UITextInputTraits;
+
+    public static readonly Protocol UITextInputDelegate;
 
     static UIKit()
     {
         Lib = NativeLibrary.Load(UIKitLib);
+
+        UIApplicationDelegate = new Protocol("UIApplicationDelegate");
+        UITextInput = new Protocol("UITextInput");
+        UIKeyInput = new Protocol("UIKeyInput");
+        UITextInputTraits = new Protocol("UITextInputTraits");
+        UITextInputDelegate = new Protocol("UITextInputDelegate");
     }
 
     [LibraryImport(UIKitLib)]

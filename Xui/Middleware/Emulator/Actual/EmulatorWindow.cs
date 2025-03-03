@@ -20,7 +20,7 @@ public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
 
     bool Xui.Core.Abstract.IWindow.IDesktopStyle.Chromeless => true;
 
-    Vector? Xui.Core.Abstract.IWindow.IDesktopStyle.StartupSize => new (330, 740);
+    Size? Xui.Core.Abstract.IWindow.IDesktopStyle.StartupSize => new (330, 740);
 
 #region Platform.IWindow
     string Xui.Core.Actual.IWindow.Title { get => Platform!.Title; set => Platform!.Title = value; }
@@ -28,9 +28,15 @@ public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
     void Xui.Core.Actual.IWindow.Invalidate() => Platform!.Invalidate();
 
     void Xui.Core.Actual.IWindow.Show() => Platform!.Show();
+
+    public Rect DisplayArea { get; set; }
+
+    public Rect SafeArea { get; set; }
 #endregion
 
 #region Abstract.IWindow
+    public bool RequireKeyboard { get; set; }
+
     void Xui.Core.Abstract.IWindow.Closed() => Abstract!.Closed();
 
     bool Xui.Core.Abstract.IWindow.Closing() => Abstract!.Closing();
@@ -153,6 +159,9 @@ public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
 
             ctx.SetFill(Colors.White);
             ctx.FillRect(emulatorRender.Rect);
+
+            Abstract!.DisplayArea = emulatorRender.Rect;
+            Abstract!.SafeArea = emulatorRender.Rect - new Frame(0, 40, 0, 20);
 
             // TODO: DrawingContext is disposable,
             // each call is supposed to capture and dispose,
@@ -281,6 +290,19 @@ public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
             ctx.SetFill(Colors.Black);
             ctx.Fill();
             ctx.Restore();
+
+            // Menu Handle
+            ctx.BeginPath();
+            ctx.RoundRect(
+                rect: new Rect(
+                    x: render.Rect.Width / 2f - 55f,
+                    y: render.Rect.Height - borderWidth - 3f - 5f,
+                    width: 110f,
+                    height: 4f),
+                radius: 1.5f
+            );
+            ctx.SetFill(0x111111FF);
+            ctx.Fill();
 
             // Window title
             ctx.BeginPath();

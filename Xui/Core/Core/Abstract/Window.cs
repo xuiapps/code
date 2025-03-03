@@ -1,15 +1,20 @@
 using System.Collections.ObjectModel;
 using Xui.Core.Abstract.Events;
 using Xui.Core.Actual;
+using Xui.Core.Math2D;
 
 namespace Xui.Core.Abstract;
 
-public abstract class Window : Abstract.IWindow
+public abstract class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
 {
     private static IList<Window> openWindows = new List<Window>();
     public static IReadOnlyList<Window> OpenWindows = new ReadOnlyCollection<Window>(openWindows);
 
     public Actual.IWindow Actual { get; }
+
+    public virtual Rect DisplayArea { get; set; }
+
+    public virtual Rect SafeArea { get; set; }
 
     public Window()
     {
@@ -20,6 +25,12 @@ public abstract class Window : Abstract.IWindow
     {
         get => this.Actual.Title;
         set => this.Actual.Title = value;
+    }
+
+    public bool RequireKeyboard
+    {
+        get => this.Actual.RequireKeyboard;
+        set => this.Actual.RequireKeyboard = value;
     }
 
     public void Show()
@@ -68,6 +79,14 @@ public abstract class Window : Abstract.IWindow
     }
 
     public virtual void OnAnimationFrame(ref FrameEventRef e)
+    {
+    }
+
+    public virtual void InsertText(ref InsertTextEventRef eventRef)
+    {
+    }
+
+    public virtual void DeleteBackwards(ref DeleteBackwardsEventRef eventRef)
     {
     }
 }

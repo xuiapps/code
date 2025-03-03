@@ -19,6 +19,7 @@ public struct AffineTransform
 
     public static readonly AffineTransform Identity = new AffineTransform(1, 0, 0, 1, 0, 0);
 
+    [DebuggerStepThrough]
     public static AffineTransform Rotate(nfloat angle)
     {
         var cos = nfloat.Cos(angle);
@@ -26,14 +27,17 @@ public struct AffineTransform
         return new AffineTransform(cos, sin, -sin, cos, 0, 0);
     }
 
+    [DebuggerStepThrough]
     public static AffineTransform Translate(Vector v) =>
         new AffineTransform(1, 0, 0, 1, v.X, v.Y);
     
+    [DebuggerStepThrough]
     public static AffineTransform Scale(Vector v) =>
         new AffineTransform(v.X, 0, 0, v.Y, 0, 0);
 
     public AffineTransform Inverse
     {
+        [DebuggerStepThrough]
         get
         {
             var determinant = (A * D) - (C * B);
@@ -59,9 +63,11 @@ public struct AffineTransform
         this.Ty = ty;
     }
 
+    [DebuggerStepThrough]
     public static Vector operator *(AffineTransform t, Vector v) =>
         new (t.A * v.X + t.C * v.Y + t.Tx, t.B * v.X + t.D * v.Y + t.Ty);
 
+    [DebuggerStepThrough]
     public static AffineTransform operator *(AffineTransform lhs, AffineTransform rhs) =>
         new (
             lhs.A * rhs.A + lhs.C * rhs.B,

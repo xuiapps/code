@@ -29,6 +29,6 @@ public static partial class UIKit
             set => RootViewControllerProp.Set(this, value);
         }
 
-        public void MakeKeyAndVisible() => objc_msgSend(this, MakeKeyAndVisibleSel);
+        public void MakeKeyAndVisible() => ObjC.objc_msgSend(this, MakeKeyAndVisibleSel);
     }
 }

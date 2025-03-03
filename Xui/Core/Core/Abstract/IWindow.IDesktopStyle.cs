@@ -17,6 +17,6 @@ public partial interface IWindow
         /// </summary>
         public bool Chromeless => false;
 
-        public Vector? StartupSize => null;
+        public Size? StartupSize => null;
     }
 }

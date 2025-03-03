@@ -15,6 +15,8 @@ public class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
 
     public static Sel AnimationFrameSel = new Sel("animationFrame:");
 
+    public bool RequireKeyboard { get; set; }
+
     protected static unsafe new readonly Class Class = NSWindow.Class
         .Extend("XUIMacOSWindow")
         .AddMethod("sendEvent:", SendEvent)

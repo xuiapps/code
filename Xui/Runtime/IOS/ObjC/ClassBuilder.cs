@@ -147,7 +147,24 @@ public partial class ObjC
             }
 
             GCHandle.Alloc(method);
-            if (!class_addMethod(this, objCSelector, method, "v@:@"))
+            if (!class_addMethod(this, objCSelector, method, "v@:@@"))
+            {
+                throw new ObjCException($"Objective-C class_addMethod_retBool for '{selector}' returned 0.");
+            }
+
+            return this;
+        }
+
+        public unsafe Builder AddMethod(string selector, ObjC.IdSelIdId_Id method)
+        {
+            nint objCSelector = sel_registerName(selector);
+            if (objCSelector == 0)
+            {
+                throw new ObjCException($"Objective-C sel_registerName for '{selector}' returned 0.");
+            }
+
+            GCHandle.Alloc(method);
+            if (!class_addMethod(this, objCSelector, method, "@@:@@"))
             {
                 throw new ObjCException($"Objective-C class_addMethod_retBool for '{selector}' returned 0.");
             }

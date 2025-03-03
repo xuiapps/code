@@ -8,6 +8,7 @@ using static Xui.Runtime.IOS.UIKit;
 using System.Collections.Generic;
 using static Xui.Runtime.IOS.Foundation;
 using Xui.Core.Abstract.Events;
+using Xui.Core.Math2D;
 
 namespace Xui.Runtime.IOS.Actual;
 
@@ -38,6 +39,13 @@ public class IOSWindow : UIWindow, Xui.Core.Actual.IWindow
         this.Abstract = @abstract;
         this.Title = "";
         this.RootView = new IOSWindowRootView(this);
+
+        this.SoftKeyboard = new IOSSoftKeyboard(this);
+        this.SoftKeyboard.NextResponder = this.RootView;
+
+        this.DefaultResponder = new IOSDefaultResponder(this);
+        this.DefaultResponder.NextResponder = this.RootView;
+
         this.RootViewController = new IOSRootViewController(this)
         {
             View = this.RootView
@@ -45,6 +53,30 @@ public class IOSWindow : UIWindow, Xui.Core.Actual.IWindow
 
         this.displayLink = CADisplayLink.DisplayLink(this, AnimationFrameSel);
         this.displayLink.AddToRunLoopForMode(NSRunLoop.MainRunLoop, NSRunLoop.Mode.Common);
+    }
+
+    private bool requireKeyboard;
+
+    public bool RequireKeyboard
+    {
+        get => this.requireKeyboard;
+
+        set
+        {
+            if (this.requireKeyboard != value)
+            {
+                if (value)
+                {
+                    this.SoftKeyboard.BecomeFirstResponder();
+                }
+                else
+                {
+                    this.DefaultResponder.BecomeFirstResponder();
+                }
+
+                this.requireKeyboard = value;
+            }
+        }
     }
 
     private void SendEvent(UIEventRef uiEventRef)
@@ -138,6 +170,22 @@ public class IOSWindow : UIWindow, Xui.Core.Actual.IWindow
 
     protected IOSWindowRootView RootView { get; }
 
+    protected IOSSoftKeyboard SoftKeyboard { get; }
+
+    protected IOSDefaultResponder DefaultResponder { get; }
+
+    internal Rect DisplayArea
+    {
+        get => this.Abstract.DisplayArea;
+        set => this.Abstract.DisplayArea = value;
+    }
+
+    internal Rect SafeArea
+    {
+        get => this.Abstract.SafeArea;
+        set => this.Abstract.SafeArea = value;
+    }
+
     public void Invalidate() => this.RootView.SetNeedsDisplay();
 
     void Xui.Core.Actual.IWindow.Show() => this.MakeKeyAndVisible();
@@ -148,5 +196,17 @@ public class IOSWindow : UIWindow, Xui.Core.Actual.IWindow
         RenderEventRef render = new (rect, frame);
 
         this.Abstract.Render(ref render);
+    }
+
+    internal void InsertText(string text)
+    {
+        var insertTextEventRef = new InsertTextEventRef(text);
+        (this.Abstract as Xui.Core.Abstract.IWindow.ISoftKeyboard)?.InsertText(ref insertTextEventRef);
+    }
+
+    internal void DeleteBackwards()
+    {
+        var deleteTextEventRef = new DeleteBackwardsEventRef();
+        (this.Abstract as Xui.Core.Abstract.IWindow.ISoftKeyboard)?.DeleteBackwards(ref deleteTextEventRef);
     }
 }

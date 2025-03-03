@@ -4,7 +4,7 @@ using Xui.Core.UI;
 
 namespace Xui.Apps.BlankApp;
 
-public class XuiLogo : IDrawable
+public class XuiLogo : Xui.Core.UI.IDrawable
 {
     public static readonly XuiLogo Instance = new XuiLogo();
 
@@ -65,7 +65,7 @@ public class XuiLogo : IDrawable
         context.ClosePath();
         context.Fill();
 
-        context.SetStroke(Colors.White);
+        context.SetStroke(Xui.Core.Canvas.Colors.White);
         context.LineWidth = 5;
         context.BeginPath();
         context.MoveTo((25, 24));
@@ -79,7 +79,7 @@ public class XuiLogo : IDrawable
         context.LineTo((49, 47));
         context.Stroke();
 
-        context.SetFill(Colors.White);
+        context.SetFill(Xui.Core.Canvas.Colors.White);
         context.BeginPath();
         context.Ellipse((49, 18), 3, 3, 0, 0, NFloat.Pi * 2, Winding.ClockWise);
         context.Fill();

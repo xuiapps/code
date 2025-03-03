@@ -3,7 +3,7 @@ using Xui.Core.UI;
 
 namespace Xui.Apps.BlankApp;
 
-public class Hamburger : IDrawable
+public class Hamburger : Xui.Core.UI.IDrawable
 {
     public static readonly Hamburger Instance = new Hamburger();
 
@@ -11,8 +11,8 @@ public class Hamburger : IDrawable
     {
         context.Save();
         context.LineWidth = 3f;
-        context.LineCap = LineCap.Round;
-        context.SetStroke(Colors.Black);
+        context.LineCap = Xui.Core.Canvas.LineCap.Round;
+        context.SetStroke(Xui.Core.Canvas.Colors.Black);
         context.BeginPath();
         context.MoveTo((-8, -6));
         context.LineTo((8, -6));

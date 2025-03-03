@@ -4,5 +4,7 @@ public interface IWindow
 {
     public string Title { get; set; }
     public void Show();
-    void Invalidate();
+    public void Invalidate();
+
+    public bool RequireKeyboard { get; set; }
 }

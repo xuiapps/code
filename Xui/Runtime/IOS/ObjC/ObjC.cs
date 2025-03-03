@@ -190,8 +190,15 @@ public static partial class ObjC
     [return: MarshalAs(UnmanagedType.I1)]
     public static unsafe partial bool class_addMethod(nint objcclass, nint name, [MarshalAs(UnmanagedType.FunctionPtr)] IdSelIdId_Void fun, [MarshalAs(UnmanagedType.LPStr)] string types);
 
+    [LibraryImport(LibObjCLib, EntryPoint = "class_addMethod")]
+    [return: MarshalAs(UnmanagedType.I1)]
+    public static unsafe partial bool class_addMethod(nint objcclass, nint name, [MarshalAs(UnmanagedType.FunctionPtr)] IdSelIdId_Id fun, [MarshalAs(UnmanagedType.LPStr)] string types);
+
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     public delegate void IdSelIdId_Void(nint self, nint sel, nint v1, nint v2);
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+    public delegate nint IdSelIdId_Id(nint self, nint sel, nint v1, nint v2);
 
     [LibraryImport(LibObjCLib, EntryPoint = "class_addMethod")]
     [return: MarshalAs(UnmanagedType.I1)]
