@@ -5,8 +5,24 @@ using Xui.Core.Abstract.Events;
 using Xui.Core.Canvas;
 using Xui.Core.Math2D;
 
-namespace Xui.Emulator.Actual;
+namespace Xui.Middleware.Emulator.Actual;
 
+/// <summary>
+/// A middleware window that wraps a platform window to simulate a mobile device environment
+/// when running on desktop platforms like Windows or macOS.
+///
+/// <para>
+/// This class implements both <see cref="Xui.Core.Abstract.IWindow"/> and <see cref="Xui.Core.Actual.IWindow"/>,
+/// acting as a bridge between the abstract UI and the actual system window.
+/// It also implements <see cref="Xui.Core.Abstract.IWindow.IDesktopStyle"/> to provide emulator-specific
+/// chrome styling and sizing.
+/// </para>
+///
+/// <para>
+/// The window draws a rounded-rectangle phone frame, overlays controls like battery and signal indicators,
+/// and translates desktop mouse events into synthetic mobile touch input.
+/// </para>
+/// </summary>
 public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow, Xui.Core.Abstract.IWindow.IDesktopStyle
 {
     private Point? leftMouseButtonTouch = null;
@@ -15,11 +31,24 @@ public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
     {
     }
 
+    /// <summary>
+    /// The abstract window instance from the application layer.
+    /// </summary>
     public Xui.Core.Abstract.IWindow? Abstract { get; set; }
+
+    /// <summary>
+    /// The underlying platform window from the base runtime.
+    /// </summary>
     public Xui.Core.Actual.IWindow? Platform { get; set; }
 
+    /// <summary>
+    /// Gets whether the emulator should appear without OS window chrome.
+    /// </summary>
     bool Xui.Core.Abstract.IWindow.IDesktopStyle.Chromeless => true;
 
+    /// <summary>
+    /// Gets the preferred size of the emulator window at startup.
+    /// </summary>
     Size? Xui.Core.Abstract.IWindow.IDesktopStyle.StartupSize => new (330, 740);
 
 #region Platform.IWindow
@@ -29,12 +58,21 @@ public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
 
     void Xui.Core.Actual.IWindow.Show() => Platform!.Show();
 
+    /// <summary>
+    /// The display area available to the app inside the mobile frame (excluding chrome).
+    /// </summary>
     public Rect DisplayArea { get; set; }
 
+    /// <summary>
+    /// The safe area that excludes OS bars, camera notches, etc.
+    /// </summary>
     public Rect SafeArea { get; set; }
 #endregion
 
 #region Abstract.IWindow
+    /// <summary>
+    /// Whether the virtual keyboard is requested by the app.
+    /// </summary>
     public bool RequireKeyboard { get; set; }
 
     void Xui.Core.Abstract.IWindow.Closed() => Abstract!.Closed();
@@ -46,6 +84,9 @@ public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
         Abstract!.OnAnimationFrame(ref animationFrame);
     }
 
+    /// <summary>
+    /// Translates desktop mouse down events into synthetic mobile touch + forwards to the app.
+    /// </summary>
     void Xui.Core.Abstract.IWindow.OnMouseDown(ref MouseDownEventRef evRef)
     {
         MouseDownEventRef evMobile = new MouseDownEventRef()
@@ -67,6 +108,9 @@ public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
         this.Abstract!.OnTouch(ref touchEventRef);
     }
 
+    /// <summary>
+    /// Translates desktop mouse move events into synthetic mobile touch move.
+    /// </summary>
     void Xui.Core.Abstract.IWindow.OnMouseMove(ref MouseMoveEventRef evRef)
     {
         MouseMoveEventRef evMobile = new MouseMoveEventRef()
@@ -90,6 +134,9 @@ public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
         }
     }
 
+    /// <summary>
+    /// Translates mouse up events to mobile-style touch end.
+    /// </summary>
     void Xui.Core.Abstract.IWindow.OnMouseUp(ref MouseUpEventRef evRef)
     {
         MouseUpEventRef evMobile = new MouseUpEventRef()
@@ -124,6 +171,10 @@ public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
         Abstract!.OnTouch(ref touchEventRef);
     }
 
+    /// <summary>
+    /// Renders the emulator UI frame, status bar elements, and mobile display area.
+    /// Delegates the actual app content rendering to the abstract window inside a clipped canvas.
+    /// </summary>
     void Xui.Core.Abstract.IWindow.Render(ref RenderEventRef render)
     {
         NFloat titleHeight = 52f;
@@ -161,7 +212,7 @@ public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
             ctx.FillRect(emulatorRender.Rect);
 
             Abstract!.DisplayArea = emulatorRender.Rect;
-            Abstract!.SafeArea = emulatorRender.Rect - new Frame(0, 40, 0, 20);
+            Abstract!.SafeArea = emulatorRender.Rect - new Frame(40, 0, 20, 0);
 
             // TODO: DrawingContext is disposable,
             // each call is supposed to capture and dispose,
@@ -312,6 +363,9 @@ public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
         }
     }
 
+    /// <summary>
+    /// Performs custom hit testing for window resizing, title drag area, and inner emulator frame.
+    /// </summary>
     void Xui.Core.Abstract.IWindow.WindowHitTest(ref WindowHitTestEventRef evRef)
     {
         NFloat titleHeight = 52f;

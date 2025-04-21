@@ -134,6 +134,7 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
         set => this.Hwnd.SetWindowText(value);
     }
 
+    public bool RequireKeyboard { get; set; }
 
     public static bool didd2d1 = false;
 

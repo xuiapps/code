@@ -19,7 +19,7 @@ public class SizeTest
     public void Size_PlusFrame()
     {
         Size size = (3, 5);
-        Frame frame = new Frame(1, 2, 1, 2);
+        Frame frame = new Frame(2, 1, 2, 1);
         Assert.Equal(new Size(5, 9), size + frame);
     }
 }

@@ -230,7 +230,7 @@ public partial class Direct2DContext : IDisposable, IContext
         }
     }
 
-    Vector ITextDrawingContext.MeasureText(string text)
+    Vector ITextMeasureContext.MeasureText(string text)
     {
         if (this.textFormat != null)
         {
@@ -242,7 +242,7 @@ public partial class Direct2DContext : IDisposable, IContext
         return (0, 0);
     }
 
-    void ITextDrawingContext.SetFont(Xui.Core.Canvas.Font font)
+    void ITextMeasureContext.SetFont(Xui.Core.Canvas.Font font)
     {
         string fontFamilyName = font.FontFamily[0];
         // Use system default

@@ -54,6 +54,8 @@ public partial class BrowserWindow : Xui.Core.Actual.IWindow
         }
     }
 
+    public bool RequireKeyboard { get; set; }
+
     public void Invalidate()
     {
         this.invalidated = true;

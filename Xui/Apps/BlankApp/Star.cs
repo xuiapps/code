@@ -5,7 +5,7 @@ using Xui.Core.UI;
 
 namespace Xui.Apps.BlankApp;
 
-public class Star : Xui.Core.UI.IDrawable
+public class Star
 {
     public static readonly Star Instance = new Star();
 

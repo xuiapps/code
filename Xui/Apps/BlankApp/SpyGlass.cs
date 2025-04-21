@@ -4,7 +4,7 @@ using Xui.Core.UI;
 
 namespace Xui.Apps.BlankApp;
 
-public class SpyGlass : Xui.Core.UI.IDrawable
+public class SpyGlass
 {
     public static readonly SpyGlass Instance = new SpyGlass();
 

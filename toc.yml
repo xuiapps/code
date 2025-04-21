@@ -1,0 +1,4 @@
+- name: Docs
+  href: docs/getting-started.md
+- name: API
+  href: api/Xui.html

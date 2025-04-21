@@ -1,3 +1,7 @@
+using Xui.Core.UI;
+using static Xui.Core.Canvas.Colors;
+using Xui.Core.Canvas;
+
 namespace Xui.Apps.BlankApp;
 
 public class App : Xui.Core.Abstract.Application
@@ -30,8 +34,188 @@ public class App : Xui.Core.Abstract.Application
 
     public override void Start()
     {
-        var window = new MainWindow();
-        window.Title = "Xui BlankApp";
+        var window = new MainWindow
+        {
+            Title = "Xui BlankApp",
+
+            // Content = new Border
+            // {
+            //     Margin = 20,
+            //     BorderWidth = 20,
+            //     BorderColor = Blue,
+            //     BackgroundColor = Green,
+            //     Content = new Border
+            //     {
+            //         BorderWidth = 20,
+            //         Margin = 5,
+            //         BackgroundColor = 0xFFFFFF66,
+            //         BorderColor = 0xFF000066,
+            //         Content = new Label("hello")
+            //     }
+            // }
+
+            // Content = new VerticalStack
+            // {
+            //     Margin = (15, 50, 15, 20),
+
+            //     Content =
+            //     [
+            //         new Border
+            //         {
+            //             Margin = 5,
+            //             VerticalAlign = VerticalAlign.Top,
+            //             BorderWidth = 1,
+            //             Padding = 0,
+            //             BorderColor = Black,
+            //             BackgroundColor = Colors.White,
+            //             BorderRadius = 10,
+
+            //             Content = new VerticalStack
+            //             {
+            //                 Content =
+            //                 [
+            //                     new Border
+            //                     {
+            //                         Margin = 5,
+            //                         Padding = 5,
+            //                         BorderRadius = 3,
+            //                         Content = new Label("Nulla nec orci laoreet, finibus dui et,\ntristique mauris.\nFusce aliquam sed mi quis fermentum.")
+            //                     },
+            //                     new Border
+            //                     {
+            //                         Margin = 5,
+            //                         Padding = 5,
+            //                         Content = new Label("Xuiapps is awesome asd asd")
+            //                     },
+            //                     new HorizontalUniformStack
+            //                     {
+            //                         Margin = 5,
+            //                         Gap=10,
+            //                         Content = [
+            //                             new Border
+            //                             {
+            //                                 BorderWidth = 1,
+            //                                 BorderRadius = 7,
+            //                                 Padding = 5,
+            //                                 BorderColor = 0x999999FF,
+            //                                 BackgroundColor = 0xEEEEEEFF,
+            //                                 Content = new Label
+            //                                 {
+            //                                     HorizontalAlign = HorizontalAlign.Center,
+            //                                     Text = "❤️"
+            //                                 }
+            //                             },
+            //                             new Border
+            //                             {
+            //                                 BorderWidth = 1,
+            //                                 BorderRadius = 7,
+            //                                 Padding = 5,
+            //                                 BorderColor = 0x999999FF,
+            //                                 BackgroundColor = 0xEEEEEEFF,
+            //                                 Content = new Label
+            //                                 {
+            //                                     HorizontalAlign = HorizontalAlign.Center,
+            //                                     Text = "👍"
+            //                                 }
+            //                             },
+            //                             new Border
+            //                             {
+            //                                 BorderWidth = 1,
+            //                                 BorderRadius = 7,
+            //                                 Padding = 5,
+            //                                 BorderColor = 0x999999FF,
+            //                                 BackgroundColor = 0xEEEEEEFF,
+            //                                 Content = new Label
+            //                                 {
+            //                                     HorizontalAlign = HorizontalAlign.Center,
+            //                                     Text = "💬"
+            //                                 }
+            //                             }
+            //                         ]
+            //                     }
+            //                 ]
+            //             }
+            //         },
+            //         new Border
+            //         {
+            //             Margin = 5,
+            //             VerticalAlign = VerticalAlign.Top,
+            //             BorderWidth = 3,
+            //             Padding = 0,
+            //             BorderColor = Black,
+            //             BackgroundColor = Colors.White,
+            //             BorderRadius = 10,
+
+            //             Content = new VerticalStack
+            //             {
+            //                 Content =
+            //                 [
+            //                     new Border
+            //                     {
+            //                         Margin = 5,
+            //                         Padding = 5,
+            //                         BorderRadius = 3,
+            //                         Content = new Label("Nulla nec orci laoreet, finibus dui et,\ntristique mauris.\nFusce aliquam sed mi quis fermentum.")
+            //                     },
+            //                     new Border
+            //                     {
+            //                         Margin = 5,
+            //                         Padding = 5,
+            //                         Content = new Label("Xuiapps is awesome asd asd")
+            //                     },
+            //                     new HorizontalUniformStack
+            //                     {
+            //                         Margin = 5,
+            //                         Gap=10,
+            //                         Content = [
+            //                             new Border
+            //                             {
+            //                                 BorderWidth = 3,
+            //                                 BorderRadius = 7,
+            //                                 Padding = 5,
+            //                                 BorderColor = 0x999999FF,
+            //                                 BackgroundColor = 0xEEEEEEFF,
+            //                                 Content = new Label
+            //                                 {
+            //                                     HorizontalAlign = HorizontalAlign.Center,
+            //                                     Text = "❤️"
+            //                                 }
+            //                             },
+            //                             new Border
+            //                             {
+            //                                 BorderWidth = 1,
+            //                                 BorderRadius = 7,
+            //                                 Padding = 5,
+            //                                 BorderColor = 0x999999FF,
+            //                                 BackgroundColor = 0xEEEEEEFF,
+            //                                 Content = new Label
+            //                                 {
+            //                                     HorizontalAlign = HorizontalAlign.Center,
+            //                                     Text = "👍"
+            //                                 }
+            //                             },
+            //                             new Border
+            //                             {
+            //                                 BorderWidth = 1,
+            //                                 BorderRadius = 7,
+            //                                 Padding = 5,
+            //                                 BorderColor = 0x999999FF,
+            //                                 BackgroundColor = 0xEEEEEEFF,
+            //                                 Content = new Label
+            //                                 {
+            //                                     HorizontalAlign = HorizontalAlign.Center,
+            //                                     Text = "💬"
+            //                                 }
+            //                             }
+            //                         ]
+            //                     }
+            //                 ]
+            //             }
+            //         }
+            //     ]
+            // }
+        };
+
         window.Show();
     }
 }

@@ -90,8 +90,6 @@ public class MainWindow : Window
                     // TODO: Show/Hide SoftKeyboard 
                     // this.RequireKeyboard = !this.RequireKeyboard;
 
-                    Console.WriteLine($"Touch Start: {touch.Position.X} {touch.Position.Y}");
-
                     this.runScrollInertia = false;
                     this.scrollInertia = Vector.Zero;
                     this.touchPoint = touch.Position;
@@ -357,7 +355,7 @@ public class MainWindow : Window
         var hamburgerInContent = new Point(render.Rect.Width * 0.5f + 64f, 420 + this.scrollPoint.Y);
         var hamburgerInTitle = new Point(this.SafeArea.Right - 24f, this.SafeArea.Top + 21f);
         ctx.Translate(Point.Lerp(hamburgerInContent, hamburgerInTitle, EaseInOutQuad(Normalize(-this.scrollPoint.Y, 200, 270))));
-        ctx.Render(Hamburger.Instance);
+        Hamburger.Instance.Render(ctx);
         ctx.Restore();
 
         // Search
@@ -365,7 +363,7 @@ public class MainWindow : Window
         var spyGlassInContent = new Point(render.Rect.Width * 0.5f, 420 + this.scrollPoint.Y);
         var spyGlassInTitle = new Point(this.SafeArea.Right - 58f, this.SafeArea.Top + 21f);
         ctx.Translate(Point.Lerp(spyGlassInContent, spyGlassInTitle, EaseInOutQuad(Normalize(-this.scrollPoint.Y, 220, 290))));
-        ctx.Render(SpyGlass.Instance);
+        SpyGlass.Instance.Render(ctx);
         ctx.Restore();
 
         // Star
@@ -373,7 +371,7 @@ public class MainWindow : Window
         var starInContent = new Point(render.Rect.Width * 0.5f - 64f, 420 + this.scrollPoint.Y);
         var starInTitle = new Point(this.SafeArea.Right - 92f, this.SafeArea.Top + 21f);
         ctx.Translate(Point.Lerp(starInContent, starInTitle, EaseInOutQuad(Normalize(-this.scrollPoint.Y, 240, 310))));
-        ctx.Render(Star.Instance);
+        Star.Instance.Render(ctx);
         ctx.Restore();
 
         // Logo
@@ -387,7 +385,7 @@ public class MainWindow : Window
         ctx.Translate(logoPosition);
         ctx.Scale((logoScale, logoScale));
         ctx.Translate((-32, -32));
-        ctx.Render(XuiLogo.Instance);
+        XuiLogo.Instance.Render(ctx);
         ctx.Restore();
 
         // Title
@@ -508,6 +506,7 @@ public class MainWindow : Window
         ctx.TextAlign = TextAlign.Center;
         ctx.FillText("Card", (2 * tabWidth + this.SafeArea.Left + tabWidth / 2, this.SafeArea.Bottom - 12));
 
+        base.Render(ref render);
 
         return;
     }

@@ -3,7 +3,7 @@ using Xui.Core.UI;
 
 namespace Xui.Apps.BlankApp;
 
-public class Hamburger : Xui.Core.UI.IDrawable
+public class Hamburger
 {
     public static readonly Hamburger Instance = new Hamburger();
 

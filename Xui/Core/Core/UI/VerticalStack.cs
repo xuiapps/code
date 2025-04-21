@@ -1,53 +1,44 @@
 using Xui.Core.Math2D;
-using Xui.Core.UI.Layout;
 
 namespace Xui.Core.UI;
 
+/// <summary>
+/// A layout container that arranges its children vertically from top to bottom.
+/// 
+/// Each child is measured with an unconstrained height and is allowed to take up as much vertical space as needed.
+/// The container expands to fit the combined height of all children.
+/// </summary>
 public class VerticalStack : ViewCollection
 {
-    public nfloat Gap { get; set; }
-
-    public override Size SizeToFit(Size constraint)
+    /// <inheritdoc/>
+    protected override Size MeasureCore(Size availableBorderEdgeSize)
     {
-        Size size = (0, 0);
-        for (var i = 0; i < this.Count; i++)
+        Size desiredBorderEdgeBoxSize = (0, 0);
+        Size availableChildSize = (availableBorderEdgeSize.Width, nfloat.PositiveInfinity);
+        for (int i = 0; i < Count; i++)
         {
             var child = this[i];
-            var childSize = child.SizeToFit((constraint.Width, nfloat.PositiveInfinity));
-            size.Width = nfloat.Max(size.Width, childSize.Width);
-            size.Height += childSize.Height;
+            var desiredChildMarginEdgeBox = child.Measure(availableChildSize);
+            desiredBorderEdgeBoxSize.Width = nfloat.Max(desiredBorderEdgeBoxSize.Width, desiredChildMarginEdgeBox.Width);
+            desiredBorderEdgeBoxSize.Height += desiredChildMarginEdgeBox.Height;
         }
-        size.Height += this.Count * this.Gap;
-
-        return size;
+        return desiredBorderEdgeBoxSize;
     }
 
-    public override void Layout(Constraint constraint)
+    /// <inheritdoc/>
+    protected override void ArrangeCore(Rect rect)
     {
-        // TODO: Try with a single pass first...
-        if (constraint.VerticalAlign == VerticalAlign.Top)
+        nfloat y = rect.Y;
+        for (int i = 0; i < Count; i++)
         {
+            var child = this[i];
+            var desired = child.Measure((rect.Size.Width, nfloat.PositiveInfinity));
 
-        }
-        else
-        {
-            base.Layout(constraint);
+            // Arrange child at (X, Y), with width/height = desired
+            var childRect = new Rect(rect.X, y, rect.Width, desired.Height);
+            child.Arrange(childRect);
 
-            nfloat top = this.Frame.Top;
-            for (var i = 0; i < this.Count; i++)
-            {
-                var child = this[i];
-                child.Layout(new Constraint() {
-                    HorizontalGuide = this.Frame.Left,
-                    HorizontalSize = SizeTo.Parent,
-                    HorizontalAlign = HorizontalAlign.Left,
-                    VerticalGuide = top,
-                    VerticalSize = SizeTo.Content,
-                    VerticalAlign = VerticalAlign.Top,
-                    Size = (this.Frame.Width, nfloat.PositiveInfinity)
-                });
-                top = child.Frame.Bottom + this.Gap;
-            }
+            y += desired.Height;
         }
     }
 }

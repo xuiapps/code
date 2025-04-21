@@ -5,18 +5,27 @@ namespace Xui.Core.Abstract;
 public partial interface IWindow
 {
     /// <summary>
-    /// Mobile platforms usually render in a single full-screen window.
-    /// 
-    /// Desktop platforms compose multiple application windows side by side and have some extra window options.
+    /// Provides optional desktop-specific window styling hints for platforms
+    /// that support multiple top-level windows (e.g., Windows, macOS, Linux).
     /// </summary>
+    /// <remarks>
+    /// On mobile platforms, applications typically run in a single full-screen window,
+    /// and this interface has no effect. On desktop, implementing this interface allows
+    /// apps to influence window chrome, border visibility, and initial sizing.
+    /// </remarks>
     public interface IDesktopStyle
     {
         /// <summary>
-        /// If true will create a transparent window with no border, no titlebar,
-        /// full size client area, AND default desktop window buttons.
+        /// If <c>true</c>, the window will be created without a system title bar or border.
+        /// The entire surface will be treated as a client area, while still maintaining
+        /// standard desktop window behaviors (e.g., close/minimize buttons).
         /// </summary>
         public bool Chromeless => false;
 
+        /// <summary>
+        /// Optional startup size hint for the window.
+        /// If <c>null</c>, the platform will decide the initial size.
+        /// </summary>
         public Size? StartupSize => null;
     }
 }

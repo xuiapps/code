@@ -414,7 +414,7 @@ public class IOSDrawingContext : IContext
         NSString.objc_msgSend(nsStringRef, NSString.DrawAtPointWithAttributesSel, pos + offset, attributes);
     }
 
-    Vector ITextDrawingContext.MeasureText(string text)
+    Vector ITextMeasureContext.MeasureText(string text)
     {
         using var nsStringRef = new CFStringRef(text);
         using var attributes = new CFMutableDictionaryRef();
@@ -428,7 +428,7 @@ public class IOSDrawingContext : IContext
         return ObjC.objc_msgSend_retCGSize(nsStringRef, NSString.SizeWithAttributesSel, attributes);
     }
 
-    void ITextDrawingContext.SetFont(Font font)
+    void ITextMeasureContext.SetFont(Font font)
     {
         if (this.nsFont != 0)
         {

@@ -2,15 +2,44 @@ using Xui.Core.Math2D;
 
 namespace Xui.Core.Canvas.SVG;
 
+/// <summary>
+/// A utility for converting parsed SVG path commands into drawing operations
+/// on an <see cref="IPathDrawingContext"/> target.
+/// 
+/// This builder supports both absolute (e.g., <c>M</c>, <c>L</c>, <c>C</c>) and relative (e.g., <c>m</c>, <c>l</c>, <c>c</c>) SVG commands,
+/// and tracks the current drawing point and control points for smooth curves.
+/// </summary>
 public ref struct PathDataBuilder
 {
+    /// <summary>
+    /// The target drawing context that receives path commands.
+    /// </summary>
     public readonly IPathDrawingContext Sink;
 
+    /// <summary>
+    /// The starting point of the current subpath (used for <c>Z</c> command).
+    /// </summary>
     public Point? StartPoint;
+
+    /// <summary>
+    /// The current position of the pen after the last command.
+    /// </summary>
     public Point CurrentPoint;
+
+    /// <summary>
+    /// The reflected control point for the next cubic Bézier curve (used in <c>S</c>, <c>s</c>).
+    /// </summary>
     public Point NextCubicControlPoint;
+
+    /// <summary>
+    /// The reflected control point for the next quadratic Bézier curve (used in <c>T</c>, <c>t</c>).
+    /// </summary>
     public Point NextQuadraticControlPoint;
 
+    /// <summary>
+    /// Initializes a new <see cref="PathDataBuilder"/> targeting the specified drawing context.
+    /// </summary>
+    /// <param name="sink">The drawing context that will receive the path instructions.</param>
     public PathDataBuilder(IPathDrawingContext sink)
     {
         this.Sink = sink;
@@ -21,11 +50,16 @@ public ref struct PathDataBuilder
         this.NextQuadraticControlPoint = (0, 0);
     }
 
+    /// <summary>
+    /// Begins a new path on the drawing context.
+    /// </summary>
     public PathDataBuilder Begin()
     {
         Sink.BeginPath();
         return this;
     }
+
+#pragma warning disable CS1591
 
     public PathDataBuilder M(Point point)
     {
@@ -132,14 +166,13 @@ public ref struct PathDataBuilder
     
     public PathDataBuilder A(Vector sr, nfloat xAxisRotationDeg, ArcFlag largeArcFlag, Winding sweepDirection, Point p2)
     {
-        Vector p1 = this.CurrentPoint;
+        Point p1 = this.CurrentPoint;
 
         // A rx ry x-axis-rotation large-arc-flag sweep-flag x y
-        /// https://svgwg.org/svg2-draft/implnote.html#ArcConversionEndpointToCenter
-        /// https://observablehq.com/@awhitty/svg-2-elliptical-arc-to-canvas-path2d
-
+        // https://svgwg.org/svg2-draft/implnote.html#ArcConversionEndpointToCenter
+        // https://observablehq.com/@awhitty/svg-2-elliptical-arc-to-canvas-path2d
         var xAxisRotation = nfloat.DegreesToRadians(xAxisRotationDeg);
-        var p = AffineTransform.Rotate(xAxisRotation) * (p2 - p1) * 0.5f;
+        var p = AffineTransform.Rotate(xAxisRotation) * ((Vector)p2 - (Vector)p1) * 0.5f;
 
         var absR = new Vector(nfloat.Abs(sr.X), nfloat.Abs(sr.Y));
         nfloat A = p.X * p.X / (absR.X * absR.X) + p.Y * p.Y / (absR.Y * absR.Y);
@@ -151,7 +184,7 @@ public ref struct PathDataBuilder
 
         var cp = new Vector(r.X * p.Y / r.Y, (-r.Y * p.X) / r.X) * sign * nfloat.Sqrt(nfloat.Abs(n / d));
 
-        var c = AffineTransform.Rotate(-xAxisRotation) * cp + ((p1 + p2) * 0.5f);
+        var c = AffineTransform.Rotate(-xAxisRotation) * cp + (((Vector)p1 + (Vector)p2) * 0.5f);
 
         var a = new Vector((p.X - cp.X) / r.X, (p.Y - cp.Y) / r.X);
         var b = new Vector((-p.X - cp.X) / r.X, (-p.Y - cp.Y) / r.Y);

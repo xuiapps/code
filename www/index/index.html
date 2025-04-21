@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Xui Apps</title>
+
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon.16x16.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.96x96.png" />
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="any" />
+
+    <link rel="mask-icon" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.180x180.png" />
+
+    <meta name="description" content="Xui - a delightful .NET UI app development framework" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+
+    <meta property="og:title" content="Xui Apps - Delightful .NET application development" />
+    <meta property="og:description" content="Xui delivers fast performance crisp UI applications. Written C#. Using the dotnet AoT compiler. Stepping on CoreGraphics, Direct2D and Skia." />
+    <meta property="og:image" content="https://xuiapps.com/preview.1200x630.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Xui Apps - Delightful .NET application development" />
+    <meta name="twitter:description" content="Xui delivers fast performance crisp UI applications. Written C#. Using the dotnet AoT compiler. Stepping on CoreGraphics, Direct2D and Skia." />
+    <meta name="twitter:image" content="https://xuiapps.com/preview.800x418.jpg" />
+    <meta name="twitter:image:alt" content="Xui delivers Canvas based apps to Window, macOS, iOS and Android" />
+
+    <!-- PWA -->
+    <link rel="manifest" href="./pwa/manifest.json" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <style>
+        html {
+            font-family: Inter, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.01em;
+            line-height: 1.8em;
+            margin: 0px;
+            font-size: 16px;
+        }
+
+        body {
+            margin: 0px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 500;
+            letter-spacing: 0.0em;
+            margin: 0;
+            padding: 0.5em 0;
+        }
+        h1 { font-size: 300%;}
+        h2 { font-size: 200%;}
+        h3 { font-size: 175%;}
+        h4 { font-size: 150%;}
+        h5 { font-size: 125%;}
+        h6 { font-size: 100%;}
+
+        @media (prefers-color-scheme: light) {
+            body {
+                background: #ddd;
+                color: #111;
+            }
+
+            h1, h2, h3, h4, h5, h6 {
+                color: #222;
+            }
+
+            body>* {
+                background: #fff;
+            }
+
+            .header {
+                background: #ddd;
+            }
+
+            .navigation {
+                margin: 32px 0 0 0;
+            }
+            .navigation a {
+                font-weight: 500;
+                margin: 0px 0px 0px 24px;
+            }
+            .navigation a, .navigation a:visited, .navigation a:hover {
+                color: #75F;
+            }
+
+            .highlights-bg {
+                background: #222;
+                color: #ddd;
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #333;
+                color: #eee;
+            }
+
+            h1, h2, h3, h4, h5, h6 {
+                color: #ddd;
+            }
+
+            body>* {
+                background: #222;
+            }
+
+            .header {
+                background: #333;
+            }
+
+            .highlights-bg {
+                background: #444;
+                color: #EEE;
+            }
+        }
+
+        .highlights em {
+            font-weight: 500;
+            font-size: 175%;
+        }
+        .highlights {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0 3em;
+        }
+        .highlights svg {
+            margin: 0 -100px 0 0;
+        }
+        @media (max-width: 650px) {
+            .highlights {
+                grid-template-columns: 1fr;
+                gap: 0em;
+                text-align: center;
+                margin: 0.7em 0;
+            }
+            .minc2 {
+                grid-template-columns: 1fr 1fr;
+                gap: 0 2em;
+            }
+            .highlights>* {
+                margin: 0.3em 0;
+            }
+            .highlights svg {
+                margin: 0 -100px;
+            }
+        }
+        .blocks>* {
+            text-align: left;
+        }
+
+        p.logo {
+            margin: 1em 2em 1em 0;
+        }
+        p.logo>svg {
+            vertical-align: -12px;
+            margin: 0 0.75em 0 0;
+        }
+
+        /* main layout - website is presented as centered column minmax-ed */
+        .center-col {
+            display: grid;
+            grid-template-columns: 1fr minmax(250px, 1000px) 1fr;
+        }
+        .center-col>* {
+            grid-column: 2;
+            padding: 0 2em;
+        }
+        @media (orientation: landscape) {
+            .center-col>* {
+                padding: 0 4em;
+            }
+        }
+
+        .blocks {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0 3em;
+        }
+        @media (max-width: 1000px) {
+            .blocks {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 650px) {
+            .blocks {
+                grid-template-columns: 1fr;
+            }
+        }
+        .blocks>* {
+            text-align: left;
+        }
+
+        .social-link {
+            padding: 1.25em 0.75em;
+            margin: 0.1em;
+        }
+        .social-logo-bg {
+            fill: #EEE;
+        }
+        .social-logo-fg {
+            fill: #333;
+        }
+        @media (prefers-color-scheme: dark) {
+            .social-logo-bg {
+                fill: #AAA;
+            }
+            .social-logo-fg {
+                fill: #111;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- first image on site, for some social preview cards -->
+    <img style="display: none;" src="preview.1200x630.png" />
+
+    <div class="center-col header">
+        <div style="display: grid; grid-template-columns: auto 1fr;">
+            <p class="logo">
+                <svg width="48" height="48" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                    <linearGradient id="xui" gradientTransform="rotate(64)">
+                        <stop offset="0%" stop-color="#d642cd" />
+                        <stop offset="100%" stop-color="#8a05FF" />
+                    </linearGradient>
+                    <linearGradient id="x" gradientTransform="rotate(22)">
+                        <stop offset="0%" stop-color="#e8beed" />
+                        <stop offset="100%" stop-color="#e4cfe5" />
+                    </linearGradient>
+                    <clipPath id="squircle">
+                        <path d="M 0 32 C 0 4.16, 4.16 0, 32 0 S 64 4.16, 64 32, 59.84 64 32 64, 0 59.84, 0 32 Z" />
+                    </clipPath>
+                    </defs>
+                
+                    <!-- Background -->
+                    <path d="M 0 0 L 64 0 64 64 0 64 Z" fill="url(#xui)" clip-path="url(#squircle)" />
+                
+                    <!-- Foreground -->
+                    <path d="M 5 0  L 15 22 25 0  Z" fill="url(#x)" clip-path="url(#squircle)" />
+                    <path d="M 5 64 L 15 42 25 64 Z" fill="url(#x)" clip-path="url(#squircle)" />
+                    <path d="M 0 10 L 10 32 0 54 Z" fill="url(#x)" clip-path="url(#squircle)" />
+                
+                    <path d="M 25 24 L 25 35 Q 25 45.5 32 45.5 Q 39 45.5 39 35 L 39 24" stroke="white" stroke-width="5" fill="none" clip-path="url(#squircle)" />
+                    <path d="M 49 24 L 49 47" stroke="white" stroke-width="5" fill="none" clip-path="url(#squircle)" />
+                    <circle cx="49" cy="18" r="3" fill="white" />
+                
+                </svg>
+                XUI APPS
+            </p>
+            <p class="navigation" style="text-align: right;">
+                <a href="/docs/introduction.html">DOCS</a>
+                <a href="/api/Xui.html">API</a>
+                <a href="/ai/gigi.html">AI</a>
+            </p>
+        </div>
+    </div>
+
+    <div class="center-col">
+        <div style="text-align: center;">
+            <h2>Delightful App Development</h2>
+            <p>A dotnet UI application framework.</p>
+
+            <svg width="400" height="360" style="margin: 25px -200px" viewBox="0 0 400 360" xmlns="http://www.w3.org/2000/svg">
+                <style>
+                    .line {
+                        stroke: #555;
+                    }
+
+                    .screen {
+                        fill: #EEE;
+                    }
+
+                    .fg {
+                        fill: black;
+                    }
+
+                    .pinchhole {
+                        fill: black;
+                    }
+
+                    .up-separator {
+                        stroke: #999;
+                    }
+
+                    .keyboard {
+                        fill: #CCC;
+                        stroke: #CCC;
+                    }
+
+                    @media (prefers-color-scheme: dark) {
+                        .line {
+                            stroke: #DDD;
+                        }
+
+                        .screen {
+                            fill: #444;
+                        }
+
+                        .fg {
+                            fill: white
+                        }
+
+                        .pinchhole {
+                            fill: #222;
+                        }
+
+                        .up-separator {
+                            stroke: #777;
+                        }
+
+                        .keyboard {
+                            fill: #555;
+                            stroke: #555;
+                        }
+                    }
+                </style>
+                <defs>
+                    <linearGradient id="xui" gradientTransform="rotate(64)">
+                        <stop offset="0%" stop-color="#d642cd" />
+                        <stop offset="100%" stop-color="#8a05FF" />
+                    </linearGradient>
+                    <linearGradient id="x" gradientTransform="rotate(22)">
+                        <stop offset="0%" stop-color="#e8beed" />
+                        <stop offset="100%" stop-color="#e4cfe5" />
+                    </linearGradient>
+                    <clipPath id="clip">
+                        <rect width="64" height="64" rx="15" />
+                    </clipPath>
+                </defs>
+
+                <path class="line" d="M 146 64 Q 146 120 168 120" stroke-width="4" stroke-linecap="round"
+                    stroke-dasharray="2 8" fill="none" />
+                <path class="line" d="M 252 64 Q 252 120 232 120" stroke-width="4" stroke-linecap="round"
+                    stroke-dasharray="2 8" fill="none" />
+
+                <path class="line" d="M 168 140 Q 50 140 50 180" stroke-width="4" stroke-linecap="round"
+                    stroke-dasharray="2 8" fill="none" />
+                <path class="line" d="M 168 150 Q 100 150 100 200" stroke-width="4" stroke-linecap="round"
+                    stroke-dasharray="2 8" fill="none" />
+                <path class="line" d="M 190 160 Q 150 170 150 220" stroke-width="4" stroke-linecap="round"
+                    stroke-dasharray="2 8" fill="none" />
+                <path class="line" d="M 200 150 Q 250 170 250 210" stroke-width="4" stroke-linecap="round"
+                    stroke-dasharray="2 8" fill="none" />
+                <path class="line" d="M 190 140 Q 340 130 340 200" stroke-width="4" stroke-linecap="round"
+                    stroke-dasharray="2 8" fill="none" />
+
+                <g transform="translate(114,0)" clip-path="url(#clip)">
+                    <path d="M 0 0 L 64 0 64 64 0 64 Z" fill="url(#xui)" />
+
+                    <path d="M 5 0  L 15 22 25 0  Z" fill="url(#x)" />
+                    <path d="M 5 64 L 15 42 25 64 Z" fill="url(#x)" />
+                    <path d="M 0 10 L 10 32 0 54 Z" fill="url(#x)" />
+
+                    <path d="M 25 24 L 25 35 Q 25 45.5 32 45.5 Q 39 45.5 39 35 L 39 24" stroke="white" stroke-width="5" fill="none" clip-path="url(#squircle)" />
+                    <path d="M 49 24 L 49 47" stroke="white" stroke-width="5" fill="none" clip-path="url(#squircle)" />
+                    <circle cx="49" cy="18" r="3" fill="white" />
+                </g>
+
+                <g transform="translate(220,0)" clip-path="url(#clip)">
+                    <rect class="screen" width="64" height="64" />
+                    <text class="fg" x="31" y="32" width="64" text-anchor="middle" font-size="22"
+                        font-family="Arial, Helvetica, sans-serif">C#</text>
+                    <text class="fg" x="31" y="46" width="64" text-anchor="middle" font-size="12"
+                        font-family="Arial, Helvetica, sans-serif">Your Code</text>
+                </g>
+
+                <g transform="translate(168,100)" clip-path="url(#clip)">
+                    <rect width="64" height="64" fill="#512BD4" />
+                    <text x="31" y="32" width="64" text-anchor="middle" fill="white" font-size="22"
+                        font-family="Arial, Helvetica, sans-serif">.NET</text>
+                    <text x="31" y="50" width="64" text-anchor="middle" fill="white" font-size="12"
+                        font-family="Arial, Helvetica, sans-serif">AoT</text>
+                </g>
+
+                <g transform="translate(10,180)">
+                    <rect width="64" height="96" rx="12" fill="#333333" />
+                    <rect class="screen" x="2" y="2" width="60" height="92" rx="10" />
+                    <rect class="pinchhole" x="24" y="4" width="16" height="6" rx="3" fill="black" />
+                    <rect x="20" y="90" width="24" height="3" rx="1.5" fill="#333333" />
+
+                    <g transform="translate(0, 0)">
+                        <rect x="10" y="20" width="12" height="4" rx="2" fill="#d642cd" />
+                        <rect x="10" y="40" width="16" height="4" rx="2" fill="#999" />
+                        <rect x="10" y="46" width="32" height="4" rx="2" fill="#999" />
+                        <rect x="10" y="52" width="36" height="4" rx="2" fill="#999" />
+                        <rect x="10" y="58" width="32" height="4" rx="2" fill="#999" />
+                        <rect x="10" y="72" width="12" height="4" rx="2" fill="#d642cd" />
+                    </g>
+
+                </g>
+                <g transform="translate(60,200)">
+                    <rect width="64" height="96" rx="6" fill="#333333" />
+                    <rect class="screen" x="2" y="2" width="60" height="82" rx="4" fill="white" />
+                    <rect class="pinchhole" x="29" y="4" width="6" height="6" rx="3" />
+
+                    <path class="screen" transform="translate(13.5,87)" d="M0.5 3 L 6 0.25 6 5.75 Z" />
+                    <circle class="screen" transform="translate(32,90)" r="2.5" />
+                    <rect class="screen" transform="translate(43.5,87.5)" width="5" height="5" />
+
+                    <g transform="translate(0, 0)">
+                        <rect x="10" y="20" width="12" height="4" rx="2" fill="#d642cd" />
+                        <rect x="10" y="40" width="16" height="4" rx="2" fill="#999" />
+                        <rect x="10" y="46" width="32" height="4" rx="2" fill="#999" />
+                        <rect x="10" y="52" width="36" height="4" rx="2" fill="#999" />
+                        <rect x="10" y="58" width="32" height="4" rx="2" fill="#999" />
+                        <rect x="10" y="72" width="12" height="4" rx="2" fill="#d642cd" />
+                    </g>
+                </g>
+
+                <g transform="translate(110,210)">
+                    <rect width="128" height="94" rx="6" fill="#333333" />
+                    <rect class="screen" x="6" y="2" width="116" height="90" rx="4" fill="white" />
+
+                    <g transform="translate(30, 8)">
+                        <rect x="10" y="20" width="12" height="4" rx="2" fill="#d642cd" />
+                        <rect x="10" y="40" width="16" height="4" rx="2" fill="#999" />
+                        <rect x="10" y="46" width="32" height="4" rx="2" fill="#999" />
+                        <rect x="10" y="52" width="36" height="4" rx="2" fill="#999" />
+                        <rect x="10" y="58" width="32" height="4" rx="2" fill="#999" />
+                        <rect x="10" y="72" width="12" height="4" rx="2" fill="#d642cd" />
+                    </g>
+                    <path d="M 32 2 L 32 92" stroke-width="1" fill="none" class="up-separator" />
+                </g>
+
+                <g transform="translate(185,200)">
+                    <rect x="8" width="108" height="94" rx="6" fill="#333333" />
+                    <rect class="screen" x="10" y="4" width="104" height="88" rx="4" fill="white" />
+
+                    <path d="M 10 96 L 2.5 105 123 105 114 96 Z" fill="#333" stroke="#333" stroke-width="5" stroke-linejoin="round" />
+                    <path d="M 10 96 L 2.5 105 123 105 114 96 Z" class="keyboard" stroke-width="1" stroke-linejoin="round" />
+
+                    <g transform="translate(-25, 0)">
+                        <g transform="translate(35, 4)">
+                            <rect x="10" y="20" width="12" height="4" rx="2" fill="#d642cd" />
+                            <rect x="10" y="40" width="16" height="4" rx="2" fill="#999" />
+                            <rect x="10" y="46" width="32" height="4" rx="2" fill="#999" />
+                            <rect x="10" y="52" width="36" height="4" rx="2" fill="#999" />
+                            <rect x="10" y="58" width="32" height="4" rx="2" fill="#999" />
+                            <rect x="10" y="72" width="12" height="4" rx="2" fill="#d642cd" />
+                        </g>
+
+                        <rect rx="2" x="40" y="10" width="64" height="74" fill="none" stroke-width="1" class="up-separator" />
+                        <path transform="translate(96, 13)" d="M0 0 L5 5 M0 5 L 5 0" stroke-width="1" class="up-separator" />
+                    </g>
+                </g>
+
+                <g transform="translate(270,190)">
+                    <rect x="8" width="118" height="94" rx="6" fill="#333333" />
+                    <rect class="screen" x="10" y="2" width="114" height="84" rx="4" fill="white" />
+
+                    <path transform="translate(10, 40)" d="M 50 50 L 50 65 45 70 65 70 60 65 60 50 Z" fill="#333" stroke="#333" stroke-width="5" stroke-linejoin="round" />
+
+                    <g transform="translate(-10, -5)">
+                        <g transform="translate(35, 4)">
+                            <rect x="10" y="20" width="12" height="4" rx="2" fill="#d642cd" />
+                            <rect x="10" y="40" width="16" height="4" rx="2" fill="#999" />
+                            <rect x="10" y="46" width="32" height="4" rx="2" fill="#999" />
+                            <rect x="10" y="52" width="36" height="4" rx="2" fill="#999" />
+                            <rect x="10" y="58" width="32" height="4" rx="2" fill="#999" />
+                            <rect x="10" y="72" width="12" height="4" rx="2" fill="#d642cd" />
+                        </g>
+
+                        <rect rx="2" x="42" y="10" width="64" height="74" fill="none" stroke-width="1" class="up-separator" />
+                        <path transform="translate(46, 14)" d="M0 0 L5 5 M0 5 L 5 0" stroke-width="1" class="up-separator" />
+                    </g>
+                </g>
+
+            </svg>
+        </div>
+    </div>
+
+    <div class="center-col highlights-bg">
+        <div style="text-align: center; margin: 1.5em 0; padding: 0; user-select: none; -moz-user-select: none; -khtml-user-select: none; -webkit-user-select: none; -o-user-select: none; cursor: default;">
+
+            <!-- GitHub -->
+            <a class="social-link" href="https://github.com/xuiapps" target="_blank"><svg style="vertical-align: -8px;" width="32" height="32" xmlns="http://www.w3.org/2000/svg" width="64" height="64" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 640 640">
+                <path class="social-logo-bg" d="M319.988 7.973C143.293 7.973 0 151.242 0 327.96c0 141.392 91.678 261.298 218.826 303.63 16.004 2.964 21.886-6.957 21.886-15.414 0-7.63-.319-32.835-.449-59.552-89.032 19.359-107.8-37.772-107.8-37.772-14.552-36.993-35.529-46.831-35.529-46.831-29.032-19.879 2.209-19.442 2.209-19.442 32.126 2.245 49.04 32.954 49.04 32.954 28.56 48.922 74.883 34.76 93.131 26.598 2.882-20.681 11.15-34.807 20.315-42.803-71.08-8.067-145.797-35.516-145.797-158.14 0-34.926 12.52-63.485 32.965-85.88-3.33-8.078-14.291-40.606 3.083-84.674 0 0 26.87-8.61 88.029 32.8 25.512-7.075 52.878-10.642 80.056-10.76 27.2.118 54.614 3.673 80.162 10.76 61.076-41.386 87.922-32.8 87.922-32.8 17.398 44.08 6.485 76.631 3.154 84.675 20.516 22.394 32.93 50.953 32.93 85.879 0 122.907-74.883 149.93-146.117 157.856 11.481 9.921 21.733 29.398 21.733 59.233 0 42.792-.366 77.28-.366 87.804 0 8.516 5.764 18.473 21.992 15.354 127.076-42.354 218.637-162.274 218.637-303.582 0-176.695-143.269-319.988-320-319.988l-.023.107z"/>
+            </svg></a>
+
+            <!-- Discord -->
+            <a class="social-link" href="https://discord.gg/mmSH9jd7eN" target="_blank"><svg style="vertical-align: -8px;" width="32" height="32" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 512 512">
+                <path class="social-logo-bg" d="M105 0h302c57.928.155 104.845 47.072 105 104.996V407c-.155 57.926-47.072 104.844-104.996 104.998L105 512C47.074 511.844.156 464.926.002 407.003L0 105C.156 47.072 47.074.155 104.997 0H105zm263.896 153.382a269.459 269.459 0 00-67.117-20.638 186.784 186.784 0 00-8.571 17.476 250.18 250.18 0 00-37.246-2.8c-12.447 0-24.956.945-37.25 2.776-2.512-5.927-5.428-11.804-8.592-17.455a271.746 271.746 0 00-67.133 20.681c-42.48 62.842-53.992 124.112-48.236 184.513a270.634 270.634 0 0082.308 41.312c6.637-8.959 12.583-18.497 17.63-28.422a174.021 174.021 0 01-27.772-13.253c2.329-1.689 4.606-3.428 6.805-5.118 25.727 12.083 53.837 18.385 82.277 18.385 28.442 0 56.552-6.302 82.279-18.386 2.226 1.816 4.503 3.556 6.805 5.117a175.079 175.079 0 01-27.822 13.289 197.895 197.895 0 0017.63 28.4 269.527 269.527 0 0082.363-41.306l-.007.007c6.754-70.044-11.537-130.753-48.351-184.578zM201.969 300.789c-16.04 0-29.293-14.556-29.293-32.464s12.791-32.593 29.241-32.593 29.599 14.685 29.318 32.593c-.282 17.908-12.919 32.464-29.266 32.464zm108.061 0c-16.066 0-29.266-14.556-29.266-32.464s12.791-32.593 29.266-32.593c16.475 0 29.523 14.685 29.241 32.593-.281 17.908-12.893 32.464-29.241 32.464z"/>
+            </svg></a>
+
+            <!-- X -->
+            <a class="social-link" href="https://x.com/xuiapps" target="_blank"><svg style="vertical-align: -8px;" width="32" height="32" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 512 509.64">
+                <rect class="social-logo-bg" width="512" height="509.64" rx="115.61" ry="115.61"/>
+                <path class="social-logo-fg" fill-rule="nonzero" d="M323.74 148.35h36.12l-78.91 90.2 92.83 122.73h-72.69l-56.93-74.43-65.15 74.43h-36.14l84.4-96.47-89.05-116.46h74.53l51.46 68.04 59.53-68.04zm-12.68 191.31h20.02l-129.2-170.82H180.4l130.66 170.82z"/>
+            </svg></a>
+
+            <!-- Facebook -->
+            <a class="social-link" href="https://www.facebook.com/xuiapps" target="_blank"><svg style="vertical-align: -8px;" width="32" height="32" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 512 509.64">
+                <path class="social-logo-bg" d="M115.613 0h280.774C459.974 0 512 52.026 512 115.612v278.415c0 63.588-52.026 115.613-115.613 115.613H287.015V332.805h69.253l14.365-78.229h-83.618v-27.667c0-41.341 16.218-57.241 58.194-57.241 13.04 0 23.533.317 29.576.953V99.706c-11.448-3.18-39.434-6.361-55.651-6.361-85.545 0-124.977 40.388-124.977 127.522v33.709h-52.79v78.229h52.79V509.64h-78.544C52.026 509.64 0 457.615 0 394.027V115.612C0 52.026 52.026 0 115.613 0z"/>
+            </svg></a>
+
+            <!-- Instagram -->
+            <a class="social-link" href="https://www.instagram.com/xuiapps" target="_blank"><svg style="vertical-align: -8px;" width="32" height="32" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 512 512">
+                <path class="social-logo-bg" fill-rule="nonzero" d="M170.663 256.157c-.083-47.121 38.055-85.4 85.167-85.482 47.121-.092 85.407 38.029 85.499 85.159.091 47.13-38.047 85.4-85.176 85.492-47.112.09-85.399-38.039-85.49-85.169zm-46.108.092c.141 72.602 59.106 131.327 131.69 131.185 72.592-.14 131.35-59.089 131.209-131.691-.141-72.577-59.114-131.336-131.715-131.194-72.585.141-131.325 59.114-131.184 131.7zm237.104-137.092c.033 16.954 13.817 30.682 30.772 30.649 16.961-.034 30.689-13.811 30.664-30.765-.033-16.954-13.818-30.69-30.78-30.656-16.962.033-30.689 13.818-30.656 30.772zm-208.696 345.4c-24.958-1.086-38.511-5.234-47.543-8.709-11.961-4.628-20.496-10.177-29.479-19.093-8.966-8.951-14.532-17.461-19.202-29.397-3.508-9.033-7.73-22.569-8.9-47.527-1.269-26.983-1.559-35.078-1.683-103.433-.133-68.338.116-76.434 1.294-103.441 1.069-24.941 5.242-38.512 8.709-47.536 4.628-11.977 10.161-20.496 19.094-29.478 8.949-8.983 17.459-14.532 29.403-19.202 9.025-3.526 22.561-7.715 47.511-8.9 26.998-1.278 35.085-1.551 103.423-1.684 68.353-.133 76.448.108 103.456 1.294 24.94 1.086 38.51 5.217 47.527 8.709 11.968 4.628 20.503 10.145 29.478 19.094 8.974 8.95 14.54 17.443 19.21 29.413 3.524 8.999 7.714 22.552 8.892 47.494 1.285 26.998 1.576 35.094 1.7 103.432.132 68.355-.117 76.451-1.302 103.442-1.087 24.957-5.226 38.52-8.709 47.56-4.629 11.953-10.161 20.488-19.103 29.471-8.941 8.949-17.451 14.531-29.403 19.201-9.009 3.517-22.561 7.714-47.494 8.9-26.998 1.269-35.086 1.56-103.448 1.684-68.338.133-76.424-.124-103.431-1.294zM149.977 1.773c-27.239 1.286-45.843 5.648-62.101 12.019-16.829 6.561-31.095 15.353-45.286 29.603C28.381 57.653 19.655 71.944 13.144 88.79c-6.303 16.299-10.575 34.912-11.778 62.168C.172 178.264-.102 186.973.031 256.489c.133 69.508.439 78.234 1.741 105.548 1.302 27.231 5.649 45.827 12.019 62.092 6.569 16.83 15.353 31.089 29.611 45.289 14.25 14.2 28.55 22.918 45.404 29.438 16.282 6.294 34.902 10.583 62.15 11.777 27.305 1.203 36.022 1.468 105.521 1.336 69.532-.133 78.25-.44 105.555-1.734 27.239-1.302 45.826-5.664 62.1-12.019 16.829-6.585 31.095-15.353 45.288-29.611 14.191-14.251 22.917-28.55 29.428-45.404 6.304-16.282 10.592-34.904 11.777-62.134 1.195-27.323 1.478-36.049 1.344-105.557-.133-69.516-.447-78.225-1.741-105.522-1.294-27.256-5.657-45.844-12.019-62.118-6.577-16.829-15.352-31.08-29.602-45.288-14.25-14.192-28.55-22.935-45.404-29.429-16.29-6.304-34.903-10.6-62.15-11.778C333.747.164 325.03-.101 255.506.031c-69.507.133-78.224.431-105.529 1.742z"/>
+            </svg></a>
+
+            <!-- TikTok -->
+            <a class="social-link" href="https://www.tiktok.com/@xuiapps" target="_blank"><svg style="vertical-align: -8px;" width="32" height="32" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 1000 1000">
+                <path class="social-logo-bg" d="M906.25 0H93.75C42.19 0 0 42.19 0 93.75v812.49c0 51.57 42.19 93.75 93.75 93.75l812.5.01c51.56 0 93.75-42.19 93.75-93.75V93.75C1000 42.19 957.81 0 906.25 0zM684.02 319.72c-32.42-21.13-55.81-54.96-63.11-94.38-1.57-8.51-2.45-17.28-2.45-26.25H515l-.17 414.65c-1.74 46.43-39.96 83.7-86.8 83.7-14.57 0-28.27-3.63-40.35-9.99-27.68-14.57-46.63-43.58-46.63-76.97 0-47.96 39.02-86.98 86.97-86.98 8.95 0 17.54 1.48 25.66 4.01V421.89c-8.41-1.15-16.95-1.86-25.66-1.86-105.01 0-190.43 85.43-190.43 190.45 0 64.42 32.18 121.44 81.3 155.92 30.93 21.72 68.57 34.51 109.14 34.51 105.01 0 190.43-85.43 190.43-190.43V400.21c40.58 29.12 90.3 46.28 143.95 46.28V343.03c-28.89 0-55.8-8.59-78.39-23.31z"/>
+            </svg></a>
+        </div>
+
+    </div>
+
+    <div class="center-col">
+        <div style="text-align: center;">
+            <h3>The Xui Micro-Apps</h3>
+        </div>
+        <div class="highlights">
+            <div>
+                <h4>Instruments</h4>
+                <svg width="180" height="150">
+                    <style>
+                        .plate {
+                            fill: #FFF;
+                            stroke: #EEE;
+                        }
+                        .plate-outline {
+                            stroke: #AAA;
+                        }
+                        .control {
+                            fill: #EEE;
+                        }
+                        @media (prefers-color-scheme: dark) {
+                            .plate {
+                                fill: #333;
+                                stroke: #555;
+                            }
+                            .plate-outline {
+                                stroke: #777;
+                            }
+                            .control {
+                                fill: #888;
+                            }
+                        }
+                    </style>
+                    <g transform="translate(40, 95)">
+                        <circle class="plate-outline" cx="0" cy="0" r="30" stroke-width="8" />
+                        <circle class="plate" cx="0" cy="0" r="30" stroke="#EEE" stroke-width="6" fill="none" />
+                    </g>
+                    <g transform="translate(100, 70)">
+                        <circle class="plate-outline" cx="0" cy="0" r="40" stroke-width="12" />
+                        <circle class="plate" cx="0" cy="0" r="40" stroke="#EEE" stroke-width="10" fill="none" />
+                    </g>
+                    <g transform="translate(40, 95) scale(0.6) rotate(-70)">
+                        <path d="M -4 4 L 0 -60 4 4 Z" fill="#d642cd" stroke-width="2" stroke="#8a05FF" stroke-linejoin="round" />
+                        <circle r="6" fill="#d642cd" stroke-width="2" stroke="#8a05FF" stroke-linejoin="round" />
+                    </g>
+                    <g transform="translate(100, 70) rotate(-20)">
+                        <path d="M -4 4 L 0 -50 4 4 Z" fill="#d642cd" stroke-width="2" stroke="#8a05FF" stroke-linejoin="round" />
+                        <circle r="6" fill="#d642cd" stroke-width="2" stroke="#8a05FF" stroke-linejoin="round" />
+                    </g>
+                    <g transform="translate(140, 90)">
+                        <circle cx="0" cy="0" r="22" fill="#777" />
+                        <circle cx="0" cy="25" r="22" fill="#777" />
+                        <circle class="control" cx="0" cy="0" r="20" />
+                        <circle class="control" cx="0" cy="25" r="20" />
+
+                        <path d="M-6 4 L 0 -7 6 4 Z" stroke-width="4" fill="#d642cd" stroke="#8a05FF" stroke-linejoin="round" />
+                        <path d="M-6 4 L 0 -7 6 4 Z" stroke-width="1" fill="#d642cd" stroke="#d642cd" stroke-linejoin="round" />
+
+                        <path d="M-6 21 L 0 32 6 21 Z" stroke-width="4" fill="#d642cd" stroke="#8a05FF" stroke-linejoin="round" />
+                        <path d="M-6 21 L 0 32 6 21 Z" stroke-width="1" fill="#d642cd" stroke="#d642cd" stroke-linejoin="round" />
+                    </g>
+                </svg>
+                <p>IoT metrics, monitor and control.</p>
+            </div>
+            <div>
+                <h4>Data Viz</h4>
+                <svg width="180" height="150">
+                    <g  transform="translate(5, 10)">
+                        <g transform="translate(25, 0)">
+                            <path d="M 1 40 L 7 40 M 4 40 L 4 50" stroke-width="2" stroke="#666" fill="none" stroke-linecap="round" />
+                            <rect y="50" width="8" height="30" rx="2" stroke-width="2" stroke="#666" fill="#8a05FF" />
+                            <path d="M 1 100 L 7 100 M 4 100 L 4 80" stroke-width="2" stroke="#666" fill="none" stroke-linecap="round" />
+                        </g>
+                        <g transform="translate(40, 0)">
+                            <path d="M 1 37 L 7 37 M 4 37 L 4 50" stroke-width="2" stroke="#666" fill="none" stroke-linecap="round" />
+                            <rect y="45" width="8" height="5" rx="2" stroke-width="2" stroke="#666" fill="#8a05FF" />
+                            <path d="M 1 55 L 7 55 M 4 55 L 4 50" stroke-width="2" stroke="#666" fill="none" stroke-linecap="round" />
+                        </g>
+                        <g transform="translate(55, 0)">
+                            <path d="M 1 25 L 7 25 M 4 25 L 4 35" stroke-width="2" stroke="#666" fill="none" stroke-linecap="round" />
+                            <rect y="35" width="8" height="10" rx="2" stroke-width="2" stroke="#666" fill="#8a05FF" />
+                            <path d="M 1 55 L 7 55 M 4 55 L 4 45" stroke-width="2" stroke="#666" fill="none" stroke-linecap="round" />
+                        </g>
+                        <g transform="translate(70, 0)">
+                            <path d="M 1 30 L 7 30 M 4 30 L 4 35" stroke-width="2" stroke="#666" fill="none" stroke-linecap="round" />
+                            <rect y="35" width="8" height="25" rx="2" stroke-width="2" stroke="#666" fill="#d642cd" />
+                            <path d="M 1 65 L 7 65 M 4 65 L 4 60" stroke-width="2" stroke="#666" fill="none" stroke-linecap="round" />
+                        </g>
+                        <g transform="translate(85, 0)">
+                            <path d="M 1 55 L 7 55 M 4 55 L 4 60" stroke-width="2" stroke="#666" fill="none" stroke-linecap="round" />
+                            <rect y="60" width="8" height="10" rx="2" stroke-width="2" stroke="#666" fill="#d642cd" />
+                            <path d="M 1 85 L 7 85 M 4 85 L 4 70" stroke-width="2" stroke="#666" fill="none" stroke-linecap="round" />
+                        </g>
+                        <g transform="translate(100, 0)">
+                            <path d="M 1 35 L 7 35 M 4 35 L 4 45" stroke-width="2" stroke="#666" fill="none" stroke-linecap="round" />
+                            <rect y="45" width="8" height="25" rx="2" stroke-width="2" stroke="#666" fill="#8a05FF" />
+                            <path d="M 1 80 L 7 80 M 4 80 L 4 70" stroke-width="2" stroke="#666" fill="none" stroke-linecap="round" />
+                        </g>
+                        <g transform="translate(115, 0)">
+                            <path d="M 1 40 L 7 40 M 4 40 L 4 50" stroke-width="2" stroke="#666" fill="none" stroke-linecap="round" />
+                            <rect y="45" width="8" height="15" rx="2" stroke-width="2" stroke="#666" fill="#d642cd" />
+                            <path d="M 1 70 L 7 70 M 4 70 L 4 60" stroke-width="2" stroke="#666" fill="none" stroke-linecap="round" />
+                        </g>
+                        <g transform="translate(130, 0)">
+                            <path d="M 1 40 L 7 40 M 4 40 L 4 50" stroke-width="2" stroke="#666" fill="none" stroke-linecap="round" />
+                            <rect y="50" width="8" height="10" rx="2" stroke-width="2" stroke="#666" fill="#8a05FF" />
+                            <path d="M 1 65 L 7 65 M 4 65 L 4 60" stroke-width="2" stroke="#666" fill="none" stroke-linecap="round" />
+                        </g>
+                        <g transform="translate(145, 0)">
+                            <path d="M 1 30 L 7 30 M 4 30 L 4 35" stroke-width="2" stroke="#666" fill="none" stroke-linecap="round" />
+                            <rect y="35" width="8" height="15" rx="2" stroke-width="2" stroke="#666" fill="#8a05FF" />
+                            <path d="M 1 60 L 7 60 M 4 60 L 4 50" stroke-width="2" stroke="#666" fill="none" stroke-linecap="round" />
+                        </g>
+                    </g>
+
+                    <path d="M 10 130 L 160 130" stroke-width="2" stroke="#666" fill="none" stroke-linecap="round" />
+                    <path d="M 20 145 L 20 20" stroke-width="2" stroke="#666" fill="none" stroke-linecap="round" />
+
+                </svg>
+                <p>Rich data-heavy dashboards.</p>
+            </div>
+            <div>
+                <h4>Loyalty Apps</h4>
+                <svg width="180" height="150">
+                    <style>
+                        .progress-bg {
+                            fill: #AAA;
+                        }
+                        .progress-fg {
+                            fill: #EEE;
+                        }
+                        .text {
+                            fill: #666;
+                        }
+                        @media (prefers-color-scheme: dark) {
+                            .progress-bg {
+                                fill: #555;
+                            }
+                            .progress-fg {
+                                fill: #888;
+                            }
+                            .text {
+                                fill: #AAA;
+                            }
+                        }
+                    </style>
+                    <g transform="translate(50, 10) scale(4, 4)">
+                        <path fill-rule="evenodd" fill="#d642cd" d="M 0 0 L 7 0 7 7 0 7 Z M 1 1 L 6 1 6 6 1 6 Z M 2 2 L 5 2 5 5 2 5 Z" />
+                        <path transform="translate(14, 0)" fill-rule="evenodd" fill="#d642cd" d="M 0 0 L 7 0 7 7 0 7 Z M 1 1 L 6 1 6 6 1 6 Z M 2 2 L 5 2 5 5 2 5 Z" />
+                        <path transform="translate(0, 14)" fill-rule="evenodd" fill="#d642cd" d="M 0 0 L 7 0 7 7 0 7 Z M 1 1 L 6 1 6 6 1 6 Z M 2 2 L 5 2 5 5 2 5 Z" />
+                        <path fill-rule="evenodd" fill="#8a05FF" d="M 0 8 l 2 0 0 1 1 0 0 -1 1 0 0 1 -1 0 0 3 1 0 0 1 -4 0 0 -2 1 0 0 1 1 0 0 -3 -2 0 Z M9 0 l 1 0 0 4 -1 0 0 -1 -1 0 0 -2 1 0 Z M8 4 l 1 0 0 3 1 0 0 -1 1 0 0 1 1 0 0 -1 -1 0 0 -1 1 0 0 -1 -1 0 0 -1 1 0 0 -1 -1 0 0 -2 2 0 0 1 -1 0 0 1 1 0 0 1 -1 0 0 1 1 0 0 4 -2 0 0 3 1 0 -1 0 1 0 0 -1 2 0 0 -2 3 0 0 2 2 0 0 1 1 0 0 -2 -2 0 0 -1 2 0 0 1 1 0 0 3 -2 0 0 -1 -1 0 0 1 -1 0 0 1 4 0 0 1 -1 0 0 1 1 0 0 1 -1 0 0 1 1 0 0 2 -1 0 0 -1 -1 0 0 1 -2 0 0 2 -1 0 0 -1 -1 0 0 1 -1 0 0 -1 -1 0 0 -1 -1 0 0 -1 2 0 0 2 1 0 0 -2 1 0 0 -1 1 0 0 1 2 0 0 -2 1 0 0 -1 -2 0 0 -1 -1 0 0 1 -1 0 0 1 -1 0 0 -1 -2 0 0 1 1 0 0 1 -1 0 0 -1 -1 0 0 1 -1 0 0 3 -1 0 0 1 -2 0 0 -2 2 0 0 -3 -1 0 0 -1 4 0 0 -1 4 0 0 -1 -1 0 0 -2 1 0 0 -1 -3 0 0 1 1 0 0 1 -1 0 0 -1 -2 0 0 1 1 0 0 1 -1 0 0 -1 -1 0 0 1 1 0 0 1 -1 0 0 -1 -1 0 0 1 -1 0 0 1 -1 0 0 -3 -1 0 0 1 -2 0 0 -2 -1 0 0 -1 1 0 0 -1 1 0 0 1 1 0 0 1 -1 0 0 1 1 0 0 -1 1 0 0 1 2 0 0 -1 -1 0 0 -1 1 0 0 -1 -1 0 0 -1 -1 0 0 2 -1 0 0 -1 -1 0 0 -1 2 0 Z M 8 17 l 1 0 0 1 -1 0 Z M 19 20 l 1 0 0 1 -1 0 Z" />
+                    </g>
+                    <rect class="progress-bg" x="10" y="130" width="160" height="18" rx="8" />
+                    <rect class="progress-fg" x="12" y="132" width="120" height="14" rx="7" />
+                    <text class="text" x="90" y="120" text-anchor="middle">237pts, 15% discount</text>
+                </svg>
+                <p>Retention and engagement.</p>
+            </div>
+            <div>
+                <h4>Quick Orders</h4>
+                <svg width="180" height="150">
+                    <style>
+                        .pizza-outline {
+                            stroke: #CCC;
+                            fill: #CCC;
+                        }
+                        .pizza-line {
+                            stroke: #CCC;
+                        }
+                        .pizza-bg {
+                            stroke: #EEE;
+                            fill: #EEE;
+                        }
+                        .text {
+                            fill: #666;
+                        }
+                        @media (prefers-color-scheme: dark) {
+                            .pizza-outline {
+                                stroke: #666;
+                                fill: #666;
+                            }
+                            .pizza-line {
+                                stroke: #666;
+                            }
+                            .pizza-bg {
+                                stroke: #444;
+                                fill: #444;
+                            }
+                            .text {
+                                fill: #AAA;
+                            }
+                        }
+                    </style>
+                    <g transform="translate(70, 80) rotate(-36)">
+                        <path class="pizza-outline" d="M 0 20 L -20 -40 Q 0 -52 20 -40 Z" stroke-width="6" stroke-linejoin="round" stroke="#CCC" fill="#CCC" />
+                        <path class="pizza-bg" d="M 0 20 L -20 -40 Q 0 -52 20 -40 Z" stroke-width="2" stroke-linejoin="round" stroke="#EEE" fill="#EEE" />
+                        <circle cx="-7" cy="-32" r="5" stroke-width="2" fill="none" stroke="#8a05FF" />
+                        <circle cx="6" cy="-18" r="5" stroke-width="2" fill="none" stroke="#8a05FF" />
+                        <circle cx="-1" cy="0" r="5" stroke-width="2" fill="none" stroke="#8a05FF" />
+                    </g>
+                    <g transform="translate(90, 65) rotate(-4)">
+                        <path class="pizza-outline" d="M 0 20 L -20 -40 Q 0 -52 20 -40 Z" stroke-width="6" stroke-linejoin="round" stroke="#CCC" fill="#CCC" />
+                        <path class="pizza-bg"  d="M 0 20 L -20 -40 Q 0 -52 20 -40 Z" stroke-width="2" stroke-linejoin="round" stroke="#EEE" fill="#EEE" />
+
+                        <rect x="-26" y="-25" transform="rotate(60)" width="12" height="6" rx="3" fill="#8a05FF" />
+                        <rect x="-4" y="-20" transform="rotate(-25)" width="12" height="6" rx="3" fill="#8a05FF" />
+                        <rect x="-5" y="-4" transform="rotate(30)" width="12" height="6" rx="3" fill="#8a05FF" />
+                    </g>
+                    <g transform="translate(110, 80) rotate(42)">
+                        <path class="pizza-outline" d="M 0 20 L -20 -40 Q 0 -52 20 -40 Z" stroke-width="6" stroke-linejoin="round" stroke="#CCC" fill="#CCC" />
+                        <path class="pizza-bg"  d="M 0 20 L -20 -40 Q 0 -52 20 -40 Z" stroke-width="2" stroke-linejoin="round" stroke="#EEE" fill="#EEE" />
+
+                        <path class="pizza-line" d="M -20 -36 Q 0 -47 20 -36" stroke-width="2" stroke-linejoin="round" stroke="#CCC" fill="none" />
+
+                        <circle cx="0" cy="-22" r="12" stroke-width="2" fill="none" stroke="#8a05FF" />
+                    </g>
+                    <rect x="50" y="110" width="80" height="30" rx="15" fill="none" stroke-width="2" stroke="#d642cd" />
+                    <text class="text" x="90" y="130" text-anchor="middle">25 min</text>
+                </svg>
+                <p>Out-of-picket restaurant menus.</p>
+            </div>
+            <div>
+                <h4>Social</h4>
+                <svg width="180" height="150">
+                    <style>
+                        .border {
+                            fill: #BBB;
+                            stroke: #BBB;
+                        }
+                        .bg {
+                            fill: #EEE;
+                        }
+                        .secondary {
+                            fill: #CCC;
+                        }
+                        @media (prefers-color-scheme: dark) {
+                            .border {
+                                fill: #666;
+                                stroke: #666;
+                            }
+                            .bg {
+                                fill: #444;
+                            }
+                            .secondary {
+                                fill: #888;
+                            }
+                        }
+                    </style>
+                    <g transform="translate(15, 30) rotate(-5)">
+                        <rect class="border" width="128" height="94" rx="7" />
+                        <rect class="bg" x="2" y="2" width="124" height="90" rx="5" />
+                        
+                        <circle cx="28" cy="20" r="3" fill="#d642cd" />
+                        <rect x="35" y="18.5" width="22" height="3" rx="1.5" fill="#8a05FF" />
+                        <rect x="35" y="24.5" width="30" height="3" rx="1.5" fill="#8a05FF" />
+                        <rect x="35" y="30.5" width="18" height="3" rx="1.5" fill="#8a05FF" />
+
+                        <rect class="secondary" x="45" y="45.5" width="40" height="3" rx="1.5" />
+                        <rect class="secondary" x="50" y="51.5" width="35" height="3" rx="1.5" />
+
+                        <circle cx="28" cy="70" r="3" fill="#d642cd" />
+                        <rect x="35" y="68.5" width="24" height="3" rx="1.5" fill="#8a05FF" />
+                        <rect x="35" y="74.5" width="8" height="3" rx="1.5" fill="#8a05FF" />
+                        <rect x="35" y="80.5" width="14" height="3" rx="1.5" fill="#8a05FF" />
+
+                        <path class="border" d="M20 2 L20 92" stroke-width="1" />
+                        <circle cx="10" cy="15" r="3" fill="#d642cd" />
+                        <circle class="secondary" cx="10" cy="25" r="3" />
+                        <circle class="secondary" cx="10" cy="35" r="3" />
+
+                    </g>
+
+                    <g transform="translate(115, 10) rotate(10)">
+                        <rect class="border" width="64" height="114" rx="7" fill="#BBB" />
+                        <rect class="bg" x="2" y="2" width="60" height="108" fill="#EEE" rx="5" />
+                        
+                        <circle cx="8" cy="20" r="3" fill="#d642cd" />
+                        <rect x="15" y="18.5" width="22" height="3" rx="1.5" fill="#8a05FF" />
+                        <rect x="15" y="24.5" width="30" height="3" rx="1.5" fill="#8a05FF" />
+                        <rect x="15" y="30.5" width="18" height="3" rx="1.5" fill="#8a05FF" />
+
+                        <rect class="secondary" x="15" y="45.5" width="40" height="3" rx="1.5" />
+                        <rect class="secondary" x="20" y="51.5" width="35" height="3" rx="1.5" />
+
+                        <circle cx="8" cy="70" r="3" fill="#d642cd" />
+                        <rect x="15" y="68.5" width="24" height="3" rx="1.5" fill="#8a05FF" />
+                        <rect x="15" y="74.5" width="8" height="3" rx="1.5" fill="#8a05FF" />
+                        <rect x="15" y="80.5" width="14" height="3" rx="1.5" fill="#8a05FF" />
+
+                        <path class="border" d="M2 96 L62 96" stroke-width="1" stroke="#CCC" />
+                        <circle cx="14" cy="103" r="3" fill="#d642cd" />
+                        <circle class="secondary" cx="32" cy="103" r="3" />
+                        <circle class="secondary" cx="50" cy="103" r="3" />
+
+                    </g>
+                </svg>
+                <p>Social events companion apps.</p>
+            </div>
+            <div>
+                <h4>Games</h4>
+                <svg width="180" height="150">
+                    <style>
+                        .wheel {
+                            fill: #FFF;
+                            stroke: #000;
+                        }
+                        .road {
+                            stroke: #000;
+                        }
+                        @media (prefers-color-scheme: dark) {
+                            .wheel {
+                                fill: #AAA;
+                                stroke: #333;
+                            }
+                            .road {
+                                stroke: #666;
+                            }
+                        }
+                    </style>
+                    <path class="road" d="M30 180 Q 40 150 20 130 Q 10 110 10 90 L 0 95" stroke-width="2" fill="none" />
+                    <path class="road" d="M40 180 Q 50 160 60 140 Q 70 130 80 120 L 180 130" stroke-width="2" fill="none" />
+                    <g transform="translate(50, 70) rotate(-20)">
+                        <path d="M53 20 L 4 22 2 12 5 10 9 10 12 4 26 4 35 10 52 12 54 20 Z" stroke-width="2.5" stroke-linejoin="round" stroke="black" fill="#8a05FF" />
+                        <circle class="wheel" cx="17" cy="20" r="8" stroke-width="3" />
+                        <circle class="wheel" cx="43" cy="20" r="6" stroke-width="3" />
+                    </g>
+                    <circle cx="110" cy="112" r="5" fill="#d642cd" />
+                    <circle cx="130" cy="114" r="5" fill="#d642cd" />
+                    <circle cx="150" cy="116" r="5" fill="#d642cd" />
+                </svg>
+                <p>Gamified 2D experiences.</p>
+            </div>
+        </div>
+        
+    </div>
+
+    <div class="center-col highlights-bg">
+        <div class="highlights">
+            <p>
+                <em>120 fps</em><br />
+                macOS / Windows
+            </p>
+            <p>
+                <em>60 fps</em><br />
+                mobile
+            </p>
+            <p>
+                <em>Crisp</em><br />
+                vector 2D graphics
+            </p>
+        </div>
+    </div>
+
+    <div class="center-col">
+        <div style="text-align: center;">
+            <h3>The Xui Technology</h3>
+
+            <p>
+                Abstract: simple clean primitives for your app:<br />
+                <em>Run-Loop</em>, <em>App</em>, <em>Window</em>, <em>Canvas</em>...
+            </p>
+
+            <svg width="400" height="140" style="margin: 0px -200px" viewBox="0 40 400 120" xmlns="http://www.w3.org/2000/svg">
+                <style>
+                    .fg {
+                        fill: #444;
+                        stroke: #444;
+                    }
+                    .stroke {
+                        stroke: #444;
+                    }
+                    .text {
+                        fill: #444;
+                    }
+                    @media (prefers-color-scheme: dark) {
+                        .fg {
+                            fill: #DDD;
+                            stroke: #DDD;
+                        }
+                        .stroke {
+                            stroke: #DDD;
+                        }
+                        .text {
+                            fill: #DDD;
+                        }
+                    }
+                </style>
+
+                <g transform="translate(170, 50)">
+                    <path class="stroke" d="M10 100 Q -10 50 10 0" stroke-linecap="round" stroke-width="3" fill="none" />
+                    <path class="fg" transform="translate(10, 0) rotate(20)" d="M-8 14 L 0 0 8 14 Q 0 8 -8 14 Z" stroke-linejoin="round" stroke-width="3" />
+                </g>
+                <text class="text" x="250" y="107" text-anchor="start" font-weight="500">ACTUAL</text>
+
+                <g transform="translate(230, 50)">
+                    <path class="stroke" d="M-10 0 Q 10 50 -10 100" stroke-linecap="round" stroke-width="3" fill="none "/>
+                    <path class="fg" transform="translate(-10, 100) rotate(200)" d="M-8 14 L 0 0 8 14 Q 0 8 -8 14 Z" stroke-linejoin="round" stroke-width="3" />
+                </g>
+                <text class="text" x="150" y="107" text-anchor="end" font-weight="500">ABSTRACT</text>
+            </svg>
+            <p>
+                Middleware: <em>Software Emulator</em>, <em>Testing Platform</em>, <em>Dev Instruments</em>
+            </p>
+            <p>
+                Actual: <em>NSRunLoop</em>, <em>CoreGraphics</em>, <em>Win32</em>, <em>Direct2D</em>, <em>Web Canvas</em>...<br/>
+            </p>
+        </div>
+
+        <div class="blocks">
+            <div>
+                <h4>Statically Compiled</h4>
+                <p>
+                    Written C#, using the dotnet AoT compiler,
+                    we get binaries similar to that of native C apps.
+                    Native interop objects are wrapped in C# IDisposable for precise lifetime tracking.
+                    Short-lived native objects are used as disposable ref structs to relieve GC pressure.
+                </p>
+            </div>
+            <div>
+                <h4>Vector Graphics</h4>
+                <p>
+                    The Xui C# canvas implementation,
+                    is heavily influenced by the standard web canvas API,
+                    but is strictly typed and favors stack allocated structures,
+                    delivering high performance 2D text and vector drawing.
+                </p>
+            </div>
+            <div>
+                <h4>Platform Input</h4>
+                <p>
+                    Xui uses very shallow abstraction layer,
+                    that spins a native run loop and application delegate classes.
+                    This gives access to the full palette of user input events:
+                    trackpad and pressure, digital inc framerate boost,
+                </p>
+            </div>
+            <div>
+                <h4>Soft Emulator</h4>
+                <p>
+                    iPhone preview on your windows? You bet!
+                    Hit F5, rebuild in seconds and launch the Xui soft emulator,
+                    where native emulators take about 30 sec to deploy your app,
+                    even from Xcode or Android Studio.
+                </p>
+            </div>
+            <div>
+                <h4>Pixel Perfect</h4>
+                <p>Stepping on CoreGraphics for macOS and DirectWrite on Windows, perfect ClearType on Windows LCD
+                    displays and crisp texts on MacBook Pro. Just what your users expect. The shared UI framework makes
+                    makes the layouts predictable.</p>
+            </div>
+            <div>
+                <h4>Testability</h4>
+                <p>
+                    Testability is a software metric in which some other frameworks lag behind.
+                    The Xui's Test platform, similar to the Xui's soft emulator,
+                    lies to your app that it executes on a specific platform.
+                    It lets you input simulate events and assert on drawing instructions.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="center-col highlights-bg">
+        <div class="highlights">
+            <p>
+                <em>~2 minutes</em><br />
+                release build
+            </p>
+            <p>
+                <em>~2 MB app</em><br />
+                app size, no-trimming
+            </p>
+            <p>
+                <em>~5 seconds</em><br />
+                rude edit dev cycle
+            </p>
+        </div>
+    </div>
+
+    <div class="center-col">
+        <div style="text-align: center;">
+            <h3>The Xui API</h3>
+        </div>
+    </div>
+
+</body>
+
+</html>

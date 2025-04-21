@@ -1,0 +1,66 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/docfx/main/schemas/docfx.schema.json",
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": ".",
+          "files": [
+            "Xui/Core/Core/Core.csproj",
+            "Xui/Middleware/Emulator/Emulator.csproj"
+          ]
+        }
+      ],
+      "output": "www/api",
+      "namespaceLayout": "nested"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "docs/**/*.{md,yml}",
+          "ai/**/*.{md,yml}"
+        ],
+        "exclude": [
+          "_site/**"
+        ],
+        "src": "www"
+      },
+      {
+        "files": [
+          "api/**/*.{md,yml}"
+        ],
+        "exclude": [
+          "_site/**"
+        ],
+        "src": "www"
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "images/**"
+        ],
+        "src": "www"
+      },
+      {
+        "files": [
+          "**"
+        ],
+        "src": "www/index"
+      }
+    ],
+    "output": "_site",
+    "template": [
+      "default",
+      "modern"
+    ],
+    "globalMetadata": {
+      "_appName": "XUI APPS",
+      "_appTitle": "XUI APPS",
+      "_enableSearch": true,
+      "pdf": false
+    }
+  }
+}

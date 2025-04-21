@@ -1,11 +1,13 @@
 namespace Xui.Core.Canvas;
 
 /// <summary>
-/// Web color constants.
+/// Provides web standard named color constants in 32-bit RGBA format (0xRRGGBBAA).
+/// These match the named colors from the CSS color specification:
 /// https://developer.mozilla.org/en-US/docs/Web/CSS/named-color
 /// </summary>
 public static class Colors
 {
+#pragma warning disable CS1591
     public const uint Transparent = 0x00000000;
 
     public const uint Black = 0x000000FF;
@@ -106,7 +108,7 @@ public static class Colors
     public const uint LightYellow = 0xffffe0FF;
     public const uint LimeGreen = 0x32cd32FF;
     public const uint Linen = 0xfaf0e6FF;
-    public const uint Agenta = 0xff00ffFF;
+    public const uint Magenta = 0xff00ffFF;
     public const uint MediumAquamarine = 0x66cdaaFF;
     public const uint MediumBlue = 0x0000cdFF;
     public const uint MediumOrchid = 0xba55d3FF;

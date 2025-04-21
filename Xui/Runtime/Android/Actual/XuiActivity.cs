@@ -22,6 +22,7 @@ public class XuiActivity : global::Android.App.Activity, Xui.Core.Actual.IWindow
     public new string Title { get; set; } = "";
 
     public Xui.Core.Abstract.IWindow? Abstract { get; internal set; }
+    public bool RequireKeyboard { get; set; }
 
     protected override void OnCreate(Bundle? savedInstanceState)
     {

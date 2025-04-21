@@ -86,6 +86,8 @@ public class AndroidDrawingContext : IContext
     
     // TODO: Setting this should invalidate the dash path effect...
     public NFloat LineDashOffset { get; set; }
+    public TextAlign TextAlign { set => throw new NotImplementedException(); }
+    public TextBaseline TextBaseline { set => throw new NotImplementedException(); }
 
     public void Arc(Core.Math2D.Point center, NFloat radius, NFloat startAngle, NFloat endAngle, Winding winding = Winding.ClockWise)
     {

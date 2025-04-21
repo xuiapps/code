@@ -4,7 +4,7 @@ using Xui.Core.UI;
 
 namespace Xui.Apps.BlankApp;
 
-public class XuiLogo : Xui.Core.UI.IDrawable
+public class XuiLogo
 {
     public static readonly XuiLogo Instance = new XuiLogo();
 
