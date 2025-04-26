@@ -7,6 +7,17 @@ Ask me anything about layout, rendering, animations, or platform quirks. Whether
 
 ---
 
+## How to feed Gigi power into your ChatGPT or other robot
+Pass them this link in your prompt, it has the Xui API compacted for AI assistant:
+```
+Hey, AI, I would like to use the Xui framework,
+this is its C# API reference trimmed from implementation:
+https://xuiapps.com/ai/ai-api-ref.md
+Please use check it out, and then we will do some fancy stuff with Xui.
+```
+
+[The content in HTML format of the compacted API ref page.](./ai-api-ref.html)
+
 ## How to Use Gigi
 
 Use these prompt examples to get started:

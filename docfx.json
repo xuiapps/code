@@ -49,6 +49,12 @@
           "**"
         ],
         "src": "www/index"
+      },
+      {
+        "files": [
+          "ai/ai-api-ref.md"
+        ],
+        "src": "www"
       }
     ],
     "output": "_site",
