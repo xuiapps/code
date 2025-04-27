@@ -1,4 +1,5 @@
 using Xui.Core.Math2D;
+using Xui.Core.Canvas;
 
 namespace Xui.Core.UI;
 
@@ -11,14 +12,14 @@ namespace Xui.Core.UI;
 public class VerticalStack : ViewCollection
 {
     /// <inheritdoc/>
-    protected override Size MeasureCore(Size availableBorderEdgeSize)
+    protected override Size MeasureCore(Size availableBorderEdgeSize, IMeasureContext context)
     {
         Size desiredBorderEdgeBoxSize = (0, 0);
         Size availableChildSize = (availableBorderEdgeSize.Width, nfloat.PositiveInfinity);
         for (int i = 0; i < Count; i++)
         {
             var child = this[i];
-            var desiredChildMarginEdgeBox = child.Measure(availableChildSize);
+            var desiredChildMarginEdgeBox = child.Measure(availableChildSize, context);
             desiredBorderEdgeBoxSize.Width = nfloat.Max(desiredBorderEdgeBoxSize.Width, desiredChildMarginEdgeBox.Width);
             desiredBorderEdgeBoxSize.Height += desiredChildMarginEdgeBox.Height;
         }
@@ -26,17 +27,17 @@ public class VerticalStack : ViewCollection
     }
 
     /// <inheritdoc/>
-    protected override void ArrangeCore(Rect rect)
+    protected override void ArrangeCore(Rect rect, IMeasureContext context)
     {
         nfloat y = rect.Y;
         for (int i = 0; i < Count; i++)
         {
             var child = this[i];
-            var desired = child.Measure((rect.Size.Width, nfloat.PositiveInfinity));
+            var desired = child.Measure((rect.Size.Width, nfloat.PositiveInfinity), context);
 
             // Arrange child at (X, Y), with width/height = desired
             var childRect = new Rect(rect.X, y, rect.Width, desired.Height);
-            child.Arrange(childRect);
+            child.Arrange(childRect, context);
 
             y += desired.Height;
         }

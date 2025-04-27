@@ -1,6 +1,6 @@
 # Xui API Reference for AI Consumption
 
-_Generated on 2025-04-26 18:41 UTC_
+_Generated on 2025-04-27 13:41 UTC_
 
 This document is an automatically generated API reference extracted directly from the Xui source code.
 It is optimized for AI models to efficiently understand the framework.
@@ -1885,6 +1885,16 @@ public struct Color
     }
 
     /// <summary>
+    /// Returns true if the color is fully transparent (Alpha = 0).
+    /// </summary>
+    public readonly bool IsTransparent
+    {
+        get
+        {
+        }
+    }
+
+    /// <summary>
     /// Implicitly converts a 32-bit RGBA value (0xRRGGBBAA) to a <see cref = "Color"/>.
     /// </summary>
     /// <param name = "rgbaHex">Packed RGBA hex value.</param>
@@ -2070,6 +2080,10 @@ using System.Diagnostics;
 public struct CornerRadius
 {
     /// <summary>
+    /// A <see cref = "CornerRadius"/> where all corners have a radius of zero.
+    /// </summary>
+    public static readonly CornerRadius Zero = new CornerRadius();
+    /// <summary>
     /// Radius of the top-left corner.
     /// </summary>
     public nfloat TopLeft;
@@ -2089,6 +2103,16 @@ public struct CornerRadius
     /// Returns true if all corners have the same radius value.
     /// </summary>
     public bool IsUniform
+    {
+        get
+        {
+        }
+    }
+
+    /// <summary>
+    /// Returns true if all corner radii are zero.
+    /// </summary>
+    public readonly bool IsZero
     {
         get
         {
@@ -2137,6 +2161,69 @@ public struct CornerRadius
     /// </summary>
     /// <param name = "radii">Tuple representing (TopLeft, TopRight, BottomRight, BottomLeft).</param>
     public static implicit operator CornerRadius(Tuple<nfloat, nfloat, nfloat, nfloat> radii)
+    {
+    }
+
+    /// <summary>
+    /// Adds two <see cref = "CornerRadius"/> values component-wise.
+    /// </summary>
+    /// <param name = "lhs">The first <see cref = "CornerRadius"/>.</param>
+    /// <param name = "rhs">The second <see cref = "CornerRadius"/>.</param>
+    /// <returns>A new <see cref = "CornerRadius"/> where each corner is the sum of the corresponding corners.</returns>
+    [DebuggerStepThrough]
+    public static CornerRadius operator +(CornerRadius lhs, CornerRadius rhs)
+    {
+    }
+
+    /// <summary>
+    /// Subtracts one <see cref = "CornerRadius"/> from another component-wise.
+    /// </summary>
+    /// <param name = "lhs">The first <see cref = "CornerRadius"/>.</param>
+    /// <param name = "rhs">The second <see cref = "CornerRadius"/> to subtract.</param>
+    /// <returns>A new <see cref = "CornerRadius"/> where each corner is the difference of the corresponding corners.</returns>
+    [DebuggerStepThrough]
+    public static CornerRadius operator -(CornerRadius lhs, CornerRadius rhs)
+    {
+    }
+
+    /// <summary>
+    /// Returns a <see cref = "CornerRadius"/> where each corner is the minimum of the corresponding corners of the two inputs.
+    /// </summary>
+    /// <param name = "a">First <see cref = "CornerRadius"/>.</param>
+    /// <param name = "b">Second <see cref = "CornerRadius"/>.</param>
+    /// <returns>A new <see cref = "CornerRadius"/> taking the minimum value at each corner.</returns>
+    [DebuggerStepThrough]
+    public static CornerRadius Min(CornerRadius a, CornerRadius b)
+    {
+    }
+
+    /// <summary>
+    /// Returns a <see cref = "CornerRadius"/> where each corner is the maximum of the corresponding corners of the two inputs.
+    /// </summary>
+    /// <param name = "a">First <see cref = "CornerRadius"/>.</param>
+    /// <param name = "b">Second <see cref = "CornerRadius"/>.</param>
+    /// <returns>A new <see cref = "CornerRadius"/> taking the maximum value at each corner.</returns>
+    [DebuggerStepThrough]
+    public static CornerRadius Max(CornerRadius a, CornerRadius b)
+    {
+    }
+
+    /// <summary>
+    /// Implicitly converts a tuple (horizontal, vertical) into a <see cref = "CornerRadius"/>,
+    /// where TopLeft and BottomRight use horizontal, and TopRight and BottomLeft use vertical radius.
+    /// </summary>
+    /// <param name = "radii">Tuple of two radii (horizontal, vertical).</param>
+    [DebuggerStepThrough]
+    public static implicit operator CornerRadius((nfloat horizontal, nfloat vertical) radii)
+    {
+    }
+
+    /// <summary>
+    /// Implicitly converts a tuple (topLeft, topRight, bottomRight, bottomLeft) into a <see cref = "CornerRadius"/>.
+    /// </summary>
+    /// <param name = "radii">Tuple of four radii representing each corner individually.</param>
+    [DebuggerStepThrough]
+    public static implicit operator CornerRadius((nfloat topLeft, nfloat topRight, nfloat bottomRight, nfloat bottomLeft) radii)
     {
     }
 }
@@ -2383,7 +2470,7 @@ namespace Xui.Core.Canvas;
 /// This interface aggregates all sub-contexts responsible for different aspects of 2D rendering,
 /// including state, drawing primitives, text, images, transformations, and resource management.
 /// </summary>
-public interface IContext : IStateContext, // Handles save/restore state stack and global properties
+public interface IContext : IMeasureContext, IStateContext, // Handles save/restore state stack and global properties
  IPenContext, // Controls stroke/fill styles, line width, caps, joins, etc.
  IPathDrawingContext, // Handles path creation and stroking/filling
  IRectDrawingContext, // Shortcut methods for drawing and clearing rectangles
@@ -2413,6 +2500,20 @@ public interface IImageDrawingContext
 // void DrawImage(ImageSource image, nfloat dx, nfloat dy, nfloat dWidth, nfloat dHeight);
 // void DrawImage(ImageSource image, nfloat sx, nfloat sy, nfloat sWidth, nfloat sHeight,
 //                nfloat dx, nfloat dy, nfloat dWidth, nfloat dHeight);
+}
+```
+
+### Canvas/IMeasureContext.cs
+
+```csharp
+namespace Xui.Core.Canvas;
+/// <summary>
+/// Defines a measurement context that provides access to platform-specific text metrics,
+/// supports subpixel snapping for layout precision, and enables accurate text size calculations
+/// using the underlying rendering engine's font rasterization and shaping systems.
+/// </summary>
+public interface IMeasureContext : ITextMeasureContext
+{
 }
 ```
 
@@ -4170,6 +4271,16 @@ public struct Frame
     }
 
     /// <summary>
+    /// Returns true if all sides (Left, Top, Right, Bottom) are zero.
+    /// </summary>
+    public readonly bool IsZero
+    {
+        get
+        {
+        }
+    }
+
+    /// <summary>
     /// Gets the total horizontal edge thickness (left + right).
     /// </summary>
     public nfloat TotalWidth
@@ -4791,6 +4902,13 @@ public struct Size
     }
 
     /// <summary>
+    /// Returns the size of a square.
+    /// </summary>
+    public static implicit operator Size(int uniform)
+    {
+    }
+
+    /// <summary>
     /// Explicitly converts a <see cref = "Vector"/> to a <see cref = "Size"/>.
     /// </summary>
     [DebuggerStepThrough]
@@ -5172,6 +5290,62 @@ public interface INonEnumerableSet<T>
 }
 ```
 
+### UI/Border.cs
+
+```csharp
+using Xui.Core.Math2D;
+using Xui.Core.Canvas;
+
+namespace Xui.Core.UI
+{
+    /// <summary>
+    /// A view that draws a background, border, and padding around a single child content view.
+    /// </summary>
+    public class Border : View
+    {
+        /// <summary>
+        /// Gets or sets the content view displayed inside the border.
+        /// </summary>
+        public View? Content { get; set; }
+        /// <summary>
+        /// Gets or sets the thickness of the border on each side.
+        /// </summary>
+        public Frame BorderThickness { get; set; } = Math2D.Frame.Zero;
+        /// <summary>
+        /// Gets or sets the corner radius used to round the corners of the border and background.
+        /// </summary>
+        public CornerRadius CornerRadius { get; set; } = 0;
+        /// <summary>
+        /// Gets or sets the background color inside the border.
+        /// </summary>
+        public Color BackgroundColor { get; set; } = Colors.Transparent;
+        /// <summary>
+        /// Gets or sets the color of the border stroke.
+        /// </summary>
+        public Color BorderColor { get; set; } = Colors.Transparent;
+        /// <summary>
+        /// Gets or sets the padding between the border and the content.
+        /// </summary>
+        public Frame Padding { get; set; } = Math2D.Frame.Zero;
+
+        /// <inheritdoc/>
+        protected override Size MeasureCore(Size constraints, IMeasureContext context)
+        {
+        }
+
+        /// <inheritdoc/>
+        protected override void ArrangeCore(Rect rect, IMeasureContext context)
+        {
+        }
+
+        /// <inheritdoc/>
+        protected override void RenderCore(IContext context)
+        {
+        }
+    }
+}
+```
+
 ### UI/Direction.cs
 
 ```csharp
@@ -5285,6 +5459,7 @@ public enum HorizontalAlignment : byte
 
 ```csharp
 using Xui.Core.Math2D;
+using Xui.Core.Canvas;
 
 namespace Xui.Core.UI;
 /// <summary>
@@ -5296,12 +5471,12 @@ namespace Xui.Core.UI;
 public class HorizontalStack : ViewCollection
 {
     /// <inheritdoc/>
-    protected override Size MeasureCore(Size availableBorderEdgeSize)
+    protected override Size MeasureCore(Size availableBorderEdgeSize, IMeasureContext context)
     {
     }
 
     /// <inheritdoc/>
-    protected override void ArrangeCore(Rect rect)
+    protected override void ArrangeCore(Rect rect, IMeasureContext context)
     {
     }
 }
@@ -5311,6 +5486,7 @@ public class HorizontalStack : ViewCollection
 
 ```csharp
 using Xui.Core.Math2D;
+using Xui.Core.Canvas;
 
 namespace Xui.Core.UI;
 /// <summary>
@@ -5342,18 +5518,68 @@ public class HorizontalUniformStack : ViewCollection
     /// <returns>
     /// The desired size of this container based on its layout strategy.
     /// </returns>
-    protected override Size MeasureCore(Size availableBorderEdgeSize)
+    protected override Size MeasureCore(Size availableBorderEdgeSize, IMeasureContext context)
     {
     }
 
-    /// <summary>
-    /// Arranges the children into horizontally stacked columns of equal width.
-    /// </summary>
-    /// <param name = "rect">
-    /// The rectangle within which to arrange children.
-    /// </param>
-    protected override void ArrangeCore(Rect rect)
+    /// <inheritdoc/>
+    protected override void ArrangeCore(Rect rect, IMeasureContext context)
     {
+    }
+}
+```
+
+### UI/Label.cs
+
+```csharp
+using Xui.Core.Math2D;
+using Xui.Core.Canvas;
+
+namespace Xui.Core.UI
+{
+    /// <summary>
+    /// A view that displays a single line of styled text.
+    /// </summary>
+    public class Label : View
+    {
+        /// <summary>
+        /// Gets or sets the text content displayed by the label.
+        /// </summary>
+        public string Text { get; set; } = "";
+        /// <summary>
+        /// Gets or sets the color used to fill the text.
+        /// </summary>
+        public Color TextColor { get; set; } = Colors.Black;
+        /// <summary>
+        /// Gets or sets the font family used for rendering the text.
+        /// </summary>
+        public string[] FontFamily { get; set; } = ["Verdana"];
+        /// <summary>
+        /// Gets or sets the font size in points.
+        /// </summary>
+        public nfloat FontSize { get; set; } = 15;
+        /// <summary>
+        /// Gets or sets the font style (e.g., normal, italic, oblique).
+        /// </summary>
+        public FontStyle FontStyle { get; set; } = FontStyle.Italic;
+        /// <summary>
+        /// Gets or sets the font weight (e.g., normal, bold, numeric weight).
+        /// </summary>
+        public int FontWeight { get; set; } = 600;
+        /// <summary>
+        /// Gets or sets the line height of the text.
+        /// </summary>
+        public nfloat LineHeight { get; set; } = 18;
+
+        /// <inheritdoc/>
+        protected override Size MeasureCore(Size availableBorderEdgeSize, IMeasureContext context)
+        {
+        }
+
+        /// <inheritdoc/>
+        protected override void RenderCore(IContext context)
+        {
+        }
     }
 }
 ```
@@ -5388,9 +5614,12 @@ public struct LayoutGuide
     /// </summary>
     public SizeTo YSize;
     /// <summary>
-    /// Optional context for measuring text content during the Measure pass.
+    /// Optional measurement context providing access to platform-specific text metrics
+    /// and precise size calculations during the Measure pass.
+    /// If set, text and layout measurements can use font shaping and pixel snapping
+    /// consistent with the underlying rendering system.
     /// </summary>
-    public ITextMeasureContext? MeasureContext;
+    public IMeasureContext? MeasureContext;
     /// <summary>
     /// The desired size of the view's margin box, produced during the Measure pass.
     /// </summary>
@@ -5540,6 +5769,7 @@ public enum VerticalAlignment : byte
 
 ```csharp
 using Xui.Core.Math2D;
+using Xui.Core.Canvas;
 
 namespace Xui.Core.UI;
 /// <summary>
@@ -5551,12 +5781,12 @@ namespace Xui.Core.UI;
 public class VerticalStack : ViewCollection
 {
     /// <inheritdoc/>
-    protected override Size MeasureCore(Size availableBorderEdgeSize)
+    protected override Size MeasureCore(Size availableBorderEdgeSize, IMeasureContext context)
     {
     }
 
     /// <inheritdoc/>
-    protected override void ArrangeCore(Rect rect)
+    protected override void ArrangeCore(Rect rect, IMeasureContext context)
     {
     }
 }
@@ -5566,6 +5796,7 @@ public class VerticalStack : ViewCollection
 
 ```csharp
 using Xui.Core.Math2D;
+using Xui.Core.Canvas;
 
 namespace Xui.Core.UI;
 /// <summary>
@@ -5584,21 +5815,13 @@ namespace Xui.Core.UI;
 /// </remarks>
 public class VerticalUniformStack : ViewCollection
 {
-    /// <summary>
-    /// Measures the desired size of this layout container and its children,
-    /// based on the available space provided by the parent.
-    /// </summary>
-    /// <param name = "availableBorderEdgeSize">The space available for layout, excluding padding and borders.</param>
-    /// <returns>The desired size of this container based on its layout strategy.</returns>
-    protected override Size MeasureCore(Size availableBorderEdgeSize)
+    /// <inheritdoc/>
+    protected override Size MeasureCore(Size availableBorderEdgeSize, IMeasureContext context)
     {
     }
 
-    /// <summary>
-    /// Arranges the children into vertically stacked rows of equal height.
-    /// </summary>
-    /// <param name = "rect">The rectangle within which to arrange children.</param>
-    protected override void ArrangeCore(Rect rect)
+    /// <inheritdoc/>
+    protected override void ArrangeCore(Rect rect, IMeasureContext context)
     {
     }
 }
@@ -5727,8 +5950,9 @@ public abstract class View
     /// calculated during the layout pass.
     /// </summary>
     /// <param name = "availableSize">The maximum space available for the view to occupy.</param>
+    /// <param name = "context"></param>
     /// <returns>The size that the view desires to occupy within the constraints.</returns>
-    public Size Measure(Size availableSize)
+    public Size Measure(Size availableSize, IMeasureContext context)
     {
     }
 
@@ -5737,7 +5961,7 @@ public abstract class View
     /// </summary>
     /// <param name = "rect">The rectangle defining the position and exact size for the view.</param>
     /// <returns>The rectangle occupied by the arranged view.</returns>
-    public Rect Arrange(Rect rect)
+    public Rect Arrange(Rect rect, IMeasureContext context)
     {
     }
 
@@ -5757,10 +5981,14 @@ public abstract class View
     /// The maximum size available for the view’s border edge box. 
     /// This size excludes margins, which are handled by the parent layout.
     /// </param>
+    /// <param name = "context">
+    /// The layout metrics context providing access to platform-specific measurements,
+    /// text sizing, and pixel snapping utilities.
+    /// </param>
     /// <returns>
     /// The desired size of the border edge box based on content and layout logic.
     /// </returns>
-    protected virtual Size MeasureCore(Size availableBorderEdgeSize)
+    protected virtual Size MeasureCore(Size availableBorderEdgeSize, IMeasureContext context)
     {
     }
 
@@ -5771,7 +5999,11 @@ public abstract class View
     /// <param name = "rect">
     /// The final rectangle (position and size) allocated to this view's border edge box.
     /// </param>
-    protected virtual void ArrangeCore(Rect rect)
+    /// <param name = "context">
+    /// The layout metrics context providing access to platform-specific measurements,
+    /// text sizing, and pixel snapping utilities.
+    /// </param>
+    protected virtual void ArrangeCore(Rect rect, IMeasureContext context)
     {
     }
 

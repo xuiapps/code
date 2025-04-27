@@ -1,4 +1,5 @@
 using Xui.Core.Math2D;
+using Xui.Core.Canvas;
 
 namespace Xui.Core.UI;
 
@@ -31,7 +32,7 @@ public class HorizontalUniformStack : ViewCollection
     /// <returns>
     /// The desired size of this container based on its layout strategy.
     /// </returns>
-    protected override Size MeasureCore(Size availableBorderEdgeSize)
+    protected override Size MeasureCore(Size availableBorderEdgeSize, IMeasureContext context)
     {
         int childCount = this.Count;
         if (childCount == 0)
@@ -49,7 +50,7 @@ public class HorizontalUniformStack : ViewCollection
             for (int i = 0; i < childCount; i++)
             {
                 var child = this[i];
-                var childSize = child.Measure((uniformWidth, availableBorderEdgeSize.Height));
+                var childSize = child.Measure((uniformWidth, availableBorderEdgeSize.Height), context);
                 maxHeight = nfloat.Max(maxHeight, childSize.Height);
             }
         }
@@ -59,7 +60,7 @@ public class HorizontalUniformStack : ViewCollection
             for (int i = 0; i < childCount; i++)
             {
                 var child = this[i];
-                var childSize = child.Measure((nfloat.PositiveInfinity, availableBorderEdgeSize.Height));
+                var childSize = child.Measure((nfloat.PositiveInfinity, availableBorderEdgeSize.Height), context);
                 uniformWidth = nfloat.Max(uniformWidth, childSize.Width);
                 maxHeight = nfloat.Max(maxHeight, childSize.Height);
             }
@@ -68,13 +69,8 @@ public class HorizontalUniformStack : ViewCollection
         return new Size(uniformWidth * childCount, maxHeight);
     }
 
-    /// <summary>
-    /// Arranges the children into horizontally stacked columns of equal width.
-    /// </summary>
-    /// <param name="rect">
-    /// The rectangle within which to arrange children.
-    /// </param>
-    protected override void ArrangeCore(Rect rect)
+    /// <inheritdoc />
+    protected override void ArrangeCore(Rect rect, IMeasureContext context)
     {
         int childCount = this.Count;
         if (childCount == 0)
@@ -87,7 +83,7 @@ public class HorizontalUniformStack : ViewCollection
         {
             var child = this[i];
             var childRect = new Rect(x, rect.Y, uniformWidth, rect.Height);
-            child.Arrange(childRect);
+            child.Arrange(childRect, context);
             x += uniformWidth;
         }
     }

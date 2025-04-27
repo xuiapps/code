@@ -285,7 +285,7 @@ public class MacOSDrawingContext : IContext
 
         if (radius.BottomLeft == 0)
         {
-            context.LineTo(rect.TopLeft);
+            context.LineTo(rect.BottomLeft);
         }
         else
         {

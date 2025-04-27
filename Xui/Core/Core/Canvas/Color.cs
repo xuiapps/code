@@ -56,6 +56,11 @@ public struct Color
     }
 
     /// <summary>
+    /// Returns true if the color is fully transparent (Alpha = 0).
+    /// </summary>
+    public readonly bool IsTransparent => Alpha == 0;
+
+    /// <summary>
     /// Implicitly converts a 32-bit RGBA value (0xRRGGBBAA) to a <see cref="Color"/>.
     /// </summary>
     /// <param name="rgbaHex">Packed RGBA hex value.</param>

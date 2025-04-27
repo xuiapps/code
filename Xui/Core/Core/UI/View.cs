@@ -139,7 +139,7 @@ public abstract class View
             }
             else
             {
-                desiredBorderEdgeBoxSize = this.MeasureCore(availableMarginBoxSize - this.Margin);
+                desiredBorderEdgeBoxSize = this.MeasureCore(availableMarginBoxSize - this.Margin, guide.MeasureContext!);
                 if (fixedWidth)
                 {
                     desiredBorderEdgeBoxSize.Width = guide.AvailableSize.Width;
@@ -184,7 +184,7 @@ public abstract class View
 
             guide.ArrangedRect = new Rect(x, y, width, height) - this.Margin;
             this.Frame = guide.ArrangedRect;
-            this.ArrangeCore(guide.ArrangedRect);
+            this.ArrangeCore(guide.ArrangedRect, guide.MeasureContext!);
         }
 
         if (guide.IsRender)
@@ -203,15 +203,17 @@ public abstract class View
     /// calculated during the layout pass.
     /// </summary>
     /// <param name="availableSize">The maximum space available for the view to occupy.</param>
+    /// <param name="context"></param>
     /// <returns>The size that the view desires to occupy within the constraints.</returns>
-    public Size Measure(Size availableSize) =>
+    public Size Measure(Size availableSize, IMeasureContext context) =>
         this.Update(
             new LayoutGuide()
             {
                 Pass = LayoutGuide.LayoutPass.Measure,
                 AvailableSize = availableSize,
                 XSize = LayoutGuide.SizeTo.AtMost,
-                YSize = LayoutGuide.SizeTo.AtMost
+                YSize = LayoutGuide.SizeTo.AtMost,
+                MeasureContext = context
             }).DesiredSize;
 
     /// <summary>
@@ -219,7 +221,7 @@ public abstract class View
     /// </summary>
     /// <param name="rect">The rectangle defining the position and exact size for the view.</param>
     /// <returns>The rectangle occupied by the arranged view.</returns>
-    public Rect Arrange(Rect rect) =>
+    public Rect Arrange(Rect rect, IMeasureContext context) =>
         this.Update(
             new LayoutGuide()
             {
@@ -227,6 +229,7 @@ public abstract class View
                 DesiredSize = rect.Size,
                 XSize = LayoutGuide.SizeTo.Exact,
                 YSize = LayoutGuide.SizeTo.Exact,
+                MeasureContext = context,
                 Anchor = rect.TopLeft
             }
         ).ArrangedRect;
@@ -253,10 +256,14 @@ public abstract class View
     /// The maximum size available for the view’s border edge box. 
     /// This size excludes margins, which are handled by the parent layout.
     /// </param>
+    /// <param name="context">
+    /// The layout metrics context providing access to platform-specific measurements,
+    /// text sizing, and pixel snapping utilities.
+    /// </param>
     /// <returns>
     /// The desired size of the border edge box based on content and layout logic.
     /// </returns>
-    protected virtual Size MeasureCore(Size availableBorderEdgeSize)
+    protected virtual Size MeasureCore(Size availableBorderEdgeSize, IMeasureContext context)
     {
         // Measure content or each child...
         return (0, 0);
@@ -269,7 +276,11 @@ public abstract class View
     /// <param name="rect">
     /// The final rectangle (position and size) allocated to this view's border edge box.
     /// </param>
-    protected virtual void ArrangeCore(Rect rect)
+    /// <param name="context">
+    /// The layout metrics context providing access to platform-specific measurements,
+    /// text sizing, and pixel snapping utilities.
+    /// </param>
+    protected virtual void ArrangeCore(Rect rect, IMeasureContext context)
     {
         // Arrange each child...
     }

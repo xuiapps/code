@@ -28,6 +28,11 @@ public struct Frame
     public bool IsUniform => Left == Top && Left == Right && Left == Bottom;
 
     /// <summary>
+    /// Returns true if all sides (Left, Top, Right, Bottom) are zero.
+    /// </summary>
+    public readonly bool IsZero => this.Left == 0 && this.Top == 0 && this.Right == 0 && this.Bottom == 0;
+
+    /// <summary>
     /// Gets the total horizontal edge thickness (left + right).
     /// </summary>
     public nfloat TotalWidth => Left + Right;

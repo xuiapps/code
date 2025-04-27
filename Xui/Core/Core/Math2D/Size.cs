@@ -49,6 +49,12 @@ public struct Size
     [DebuggerStepThrough]
     public static implicit operator Size(ValueTuple<nfloat, nfloat> tuple) =>
         new(tuple.Item1, tuple.Item2);
+    
+    /// <summary>
+    /// Returns the size of a square.
+    /// </summary>
+    public static implicit operator Size(int uniform) =>
+        new (uniform, uniform);
 
     /// <summary>
     /// Explicitly converts a <see cref="Vector"/> to a <see cref="Size"/>.

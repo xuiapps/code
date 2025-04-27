@@ -31,9 +31,12 @@ public struct LayoutGuide
     public SizeTo YSize;
 
     /// <summary>
-    /// Optional context for measuring text content during the Measure pass.
+    /// Optional measurement context providing access to platform-specific text metrics
+    /// and precise size calculations during the Measure pass.
+    /// If set, text and layout measurements can use font shaping and pixel snapping
+    /// consistent with the underlying rendering system.
     /// </summary>
-    public ITextMeasureContext? MeasureContext;
+    public IMeasureContext? MeasureContext;
 
     /// <summary>
     /// The desired size of the view's margin box, produced during the Measure pass.

@@ -6,6 +6,7 @@ namespace Xui.Core.Canvas;
 /// including state, drawing primitives, text, images, transformations, and resource management.
 /// </summary>
 public interface IContext :
+    IMeasureContext,
     IStateContext,             // Handles save/restore state stack and global properties
     IPenContext,               // Controls stroke/fill styles, line width, caps, joins, etc.
     IPathDrawingContext,       // Handles path creation and stroking/filling

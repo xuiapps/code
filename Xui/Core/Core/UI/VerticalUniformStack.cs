@@ -1,4 +1,5 @@
 using Xui.Core.Math2D;
+using Xui.Core.Canvas;
 
 namespace Xui.Core.UI;
 
@@ -18,13 +19,8 @@ namespace Xui.Core.UI;
 /// </remarks>
 public class VerticalUniformStack : ViewCollection
 {
-    /// <summary>
-    /// Measures the desired size of this layout container and its children,
-    /// based on the available space provided by the parent.
-    /// </summary>
-    /// <param name="availableBorderEdgeSize">The space available for layout, excluding padding and borders.</param>
-    /// <returns>The desired size of this container based on its layout strategy.</returns>
-    protected override Size MeasureCore(Size availableBorderEdgeSize)
+    /// <inheritdoc />
+    protected override Size MeasureCore(Size availableBorderEdgeSize, IMeasureContext context)
     {
         int childCount = this.Count;
         if (childCount == 0)
@@ -42,7 +38,7 @@ public class VerticalUniformStack : ViewCollection
             for (int i = 0; i < childCount; i++)
             {
                 var child = this[i];
-                var childSize = child.Measure((availableBorderEdgeSize.Width, uniformHeight));
+                var childSize = child.Measure((availableBorderEdgeSize.Width, uniformHeight), context);
                 maxWidth = nfloat.Max(maxWidth, childSize.Width);
             }
         }
@@ -52,7 +48,7 @@ public class VerticalUniformStack : ViewCollection
             for (int i = 0; i < childCount; i++)
             {
                 var child = this[i];
-                var childSize = child.Measure((availableBorderEdgeSize.Width, nfloat.PositiveInfinity));
+                var childSize = child.Measure((availableBorderEdgeSize.Width, nfloat.PositiveInfinity), context);
                 uniformHeight = nfloat.Max(uniformHeight, childSize.Height);
                 maxWidth = nfloat.Max(maxWidth, childSize.Width);
             }
@@ -61,11 +57,8 @@ public class VerticalUniformStack : ViewCollection
         return new Size(maxWidth, uniformHeight * childCount);
     }
 
-    /// <summary>
-    /// Arranges the children into vertically stacked rows of equal height.
-    /// </summary>
-    /// <param name="rect">The rectangle within which to arrange children.</param>
-    protected override void ArrangeCore(Rect rect)
+    /// <inheritdoc />
+    protected override void ArrangeCore(Rect rect, IMeasureContext context)
     {
         int childCount = this.Count;
         if (childCount == 0)
@@ -78,7 +71,7 @@ public class VerticalUniformStack : ViewCollection
         {
             var child = this[i];
             var childRect = new Rect(rect.X, y, rect.Width, uniformHeight);
-            child.Arrange(childRect);
+            child.Arrange(childRect, context);
             y += uniformHeight;
         }
     }
