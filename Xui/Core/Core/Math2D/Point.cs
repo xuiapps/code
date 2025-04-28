@@ -124,6 +124,12 @@ public struct Point
     public static bool operator!=(Point lhs, Point rhs) =>
         lhs.X != rhs.X || lhs.Y != rhs.Y;
 
+    /// <summary>
+    /// Apply an uniform scale to a point.
+    /// </summary>
+    [DebuggerStepThrough]
+    public static Point operator*(Point v, nfloat f) => new (v.X * f, v.Y * f);
+
     /// <inheritdoc/>
     public override string ToString() =>
         $"Point [X={X}, Y={Y}]";

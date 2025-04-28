@@ -7,7 +7,7 @@ namespace Xui.Core.UI;
 /// Base class for all UI elements in the Xui layout engine.
 /// A view participates in layout, rendering, and input hit testing, and may contain child views.
 /// </summary>
-public abstract class View
+public abstract partial class View
 {
     /// <summary>
     /// The parent view in the visual hierarchy. This is set automatically when the view is added to a container.

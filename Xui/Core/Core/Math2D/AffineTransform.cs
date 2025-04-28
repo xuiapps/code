@@ -42,6 +42,12 @@ public struct AffineTransform
     /// <summary>The identity transform (no scale, rotation, or translation).</summary>
     public static readonly AffineTransform Identity = new AffineTransform(1, 0, 0, 1, 0, 0);
 
+    /// <summary>Returns <c>true</c> if the current transform is the identity matrix.</summary>
+    public bool IsIdentity =>
+        A == 1 && B == 0 &&
+        C == 0 && D == 1 &&
+        Tx == 0 && Ty == 0;
+
     /// <summary>
     /// Returns the inverse of this affine transform.
     /// </summary>

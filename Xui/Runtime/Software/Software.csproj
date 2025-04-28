@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net9.0</TargetFrameworks>
+
+    <Nullable>enable</Nullable>
+    <LangVersion>13</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>Xui.Runtime.Software</RootNamespace>
+    <AssemblyName>Xui.Runtime.Software</AssemblyName>
+    
+    <IsTrimmable>false</IsTrimmable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- <GenerateDocumentationFile>true</GenerateDocumentationFile> -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../Core/Core/Core.csproj" />
+  </ItemGroup>
+
+</Project>

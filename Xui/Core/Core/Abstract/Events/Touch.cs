@@ -16,7 +16,7 @@ public struct Touch
     /// A unique index identifying this touch point during its lifetime.
     /// Typically assigned by the platform and reused after release.
     /// </summary>
-    public long Index;
+    public int Index;
 
     /// <summary>
     /// The current position of the touch in logical window coordinates.

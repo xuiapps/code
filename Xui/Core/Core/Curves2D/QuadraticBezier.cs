@@ -176,6 +176,31 @@ public readonly struct QuadraticBezier : ICurve
         return ClosestTRecursive(this, target, 0, 1, precision);
     }
 
+    public MonotonicQuadraticBezier SplitIntoYMonotonicCurves()
+    {
+        // Compute derivative coefficients for Y
+        var a = P0.Y - 2 * P1.Y + P2.Y;
+        var b = 2 * (P1.Y - P0.Y);
+
+        if (Math.Abs(a) < nfloat.Epsilon)
+        {
+            // Linear or constant derivative, no splits
+            return new MonotonicQuadraticBezier(this);
+        }
+
+        var t = -b / (2 * a);
+
+        if (t <= 0 || t >= 1)
+        {
+            // Critical point outside curve parameterization, no splits
+            return new MonotonicQuadraticBezier(this);
+        }
+
+        // Perform subdivision at critical t
+        var split = Subdivide(t);
+        return new MonotonicQuadraticBezier(split.Item1, split.Item2);
+    }
+
     private static nfloat ClosestTRecursive(QuadraticBezier curve, Point target, nfloat t0, nfloat t1, nfloat precision)
     {
         var m0 = t0 + (t1 - t0) / 3;
@@ -193,5 +218,20 @@ public readonly struct QuadraticBezier : ICurve
         return (d0 < d1)
             ? ClosestTRecursive(curve, target, t0, m1, precision)
             : ClosestTRecursive(curve, target, m0, t1, precision);
+    }
+
+    /// <summary>
+    /// Subdivides this quadratic Bézier curve at parameter t, returning two curves.
+    /// </summary>
+    public (QuadraticBezier, QuadraticBezier) Subdivide(nfloat t)
+    {
+        var p01 = Point.Lerp(P0, P1, t);
+        var p12 = Point.Lerp(P1, P2, t);
+        var p012 = Point.Lerp(p01, p12, t);
+
+        return (
+            new QuadraticBezier(P0, p01, p012),
+            new QuadraticBezier(p012, p12, P2)
+        );
     }
 }

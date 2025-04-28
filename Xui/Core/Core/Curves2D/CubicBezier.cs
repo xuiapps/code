@@ -247,6 +247,82 @@ public readonly struct CubicBezier : ICurve
         return ClosestTRecursive(this, target, 0, 1, precision);
     }
 
+    public MonotonicCubicBezier SplitIntoYMonotonicCurves()
+    {
+        // Compute the derivative coefficients (for Y)
+        var a = -P0.Y + 3 * P1.Y - 3 * P2.Y + P3.Y;
+        var b = 2 * (P0.Y - 2 * P1.Y + P2.Y);
+        var c = -P0.Y + P1.Y;
+
+        var discriminant = b * b - 4 * a * c;
+
+        Span<nfloat> tValues = stackalloc nfloat[2];
+        int count = 0;
+
+        if (Math.Abs(a) < nfloat.Epsilon) // Degenerate (quadratic)
+        {
+            if (Math.Abs(b) > nfloat.Epsilon)
+            {
+                var t = -c / b;
+                if (t > 0 && t < 1)
+                    tValues[count++] = t;
+            }
+        }
+        else if (discriminant >= 0)
+        {
+            var sqrtDisc = (nfloat)Math.Sqrt(discriminant);
+            var t1 = (-b - sqrtDisc) / (2 * a);
+            var t2 = (-b + sqrtDisc) / (2 * a);
+
+            if (t1 > 0 && t1 < 1)
+                tValues[count++] = t1;
+            if (t2 > 0 && t2 < 1)
+                tValues[count++] = t2;
+
+            if (count == 2 && tValues[0] > tValues[1])
+                (tValues[0], tValues[1]) = (tValues[1], tValues[0]);
+        }
+
+        // No splits required
+        if (count == 0)
+            return new MonotonicCubicBezier(this);
+
+        // One split required
+        if (count == 1)
+        {
+            var split = Subdivide(tValues[0]);
+            return new MonotonicCubicBezier(split.Item1, split.Item2);
+        }
+
+        // Two splits required
+        var splitFirst = Subdivide(tValues[0]);
+        // Adjust t-value for second split to the second segment’s parameterization
+        var adjustedT = (tValues[1] - tValues[0]) / (1 - tValues[0]);
+        var splitSecond = splitFirst.Item2.Subdivide(adjustedT);
+
+        return new MonotonicCubicBezier(splitFirst.Item1, splitSecond.Item1, splitSecond.Item2);
+    }
+
+    /// <summary>
+    /// Subdivides this cubic Bézier curve at parameter t, returning two curves.
+    /// </summary>
+    public (CubicBezier, CubicBezier) Subdivide(nfloat t)
+    {
+        var p01 = Point.Lerp(P0, P1, t);
+        var p12 = Point.Lerp(P1, P2, t);
+        var p23 = Point.Lerp(P2, P3, t);
+
+        var p012 = Point.Lerp(p01, p12, t);
+        var p123 = Point.Lerp(p12, p23, t);
+
+        var p0123 = Point.Lerp(p012, p123, t);
+
+        return (
+            new CubicBezier(P0, p01, p012, p0123),
+            new CubicBezier(p0123, p123, p23, P3)
+        );
+    }
+
     private static nfloat ClosestTRecursive(CubicBezier curve, Point target, nfloat t0, nfloat t1, nfloat precision)
     {
         var m0 = t0 + (t1 - t0) / 3;
