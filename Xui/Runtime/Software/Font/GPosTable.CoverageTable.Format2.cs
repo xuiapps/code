@@ -67,9 +67,23 @@ public sealed partial class GPosTable
 
             public override bool TryGetValue(ushort key, out int value)
             {
-                foreach (var r in _ranges)
+                int low = 0;
+                int high = _ranges.Count - 1;
+
+                while (low <= high)
                 {
-                    if (key >= r.Start && key <= r.End)
+                    int mid = (low + high) / 2;
+                    var r = _ranges[mid];
+
+                    if (key < r.Start)
+                    {
+                        high = mid - 1;
+                    }
+                    else if (key > r.End)
+                    {
+                        low = mid + 1;
+                    }
+                    else
                     {
                         value = r.StartIndex + (key - r.Start);
                         return true;

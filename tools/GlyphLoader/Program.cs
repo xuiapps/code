@@ -29,6 +29,8 @@ namespace GlyphLoader
 
             // FontPreview.WriteSVG(font, "Hello World!", "font-preview-Hello-World.svg");
             FontPreview.WriteSVG(font, "AVToVATaYoTeWaLYFAAT", "kern.svg");
+
+            // FontDebugLogger.DumpGPosDebug(font);
         }
     }
 }

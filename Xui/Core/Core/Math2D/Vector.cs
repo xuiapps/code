@@ -59,9 +59,39 @@ public struct Vector
     }
 
     /// <summary>
+    /// Returns the vector rotated 90° counter-clockwise (CCW).
+    /// </summary>
+    public Vector PerpendicularCCW => new(-Y, X);
+
+    /// <summary>
+    /// Returns the vector rotated 90° clockwise (CW).
+    /// </summary>
+    public Vector PerpendicularCW => new(Y, -X);
+
+    /// <summary>
     /// Returns the magnitude (length) of the vector.
     /// </summary>
     public nfloat Magnitude => nfloat.Sqrt(this.X * this.X + this.Y * this.Y);
+
+    /// <summary>
+    /// Returns the squared magnitude (length squared) of the vector.
+    /// This avoids the square root computation used in <see cref="Magnitude"/>.
+    /// </summary>
+    public nfloat MagnitudeSquared => this.X * this.X + this.Y * this.Y;
+
+    /// <summary>
+    /// Gets the angle in radians between the vector and the positive X-axis,
+    /// measured counter-clockwise in the range [-π, π].
+    /// </summary>
+    /// <remarks>
+    /// This is equivalent to calling <c>Atan2(Y, X)</c> and is commonly used to compute
+    /// polar angles from directional vectors, such as when determining the angular position
+    /// of a point on a circle or ellipse.
+    /// </remarks>
+    /// <returns>
+    /// The angle in radians between this vector and the X-axis.
+    /// </returns>
+    public nfloat ArcAngle => nfloat.Atan2(Y, X);
 
     /// <summary>
     /// Rotates the vector counterclockwise by the given angle (in degrees).

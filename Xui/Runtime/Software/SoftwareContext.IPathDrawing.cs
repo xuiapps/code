@@ -37,7 +37,7 @@ public partial class SoftwareContext : IPathDrawing
                 if (coverage > 0)
                 {
                     byte alpha8 = (byte)Math.Min((ushort)255, coverage);
-                    var color = new RGBA(255, 0, 255, alpha8);
+                    var color = new _RGBA(255, 0, 255, alpha8);
                     bitmap.Blend(x, y, color);
                 }
             }

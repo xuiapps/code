@@ -4,14 +4,14 @@ using System.Runtime.InteropServices;
 namespace Xui.Runtime.Software;
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
-public struct RGBA
+public struct _RGBA
 {
     public byte Red;
     public byte Green;
     public byte Blue;
     public byte Alpha;
 
-    public RGBA(byte r, byte g, byte b, byte a)
+    public _RGBA(byte r, byte g, byte b, byte a)
     {
         Red = r;
         Green = g;
@@ -26,9 +26,9 @@ public struct RGBA
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static RGBA Blend(RGBA dst, RGBA src, float alphaFactor)
+    public static _RGBA Blend(_RGBA dst, _RGBA src, float alphaFactor)
     {
-        return new RGBA(
+        return new _RGBA(
             BlendByte(dst.Red,   src.Red,   alphaFactor),
             BlendByte(dst.Green, src.Green, alphaFactor),
             BlendByte(dst.Blue,  src.Blue,  alphaFactor),

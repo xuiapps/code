@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="100" viewBox="0 0 120 100">
+  <polygon points="60,20 73.125,16.015625 82.5,18.125" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="60,20 82.5,18.125 88.125,24.921875" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="60,20 88.125,24.921875 90,35" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,16.015625 60,20 90,35" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,16.015625 90,35 88.125,46.953125" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,16.015625 88.125,46.953125 82.5,59.375" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,16.015625 82.5,59.375 73.125,70.859375" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,16.015625 73.125,70.859375 60,80" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,16.015625 60,80 46.875,70.859375" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,16.015625 46.875,70.859375 37.5,59.375" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,16.015625 37.5,59.375 31.875,46.953125" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,16.015625 31.875,46.953125 30,35" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,16.015625 30,35 31.875,24.921875" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,16.015625 31.875,24.921875 37.5,18.125" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+</svg>

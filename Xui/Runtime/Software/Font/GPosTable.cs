@@ -86,7 +86,7 @@ public sealed partial class GPosTable
     }
 
     /// <summary>
-    /// Gets the kerning adjustment between two characters using GPOS LookupType 2.
+    /// Gets the kerning adjustment between two characters using GPOS LookupType 2 or ExtensionPositioning.
     /// Returns a default ValueRecord if no adjustment is defined.
     /// </summary>
     public TrueTypeFont.ValueRecord this[char left, char right]
@@ -95,26 +95,23 @@ public sealed partial class GPosTable
         {
             int? g1 = CMap.GetGlyphIndex(left);
             int? g2 = CMap.GetGlyphIndex(right);
+
             if (g1 is not int leftGlyph || g2 is not int rightGlyph || LookupList is null)
                 return default;
-            
-            // PairAdjustmentSubtables work with ushort indices.
-            if (g1 > ushort.MaxValue || g2 > ushort.MaxValue)
+
+            // Only support glyphs in ushort range
+            if (leftGlyph > ushort.MaxValue || rightGlyph > ushort.MaxValue)
                 return default;
+
+            ushort l = (ushort)leftGlyph;
+            ushort r = (ushort)rightGlyph;
 
             foreach (var lookup in LookupList)
             {
-                if (lookup.LookupType != LookupTable.GPosLookupType.PairAdjustment || lookup.PairAdjustmentSubtables == null)
-                    continue;
-
-                foreach (var sub in lookup.PairAdjustmentSubtables)
+                var (leftAdj, rightAdj) = lookup[l, r];
+                if (leftAdj != default)
                 {
-                    var (leftAdj, rightAdj) = sub[(ushort)leftGlyph, (ushort)rightGlyph];
-                    if (leftAdj.XAdvance is not null || leftAdj.XPlacement is not null ||
-                        rightAdj.XAdvance is not null || rightAdj.XPlacement is not null)
-                    {
-                        return leftAdj;
-                    }
+                    return leftAdj;
                 }
             }
 

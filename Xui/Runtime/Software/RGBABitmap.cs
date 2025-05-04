@@ -9,16 +9,16 @@ public class RGBABitmap
     public uint Width { get; }
     public uint Height { get; }
 
-    public readonly RGBA[] Pixels;
+    public readonly _RGBA[] Pixels;
 
     public RGBABitmap(uint width, uint height)
     {
         Width = width;
         Height = height;
-        Pixels = new RGBA[width * height];
+        Pixels = new _RGBA[width * height];
     }
 
-    public RGBA this[uint x, uint y]
+    public _RGBA this[uint x, uint y]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => Pixels[y * Width + x];
@@ -28,10 +28,10 @@ public class RGBABitmap
 
     public ReadOnlySpan<byte> AsBytes()
     {
-        return MemoryMarshal.AsBytes(new ReadOnlySpan<RGBA>(Pixels));
+        return MemoryMarshal.AsBytes(new ReadOnlySpan<_RGBA>(Pixels));
     }
 
-    public void Blend(uint x, uint y, RGBA src)
+    public void Blend(uint x, uint y, _RGBA src)
     {
         if (x >= Width || y >= Height)
             return;

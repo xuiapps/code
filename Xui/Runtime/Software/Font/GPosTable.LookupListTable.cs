@@ -49,6 +49,8 @@ public sealed partial class GPosTable
 
         public List<PairAdjustmentSubtable>? PairAdjustmentSubtables { get; private set; }
 
+        public List<ExtensionPositioningSubtable>? ExtensionPositioningSubtables { get; private set; }
+
         public LookupTable(ReadOnlySpan<byte> span)
         {
             LookupType = (GPosLookupType)BinaryPrimitives.ReadUInt16BigEndian(span.Slice(0, 2));
@@ -70,6 +72,50 @@ public sealed partial class GPosTable
                 {
                     PairAdjustmentSubtables.Add(PairAdjustmentSubtable.Parse(span.Slice(subOffset)));
                 }
+            }
+            else if (LookupType == GPosLookupType.ExtensionPositioning)
+            {
+                ExtensionPositioningSubtables = new List<ExtensionPositioningSubtable>();
+
+                foreach (var subOffset in SubTableOffsets)
+                {
+                    var subSpan = span.Slice(subOffset);
+                    var ext = new ExtensionPositioningSubtable(subSpan);
+                    ExtensionPositioningSubtables.Add(ext);
+                }
+            }
+        }
+
+        public TrueTypeFont.ValueRecordTuple this[ushort leftGlyph, ushort rightGlyph]
+        {
+            get
+            {
+                // First check direct PairAdjustment subtables
+                if (PairAdjustmentSubtables != null)
+                {
+                    foreach (var sub in PairAdjustmentSubtables)
+                    {
+                        var result = sub[leftGlyph, rightGlyph];
+                        if (result != default)
+                            return result;
+                    }
+                }
+
+                // Then check ExtensionPositioning subtables (if any)
+                if (ExtensionPositioningSubtables != null)
+                {
+                    foreach (var ext in ExtensionPositioningSubtables)
+                    {
+                        if (ext.ExtensionLookupType == GPosLookupType.PairAdjustment)
+                        {
+                            var result = ext[leftGlyph, rightGlyph];
+                            if (result != default)
+                                return result;
+                        }
+                    }
+                }
+
+                return default;
             }
         }
 

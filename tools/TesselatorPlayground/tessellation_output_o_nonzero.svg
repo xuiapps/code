@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="100" viewBox="0 0 120 100">
+  <polygon points="46.875,22.578125 60,20 73.125,22.578125" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,22.578125 73.125,22.578125 82.5,29.375" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,22.578125 82.5,29.375 88.125,38.984375" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,22.578125 88.125,38.984375 90,50" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,22.578125 90,50 88.125,61.015625" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,22.578125 88.125,61.015625 82.5,70.625" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,22.578125 82.5,70.625 73.125,77.421875" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,22.578125 73.125,77.421875 60,80" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,22.578125 60,80 46.875,77.421875" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,22.578125 46.875,77.421875 37.5,70.625" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,22.578125 37.5,70.625 31.875,61.015625" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,22.578125 31.875,61.015625 30,50" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,22.578125 30,50 31.875,38.984375" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="46.875,22.578125 31.875,38.984375 37.5,29.375" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="53.4375,36.2890625 60,35 66.5625,36.2890625" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="53.4375,36.2890625 66.5625,36.2890625 71.25,39.6875" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="53.4375,36.2890625 71.25,39.6875 75,50" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="53.4375,36.2890625 75,50 71.25,60.3125" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="53.4375,36.2890625 71.25,60.3125 66.5625,63.7109375" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="53.4375,36.2890625 66.5625,63.7109375 60,65" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="53.4375,36.2890625 60,65 53.4375,63.7109375" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="53.4375,36.2890625 53.4375,63.7109375 48.75,60.3125" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="53.4375,36.2890625 48.75,60.3125 45,50" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+  <polygon points="53.4375,36.2890625 45,50 48.75,39.6875" fill="#80c0ff" stroke="#003366" stroke-width="1" />
+</svg>

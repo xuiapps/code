@@ -55,6 +55,12 @@
           "ai/ai-api-ref.md"
         ],
         "src": "www"
+      },
+      {
+        "files": [
+          "docs/**/*.svg"
+        ],
+        "src": "www"
       }
     ],
     "output": "_site",

@@ -2,3 +2,9 @@
   href: introduction.md
 - name: Getting Started
   href: getting-started.md
+- name: Software Tesselation
+  href: kb/Tesselate/README.md
+- name: Software TrueTypeFont Font Reader
+  href: kb/FontReader/README.md
+- name: Software SVG Drawing Context
+  href: kb/SvgDrawingContext/README.md

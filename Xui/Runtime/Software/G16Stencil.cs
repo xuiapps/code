@@ -12,16 +12,16 @@ public class G16Stencil
     public uint Width { get; }
     public uint Height { get; }
 
-    public readonly G16[] Alpha;
+    public readonly _G16[] Alpha;
 
     public G16Stencil(uint width, uint height)
     {
         Width = width;
         Height = height;
-        Alpha = new G16[width * height];
+        Alpha = new _G16[width * height];
     }
 
-    public G16 this[uint x, uint y]
+    public _G16 this[uint x, uint y]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => Alpha[y * Width + x];
@@ -32,7 +32,7 @@ public class G16Stencil
 
     public ReadOnlySpan<byte> AsBytes()
     {
-        return MemoryMarshal.AsBytes(new ReadOnlySpan<G16>(Alpha));
+        return MemoryMarshal.AsBytes(new ReadOnlySpan<_G16>(Alpha));
     }
 
     public void Clear()
@@ -46,7 +46,7 @@ public class G16Stencil
         {
             for (uint x = startX; x < startX + w && x < Width; x++)
             {
-                Alpha[y * Width + x] = new G16(0);
+                Alpha[y * Width + x] = new _G16(0);
             }
         }
     }
@@ -60,6 +60,6 @@ public class G16Stencil
             return;
 
         uint total = (uint)Alpha[y * Width + x].Gray + amount;
-        Alpha[y * Width + x] = new G16((ushort)(total > 65535 ? 65535 : total));
+        Alpha[y * Width + x] = new _G16((ushort)(total > 65535 ? 65535 : total));
     }
 }
