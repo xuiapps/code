@@ -52,6 +52,31 @@ public readonly struct CubicBezier : ICurve
             t
         );
 
+    public QuadraticBezier QuadraticApproximation
+    {
+        get
+        {
+            var p0 = this.P0;
+            var p3 = this.P3;
+
+            var v0 = (Vector)p0;
+            var v3 = (Vector)p3;
+            var v1 = (Vector)this.P1;
+            var v2 = (Vector)this.P2;
+
+            // Tangents at endpoints (scaled)
+            var tangentStart = 3 * (v1 - v0);
+            var tangentEnd = 3 * (v3 - v2);
+
+            // Average the two tangents and add to the midpoint between endpoints
+            var avgTangent = (tangentStart + tangentEnd) * 0.25f;
+            var midpoint = Point.Lerp(p0, p3, 0.5f);
+            var approxControl = midpoint + avgTangent;
+
+            return new QuadraticBezier(p0, approxControl, p3);
+        }
+    }
+
     /// <summary>
     /// Computes the tangent vector of the curve at parameter <paramref name="t"/>.
     /// </summary>
@@ -340,5 +365,145 @@ public readonly struct CubicBezier : ICurve
         return (d0 < d1)
             ? ClosestTRecursive(curve, target, t0, m1, precision)
             : ClosestTRecursive(curve, target, m0, t1, precision);
+    }
+
+    /// <summary>
+    /// Converts this cubic Bézier curve into a sequence of Y-monotonic quadratic Bézier segments,
+    /// each approximating a portion of the original curve within the specified flatness precision.
+    /// </summary>
+    /// <param name="buffer">
+    /// A span to receive the quadratic segments. Must be large enough to hold the result.
+    /// A typical size is between 4 and 32. Must be at least 3 to accommodate the initial monotonic split.
+    /// </param>
+    /// <param name="precision">
+    /// The maximum allowed distance between the original cubic curve and its quadratic approximation.
+    /// Lower values yield more accurate approximations but may require more output segments.
+    /// </param>
+    /// <param name="count">
+    /// The number of segments written to <paramref name="buffer"/>.
+    /// </param>
+    /// <remarks>
+    /// This method uses an adaptive, flatness-aware subdivision strategy. It begins by splitting the
+    /// cubic curve into up to 3 Y-monotonic segments. Each is then approximated with a quadratic Bézier,
+    /// and the segments with the highest deviation are recursively subdivided until the total number of
+    /// segments fits within <paramref name="buffer"/> and all segments meet the precision requirement.
+    /// 
+    /// The output segments are returned in order, forming a continuous piecewise-curve that follows the
+    /// original cubic. Suitable for SDF tessellation or scanline-based rasterization.
+    /// </remarks>
+    /// <exception cref="ArgumentException">
+    /// Thrown if <paramref name="buffer"/> has fewer than 3 elements.
+    /// </exception>
+    public void ToQuadratics(Span<QuadraticBezier> buffer, nfloat precision, out int count)
+    {
+        if (buffer.Length < 3)
+            throw new ArgumentException("Requires buffer length ≥ 3", nameof(buffer));
+
+        Span<SubcurveNode> nodes = stackalloc SubcurveNode[buffer.Length];
+        int nodeCount = 0;
+        ushort first = 0;
+
+        // Seed monotonic segments
+        var mono = SplitIntoYMonotonicCurves();
+        nodes[0] = new SubcurveNode(mono.First);
+        nodeCount = 1;
+
+        if (mono.Second.HasValue)
+        {
+            nodes[1] = new SubcurveNode(mono.Second.Value);
+            nodes[0].NextIndex = 1;
+            nodeCount = 2;
+        }
+
+        if (mono.Third.HasValue)
+        {
+            nodes[2] = new SubcurveNode(mono.Third.Value);
+            nodes[1].NextIndex = 2;
+            nodeCount = 3;
+        }
+
+        // Adaptive subdivision loop
+        while (nodeCount < buffer.Length)
+        {
+            // Find worst-fitting node (max error > precision)
+            int worst = 0;
+            nfloat worstError = nodes[0].Precision;
+
+            for (int i = 1; i < nodeCount; i++)
+            {
+                if (nodes[i].Precision > worstError)
+                {
+                    worst = i;
+                    worstError = nodes[i].Precision;
+                }
+            }
+
+            if (worstError <= precision)
+                break; // All are good enough
+
+            // Subdivide the worst-fitting cubic segment
+            var (left, right) = nodes[worst].Segment.Subdivide(0.5f);
+
+            // Allocate the right node at the end of the buffer
+            ushort rightIndex = (ushort)nodeCount++;
+            nodes[rightIndex] = new SubcurveNode(right, nodes[worst].NextIndex);
+
+            // Replace the left node in-place and point it to the right
+            nodes[worst] = new SubcurveNode(left, rightIndex);
+        }
+
+        // Emit chain
+        count = 0;
+        ushort index = first;
+        while (true)
+        {
+            ref var node = ref nodes[index];
+            buffer[count++] = node.QuadraticBezierApproximation;
+
+            if (node.NextIndex == 0)
+                break;
+            index = node.NextIndex;
+        }
+    }
+
+    public struct SubcurveNode
+    {
+        public CubicBezier Segment;
+        public QuadraticBezier QuadraticBezierApproximation;
+        public nfloat Precision;
+        public ushort NextIndex;
+
+        /// <summary>
+        /// Initializes a new node representing a quadratic approximation of a cubic Bézier segment in a linked list.
+        /// </summary>
+        /// <param name="segment">The original cubic Bézier segment.</param>
+        /// <param name="nextIndex">Index of the next node in the chain. Use 0 if this is the last node.</param>
+        public SubcurveNode(CubicBezier segment, ushort nextIndex = 0)
+        {
+            Segment = segment;
+            NextIndex = nextIndex;
+
+            QuadraticBezierApproximation = segment.QuadraticApproximation;
+
+            // Compute precision using deviation from P0–P3 baseline
+            var line = Segment.P3 - Segment.P0;
+            var length = line.Magnitude;
+
+            if (length == 0)
+            {
+                // Degenerate curve: use max distance from control points to P0
+                Precision = nfloat.Max(
+                    Point.Distance(Segment.P0, Segment.P1),
+                    Point.Distance(Segment.P0, Segment.P2)
+                );
+            }
+            else
+            {
+                // Signed distance from control points to baseline
+                var d1 = Vector.Cross(line, Segment.P1 - Segment.P0) / length;
+                var d2 = Vector.Cross(line, Segment.P2 - Segment.P0) / length;
+                Precision = nfloat.Max(nfloat.Abs(d1), nfloat.Abs(d2));
+            }
+        }
     }
 }

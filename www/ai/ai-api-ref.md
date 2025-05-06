@@ -1,6 +1,6 @@
 # Xui API Reference for AI Consumption
 
-_Generated on 2025-04-27 13:41 UTC_
+_Generated on 2025-05-06 18:41 UTC_
 
 This document is an automatically generated API reference extracted directly from the Xui source code.
 It is optimized for AI models to efficiently understand the framework.
@@ -336,7 +336,7 @@ public struct Touch
     /// A unique index identifying this touch point during its lifetime.
     /// Typically assigned by the platform and reused after release.
     /// </summary>
-    public long Index;
+    public int Index;
     /// <summary>
     /// The current position of the touch in logical window coordinates.
     /// </summary>
@@ -2482,6 +2482,42 @@ public interface IContext : IMeasureContext, IStateContext, // Handles save/rest
 }
 ```
 
+### Canvas/IGlyphPathBuilder.cs
+
+```csharp
+using Xui.Core.Math2D;
+
+namespace Xui.Core.Canvas;
+/// <summary>
+/// A lightweight interface for constructing TrueType glyph paths
+/// using move, line, curve, and close commands.
+/// </summary>
+/// <remarks>
+/// Glyphs in TrueType fonts use quadratic Bézier curves with optional
+/// off-curve control points. This interface is intended for glyph outlines
+/// and font rendering engines.
+/// </remarks>
+public interface IGlyphPathBuilder
+{
+    /// <summary>
+    /// Begins a new sub-path at the specified point.
+    /// </summary>
+    void MoveTo(Point to);
+    /// <summary>
+    /// Draws a straight line to the specified point.
+    /// </summary>
+    void LineTo(Point to);
+    /// <summary>
+    /// Draws a quadratic Bézier curve using a control point and end point.
+    /// </summary>
+    void CurveTo(Point control, Point to);
+    /// <summary>
+    /// Closes the current path contour.
+    /// </summary>
+    void ClosePath();
+}
+```
+
 ### Canvas/IImageDrawingContext.cs
 
 ```csharp
@@ -2517,45 +2553,24 @@ public interface IMeasureContext : ITextMeasureContext
 }
 ```
 
-### Canvas/IPathDrawingContext.cs
+### Canvas/IPathBuilder.cs
 
 ```csharp
 using Xui.Core.Math2D;
 
 namespace Xui.Core.Canvas;
 /// <summary>
-/// Defines methods for constructing and rendering 2D paths,
+/// Defines methods for constructing paths,
 /// following the HTML5 Canvas path API model.
 ///
 /// Reference: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D#paths
 /// </summary>
-public interface IPathDrawingContext
+public interface IPathBuilder : IGlyphPathBuilder
 {
     /// <summary>
     /// Begins a new path by resetting the current path list.
     /// </summary>
     void BeginPath();
-    /// <summary>
-    /// Moves the current point to the specified location without drawing a line.
-    /// </summary>
-    /// <param name = "to">The destination point.</param>
-    void MoveTo(Point to);
-    /// <summary>
-    /// Connects the current point to the specified point with a straight line.
-    /// </summary>
-    /// <param name = "to">The endpoint of the line.</param>
-    void LineTo(Point to);
-    /// <summary>
-    /// Closes the current sub-path by drawing a straight line back to the start point.
-    /// </summary>
-    void ClosePath();
-    /// <summary>
-    /// Draws a quadratic Bézier curve from the current point to the specified point,
-    /// using the given control point.
-    /// </summary>
-    /// <param name = "cp1">Control point.</param>
-    /// <param name = "to">End point.</param>
-    void CurveTo(Point cp1, Point to);
     /// <summary>
     /// Draws a cubic Bézier curve from the current point to the specified point,
     /// using two control points.
@@ -2608,6 +2623,41 @@ public interface IPathDrawingContext
     /// <param name = "rect">The rectangle to round.</param>
     /// <param name = "radius">Corner radius object defining each corner.</param>
     void RoundRect(Rect rect, CornerRadius radius);
+}
+```
+
+### Canvas/IPathClipping.cs
+
+```csharp
+namespace Xui.Core.Canvas;
+/// <summary>
+/// Defines methods for clipping using a path,
+/// following the HTML5 Canvas path API model.
+///
+/// Reference: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D#paths
+/// </summary>
+public interface IPathClipping
+{
+    /// <summary>
+    /// Sets the current clipping region to the current path.
+    /// Subsequent drawing operations are clipped to this region.
+    /// </summary>
+    void Clip();
+}
+```
+
+### Canvas/IPathDrawing.cs
+
+```csharp
+namespace Xui.Core.Canvas;
+/// <summary>
+/// Defines methods for drawing a constructed path,
+/// following the HTML5 Canvas path API model.
+///
+/// Reference: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D#paths
+/// </summary>
+public interface IPathDrawing
+{
     /// <summary>
     /// Fills the current path using the specified fill rule.
     /// </summary>
@@ -2617,11 +2667,23 @@ public interface IPathDrawingContext
     /// Strokes the current path using the current stroke style.
     /// </summary>
     void Stroke();
-    /// <summary>
-    /// Sets the current clipping region to the current path.
-    /// Subsequent drawing operations are clipped to this region.
-    /// </summary>
-    void Clip();
+}
+```
+
+### Canvas/IPathDrawingContext.cs
+
+```csharp
+using Xui.Core.Math2D;
+
+namespace Xui.Core.Canvas;
+/// <summary>
+/// Defines methods for constructing and rendering 2D paths,
+/// following the HTML5 Canvas path API model.
+///
+/// Reference: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D#paths
+/// </summary>
+public interface IPathDrawingContext : IPathBuilder, IPathDrawing, IPathClipping
+{
 }
 ```
 
@@ -2973,6 +3035,134 @@ public enum PaintStyle
 }
 ```
 
+### Canvas/Path2D.cs
+
+```csharp
+using System.Runtime.CompilerServices;
+using Xui.Core.Math2D;
+
+namespace Xui.Core.Canvas;
+public class Path2D : IPathBuilder
+{
+    private byte[] _data;
+    private int _length;
+    public Path2D(int initialCapacity = 256)
+    {
+    }
+
+    public void BeginPath()
+    {
+    }
+
+    public void MoveTo(Point to)
+    {
+    }
+
+    public void LineTo(Point to)
+    {
+    }
+
+    public void ClosePath()
+    {
+    }
+
+    public void CurveTo(Point cp1, Point to)
+    {
+    }
+
+    public void CurveTo(Point cp1, Point cp2, Point to)
+    {
+    }
+
+    public void Arc(Point center, nfloat radius, nfloat startAngle, nfloat endAngle, Winding winding = Winding.ClockWise)
+    {
+    }
+
+    public void ArcTo(Point cp1, Point cp2, nfloat radius)
+    {
+    }
+
+    public void Ellipse(Point center, nfloat radiusX, nfloat radiusY, nfloat rotation, nfloat startAngle, nfloat endAngle, Winding winding = Winding.ClockWise)
+    {
+    }
+
+    public void Rect(Rect rect)
+    {
+    }
+
+    public void RoundRect(Rect rect, nfloat radius)
+    {
+    }
+
+    public void RoundRect(Rect rect, CornerRadius radius)
+    {
+    }
+
+    private void WriteCommand(PathCommandType cmd)
+    {
+    }
+
+    private void WritePoint(Point p)
+    {
+    }
+
+    private void WriteRect(Rect r)
+    {
+    }
+
+    private void WriteCornerRadius(CornerRadius r)
+    {
+    }
+
+    private void WriteNFloat(nfloat value)
+    {
+    }
+
+    private void WriteByte(byte value)
+    {
+    }
+
+    private void EnsureCapacity(int sizeHint)
+    {
+    }
+
+    enum PathCommandType : byte
+    {
+        MoveTo,
+        LineTo,
+        ClosePath,
+        QuadraticCurveTo,
+        CubicCurveTo,
+        Arc,
+        ArcTo,
+        Ellipse,
+        Rect,
+        RoundRectUniform,
+        RoundRectCorners
+    }
+
+    public void Visit(IPathBuilder sink)
+    {
+    }
+
+    private Point ReadPoint(ref int pos)
+    {
+    }
+
+    private Rect ReadRect(ref int pos)
+    {
+    }
+
+    private CornerRadius ReadCornerRadius(ref int pos)
+    {
+    }
+
+    private nfloat ReadNFloat(ref int pos)
+    {
+    }
+}
+```
+
 ### Canvas/RadialGradient.cs
 
 ```csharp
@@ -3300,6 +3490,452 @@ public enum Winding : int
 }
 ```
 
+### Curves2D/Arc.cs
+
+```csharp
+using Xui.Core.Math2D;
+using Xui.Core.Canvas;
+
+namespace Xui.Core.Curves2D;
+/// <summary>
+/// Represents a circular or elliptical arc defined by a center point, radii, rotation, and sweep angles.
+/// </summary>
+/// <remarks>
+/// Arcs are useful for describing elliptical curves in vector graphics, layout paths, and stroke outlines.
+/// They interpolate smoothly from <see cref = "StartAngle"/> to <see cref = "EndAngle"/>, optionally applying
+/// rotation and winding direction.
+/// </remarks>
+public readonly struct Arc : ICurve
+{
+    /// <summary>The center point of the arc's ellipse.</summary>
+    public readonly Point Center;
+    /// <summary>The horizontal radius of the arc.</summary>
+    public readonly nfloat RadiusX;
+    /// <summary>The vertical radius of the arc.</summary>
+    public readonly nfloat RadiusY;
+    /// <summary>The clockwise rotation (in radians) applied to the arc relative to the X axis.</summary>
+    public readonly nfloat Rotation;
+    /// <summary>The angle (in radians) at which the arc starts, before rotation is applied.</summary>
+    public readonly nfloat StartAngle;
+    /// <summary>The angle (in radians) at which the arc ends, before rotation is applied.</summary>
+    public readonly nfloat EndAngle;
+    /// <summary>Specifies whether the arc is drawn clockwise or counter-clockwise.</summary>
+    public readonly Winding Winding;
+    /// <summary>
+    /// Initializes a new <see cref = "Arc"/> with the given center, radii, rotation, angles, and winding direction.
+    /// </summary>
+    /// <param name = "center">The center point of the arc's ellipse.</param>
+    /// <param name = "rx">The horizontal radius.</param>
+    /// <param name = "ry">The vertical radius.</param>
+    /// <param name = "rotation">The clockwise rotation in radians applied to the ellipse.</param>
+    /// <param name = "startAngle">The start angle of the arc in radians (before rotation).</param>
+    /// <param name = "endAngle">The end angle of the arc in radians (before rotation).</param>
+    /// <param name = "winding">Whether the arc is drawn clockwise or counter-clockwise.</param>
+    public Arc(Point center, nfloat rx, nfloat ry, nfloat rotation, nfloat startAngle, nfloat endAngle, Winding winding = Winding.ClockWise)
+    {
+    }
+
+    /// <summary>
+    /// Gets the interpolated point on the arc at the specified parameter <paramref name = "t"/>.
+    /// </summary>
+    /// <param name = "t">A normalized value from 0 to 1 representing the progression along the arc.</param>
+    public Point this[nfloat t]
+    {
+        get
+        {
+        }
+    }
+
+    /// <summary>
+    /// Computes the interpolated point on the arc at a given parameter <paramref name = "t"/>.
+    /// </summary>
+    /// <param name = "t">A normalized value in the range [0, 1].</param>
+    public Point Lerp(nfloat t)
+    {
+    }
+
+    /// <summary>
+    /// Evaluates the arc at a normalized parameter <paramref name = "t"/>, returning the corresponding point.
+    /// </summary>
+    /// <param name = "t">A normalized value in the range [0, 1].</param>
+    /// <returns>The corresponding point on the rotated ellipse arc.</returns>
+    public Point Evaluate(nfloat t)
+    {
+    }
+
+    /// <summary>
+    /// Computes the tangent vector at parameter <paramref name = "t"/> on the arc.
+    /// </summary>
+    /// <param name = "t">A normalized value in the range [0, 1].</param>
+    /// <returns>The normalized tangent vector at the evaluated point on the arc.</returns>
+    public Vector Tangent(nfloat t)
+    {
+    }
+
+    /// <summary>
+    /// Approximates the arc length using uniform sampling with 16 segments.
+    /// </summary>
+    /// <returns>The approximate total arc length.</returns>
+    public nfloat Length()
+    {
+    }
+
+    /// <summary>
+    /// Approximates the arc length using recursive adaptive subdivision.
+    /// </summary>
+    /// <param name = "flatness">The maximum allowed error per segment for arc approximation.</param>
+    /// <returns>The computed arc length within the specified flatness tolerance.</returns>
+    public nfloat Length(nfloat flatness)
+    {
+    }
+
+    private nfloat LengthRecursive(nfloat t0, nfloat t1, Point p0, Point p1, nfloat tol)
+    {
+    }
+
+    /// <summary>
+    /// Gets the signed sweep angle of the arc, in radians.
+    /// Adjusts automatically for the specified <see cref = "Winding"/>.
+    /// </summary>
+    public nfloat SweepAngle
+    {
+        get
+        {
+        }
+    }
+
+    /// <summary>
+    /// Converts this arc to an endpoint-parameterized <see cref = "ArcEndpoint"/> representation.
+    /// </summary>
+    /// <remarks>
+    /// This method generates a single arc segment between the start and end points of the original arc,
+    /// preserving the sweep direction and determining whether the arc is the larger of the two possible segments.
+    /// If the arc forms a complete circle (i.e., the start and end points match and the sweep covers 360°),
+    /// the endpoint position is nudged slightly to avoid rendering ambiguities in formats that do not support full-circle arcs directly.
+    /// </remarks>
+    /// <returns>
+    /// An <see cref = "ArcEndpoint"/> structure that approximates this arc using endpoint-based parametrization.
+    /// </returns>
+    public ArcEndpoint ToEndpointArc()
+    {
+    }
+
+    /// <summary>
+    /// Converts this arc to one or two endpoint-parameterized arcs, depending on the arc's sweep angle.
+    /// </summary>
+    /// <remarks>
+    /// If the arc forms a complete or nearly complete circle (i.e., the sweep angle approaches ±360° and the start and end points match),
+    /// the arc is split into two half-circle segments to avoid rendering issues in formats that do not support full-circle arcs directly.
+    /// Otherwise, a single <see cref = "ArcEndpoint"/> is returned with appropriate flags set for direction and size.
+    /// </remarks>
+    /// <returns>
+    /// A tuple of one or two <see cref = "ArcEndpoint"/> instances that collectively represent the same elliptical arc:
+    /// <list type="bullet">
+    ///   <item>
+    ///     <description>
+    ///       <c>Item1</c> – The first arc segment (always non-null).
+    ///     </description>
+    ///   </item>
+    ///   <item>
+    ///     <description>
+    ///       <c>Item2</c> – The second arc segment if the arc is split, or <c>null</c> if the arc fits in a single segment.
+    ///     </description>
+    ///   </item>
+    /// </list>
+    /// </returns>
+    public (ArcEndpoint, ArcEndpoint? ) ToEndpointArcs()
+    {
+    }
+
+    /// <summary>
+    /// Evaluates the position on the ellipse at a given angle <paramref name = "θ"/> (in radians),
+    /// relative to the unrotated ellipse center.
+    /// </summary>
+    /// <param name = "θ">
+    /// The angle in radians, measured from the X axis of the unrotated ellipse.
+    /// This is not a normalized parameter like <c>t</c>, but an absolute angle used in parametric arc equations.
+    /// </param>
+    /// <returns>
+    /// The corresponding <see cref = "Point"/> on the arc's ellipse at the given angle,
+    /// after applying the arc's rotation and translating from its center.
+    /// </returns>
+    /// <remarks>
+    /// The point is computed using the parametric equation of an axis-aligned ellipse:
+    /// <c>(x, y) = (rx * cos(θ), ry * sin(θ))</c>, then rotated by <see cref = "Rotation"/> and translated to <see cref = "Center"/>.
+    /// This method is useful when working directly with angle-based metrics like vertical extrema (e.g., θ = π/2 or 3π/2).
+    /// </remarks>
+    public Point EvaluateAtAngle(nfloat θ)
+    {
+    }
+
+    /// <summary>
+    /// Splits this arc into a series of <see cref = "Arc3Point"/> segments,
+    /// each spanning ≤ 90° and aligned so that one edge is axis-aligned.
+    /// </summary>
+    /// <param name = "buffer">
+    /// A span to receive the output segments. Must have space for up to 4 entries.
+    /// </param>
+    /// <param name = "count">
+    /// The number of segments written to <paramref name = "buffer"/>.
+    /// </param>
+    /// <remarks>
+    /// This method ensures consistent arc tessellation by aligning segment edges with
+    /// X or Y axes and bounding each by ≤ 90°, suitable for round rects or shader-compatible curves.
+    /// </remarks>
+    public void ToArc3Segments(Span<Arc3Point> buffer, out int count)
+    {
+    }
+}
+```
+
+### Curves2D/Arc3Point.cs
+
+```csharp
+using Xui.Core.Math2D;
+using Xui.Core.Canvas;
+
+namespace Xui.Core.Curves2D;
+/// <summary>
+/// Represents a circular arc defined by three points: start, mid (on-curve), and end.
+/// </summary>
+/// <remarks>
+/// The arc is guaranteed to pass through all three control points <see cref = "P0"/>, <see cref = "P1"/>, and <see cref = "P2"/>.
+/// The arc lies on the unique circle that intersects these points and is useful for geometric primitives,
+/// shader-based SDF rendering, and polygonal arc approximation.
+/// </remarks>
+public readonly struct Arc3Point : ICurve
+{
+    /// <summary>The starting point of the arc.</summary>
+    public readonly Point P0;
+    /// <summary>A point on the arc between <see cref = "P0"/> and <see cref = "P2"/>.</summary>
+    public readonly Point P1;
+    /// <summary>The ending point of the arc.</summary>
+    public readonly Point P2;
+    /// <summary>
+    /// Initializes a new <see cref = "Arc3Point"/> defined by three on-curve points.
+    /// </summary>
+    public Arc3Point(Point p0, Point p1, Point p2)
+    {
+    }
+
+    /// <summary>
+    /// Converts this three-point arc into a center-based <see cref = "Arc"/> if the arc is valid.
+    /// </summary>
+    /// <returns>
+    /// A valid <see cref = "Arc"/> if the input points define a circular segment; otherwise <c>null</c>.
+    /// If the result is <c>null</c>, consider falling back to a straight <see cref = "Segment"/> from <see cref = "P0"/> to <see cref = "P2"/>.
+    /// </returns>
+    public Arc? ToCenterArc()
+    {
+    }
+
+    /// <summary>
+    /// Converts this arc to an endpoint-based <see cref = "ArcEndpoint"/> format, if valid.
+    /// </summary>
+    public ArcEndpoint? ToEndpointArc()
+    {
+    }
+
+    /// <inheritdoc/>
+    public Point Lerp(nfloat t)
+    {
+    }
+
+    /// <inheritdoc/>
+    public Vector Tangent(nfloat t)
+    {
+    }
+
+    /// <inheritdoc/>
+    public Point this[nfloat t]
+    {
+        get
+        {
+        }
+    }
+
+    /// <inheritdoc/>
+    public nfloat Length()
+    {
+    }
+
+    /// <inheritdoc/>
+    public nfloat Length(nfloat precision)
+    {
+    }
+
+    /// <summary>
+    /// Implicitly converts a tuple of 3 points to an <see cref = "Arc3Point"/>.
+    /// </summary>
+    public static implicit operator Arc3Point((Point p0, Point p1, Point p2) value)
+    {
+    }
+
+    private static bool TryLineIntersection(Point p1, Point p2, Point q1, Point q2, out Point intersection)
+    {
+    }
+
+    private static Winding GetWinding(nfloat θ0, nfloat θm, nfloat θ1)
+    {
+    }
+
+    /// <summary>
+    /// Splits the arc into one or two Y-monotonic <see cref = "Arc3Point"/> segments.
+    /// </summary>
+    /// <remarks>
+    /// This method finds the angle θ where the Y value of the arc reaches an extremum.
+    /// If this point lies within the arc, the arc is split at that angle into two Y-monotonic sub-arcs.
+    /// If no vertical extremum is found within the arc range, the arc is already monotonic.
+    /// </remarks>
+    public MonotonicArc3Point SplitIntoYMonotonicCurves()
+    {
+    }
+
+    private static nfloat NormalizeAngle(nfloat θ)
+    {
+    }
+
+    private static bool AngleIsBetweenCW(nfloat θ, nfloat from, nfloat to)
+    {
+    }
+
+    private static bool AngleIsBetweenCCW(nfloat θ, nfloat from, nfloat to)
+    {
+    }
+}
+```
+
+### Curves2D/ArcEndpoint.cs
+
+```csharp
+using Xui.Core.Math2D;
+using Xui.Core.Canvas;
+
+namespace Xui.Core.Curves2D;
+/// <summary>
+/// Represents a circular or elliptical arc defined by radii, rotation, and endpoint parameters.
+/// </summary>
+/// <remarks>
+/// This arc representation uses start and end points along with size and sweep flags.
+/// It is commonly used in vector graphics where the arc shape is inferred from geometry and direction flags.
+/// </remarks>
+public readonly struct ArcEndpoint : ICurve
+{
+    /// <summary>The start point of the arc.</summary>
+    public readonly Point Start;
+    /// <summary>The end point of the arc.</summary>
+    public readonly Point End;
+    /// <summary>The horizontal radius of the arc.</summary>
+    public readonly nfloat RadiusX;
+    /// <summary>The vertical radius of the arc.</summary>
+    public readonly nfloat RadiusY;
+    /// <summary>The clockwise rotation (in radians) applied to the arc's ellipse relative to the X axis.</summary>
+    public readonly nfloat Rotation;
+    /// <summary>If true, the arc is the longer (greater than 180°) of the two possible arcs between points.</summary>
+    public readonly bool LargeArc;
+    /// <summary>The direction in which the arc is drawn (clockwise or counter-clockwise).</summary>
+    public readonly Winding Winding;
+    /// <summary>
+    /// Initializes a new <see cref = "ArcEndpoint"/> with the given geometry and flags.
+    /// </summary>
+    /// <param name = "start">The start point of the arc.</param>
+    /// <param name = "end">The end point of the arc.</param>
+    /// <param name = "rx">The horizontal radius.</param>
+    /// <param name = "ry">The vertical radius.</param>
+    /// <param name = "rotation">The clockwise rotation in radians applied to the ellipse.</param>
+    /// <param name = "largeArc">Whether the arc should be the larger of the two possible arcs.</param>
+    /// <param name = "winding">The sweep direction (clockwise or counter-clockwise).</param>
+    public ArcEndpoint(Point start, Point end, nfloat rx, nfloat ry, nfloat rotation, bool largeArc, Winding winding)
+    {
+    }
+
+    /// <summary>
+    /// Gets the interpolated point on the arc at the specified parameter <paramref name = "t"/>.
+    /// </summary>
+    /// <param name = "t">A normalized value from 0 to 1 representing the progression along the arc.</param>
+    public Point this[nfloat t]
+    {
+        get
+        {
+        }
+    }
+
+    /// <summary>
+    /// Computes the interpolated point on the arc at a given parameter <paramref name = "t"/>.
+    /// </summary>
+    /// <param name = "t">A normalized value in the range [0, 1].</param>
+    public Point Lerp(nfloat t)
+    {
+    }
+
+    /// <summary>
+    /// Evaluates the arc at a normalized parameter <paramref name = "t"/>, returning the corresponding point.
+    /// </summary>
+    /// <param name = "t">A normalized value in the range [0, 1].</param>
+    /// <returns>The corresponding point on the arc.</returns>
+    public Point Evaluate(nfloat t)
+    {
+    }
+
+    /// <summary>
+    /// Computes the tangent vector at parameter <paramref name = "t"/> on the arc.
+    /// </summary>
+    /// <param name = "t">A normalized value in the range [0, 1].</param>
+    /// <returns>The normalized tangent vector at the evaluated point on the arc.</returns>
+    public Vector Tangent(nfloat t)
+    {
+    }
+
+    /// <summary>
+    /// Approximates the arc length using uniform sampling with 16 segments.
+    /// </summary>
+    /// <returns>The approximate total arc length.</returns>
+    public nfloat Length()
+    {
+    }
+
+    /// <summary>
+    /// Approximates the arc length using recursive adaptive subdivision.
+    /// </summary>
+    /// <param name = "flatness">The maximum allowed error per segment for arc approximation.</param>
+    /// <returns>The computed arc length within the specified flatness tolerance.</returns>
+    public nfloat Length(nfloat flatness)
+    {
+    }
+
+    /// <summary>
+    /// Converts this endpoint-parameterized arc to a center-based <see cref = "Arc"/>.
+    /// </summary>
+    /// <returns>A new <see cref = "Arc"/> representing the same shape.</returns>
+    public Arc ToCenterArc()
+    {
+    }
+
+    /// <summary>
+    /// Splits this arc into a series of <see cref = "Arc3Point"/> segments,
+    /// each spanning ≤ 90° and aligned so that one edge is axis-aligned.
+    /// </summary>
+    /// <param name = "buffer">
+    /// A span to receive the output segments. Must have space for up to 4 entries.
+    /// </param>
+    /// <param name = "count">
+    /// The number of segments written to <paramref name = "buffer"/>.
+    /// </param>
+    /// <remarks>
+    /// This method converts the arc into a center-based <see cref = "Arc"/> representation,
+    /// then delegates to its <see cref = "Arc.ToArc3Segments"/> method. Each resulting
+    /// <see cref = "Arc3Point"/> segment spans ≤ 90° and is safe for monotonic tessellation.
+    /// </remarks>
+    public void ToArc3Segments(Span<Arc3Point> buffer, out int count)
+    {
+    }
+
+    private static nfloat AngleOnUnitEllipse(nfloat ux, nfloat uy, nfloat vx, nfloat vy)
+    {
+    }
+}
+```
+
 ### Curves2D/Bezier.cs
 
 ```csharp
@@ -3371,6 +4007,13 @@ public readonly struct CubicBezier : ICurve
     /// <param name = "t">A normalized parameter in the range [0, 1].</param>
     public Point Lerp(nfloat t)
     {
+    }
+
+    public QuadraticBezier QuadraticApproximation
+    {
+        get
+        {
+        }
     }
 
     /// <summary>
@@ -3506,8 +4149,66 @@ public readonly struct CubicBezier : ICurve
     {
     }
 
+    public MonotonicCubicBezier SplitIntoYMonotonicCurves()
+    {
+    }
+
+    /// <summary>
+    /// Subdivides this cubic Bézier curve at parameter t, returning two curves.
+    /// </summary>
+    public (CubicBezier, CubicBezier) Subdivide(nfloat t)
+    {
+    }
+
     private static nfloat ClosestTRecursive(CubicBezier curve, Point target, nfloat t0, nfloat t1, nfloat precision)
     {
+    }
+
+    /// <summary>
+    /// Converts this cubic Bézier curve into a sequence of Y-monotonic quadratic Bézier segments,
+    /// each approximating a portion of the original curve within the specified flatness precision.
+    /// </summary>
+    /// <param name = "buffer">
+    /// A span to receive the quadratic segments. Must be large enough to hold the result.
+    /// A typical size is between 4 and 32. Must be at least 3 to accommodate the initial monotonic split.
+    /// </param>
+    /// <param name = "precision">
+    /// The maximum allowed distance between the original cubic curve and its quadratic approximation.
+    /// Lower values yield more accurate approximations but may require more output segments.
+    /// </param>
+    /// <param name = "count">
+    /// The number of segments written to <paramref name = "buffer"/>.
+    /// </param>
+    /// <remarks>
+    /// This method uses an adaptive, flatness-aware subdivision strategy. It begins by splitting the
+    /// cubic curve into up to 3 Y-monotonic segments. Each is then approximated with a quadratic Bézier,
+    /// and the segments with the highest deviation are recursively subdivided until the total number of
+    /// segments fits within <paramref name = "buffer"/> and all segments meet the precision requirement.
+    /// 
+    /// The output segments are returned in order, forming a continuous piecewise-curve that follows the
+    /// original cubic. Suitable for SDF tessellation or scanline-based rasterization.
+    /// </remarks>
+    /// <exception cref = "ArgumentException">
+    /// Thrown if <paramref name = "buffer"/> has fewer than 3 elements.
+    /// </exception>
+    public void ToQuadratics(Span<QuadraticBezier> buffer, nfloat precision, out int count)
+    {
+    }
+
+    public struct SubcurveNode
+    {
+        public CubicBezier Segment;
+        public QuadraticBezier QuadraticBezierApproximation;
+        public nfloat Precision;
+        public ushort NextIndex;
+        /// <summary>
+        /// Initializes a new node representing a quadratic approximation of a cubic Bézier segment in a linked list.
+        /// </summary>
+        /// <param name = "segment">The original cubic Bézier segment.</param>
+        /// <param name = "nextIndex">Index of the next node in the chain. Use 0 if this is the last node.</param>
+        public SubcurveNode(CubicBezier segment, ushort nextIndex = 0)
+        {
+        }
     }
 }
 ```
@@ -3817,6 +4518,68 @@ public readonly struct LinearSpline : ICurve
 }
 ```
 
+### Curves2D/MonotonicArc3Point.cs
+
+```csharp
+namespace Xui.Core.Curves2D;
+/// <summary>
+/// Represents one or two <see cref = "Arc3Point"/> segments that are each monotonic in the Y direction.
+/// </summary>
+public readonly struct MonotonicArc3Point
+{
+    /// <summary>The first monotonic segment.</summary>
+    public readonly Arc3Point First;
+    /// <summary>The optional second segment, if the arc was split.</summary>
+    public readonly Arc3Point? Second;
+    /// <summary>Creates a single-segment monotonic arc.</summary>
+    public MonotonicArc3Point(Arc3Point only)
+    {
+    }
+
+    /// <summary>Creates a two-segment Y-monotonic arc.</summary>
+    public MonotonicArc3Point(Arc3Point first, Arc3Point second)
+    {
+    }
+
+    /// <summary>True if the arc was split into two segments.</summary>
+    public bool IsSplit
+    {
+        get
+        {
+        }
+    }
+}
+```
+
+### Curves2D/MonotonicCubicBezier.cs
+
+```csharp
+namespace Xui.Core.Curves2D;
+public readonly struct MonotonicCubicBezier
+{
+    public readonly CubicBezier First;
+    public readonly CubicBezier? Second;
+    public readonly CubicBezier? Third;
+    public MonotonicCubicBezier(CubicBezier first, CubicBezier? second = null, CubicBezier? third = null)
+    {
+    }
+}
+```
+
+### Curves2D/MonotonicQuadraticBezier.cs
+
+```csharp
+namespace Xui.Core.Curves2D;
+public readonly struct MonotonicQuadraticBezier
+{
+    public readonly QuadraticBezier First;
+    public readonly QuadraticBezier? Second;
+    public MonotonicQuadraticBezier(QuadraticBezier first, QuadraticBezier? second = null)
+    {
+    }
+}
+```
+
 ### Curves2D/QuadraticBezier.cs
 
 ```csharp
@@ -3948,7 +4711,31 @@ public readonly struct QuadraticBezier : ICurve
     {
     }
 
+    /// <summary>
+    /// Splits the current quadratic Bézier curve into two segments if it is not monotonic in the Y direction.
+    /// </summary>
+    /// <returns>
+    /// A <see cref = "MonotonicQuadraticBezier"/> instance containing one or two sub-curves, each guaranteed to be monotonic in Y.
+    /// If the curve is already Y-monotonic (i.e., has no vertical extrema within (0,1)), a single-segment result is returned.
+    /// </returns>
+    /// <remarks>
+    /// This method analyzes the derivative of the Y component of the curve to determine if a vertical extremum occurs
+    /// within the curve's parameter domain. If a critical point is found in (0,1), the curve is split at that point to ensure
+    /// each resulting segment is Y-monotonic. This is useful for scanline rasterization, tessellation, or other geometry processing
+    /// that requires monotonic segments.
+    /// </remarks>
+    public MonotonicQuadraticBezier SplitIntoYMonotonicCurves()
+    {
+    }
+
     private static nfloat ClosestTRecursive(QuadraticBezier curve, Point target, nfloat t0, nfloat t1, nfloat precision)
+    {
+    }
+
+    /// <summary>
+    /// Subdivides this quadratic Bézier curve at parameter t, returning two curves.
+    /// </summary>
+    public (QuadraticBezier, QuadraticBezier) Subdivide(nfloat t)
     {
     }
 }
@@ -4036,6 +4823,64 @@ public readonly struct QuadraticSpline : ICurve
 }
 ```
 
+### Curves2D/Segment.cs
+
+```csharp
+using Xui.Core.Math2D;
+
+namespace Xui.Core.Curves2D;
+/// <summary>
+/// Represents a straight line segment from <see cref = "P0"/> to <see cref = "P1"/>.
+/// Implements the <see cref = "ICurve"/> interface for compatibility with other curve types.
+/// </summary>
+public readonly struct Segment : ICurve
+{
+    /// <summary>The starting point of the line segment.</summary>
+    public readonly Point P0;
+    /// <summary>The ending point of the line segment.</summary>
+    public readonly Point P1;
+    /// <summary>Initializes a new line from <paramref name = "p0"/> to <paramref name = "p1"/>.</summary>
+    public Segment(Point p0, Point p1)
+    {
+    }
+
+    /// <inheritdoc/>
+    public Point Lerp(nfloat t)
+    {
+    }
+
+    /// <inheritdoc/>
+    public Vector Tangent(nfloat t)
+    {
+    }
+
+    /// <inheritdoc/>
+    public Point this[nfloat t]
+    {
+        get
+        {
+        }
+    }
+
+    /// <inheritdoc/>
+    public nfloat Length()
+    {
+    }
+
+    /// <inheritdoc/>
+    public nfloat Length(nfloat precision)
+    {
+    }
+
+    /// <summary>
+    /// Converts a tuple to a <see cref = "Segment"/>.
+    /// </summary>
+    public static implicit operator Segment((Point p0, Point p1) value)
+    {
+    }
+}
+```
+
 ### Curves2D/Spline.cs
 
 ```csharp
@@ -4081,6 +4926,7 @@ global using nfloat = System.Runtime.InteropServices.NFloat;
 #pragma warning restore
 global using System.Diagnostics;
 global using System.ComponentModel;
+global using static Xui.Core.Math2D.Constants;
 ```
 
 ### Math2D/AffineTransform.cs
@@ -4122,6 +4968,14 @@ public struct AffineTransform
     public nfloat Ty;
     /// <summary>The identity transform (no scale, rotation, or translation).</summary>
     public static readonly AffineTransform Identity = new AffineTransform(1, 0, 0, 1, 0, 0);
+    /// <summary>Returns <c>true</c> if the current transform is the identity matrix.</summary>
+    public bool IsIdentity
+    {
+        get
+        {
+        }
+    }
+
     /// <summary>
     /// Returns the inverse of this affine transform.
     /// </summary>
@@ -4234,6 +5088,30 @@ public struct AffineTransform
     [DebuggerStepThrough]
     public override string ToString()
     {
+    }
+}
+```
+
+### Math2D/Constants.cs
+
+```csharp
+namespace Xui.Core.Math2D
+{
+    /// <summary>
+    /// Common mathematical constants used throughout 2D geometry and curve computations.
+    /// </summary>
+    public static class Constants
+    {
+        /// <summary>π (pi): Ratio of a circle’s circumference to its diameter.</summary>
+        public static readonly nfloat π = nfloat.Pi;
+        /// <summary>τ (tau): One full circle in radians (2π).</summary>
+        public static readonly nfloat τ = nfloat.Pi * 2;
+        /// <summary>ε (epsilon): A small value used for numerical stability checks.</summary>
+        public static readonly nfloat ε = 1e-5f;
+        /// <summary>√2 (square root of 2): Diagonal of a unit square.</summary>
+        public static readonly nfloat sqrt2 = (nfloat)Math.Sqrt(2);
+        /// <summary>ϕ (phi): The golden ratio (≈ 1.618).</summary>
+        public static readonly nfloat ϕ = (1 + nfloat.Sqrt(5)) / 2;
     }
 }
 ```
@@ -4576,6 +5454,14 @@ public struct Point
     /// </summary>
     [DebuggerStepThrough]
     public static bool operator !=(Point lhs, Point rhs)
+    {
+    }
+
+    /// <summary>
+    /// Apply an uniform scale to a point.
+    /// </summary>
+    [DebuggerStepThrough]
+    public static Point operator *(Point v, nfloat f)
     {
     }
 
@@ -5045,9 +5931,59 @@ public struct Vector
     }
 
     /// <summary>
+    /// Returns the vector rotated 90° counter-clockwise (CCW).
+    /// </summary>
+    public Vector PerpendicularCCW
+    {
+        get
+        {
+        }
+    }
+
+    /// <summary>
+    /// Returns the vector rotated 90° clockwise (CW).
+    /// </summary>
+    public Vector PerpendicularCW
+    {
+        get
+        {
+        }
+    }
+
+    /// <summary>
     /// Returns the magnitude (length) of the vector.
     /// </summary>
     public nfloat Magnitude
+    {
+        get
+        {
+        }
+    }
+
+    /// <summary>
+    /// Returns the squared magnitude (length squared) of the vector.
+    /// This avoids the square root computation used in <see cref = "Magnitude"/>.
+    /// </summary>
+    public nfloat MagnitudeSquared
+    {
+        get
+        {
+        }
+    }
+
+    /// <summary>
+    /// Gets the angle in radians between the vector and the positive X-axis,
+    /// measured counter-clockwise in the range [-π, π].
+    /// </summary>
+    /// <remarks>
+    /// This is equivalent to calling <c>Atan2(Y, X)</c> and is commonly used to compute
+    /// polar angles from directional vectors, such as when determining the angular position
+    /// of a point on a circle or ellipse.
+    /// </remarks>
+    /// <returns>
+    /// The angle in radians between this vector and the X-axis.
+    /// </returns>
+    public nfloat ArcAngle
     {
         get
         {
@@ -5529,6 +6465,421 @@ public class HorizontalUniformStack : ViewCollection
 }
 ```
 
+### UI/Input/EventPhase.cs
+
+```csharp
+namespace Xui.Core.UI.Input
+{
+    /// <summary>
+    /// Defines the phase of event delivery through the view hierarchy.
+    /// </summary>
+    public enum EventPhase
+    {
+        /// <summary>
+        /// Event is tunneling from the root down toward the target view.
+        /// </summary>
+        Tunnel,
+        /// <summary>
+        /// Event is bubbling from the target view up toward the root.
+        /// </summary>
+        Bubble
+    }
+}
+```
+
+### UI/Input/EventRouter.cs
+
+```csharp
+using Xui.Core.Math2D;
+using Xui.Core.Abstract.Events;
+
+namespace Xui.Core.UI.Input
+{
+    /// <summary>
+    /// Routes platform-level input events through the view hierarchy, translating them into abstract pointer events.
+    /// Handles pointer capture, enter/leave events, and event phase delivery (tunneling and bubbling).
+    /// </summary>
+    public class EventRouter
+    {
+        private readonly View _rootView;
+        // Tracks capture, previous hit target, and last known position per pointer ID
+        private readonly Dictionary<int, PointerTracking> _pointerTracking = new();
+        /// <summary>
+        /// Initializes a new instance of the <see cref = "EventRouter"/> class, responsible for translating platform input events
+        /// and dispatching them through the view hierarchy starting from the specified root view.
+        /// </summary>
+        /// <param name = "rootView">The root view of the window hierarchy that will receive routed pointer events.</param>
+        public EventRouter(View rootView)
+        {
+        }
+
+        /// <summary>
+        /// Dispatches a touch event, normalizing it into abstract pointer events.
+        /// </summary>
+        /// <param name = "touchEvent">The touch event to dispatch.</param>
+        public void Dispatch(ref TouchEventRef touchEvent)
+        {
+        }
+
+        /// <summary>
+        /// Dispatches a normalized pointer event into the view hierarchy.
+        /// Handles capture, hit-testing, and event phase routing.
+        /// </summary>
+        private void DispatchPointer(ref PointerEventRef e)
+        {
+        }
+
+        /// <summary>
+        /// Recursively performs hit-testing starting from the given view,
+        /// returning the deepest visible view under the specified position.
+        /// </summary>
+        /// <param name = "view">The view to start hit-testing from.</param>
+        /// <param name = "position">The global position to test.</param>
+        /// <returns>The deepest view under the point, or null if none hit.</returns>
+        private View? HitTest(View view, Point position)
+        {
+        }
+
+        /// <summary>
+        /// Builds the route from the root to the target view.
+        /// </summary>
+        private List<View> BuildRoute(View target)
+        {
+        }
+
+        /// <summary>
+        /// Tracks information about a specific active pointer (touch, mouse, pen) for routing and event management.
+        /// </summary>
+        private struct PointerTracking
+        {
+            /// <summary>
+            /// The view that captured this pointer, if any.
+            /// </summary>
+            public View? Captured;
+            /// <summary>
+            /// The last view hit by this pointer, used for enter/leave tracking.
+            /// </summary>
+            public View? PreviousTarget;
+            /// <summary>
+            /// The last known position of the pointer in global window coordinates.
+            /// </summary>
+            public Point LastPosition;
+        }
+    }
+}
+```
+
+### UI/Input/PointerButton.cs
+
+```csharp
+namespace Xui.Core.UI.Input
+{
+    /// <summary>
+    /// Defines the mouse or pointer button associated with a pointer event, based on the W3C Pointer Events specification.
+    /// </summary>
+    public enum PointerButton : short
+    {
+        /// <summary>
+        /// No button or touch/pen contact change occurred (-1).
+        /// </summary>
+        None = -1,
+        /// <summary>
+        /// Left mouse button, touch contact, or pen contact (0).
+        /// </summary>
+        Left = 0,
+        /// <summary>
+        /// Middle mouse button (usually the scroll wheel button) (1).
+        /// </summary>
+        Middle = 1,
+        /// <summary>
+        /// Right mouse button or pen barrel button (2).
+        /// </summary>
+        Right = 2,
+        /// <summary>
+        /// X1 (back) mouse button (3).
+        /// </summary>
+        X1 = 3,
+        /// <summary>
+        /// X2 (forward) mouse button (4).
+        /// </summary>
+        X2 = 4,
+        /// <summary>
+        /// Pen eraser button (5).
+        /// </summary>
+        Eraser = 5,
+    }
+}
+```
+
+### UI/Input/PointerButtons.cs
+
+```csharp
+namespace Xui.Core.UI.Input
+{
+    /// <summary>
+    /// Defines the set of mouse or pointer buttons currently pressed, based on the W3C Pointer Events specification.
+    /// </summary>
+    [Flags]
+    public enum PointerButtons : short
+    {
+        /// <summary>
+        /// No buttons are currently pressed.
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// Left mouse button, touch contact, or pen contact.
+        /// </summary>
+        Left = 1 << 0,
+        /// <summary>
+        /// Right mouse button or pen barrel button.
+        /// </summary>
+        Right = 1 << 1,
+        /// <summary>
+        /// Middle mouse button.
+        /// </summary>
+        Middle = 1 << 2,
+        /// <summary>
+        /// X1 (back) mouse button.
+        /// </summary>
+        X1 = 1 << 3,
+        /// <summary>
+        /// X2 (forward) mouse button.
+        /// </summary>
+        X2 = 1 << 4,
+        /// <summary>
+        /// Pen eraser button.
+        /// </summary>
+        Eraser = 1 << 5,
+    }
+}
+```
+
+### UI/Input/PointerEventRef.cs
+
+```csharp
+namespace Xui.Core.UI.Input
+{
+    /// <summary>
+    /// Represents a reference to a pointer event routed to a view, containing identification and pointer state information.
+    /// </summary>
+    public ref struct PointerEventRef
+    {
+        /// <summary>
+        /// Gets the type of pointer event (e.g., Down, Move, Up, Enter, Leave).
+        /// </summary>
+        public readonly PointerEventType Type;
+        /// <summary>
+        /// Gets the unique ID of the pointer. Used to distinguish different active pointers (e.g., different fingers or pen tips).
+        /// </summary>
+        public readonly int PointerId;
+        /// <summary>
+        /// Gets the persistent device ID, if known. Identifies the underlying hardware across multiple pointer sessions.
+        /// </summary>
+        public readonly long PersistentDeviceId;
+        /// <summary>
+        /// Gets a value indicating whether this pointer is the primary pointer in a multi-pointer interaction (e.g., first touch).
+        /// </summary>
+        public readonly bool IsPrimary;
+        /// <summary>
+        /// Gets the current physical state of the pointer (position, pressure, tilt, etc.).
+        /// </summary>
+        public readonly PointerState State;
+        /// <summary>
+        /// Gets high-frequency coalesced samples recorded between the last and current events.
+        /// </summary>
+        public readonly ReadOnlySpan<PointerState> CoalescedStates;
+        /// <summary>
+        /// Gets future-predicted samples estimated from the current pointer movement.
+        /// </summary>
+        public readonly ReadOnlySpan<PointerState> PredictedStates;
+        /// <summary>
+        /// Initializes a new instance of the <see cref = "PointerEventRef"/> struct.
+        /// </summary>
+        /// <param name = "type">The type of pointer event (Down, Move, Up, etc.).</param>
+        /// <param name = "pointerId">The unique ID of the pointer.</param>
+        /// <param name = "persistentDeviceId">The persistent ID of the physical device, if available.</param>
+        /// <param name = "isPrimary">Indicates whether this pointer is the primary pointer.</param>
+        /// <param name = "state">The current physical state of the pointer.</param>
+        /// <param name = "coalescedStates">High-frequency samples coalesced since the last event.</param>
+        /// <param name = "predictedStates">Future-predicted samples for smoothing or latency compensation.</param>
+        public PointerEventRef(PointerEventType type, int pointerId, long persistentDeviceId, bool isPrimary, PointerState state, ReadOnlySpan<PointerState> coalescedStates, ReadOnlySpan<PointerState> predictedStates)
+        {
+        }
+    }
+}
+```
+
+### UI/Input/PointerEventType.cs
+
+```csharp
+namespace Xui.Core.UI.Input
+{
+    /// <summary>
+    /// Defines the type of action associated with a pointer event, based on the W3C Pointer Events specification.
+    /// </summary>
+    public enum PointerEventType
+    {
+        /// <summary>
+        /// The pointer has moved onto the element's hit region.
+        /// Corresponds to the "pointerover" event.
+        /// </summary>
+        Over,
+        /// <summary>
+        /// The pointer has entered the element or one of its descendants.
+        /// Corresponds to the "pointerenter" event.
+        /// </summary>
+        Enter,
+        /// <summary>
+        /// A pointer button has been pressed.
+        /// Corresponds to the "pointerdown" event.
+        /// </summary>
+        Down,
+        /// <summary>
+        /// The pointer has moved while being active.
+        /// Corresponds to the "pointermove" event.
+        /// </summary>
+        Move,
+        /// <summary>
+        /// A pointer button has been released.
+        /// Corresponds to the "pointerup" event.
+        /// </summary>
+        Up,
+        /// <summary>
+        /// The pointer input was canceled by the system.
+        /// Corresponds to the "pointercancel" event.
+        /// </summary>
+        Cancel,
+        /// <summary>
+        /// The pointer has moved off of the element's hit region.
+        /// Corresponds to the "pointerout" event.
+        /// </summary>
+        Out,
+        /// <summary>
+        /// The pointer has left the element and all its descendants.
+        /// Corresponds to the "pointerleave" event.
+        /// </summary>
+        Leave,
+        /// <summary>
+        /// The pointer has been captured by the element.
+        /// Corresponds to the "gotpointercapture" event.
+        /// </summary>
+        GotCapture,
+        /// <summary>
+        /// The pointer capture has been released from the element.
+        /// Corresponds to the "lostpointercapture" event.
+        /// </summary>
+        LostCapture,
+    }
+}
+```
+
+### UI/Input/PointerState.cs
+
+```csharp
+using Xui.Core.Math2D;
+
+namespace Xui.Core.UI.Input
+{
+    /// <summary>
+    /// Describes the physical state of a pointer at a specific moment in time, including position, pressure, tilt, and button information.
+    /// </summary>
+    public readonly struct PointerState
+    {
+        /// <summary>
+        /// Gets the position of the pointer in global (window) coordinates.
+        /// </summary>
+        public readonly Point Position;
+        /// <summary>
+        /// Gets the size of the pointer's contact geometry, such as the area covered by a finger or stylus tip.
+        /// </summary>
+        public readonly Size ContactSize;
+        /// <summary>
+        /// Gets the normalized pressure applied by the pointer (range: 0.0 to 1.0).
+        /// </summary>
+        public readonly nfloat Pressure;
+        /// <summary>
+        /// Gets the normalized tangential (barrel) pressure applied by the pointer (range: -1.0 to 1.0).
+        /// </summary>
+        public readonly nfloat TangentialPressure;
+        /// <summary>
+        /// Gets the tilt of the pointer relative to the X and Y axes (in degrees).
+        /// </summary>
+        public readonly Vector Tilt;
+        /// <summary>
+        /// Gets the clockwise twist (rotation) of the pointer around its major axis, in degrees (0.0 to 359.9).
+        /// </summary>
+        public readonly nfloat Twist;
+        /// <summary>
+        /// Gets the altitude angle of the pointer relative to the surface (0 = horizontal, π/2 = vertical), in radians.
+        /// </summary>
+        public readonly nfloat AltitudeAngle;
+        /// <summary>
+        /// Gets the azimuth angle (compass direction) of the pointer around the vertical axis, in radians.
+        /// </summary>
+        public readonly nfloat AzimuthAngle;
+        /// <summary>
+        /// Gets the type of device generating the pointer input (mouse, touch, pen, etc.).
+        /// </summary>
+        public readonly PointerType PointerType;
+        /// <summary>
+        /// Gets which button was responsible for triggering this pointer state change (left, right, middle, eraser, etc.).
+        /// </summary>
+        public readonly PointerButton Button;
+        /// <summary>
+        /// Gets the set of all currently pressed buttons on the device.
+        /// </summary>
+        public readonly PointerButtons Buttons;
+        /// <summary>
+        /// Initializes a new instance of the <see cref = "PointerState"/> struct.
+        /// </summary>
+        /// <param name = "position">The global position of the pointer.</param>
+        /// <param name = "contactSize">The size of the contact area.</param>
+        /// <param name = "pressure">The normalized pressure applied.</param>
+        /// <param name = "tangentialPressure">The normalized tangential (barrel) pressure applied.</param>
+        /// <param name = "tilt">The tilt vector of the pointer.</param>
+        /// <param name = "twist">The clockwise twist rotation of the pointer.</param>
+        /// <param name = "altitudeAngle">The altitude angle relative to the surface.</param>
+        /// <param name = "azimuthAngle">The azimuth angle (compass direction).</param>
+        /// <param name = "pointerType">The type of input device.</param>
+        /// <param name = "button">The button that triggered the event.</param>
+        /// <param name = "buttons">The set of currently pressed buttons.</param>
+        public PointerState(Point position, Size contactSize, nfloat pressure, nfloat tangentialPressure, Vector tilt, nfloat twist, nfloat altitudeAngle, nfloat azimuthAngle, PointerType pointerType, PointerButton button, PointerButtons buttons)
+        {
+        }
+    }
+}
+```
+
+### UI/Input/PointerType.cs
+
+```csharp
+namespace Xui.Core.UI.Input
+{
+    /// <summary>
+    /// Defines the type of input device associated with a pointer event.
+    /// </summary>
+    public enum PointerType
+    {
+        /// <summary>
+        /// A mouse device generated the pointer event.
+        /// </summary>
+        Mouse,
+        /// <summary>
+        /// A touch contact (e.g., finger or capacitive touch) generated the pointer event.
+        /// </summary>
+        Touch,
+        /// <summary>
+        /// A pen, stylus, or similar fine-point device generated the pointer event.
+        /// </summary>
+        Pen,
+        /// <summary>
+        /// The pointer device type could not be determined.
+        /// </summary>
+        Unknown,
+    }
+}
+```
+
 ### UI/Label.cs
 
 ```csharp
@@ -5838,7 +7189,7 @@ namespace Xui.Core.UI;
 /// Base class for all UI elements in the Xui layout engine.
 /// A view participates in layout, rendering, and input hit testing, and may contain child views.
 /// </summary>
-public abstract class View
+public abstract partial class View
 {
     /// <summary>
     /// The parent view in the visual hierarchy. This is set automatically when the view is added to a container.
@@ -6014,6 +7365,23 @@ public abstract class View
     /// The drawing context used for rendering visual content to the output surface.
     /// </param>
     protected virtual void RenderCore(IContext context)
+    {
+    }
+}
+```
+
+### UI/View.Input.cs
+
+```csharp
+using Xui.Core.UI.Input;
+
+namespace Xui.Core.UI;
+public abstract partial class View
+{
+    /// <summary>
+    /// Called during event dispatch to handle a pointer event in a specific event phase.
+    /// </summary>
+    public virtual void RaisePointerEvent(ref PointerEventRef e, EventPhase phase)
     {
     }
 }

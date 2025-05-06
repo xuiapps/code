@@ -10,7 +10,7 @@ namespace Xui.Core.Curves2D;
 /// This arc representation uses start and end points along with size and sweep flags.
 /// It is commonly used in vector graphics where the arc shape is inferred from geometry and direction flags.
 /// </remarks>
-public readonly struct EndpointArc : ICurve
+public readonly struct ArcEndpoint : ICurve
 {
     /// <summary>The start point of the arc.</summary>
     public readonly Point Start;
@@ -34,7 +34,7 @@ public readonly struct EndpointArc : ICurve
     public readonly Winding Winding;
 
     /// <summary>
-    /// Initializes a new <see cref="EndpointArc"/> with the given geometry and flags.
+    /// Initializes a new <see cref="ArcEndpoint"/> with the given geometry and flags.
     /// </summary>
     /// <param name="start">The start point of the arc.</param>
     /// <param name="end">The end point of the arc.</param>
@@ -43,7 +43,7 @@ public readonly struct EndpointArc : ICurve
     /// <param name="rotation">The clockwise rotation in radians applied to the ellipse.</param>
     /// <param name="largeArc">Whether the arc should be the larger of the two possible arcs.</param>
     /// <param name="winding">The sweep direction (clockwise or counter-clockwise).</param>
-    public EndpointArc(Point start, Point end, nfloat rx, nfloat ry, nfloat rotation, bool largeArc, Winding winding)
+    public ArcEndpoint(Point start, Point end, nfloat rx, nfloat ry, nfloat rotation, bool largeArc, Winding winding)
     {
         Start = start;
         End = end;
@@ -168,6 +168,26 @@ public readonly struct EndpointArc : ICurve
         nfloat endAngle = AngleOnUnitEllipse((x1p - cxp) / rx, (y1p - cyp) / ry, (-x1p - cxp) / rx, (-y1p - cyp) / ry);
 
         return new Arc(new Point(cx, cy), rx, ry, phi, startAngle, startAngle + endAngle, Winding);
+    }
+
+    /// <summary>
+    /// Splits this arc into a series of <see cref="Arc3Point"/> segments,
+    /// each spanning ≤ 90° and aligned so that one edge is axis-aligned.
+    /// </summary>
+    /// <param name="buffer">
+    /// A span to receive the output segments. Must have space for up to 4 entries.
+    /// </param>
+    /// <param name="count">
+    /// The number of segments written to <paramref name="buffer"/>.
+    /// </param>
+    /// <remarks>
+    /// This method converts the arc into a center-based <see cref="Arc"/> representation,
+    /// then delegates to its <see cref="Arc.ToArc3Segments"/> method. Each resulting
+    /// <see cref="Arc3Point"/> segment spans ≤ 90° and is safe for monotonic tessellation.
+    /// </remarks>
+    public void ToArc3Segments(Span<Arc3Point> buffer, out int count)
+    {
+        ToCenterArc().ToArc3Segments(buffer, out count);
     }
 
     private static nfloat AngleOnUnitEllipse(nfloat ux, nfloat uy, nfloat vx, nfloat vy)

@@ -176,8 +176,26 @@ public readonly struct QuadraticBezier : ICurve
         return ClosestTRecursive(this, target, 0, 1, precision);
     }
 
+    /// <summary>
+    /// Splits the current quadratic Bézier curve into two segments if it is not monotonic in the Y direction.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="MonotonicQuadraticBezier"/> instance containing one or two sub-curves, each guaranteed to be monotonic in Y.
+    /// If the curve is already Y-monotonic (i.e., has no vertical extrema within (0,1)), a single-segment result is returned.
+    /// </returns>
+    /// <remarks>
+    /// This method analyzes the derivative of the Y component of the curve to determine if a vertical extremum occurs
+    /// within the curve's parameter domain. If a critical point is found in (0,1), the curve is split at that point to ensure
+    /// each resulting segment is Y-monotonic. This is useful for scanline rasterization, tessellation, or other geometry processing
+    /// that requires monotonic segments.
+    /// </remarks>
     public MonotonicQuadraticBezier SplitIntoYMonotonicCurves()
     {
+        if ((P1.Y >= P0.Y && P1.Y <= P2.Y) || (P1.Y <= P0.Y && P1.Y >= P2.Y))
+        {
+            return new MonotonicQuadraticBezier(this); // Already monotonic
+        }
+
         // Compute derivative coefficients for Y
         var a = P0.Y - 2 * P1.Y + P2.Y;
         var b = 2 * (P1.Y - P0.Y);

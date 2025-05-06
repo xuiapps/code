@@ -168,7 +168,7 @@ public readonly struct Arc : ICurve
     }
 
     /// <summary>
-    /// Converts this arc to an endpoint-parameterized <see cref="EndpointArc"/> representation.
+    /// Converts this arc to an endpoint-parameterized <see cref="ArcEndpoint"/> representation.
     /// </summary>
     /// <remarks>
     /// This method generates a single arc segment between the start and end points of the original arc,
@@ -177,9 +177,9 @@ public readonly struct Arc : ICurve
     /// the endpoint position is nudged slightly to avoid rendering ambiguities in formats that do not support full-circle arcs directly.
     /// </remarks>
     /// <returns>
-    /// An <see cref="EndpointArc"/> structure that approximates this arc using endpoint-based parametrization.
+    /// An <see cref="ArcEndpoint"/> structure that approximates this arc using endpoint-based parametrization.
     /// </returns>
-    public EndpointArc ToEndpointArc()
+    public ArcEndpoint ToEndpointArc()
     {
         Point start = Evaluate(0);
         Point end = Evaluate(1);
@@ -194,7 +194,7 @@ public readonly struct Arc : ICurve
         }
 
         bool largeArc = Math.Abs(SweepAngle) > MathF.PI;
-        return new EndpointArc(start, end, RadiusX, RadiusY, Rotation, largeArc, Winding);
+        return new ArcEndpoint(start, end, RadiusX, RadiusY, Rotation, largeArc, Winding);
     }
 
     /// <summary>
@@ -203,10 +203,10 @@ public readonly struct Arc : ICurve
     /// <remarks>
     /// If the arc forms a complete or nearly complete circle (i.e., the sweep angle approaches ±360° and the start and end points match),
     /// the arc is split into two half-circle segments to avoid rendering issues in formats that do not support full-circle arcs directly.
-    /// Otherwise, a single <see cref="EndpointArc"/> is returned with appropriate flags set for direction and size.
+    /// Otherwise, a single <see cref="ArcEndpoint"/> is returned with appropriate flags set for direction and size.
     /// </remarks>
     /// <returns>
-    /// A tuple of one or two <see cref="EndpointArc"/> instances that collectively represent the same elliptical arc:
+    /// A tuple of one or two <see cref="ArcEndpoint"/> instances that collectively represent the same elliptical arc:
     /// <list type="bullet">
     ///   <item>
     ///     <description>
@@ -220,7 +220,7 @@ public readonly struct Arc : ICurve
     ///   </item>
     /// </list>
     /// </returns>
-    public (EndpointArc, EndpointArc?) ToEndpointArcs()
+    public (ArcEndpoint, ArcEndpoint?) ToEndpointArcs()
     {
         Point start = Evaluate(0);
         Point end = Evaluate(1);
@@ -235,15 +235,83 @@ public readonly struct Arc : ICurve
             nfloat midAngle = StartAngle + sweep * 0.5f;
             var midPoint = Evaluate(0.5f);
 
-            var arc1 = new EndpointArc(start, midPoint, RadiusX, RadiusY, Rotation, false, Winding);
-            var arc2 = new EndpointArc(midPoint, end, RadiusX, RadiusY, Rotation, false, Winding);
+            var arc1 = new ArcEndpoint(start, midPoint, RadiusX, RadiusY, Rotation, false, Winding);
+            var arc2 = new ArcEndpoint(midPoint, end, RadiusX, RadiusY, Rotation, false, Winding);
             return (arc1, arc2);
         }
         else
         {
             bool largeArc = absSweep > MathF.PI;
-            var arc = new EndpointArc(start, end, RadiusX, RadiusY, Rotation, largeArc, Winding);
+            var arc = new ArcEndpoint(start, end, RadiusX, RadiusY, Rotation, largeArc, Winding);
             return (arc, null);
+        }
+    }
+
+    /// <summary>
+    /// Evaluates the position on the ellipse at a given angle <paramref name="θ"/> (in radians),
+    /// relative to the unrotated ellipse center.
+    /// </summary>
+    /// <param name="θ">
+    /// The angle in radians, measured from the X axis of the unrotated ellipse.
+    /// This is not a normalized parameter like <c>t</c>, but an absolute angle used in parametric arc equations.
+    /// </param>
+    /// <returns>
+    /// The corresponding <see cref="Point"/> on the arc's ellipse at the given angle,
+    /// after applying the arc's rotation and translating from its center.
+    /// </returns>
+    /// <remarks>
+    /// The point is computed using the parametric equation of an axis-aligned ellipse:
+    /// <c>(x, y) = (rx * cos(θ), ry * sin(θ))</c>, then rotated by <see cref="Rotation"/> and translated to <see cref="Center"/>.
+    /// This method is useful when working directly with angle-based metrics like vertical extrema (e.g., θ = π/2 or 3π/2).
+    /// </remarks>
+    public Point EvaluateAtAngle(nfloat θ)
+    {
+        // Assume θ is already inside the arc range
+        var cos = nfloat.Cos(θ);
+        var sin = nfloat.Sin(θ);
+
+        var x = RadiusX * cos;
+        var y = RadiusY * sin;
+
+        var rotatedX = x * nfloat.Cos(Rotation) - y * nfloat.Sin(Rotation);
+        var rotatedY = x * nfloat.Sin(Rotation) + y * nfloat.Cos(Rotation);
+
+        return new Point(Center.X + rotatedX, Center.Y + rotatedY);
+    }
+
+    /// <summary>
+    /// Splits this arc into a series of <see cref="Arc3Point"/> segments,
+    /// each spanning ≤ 90° and aligned so that one edge is axis-aligned.
+    /// </summary>
+    /// <param name="buffer">
+    /// A span to receive the output segments. Must have space for up to 4 entries.
+    /// </param>
+    /// <param name="count">
+    /// The number of segments written to <paramref name="buffer"/>.
+    /// </param>
+    /// <remarks>
+    /// This method ensures consistent arc tessellation by aligning segment edges with
+    /// X or Y axes and bounding each by ≤ 90°, suitable for round rects or shader-compatible curves.
+    /// </remarks>
+    public void ToArc3Segments(Span<Arc3Point> buffer, out int count)
+    {
+        count = 0;
+
+        var Δθ = EndAngle - StartAngle;
+        var direction = Winding == Winding.ClockWise ? 1 : -1;
+        var steps = (int)Math.Ceiling(nfloat.Abs(Δθ) / (π / 2));
+        if (steps > buffer.Length) return;
+
+        for (int i = 0; i < steps; i++)
+        {
+            var θ0 = StartAngle + direction * (π / 2) * i;
+            var θ1 = StartAngle + direction * (π / 2) * Math.Min(i + 1, steps);
+
+            var p0 = EvaluateAtAngle(θ0);
+            var p2 = EvaluateAtAngle(θ1);
+            var p1 = EvaluateAtAngle((θ0 + θ1) * 0.5f);
+
+            buffer[count++] = new Arc3Point(p0, p1, p2);
         }
     }
 }

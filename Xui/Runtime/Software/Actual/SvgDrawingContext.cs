@@ -1,5 +1,8 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Xui.Core.Canvas;
 using Xui.Core.Curves2D;
@@ -10,16 +13,38 @@ namespace Xui.Runtime.Software.Actual;
 public sealed class SvgDrawingContext : IContext, IDisposable
 {
     private readonly Stream stream;
-    private readonly StreamWriter writer;
+
+    private readonly MemoryStream defsBuffer;
+    private readonly MemoryStream bodyBuffer;
+    private readonly StreamWriter defsWriter;
+    private readonly StreamWriter bodyWriter;
+
     private readonly bool keepOpen;
     private readonly Size canvasSize;
     private bool disposed = false;
 
-    private StringBuilder? currentPath;
-    private Color? currentFillColor;
-    private Color? currentStrokeColor;
+    private StringBuilder currentPath = new StringBuilder();
+
+    private uint gradientIdCounter = 1;
+
+    private Color? currentFillColor = Colors.Black;
+    private string? currentFillGradientId;
+
+    private Color? currentStrokeColor = Colors.Black;
+    private string? currentStrokeGradientId;
+
     private FillRule currentFillRule = FillRule.NonZero;
     private bool hasOpenPath = false;
+
+    private AffineTransform transform = AffineTransform.Identity;
+
+    private nfloat[]? lineDashSegments;
+    private string? currentClipPathId;
+    private int clipPathCounter = 0;
+
+    private readonly Stack<SvgGroup> groupStack = new();
+
+    private readonly Stack<DrawingState> stateStack = new();
 
     public nfloat GlobalAlpha { get; set; } = 1f;
     public LineCap LineCap { get; set; } = LineCap.Butt;
@@ -29,25 +54,20 @@ public sealed class SvgDrawingContext : IContext, IDisposable
     public nfloat LineDashOffset { get; set; } = 0f;
     public TextAlign TextAlign { get; set; } = TextAlign.Start;
     public TextBaseline TextBaseline { get; set; } = TextBaseline.Alphabetic;
+    
 
     public SvgDrawingContext(Size canvasSize, Stream output, bool keepOpen = false)
     {
         this.stream = output ?? throw new ArgumentNullException(nameof(output));
-        this.writer = new StreamWriter(output, Encoding.UTF8, leaveOpen: keepOpen);
+
         this.keepOpen = keepOpen;
         this.canvasSize = canvasSize;
 
-        WriteSvgHeader();
-    }
-
-    private void WriteSvgHeader()
-    {
-        writer.WriteLine($"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{F(canvasSize.Width)}\" height=\"{F(canvasSize.Height)}\" viewBox=\"0 0 {F(canvasSize.Width)} {F(canvasSize.Height)}\">");
-    }
-
-    private void WriteSvgFooter()
-    {
-        writer.WriteLine("</svg>");
+        this.defsBuffer = new();
+        this.bodyBuffer = new();
+        
+        this.defsWriter = new StreamWriter(defsBuffer, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false), leaveOpen: true);
+        this.bodyWriter = new StreamWriter(bodyBuffer, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false), leaveOpen: true);
     }
 
     public void Dispose()
@@ -55,7 +75,41 @@ public sealed class SvgDrawingContext : IContext, IDisposable
         if (!disposed)
         {
             disposed = true;
-            WriteSvgFooter();
+
+            PopGroupsUntilDepth(0);
+
+            defsWriter.Flush();
+            bodyWriter.Flush();
+
+            // Rewind both buffers to read from the start
+            defsBuffer.Position = 0;
+            bodyBuffer.Position = 0;
+
+            using var writer = new StreamWriter(stream, new UTF8Encoding(false), leaveOpen: true);
+
+            // Write SVG header
+            writer.WriteLine($"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{F(canvasSize.Width)}\" height=\"{F(canvasSize.Height)}\" viewBox=\"0 0 {F(canvasSize.Width)} {F(canvasSize.Height)}\">");
+            writer.Flush();
+
+            // Write <defs> if any gradients/clips were defined
+            if (defsBuffer.Length > 0)
+            {
+                writer.WriteLine("  <defs>");
+                writer.Flush();
+                defsBuffer.CopyTo(writer.BaseStream);
+                writer.Flush();
+                writer.WriteLine("  </defs>");
+                writer.Flush();
+            }
+
+            stateStack.Clear();
+
+            // Write all shape paths and fills
+            bodyBuffer.CopyTo(writer.BaseStream);
+            writer.Flush();
+
+            // Close the SVG
+            writer.WriteLine("</svg>");
             writer.Flush();
 
             if (!keepOpen)
@@ -63,26 +117,166 @@ public sealed class SvgDrawingContext : IContext, IDisposable
         }
     }
 
-    void IStateContext.Save() => throw new NotImplementedException();
-    void IStateContext.Restore() => throw new NotImplementedException();
+    void IStateContext.Save()
+    {
+        stateStack.Push(new DrawingState
+        {
+            FillColor = currentFillColor,
+            FillGradientId = currentFillGradientId,
+            StrokeColor = currentStrokeColor,
+            StrokeGradientId = currentStrokeGradientId,
+            LineWidth = LineWidth,
+            LineCap = LineCap,
+            LineJoin = LineJoin,
+            MiterLimit = MiterLimit,
+            GlobalAlpha = GlobalAlpha,
+            LineDashOffset = LineDashOffset,
+            LineDashSegments = lineDashSegments?.ToArray(),
+            ClipPathId = currentClipPathId,
+            HasOpenPath = hasOpenPath,
+            CurrentPath = currentPath.ToString(),
+            GroupDepth = groupStack.Count
+        });
+    }
+
+    void IStateContext.Restore()
+    {
+        if (stateStack.Count == 0)
+            throw new InvalidOperationException("No saved state to restore.");
+
+        var state = stateStack.Pop();
+
+        this.PopGroupsUntilDepth(state.GroupDepth);
+
+        currentFillColor = state.FillColor;
+        currentFillGradientId = state.FillGradientId;
+        currentStrokeColor = state.StrokeColor;
+        currentStrokeGradientId = state.StrokeGradientId;
+        LineWidth = state.LineWidth;
+        LineCap = state.LineCap;
+        LineJoin = state.LineJoin;
+        MiterLimit = state.MiterLimit;
+        GlobalAlpha = state.GlobalAlpha;
+        LineDashOffset = state.LineDashOffset;
+
+        lineDashSegments = state.LineDashSegments;
+        currentClipPathId = state.ClipPathId;
+
+        currentPath.Clear();
+        currentPath.Append(state.CurrentPath);
+        hasOpenPath = state.HasOpenPath;
+    }
+
     void IPenContext.SetLineDash(ReadOnlySpan<nfloat> segments) => throw new NotImplementedException();
-    void IPenContext.SetStroke(Color color) => currentStrokeColor = color;
-    void IPenContext.SetStroke(LinearGradient linearGradient) => throw new NotImplementedException();
-    void IPenContext.SetStroke(RadialGradient radialGradient) => throw new NotImplementedException();
-    void IPenContext.SetFill(Color color) => currentFillColor = color;
-    void IPenContext.SetFill(LinearGradient linearGradient) => throw new NotImplementedException();
-    void IPenContext.SetFill(RadialGradient radialGradient) => throw new NotImplementedException();
+    void IPenContext.SetStroke(Color color)
+    {
+        currentStrokeColor = color;
+        currentStrokeGradientId = null; // clear gradient
+    }
+
+    void IPenContext.SetStroke(LinearGradient gradient)
+    {
+        currentStrokeColor = null;
+        currentStrokeGradientId = $"grad{gradientIdCounter++}";
+
+        defsWriter.WriteLine(
+            $"    <linearGradient id=\"{currentStrokeGradientId}\" x1=\"{F(gradient.StartPoint.X)}\" y1=\"{F(gradient.StartPoint.Y)}\" x2=\"{F(gradient.EndPoint.X)}\" y2=\"{F(gradient.EndPoint.Y)}\" gradientUnits=\"userSpaceOnUse\">");
+
+        foreach (var stop in gradient.GradientStops)
+        {
+            var color = ToSvgColor(stop.Color, out var opacity);
+            var offset = $"{stop.Offset * 100:0.#}%";
+
+            defsWriter.Write($"      <stop offset=\"{offset}\" stop-color=\"{color}\"");
+            if (opacity.HasValue && opacity.Value > 0f && opacity.Value < 1f)
+                defsWriter.Write($" stop-opacity=\"{F(opacity.Value)}\"");
+            defsWriter.WriteLine(" />");
+        }
+
+        defsWriter.WriteLine("    </linearGradient>");
+    }
+
+    void IPenContext.SetStroke(RadialGradient radial)
+    {
+        currentStrokeColor = null;
+        currentStrokeGradientId = $"grad{gradientIdCounter++}";
+
+        defsWriter.WriteLine(
+            $"    <radialGradient id=\"{currentStrokeGradientId}\" cx=\"{F(radial.EndCenter.X)}\" cy=\"{F(radial.EndCenter.Y)}\" r=\"{F(radial.EndRadius)}\" fx=\"{F(radial.StartCenter.X)}\" fy=\"{F(radial.StartCenter.Y)}\" fr=\"{F(radial.StartRadius)}\" gradientUnits=\"userSpaceOnUse\">");
+
+        foreach (var stop in radial.GradientStops)
+        {
+            var color = ToSvgColor(stop.Color, out var opacity);
+            var offset = $"{stop.Offset * 100:0.#}%";
+
+            defsWriter.Write($"      <stop offset=\"{offset}\" stop-color=\"{color}\"");
+            if (opacity.HasValue && opacity.Value > 0f && opacity.Value < 1f)
+                defsWriter.Write($" stop-opacity=\"{F(opacity.Value)}\"");
+            defsWriter.WriteLine(" />");
+        }
+
+        defsWriter.WriteLine("    </radialGradient>");
+    }
+
+    void IPenContext.SetFill(Color color)
+    {
+        currentFillColor = color;
+        currentFillGradientId = null; // clear previous gradient
+    }
+
+    void IPenContext.SetFill(LinearGradient gradient)
+    {
+        currentFillColor = null;
+        currentFillGradientId = $"grad{gradientIdCounter++}";
+
+        defsWriter.WriteLine(
+            $"    <linearGradient id=\"{currentFillGradientId}\" x1=\"{F(gradient.StartPoint.X)}\" y1=\"{F(gradient.StartPoint.Y)}\" x2=\"{F(gradient.EndPoint.X)}\" y2=\"{F(gradient.EndPoint.Y)}\" gradientUnits=\"userSpaceOnUse\">");
+
+        foreach (var stop in gradient.GradientStops)
+        {
+            var color = ToSvgColor(stop.Color, out var opacity);
+            var offset = $"{stop.Offset * 100:0.#}%";
+
+            defsWriter.Write($"      <stop offset=\"{offset}\" stop-color=\"{color}\"");
+            if (opacity.HasValue && opacity.Value > 0f && opacity.Value < 1f)
+                defsWriter.Write($" stop-opacity=\"{F(opacity.Value)}\"");
+            defsWriter.WriteLine(" />");
+        }
+
+        defsWriter.WriteLine("    </linearGradient>");
+    }
+
+    void IPenContext.SetFill(RadialGradient radial)
+    {
+        currentFillColor = null;
+        currentFillGradientId = $"grad{gradientIdCounter++}";
+
+        defsWriter.WriteLine(
+            $"    <radialGradient id=\"{currentFillGradientId}\" cx=\"{F(radial.EndCenter.X)}\" cy=\"{F(radial.EndCenter.Y)}\" r=\"{F(radial.EndRadius)}\" fx=\"{F(radial.StartCenter.X)}\" fy=\"{F(radial.StartCenter.Y)}\" fr=\"{F(radial.StartRadius)}\" gradientUnits=\"userSpaceOnUse\">");
+
+        foreach (var stop in radial.GradientStops)
+        {
+            var color = ToSvgColor(stop.Color, out var opacity);
+            var offset = $"{stop.Offset * 100:0.#}%";
+
+            defsWriter.Write($"      <stop offset=\"{offset}\" stop-color=\"{color}\"");
+            if (opacity.HasValue && opacity.Value > 0f && opacity.Value < 1f)
+                defsWriter.Write($" stop-opacity=\"{F(opacity.Value)}\"");
+            defsWriter.WriteLine(" />");
+        }
+
+        defsWriter.WriteLine("    </radialGradient>");
+    }
 
     void IPathBuilder.BeginPath()
     {
-        currentPath = new StringBuilder();
+        currentPath.Clear();
         hasOpenPath = false;
     }
 
     void IGlyphPathBuilder.MoveTo(Point to)
     {
         EnsureClosedSubpath();
-        currentPath ??= new StringBuilder();
         currentPath.Append($"M {F(to.X)} {F(to.Y)} ");
         hasOpenPath = true;
     }
@@ -99,7 +293,7 @@ public sealed class SvgDrawingContext : IContext, IDisposable
 
     void IGlyphPathBuilder.ClosePath()
     {
-        if (currentPath != null)
+        if (hasOpenPath && currentPath.Length != 0)
         {
             currentPath.Append("Z ");
             hasOpenPath = false;
@@ -109,7 +303,6 @@ public sealed class SvgDrawingContext : IContext, IDisposable
     void IPathBuilder.Rect(Rect rect)
     {
         EnsureClosedSubpath();
-        currentPath ??= new StringBuilder();
 
         currentPath.Append($"M {F(rect.X)} {F(rect.Y)} ");
         currentPath.Append($"H {F(rect.X + rect.Width)} ");
@@ -123,7 +316,6 @@ public sealed class SvgDrawingContext : IContext, IDisposable
     void IPathBuilder.RoundRect(Rect rect, nfloat radius)
     {
         EnsureClosedSubpath();
-        currentPath ??= new StringBuilder();
 
         var x = rect.X;
         var y = rect.Y;
@@ -147,65 +339,116 @@ public sealed class SvgDrawingContext : IContext, IDisposable
 
     void IPathDrawing.Fill(FillRule rule)
     {
-        if (currentPath == null || currentFillColor == null)
+        if (currentPath.Length == 0)
             return;
 
-        string fill = ToSvgColor(currentFillColor.Value, out nfloat? opacity);
+        string fill;
+        nfloat? opacity = null;
+
+        if (currentFillGradientId != null)
+        {
+            fill = $"url(#{currentFillGradientId})";
+        }
+        else if (currentFillColor.HasValue)
+        {
+            fill = ToSvgColor(currentFillColor.Value, out opacity);
+        }
+        else
+        {
+            return;
+        }
+
         string fillRule = rule == FillRule.EvenOdd ? "evenodd" : "nonzero";
 
-        writer.Write($"<path d=\"{currentPath}\" fill=\"{fill}\" fill-rule=\"{fillRule}\"");
+        Ident();
+        bodyWriter.Write($"<path d=\"{currentPath}\" fill=\"{fill}\" fill-rule=\"{fillRule}\"");
 
         if (opacity.HasValue)
-            writer.Write($" fill-opacity=\"{F(opacity.Value)}\"");
+            bodyWriter.Write($" fill-opacity=\"{F(opacity.Value)}\"");
 
-        writer.WriteLine(" />");
-
-        currentPath = null;
-        hasOpenPath = false;
+        bodyWriter.WriteLine(" />");
     }
 
     void IPathDrawing.Stroke()
     {
-        if (currentPath == null || currentStrokeColor == null)
+        if (currentPath.Length == 0)
             return;
 
-        string stroke = ToSvgColor(currentStrokeColor.Value, out nfloat? opacity);
+        string stroke;
+        nfloat? opacity = null;
 
-        writer.Write($"<path d=\"{currentPath}\" fill=\"none\" stroke=\"{stroke}\"");
+        if (currentStrokeGradientId != null)
+        {
+            stroke = $"url(#{currentStrokeGradientId})";
+        }
+        else if (currentStrokeColor.HasValue)
+        {
+            stroke = ToSvgColor(currentStrokeColor.Value, out opacity);
+        }
+        else
+        {
+            return; // nothing to stroke with
+        }
+
+        Ident();
+        bodyWriter.Write($"<path d=\"{currentPath}\" fill=\"none\" stroke=\"{stroke}\"");
 
         if (LineWidth != 1f)
-            writer.Write($" stroke-width=\"{F(LineWidth)}\"");
+            bodyWriter.Write($" stroke-width=\"{F(LineWidth)}\"");
 
         if (LineCap != LineCap.Butt)
-            writer.Write($" stroke-linecap=\"{LineCap.ToString().ToLowerInvariant()}\"");
+            bodyWriter.Write($" stroke-linecap=\"{LineCap.ToString().ToLowerInvariant()}\"");
 
         if (LineJoin != LineJoin.Miter)
-            writer.Write($" stroke-linejoin=\"{LineJoin.ToString().ToLowerInvariant()}\"");
+            bodyWriter.Write($" stroke-linejoin=\"{LineJoin.ToString().ToLowerInvariant()}\"");
 
         if (LineJoin == LineJoin.Miter && MiterLimit != 10f)
-            writer.Write($" stroke-miterlimit=\"{F(MiterLimit)}\"");
+            bodyWriter.Write($" stroke-miterlimit=\"{F(MiterLimit)}\"");
 
-        if (opacity.HasValue)
-            writer.Write($" stroke-opacity=\"{F(opacity.Value)}\"");
+        if (opacity.HasValue && opacity.Value > 0f && opacity.Value < 1f)
+            bodyWriter.Write($" stroke-opacity=\"{F(opacity.Value)}\"");
 
-        writer.WriteLine(" />");
-
-        currentPath = null;
-        hasOpenPath = false;
+        bodyWriter.WriteLine(" />");
     }
 
+    void IPathClipping.Clip()
+    {
+        if (currentPath.Length == 0)
+            return;
+        
+        // Generate a unique ID
+        currentClipPathId = $"clip{clipPathCounter++}";
 
-    void IPathClipping.Clip() => throw new NotImplementedException();
+        defsWriter.WriteLine($"    <clipPath id=\"{currentClipPathId}\">");
+        defsWriter.WriteLine($"      <path d=\"{currentPath}\" clip-rule=\"nonzero\" />");
+        defsWriter.WriteLine($"    </clipPath>");
+
+        currentPath.Clear();
+        hasOpenPath = false;
+
+        PushGroup(null, currentClipPathId);
+    }
+
     void IRectDrawingContext.StrokeRect(Rect rect) => throw new NotImplementedException();
     void IRectDrawingContext.FillRect(Rect rect) => throw new NotImplementedException();
     void ITextDrawingContext.FillText(string text, Point pos) => throw new NotImplementedException();
     Vector ITextMeasureContext.MeasureText(string text) => throw new NotImplementedException();
     void ITextMeasureContext.SetFont(Core.Canvas.Font font) => throw new NotImplementedException();
-    void ITransformContext.Translate(Vector vector) => throw new NotImplementedException();
-    void ITransformContext.Rotate(nfloat angle) => throw new NotImplementedException();
-    void ITransformContext.Scale(Vector vector) => throw new NotImplementedException();
-    void ITransformContext.SetTransform(AffineTransform transform) => throw new NotImplementedException();
-    void ITransformContext.Transform(AffineTransform matrix) => throw new NotImplementedException();
+
+    void ITransformContext.Translate(Vector vector) =>
+        PushGroup(AffineTransform.Translate(vector));
+
+    void ITransformContext.Scale(Vector vector) =>
+        PushGroup(AffineTransform.Scale(vector));
+
+    void ITransformContext.Rotate(nfloat angle) =>
+        PushGroup(AffineTransform.Rotate(angle));
+
+    void ITransformContext.SetTransform(AffineTransform newTransform) =>
+        PushGroup(transform.Inverse * newTransform);
+
+    void ITransformContext.Transform(AffineTransform matrix) =>
+        PushGroup(matrix);
 
     private static string ToSvgColor(Color color, out nfloat? opacity)
     {
@@ -219,7 +462,7 @@ public sealed class SvgDrawingContext : IContext, IDisposable
 
     private void EnsureClosedSubpath()
     {
-        if (hasOpenPath && currentPath != null)
+        if (hasOpenPath && currentPath.Length == 0)
         {
             currentPath.Append("Z ");
             hasOpenPath = false;
@@ -228,27 +471,22 @@ public sealed class SvgDrawingContext : IContext, IDisposable
 
     void IPathBuilder.CurveTo(Point cp1, Point cp2, Point to)
     {
-        currentPath ??= new StringBuilder();
         currentPath.Append($"C {F(cp1.X)} {F(cp1.Y)}, {F(cp2.X)} {F(cp2.Y)}, {F(to.X)} {F(to.Y)} ");
     }
 
     void IPathBuilder.Arc(Point center, nfloat radius, nfloat startAngle, nfloat endAngle, Winding winding)
     {
-        currentPath ??= new StringBuilder();
-
         var arc = new Arc(center, radius, radius, 0f, startAngle, endAngle, winding);
         var (arc1, arc2) = arc.ToEndpointArcs();
 
         AppendEndpointArcToPath(arc1);
 
-        if (arc2 is EndpointArc second)
+        if (arc2 is ArcEndpoint second)
             AppendEndpointArcToPath(second);
     }
 
-    private void AppendEndpointArcToPath(EndpointArc arc)
+    private void AppendEndpointArcToPath(ArcEndpoint arc)
     {
-        currentPath ??= new StringBuilder();
-
         int largeArcFlag = arc.LargeArc ? 1 : 0;
         int sweepFlag = arc.Winding == Winding.ClockWise ? 1 : 0;
 
@@ -269,20 +507,17 @@ public sealed class SvgDrawingContext : IContext, IDisposable
 
     void IPathBuilder.Ellipse(Point center, nfloat radiusX, nfloat radiusY, nfloat rotation, nfloat startAngle, nfloat endAngle, Winding winding)
     {
-        currentPath ??= new StringBuilder();
-
         var arc = new Arc(center, radiusX, radiusY, rotation, startAngle, endAngle, winding);
         var (arc1, arc2) = arc.ToEndpointArcs();
 
         AppendEndpointArcToPath(arc1);
 
-        if (arc2 is EndpointArc second)
+        if (arc2 is ArcEndpoint second)
             AppendEndpointArcToPath(second);
     }
 
     void IPathBuilder.RoundRect(Rect rect, CornerRadius radius)
     {
-        currentPath ??= new StringBuilder();
         EnsureClosedSubpath();
 
         nfloat x = rect.X;
@@ -302,7 +537,7 @@ public sealed class SvgDrawingContext : IContext, IDisposable
         // Top edge
         currentPath.Append($"H {F(x + w - tr)} ");
         // Top-right corner arc
-        AppendEndpointArcToPath(new EndpointArc(
+        AppendEndpointArcToPath(new ArcEndpoint(
             new Point(x + w - tr, y),
             new Point(x + w, y + tr),
             tr, tr, 0f, false, Winding.ClockWise));
@@ -310,7 +545,7 @@ public sealed class SvgDrawingContext : IContext, IDisposable
         // Right edge
         currentPath.Append($"V {F(y + h - br)} ");
         // Bottom-right arc
-        AppendEndpointArcToPath(new EndpointArc(
+        AppendEndpointArcToPath(new ArcEndpoint(
             new Point(x + w, y + h - br),
             new Point(x + w - br, y + h),
             br, br, 0f, false, Winding.ClockWise));
@@ -318,7 +553,7 @@ public sealed class SvgDrawingContext : IContext, IDisposable
         // Bottom edge
         currentPath.Append($"H {F(x + bl)} ");
         // Bottom-left arc
-        AppendEndpointArcToPath(new EndpointArc(
+        AppendEndpointArcToPath(new ArcEndpoint(
             new Point(x + bl, y + h),
             new Point(x, y + h - bl),
             bl, bl, 0f, false, Winding.ClockWise));
@@ -326,7 +561,7 @@ public sealed class SvgDrawingContext : IContext, IDisposable
         // Left edge
         currentPath.Append($"V {F(y + tl)} ");
         // Top-left arc
-        AppendEndpointArcToPath(new EndpointArc(
+        AppendEndpointArcToPath(new ArcEndpoint(
             new Point(x, y + tl),
             new Point(x + tl, y),
             tl, tl, 0f, false, Winding.ClockWise));
@@ -337,4 +572,104 @@ public sealed class SvgDrawingContext : IContext, IDisposable
 
     private static string F(nfloat value) =>
         value.ToString("G", System.Globalization.CultureInfo.InvariantCulture);
+
+    private void PushGroup(AffineTransform? localTransform = null, string? clipPathId = null)
+    {
+        // Compute global transform
+        var global = localTransform.HasValue
+            ? transform * localTransform.Value
+            : transform;
+
+        Ident();
+        bodyWriter.Write("<g");
+
+        if (clipPathId != null)
+            bodyWriter.Write($" clip-path=\"url(#{clipPathId})\"");
+
+        if (localTransform.HasValue && !localTransform.Value.IsIdentity)
+            bodyWriter.Write($" transform=\"{FormatTransform(localTransform.Value)}\"");
+
+        bodyWriter.WriteLine(">");
+
+        // Push to stack
+        groupStack.Push(new SvgGroup(localTransform, global, clipPathId));
+        transform = global;
+    }
+
+    private void PopGroupsUntilDepth(int targetDepth)
+    {
+        while (groupStack.Count > targetDepth)
+        {
+            groupStack.Pop();
+            Ident();
+            bodyWriter.WriteLine("</g>");
+        }
+
+        transform = groupStack.Count == 0 ? AffineTransform.Identity : groupStack.Peek().GlobalTransform;
+    }
+
+    private void Ident()
+    {
+        for (var i = 0; i < this.groupStack.Count + 1; i++)
+        {
+            bodyWriter.Write("  ");
+        }
+    }
+
+    private static string FormatTransform(AffineTransform t)
+    {
+        if (t.B == 0 && t.C == 0)
+        {
+            if (t.A != 1 || t.D != 1)
+            {
+                if (t.Tx != 0 || t.Ty != 0)
+                    return $"translate({F(t.Tx)},{F(t.Ty)}) scale({F(t.A)},{F(t.D)})";
+                return $"scale({F(t.A)},{F(t.D)})";
+            }
+            return $"translate({F(t.Tx)},{F(t.Ty)})";
+        }
+
+        return $"matrix({F(t.A)},{F(t.B)},{F(t.C)},{F(t.D)},{F(t.Tx)},{F(t.Ty)})";
+    }
+
+    private readonly struct SvgGroup
+    {
+        public AffineTransform? LocalTransform { get; }
+        public AffineTransform GlobalTransform { get; }
+        public string? ClipPathId { get; }
+
+        public SvgGroup(AffineTransform? localTransform, AffineTransform globalTransform, string? clipPathId)
+        {
+            LocalTransform = localTransform;
+            GlobalTransform = globalTransform;
+            ClipPathId = clipPathId;
+        }
+
+        public bool HasTransform => LocalTransform.HasValue && !LocalTransform.Value.IsIdentity;
+        public bool HasClip => ClipPathId != null;
+    }
+
+    private struct DrawingState
+    {
+        public Color? FillColor;
+        public string? FillGradientId;
+
+        public Color? StrokeColor;
+        public string? StrokeGradientId;
+
+        public nfloat LineWidth;
+        public LineCap LineCap;
+        public LineJoin LineJoin;
+        public nfloat MiterLimit;
+        public nfloat GlobalAlpha;
+
+        public nfloat LineDashOffset;
+        public nfloat[]? LineDashSegments;
+
+        public string? ClipPathId;
+        public bool HasOpenPath;
+        public string? CurrentPath;
+
+        public int GroupDepth;
+    }
 }

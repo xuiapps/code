@@ -39,9 +39,9 @@ public class VerticalStackTests
             Box(out var b3, (120, 50)),
         ]);
         
-        var size = stack.Measure((400, 800));
+        var size = stack.Measure((400, 800), null);
         Assert.Equal(new Size(150, 120), size); // width = widest, height = sum
-        var rect = stack.Arrange((0, 0, 400, 800));
+        var rect = stack.Arrange((0, 0, 400, 800), null);
         Assert.Equal(new Rect(0, 0, 400, 800), rect);
     }
 
