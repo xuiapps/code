@@ -12,6 +12,27 @@ public ref struct GlyphShape
 {
     private readonly ReadOnlySpan<byte> _data;
 
+    /// <summary>
+    /// Gets the unscaled bounding box of the glyph in font units.
+    /// </summary>
+    public Rect Bounds
+    {
+        get
+        {
+            short xMin = BinaryPrimitives.ReadInt16BigEndian(_data.Slice(2, 2));
+            short yMin = BinaryPrimitives.ReadInt16BigEndian(_data.Slice(4, 2));
+            short xMax = BinaryPrimitives.ReadInt16BigEndian(_data.Slice(6, 2));
+            short yMax = BinaryPrimitives.ReadInt16BigEndian(_data.Slice(8, 2));
+
+            return new Rect(
+                x: xMin,
+                y: yMin,
+                width: xMax - xMin,
+                height: yMax - yMin
+            );
+        }
+    }
+
     public GlyphShape(ReadOnlySpan<byte> data)
     {
         _data = data;

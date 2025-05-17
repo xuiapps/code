@@ -53,6 +53,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesselatorPlayground", "too
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocsGenerator", "tools\DocsGenerator\DocsGenerator.csproj", "{0B67048D-FBC9-4EB5-A57F-02E6B6C73428}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xui.Core.Fonts", "Xui\Core\Fonts\Xui.Core.Fonts.csproj", "{684F9994-C5E2-4FE7-AF0C-A27EA5888313}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -135,6 +137,10 @@ Global
 		{0B67048D-FBC9-4EB5-A57F-02E6B6C73428}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B67048D-FBC9-4EB5-A57F-02E6B6C73428}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B67048D-FBC9-4EB5-A57F-02E6B6C73428}.Release|Any CPU.Build.0 = Release|Any CPU
+		{684F9994-C5E2-4FE7-AF0C-A27EA5888313}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{684F9994-C5E2-4FE7-AF0C-A27EA5888313}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{684F9994-C5E2-4FE7-AF0C-A27EA5888313}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{684F9994-C5E2-4FE7-AF0C-A27EA5888313}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -160,5 +166,6 @@ Global
 		{B1A7AF8D-16F0-42AE-94C1-5750729E75CE} = {07C2787E-EAC7-C090-1BA3-A61EC2A24D84}
 		{E1CD5853-805D-4BD1-99FC-864413B6A576} = {07C2787E-EAC7-C090-1BA3-A61EC2A24D84}
 		{0B67048D-FBC9-4EB5-A57F-02E6B6C73428} = {07C2787E-EAC7-C090-1BA3-A61EC2A24D84}
+		{684F9994-C5E2-4FE7-AF0C-A27EA5888313} = {FBF56CC3-7AE6-AD2D-3F14-7F97FD322CD6}
 	EndGlobalSection
 EndGlobal

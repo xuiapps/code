@@ -37,7 +37,7 @@ public class VerticalStack : ViewCollection
 
             // Arrange child at (X, Y), with width/height = desired
             var childRect = new Rect(rect.X, y, rect.Width, desired.Height);
-            child.Arrange(childRect, context);
+            child.Arrange(childRect, context, desired);
 
             y += desired.Height;
         }

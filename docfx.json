@@ -61,6 +61,13 @@
           "docs/**/*.svg"
         ],
         "src": "www"
+      },
+      {
+        "files": [
+          "*.ttf"
+        ],
+        "dest": "fonts",
+        "src": "Xui/Core/Fonts/Inter"
       }
     ],
     "output": "_site",

@@ -2,15 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Buffers.Binary;
 using System.Text;
+using Xui.Core.Canvas;
 
 namespace Xui.Runtime.Software.Font;
 
 public partial class TrueTypeFont
 {
-    private readonly ReadOnlyMemory<byte> _blob;
-    private readonly Dictionary<string, TableRecord> _tables = new();
+    public readonly ReadOnlyMemory<byte> Blob;
+    public readonly Uri? SourceUri;
 
-    public IReadOnlyDictionary<string, TableRecord> Tables => _tables;
+    public IReadOnlyDictionary<string, TableRecord> Tables { get; }
 
     public HeaderTable? Head { get; private set; }
     public MaxProfileTable? Maxp { get; private set; }
@@ -25,75 +26,121 @@ public partial class TrueTypeFont
     public KernTable? Kern { get; private set; }
     public GPosTable? GPos { get; private set; }
 
+    public FontFace Face { get; private set; }
+
     public KerningQuery Kerning => new(this);
 
-    public TrueTypeFont(ReadOnlyMemory<byte> blob)
+    public TrueTypeFont(ReadOnlyMemory<byte> blob, Uri? SourceUri = null)
     {
-        _blob = blob;
+        this.Blob = blob;
+        this.SourceUri = SourceUri;
 
-        var span = blob.Span;
-
-        uint scalerType = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(0, 4));
-        ushort numTables = BinaryPrimitives.ReadUInt16BigEndian(span.Slice(4, 2));
-        // Skip: searchRange, entrySelector, rangeShift
-
-        for (int i = 0; i < numTables; i++)
-        {
-            int offset = 12 + i * 16;
-            string tag = Encoding.ASCII.GetString(span.Slice(offset, 4));
-            uint checksum = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(offset + 4, 4));
-            uint tableOffset = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(offset + 8, 4));
-            uint length = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(offset + 12, 4));
-
-            _tables[tag] = new TableRecord(tag, tableOffset, length, checksum);
-        }
+        Tables = ParseTableDirectory(blob.Span);
 
         // You can optionally parse critical tables here or defer
-        if (_tables.TryGetValue("head", out var headRec))
+        if (Tables.TryGetValue("head", out var headRec))
             Head = new HeaderTable(GetTableSpan(headRec));
 
-        if (_tables.TryGetValue("maxp", out var maxpRec))
+        if (Tables.TryGetValue("maxp", out var maxpRec))
             Maxp = new MaxProfileTable(GetTableSpan(maxpRec));
 
-        if (_tables.TryGetValue("hhea", out var hheaRec))
+        if (Tables.TryGetValue("hhea", out var hheaRec))
             Hhea = new HorizontalHeaderTable(GetTableSpan(hheaRec));
 
-        if (_tables.TryGetValue("OS/2", out var os2Rec))
+        if (Tables.TryGetValue("OS/2", out var os2Rec))
             OS2 = new OS2Table(GetTableSpan(os2Rec));
 
-        if (_tables.TryGetValue("post", out var postRec))
+        if (Tables.TryGetValue("post", out var postRec))
             Post = new PostTable(GetTableSpan(postRec));
 
-        if (_tables.TryGetValue("cmap", out var cmapRec))
+        if (Tables.TryGetValue("cmap", out var cmapRec))
             Cmap = new CMapTable(GetTableSpan(cmapRec));
 
-        if (_tables.TryGetValue("name", out var nameRec))
+        if (Tables.TryGetValue("name", out var nameRec))
             Name = new NameTable(GetTableSpan(nameRec));
 
-        if (_tables.TryGetValue("loca", out var locaRec) && Maxp is not null && Head is not null)
+        if (Tables.TryGetValue("loca", out var locaRec) && Maxp is not null && Head is not null)
             Loca = new LocaTable(GetTableSpan(locaRec), Maxp.NumGlyphs, Head.IndexToLocFormat);
 
-        if (_tables.TryGetValue("glyf", out var glyfRec) && Loca is not null)
+        if (Tables.TryGetValue("glyf", out var glyfRec) && Loca is not null)
             Glyf = new GlyfTable(GetTableMemory(glyfRec), Loca);
 
-        if (_tables.TryGetValue("hmtx", out var hmtxRec) && Hhea is not null)
+        if (Tables.TryGetValue("hmtx", out var hmtxRec) && Hhea is not null)
             Hmtx = new HorizontalMetricsTable(GetTableSpan(hmtxRec), Hhea.NumberOfHMetrics);
 
-        if (_tables.TryGetValue("kern", out var kernRec) && Cmap is not null)
+        if (Tables.TryGetValue("kern", out var kernRec) && Cmap is not null)
             Kern = new KernTable(GetTableSpan(kernRec), Cmap);
 
-        if (_tables.TryGetValue("GPOS", out var gPosRec) && Cmap is not null)
+        if (Tables.TryGetValue("GPOS", out var gPosRec) && Cmap is not null)
             GPos = new GPosTable(GetTableSpan(gPosRec), Cmap);
+
+        Face = FontFace(Head, Name, OS2);
+    }
+
+    public TextMetrics MeasureText(string text, Xui.Core.Canvas.Font font)
+    {
+        var layout = new TextLayout(this, text, font.FontSize);
+        var lineMetrics = layout.LineMetrics;
+        var fontMetrics = this.Metrics(font);
+
+        return new TextMetrics(lineMetrics, fontMetrics);
+    }
+
+    public FontMetrics Metrics(Xui.Core.Canvas.Font font)
+    {
+        if (Head is null || Hhea is null)
+            throw new InvalidOperationException("Missing required font tables (head or hhea).");
+
+        nfloat unitsPerEm = Head.UnitsPerEm;
+        nfloat scale = font.FontSize / unitsPerEm;
+
+        nfloat fontAscent  = Hhea.Ascender * scale;
+        nfloat fontDescent = -Hhea.Descender * scale;
+
+        nfloat emAscent;
+        nfloat emDescent;
+        nfloat alphaBaseline = 0;
+        nfloat hangingBaseline;
+        nfloat ideographicBaseline;
+
+        if (OS2 is not null)
+        {
+            emAscent = OS2.TypoAscender * scale;
+            emDescent = -OS2.TypoDescender * scale;
+            alphaBaseline = 0;
+            hangingBaseline = OS2.TypoAscender != 0 ? OS2.TypoAscender * scale : emAscent * 0.8f;
+            ideographicBaseline = emDescent;
+        }
+        else
+        {
+            emAscent = fontAscent;
+            emDescent = fontDescent;
+            hangingBaseline = emAscent * 0.8f;
+            ideographicBaseline = emDescent;
+        }
+
+        var lineHeight = font.LineHeight;
+
+        return new FontMetrics(
+            fontAscent,
+            fontDescent,
+            emAscent,
+            emDescent,
+            alphaBaseline,
+            hangingBaseline,
+            ideographicBaseline,
+            lineHeight
+        );
     }
 
     private ReadOnlySpan<byte> GetTableSpan(TableRecord record)
     {
-        return _blob.Span.Slice((int)record.Offset, (int)record.Length);
+        return Blob.Span.Slice((int)record.Offset, (int)record.Length);
     }
 
     private ReadOnlyMemory<byte> GetTableMemory(TableRecord record)
     {
-        return _blob.Slice((int)record.Offset, (int)record.Length);
+        return Blob.Slice((int)record.Offset, (int)record.Length);
     }
 
     public bool TryGetGlyph(int glyphId, out GlyphShape shape)
@@ -130,5 +177,91 @@ public partial class TrueTypeFont
                 return default;
             }
         }
+    }
+
+    /// <summary>
+    /// Extracts a <see cref="FontFace"/> from minimal parsed font tables.
+    /// </summary>
+    /// <param name="name">The <see cref="NameTable"/> containing font naming information.</param>
+    /// <param name="os2">The <see cref="OS2Table"/> containing weight and width data.</param>
+    /// <param name="head">The <see cref="HeaderTable"/> used to determine italic style (via macStyle flags).</param>
+    /// <returns>A constructed <see cref="FontFace"/>.</returns>
+    public static FontFace FontFace(HeaderTable? head, NameTable? name, OS2Table? os2)
+    {
+        string family = name?.FamilyName ?? "Unknown";
+
+        var weight = os2 != null
+            ? new FontWeight(os2.WeightClass)
+            : FontWeight.Normal;
+
+        var stretch = os2 != null
+            ? new FontStretch(os2.WidthClass switch
+            {
+                1 => FontStretch.UltraCondensed,
+                2 => FontStretch.ExtraCondensed,
+                3 => FontStretch.Condensed,
+                4 => FontStretch.SemiCondensed,
+                5 => FontStretch.Normal,
+                6 => FontStretch.SemiExpanded,
+                7 => FontStretch.Expanded,
+                8 => FontStretch.ExtraExpanded,
+                9 => FontStretch.UltraExpanded,
+                _ => FontStretch.Normal
+            })
+            : FontStretch.Normal;
+
+        var style = head is not null && (head.MacStyle & 0b10) != 0
+            ? FontStyle.Italic
+            : FontStyle.Normal;
+
+        return new FontFace(family, weight, style, stretch);
+    }
+
+    public static FontFace FontFace(ReadOnlySpan<byte> fontData)
+    {
+        var tables = ParseTableDirectory(fontData);
+
+        HeaderTable? head = null;
+        NameTable? name = null;
+        OS2Table? os2 = null;
+
+        if (tables.TryGetValue("head", out var headRec))
+        {
+            var span = fontData.Slice((int)headRec.Offset, (int)headRec.Length);
+            head = new HeaderTable(span);
+        }
+
+        if (tables.TryGetValue("name", out var nameRec))
+        {
+            var span = fontData.Slice((int)nameRec.Offset, (int)nameRec.Length);
+            name = new NameTable(span);
+        }
+
+        if (tables.TryGetValue("OS/2", out var os2Rec))
+        {
+            var span = fontData.Slice((int)os2Rec.Offset, (int)os2Rec.Length);
+            os2 = new OS2Table(span);
+        }
+
+        return FontFace(head, name, os2);
+    }
+
+    private static Dictionary<string, TableRecord> ParseTableDirectory(ReadOnlySpan<byte> span)
+    {
+        ushort tableCount = BinaryPrimitives.ReadUInt16BigEndian(span.Slice(4, 2));
+        var tables = new Dictionary<string, TableRecord>(tableCount);
+
+        for (int i = 0; i < tableCount; i++)
+        {
+            int offset = 12 + i * 16;
+            string tag = Encoding.ASCII.GetString(span.Slice(offset, 4));
+            uint checksum = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(offset + 4, 4));
+            uint tableOffset = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(offset + 8, 4));
+            uint length = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(offset + 12, 4));
+
+            tables[tag] = new TableRecord(tag, tableOffset, length, checksum);
+        }
+
+        return tables;
     }
 }

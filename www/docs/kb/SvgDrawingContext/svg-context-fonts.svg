@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <defs>
+  <style><![CDATA[
+    @font-face { font-family: 'Inter'; src: url('https://xuiapps.com/fonts/Inter-Regular.ttf'); }
+  ]]></style>
+  </defs>
+  <rect x="5.5" y="5.5" width="83.08251953125" height="19" fill="none" stroke="#FF0000" />
+  <text x="6" y="6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">Hello World</text>
+  <rect x="5.5" y="35.5" width="23.734375" height="19" fill="none" stroke="#FF0000" />
+  <text x="6" y="36" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">Xui</text>
+  <rect x="5.5" y="65.5" width="10.79248046875" height="19" fill="none" stroke="#FF0000" />
+  <text x="6" y="66" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">:)</text>
+</svg>

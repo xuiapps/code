@@ -14,7 +14,7 @@ namespace Xui.Core.Canvas;
 /// <item><description>Font weight is numeric and roughly corresponds to CSS values between 100–900.</description></item>
 /// </list>
 /// </remarks>
-public ref struct Font
+public ref partial struct Font
 {
     /// <summary>
     /// The primary font family name. No fallback fonts are supported.
@@ -31,6 +31,8 @@ public ref struct Font
     /// </summary>
     public FontStyle FontStyle;
 
+    // Not implemented: FontVariant
+
     /// <summary>
     /// The numeric weight of the font. Matches common web font weights:
     /// <code>
@@ -45,10 +47,57 @@ public ref struct Font
     /// 900 - Black
     /// </code>
     /// </summary>
-    public nfloat FontWeight;
+    public FontWeight FontWeight;
+
+    /// <summary>
+    /// The stretch or width of the font relative to its normal width (100%).
+    /// Values correspond to common CSS/OpenType stretch percentages:
+    /// <code>
+    ///  50 - Ultra Condensed
+    ///  62.5 - Extra Condensed
+    ///  75 - Condensed
+    ///  87.5 - Semi Condensed
+    /// 100 - Normal
+    /// 112.5 - Semi Expanded
+    /// 125 - Expanded
+    /// 150 - Extra Expanded
+    /// 200 - Ultra Expanded
+    /// </code>
+    /// </summary>
+    /// <remarks>
+    /// Font stretch controls the horizontal expansion or compression of glyphs.
+    /// A value of 100 indicates normal width. Values less than 100 indicate
+    /// condensed fonts; values greater than 100 indicate expanded fonts.
+    /// </remarks>
+    public FontStretch FontStretch;
 
     /// <summary>
     /// The line height in user-space units. Controls vertical spacing between lines.
     /// </summary>
     public nfloat LineHeight;
+
+    /// <summary>
+    /// Initializes a <see cref="Font"/> with specified size and optional styling attributes.
+    /// </summary>
+    /// <param name="fontSize">The font size in user-space units (e.g., pixels).</param>
+    /// <param name="fontFamily">The font family (optional; no fallback list).</param>
+    /// <param name="fontWeight">The font weight (default: <see cref="FontWeight.Normal"/>).</param>
+    /// <param name="fontStyle">The font style (default: <see cref="FontStyle.Normal"/>).</param>
+    /// <param name="fontStretch">The font stretch (default: <see cref="FontStretch.Normal"/>).</param>
+    /// <param name="lineHeight">The line height (default: 1.2 × font size).</param>
+    public Font(
+        nfloat fontSize,
+        ReadOnlySpan<string> fontFamily = default,
+        FontWeight? fontWeight = null,
+        FontStyle? fontStyle = null,
+        FontStretch? fontStretch = null,
+        nfloat? lineHeight = null)
+    {
+        FontSize = fontSize;
+        FontFamily = fontFamily;
+        FontWeight = fontWeight ?? FontWeight.Normal;
+        FontStyle = fontStyle ?? FontStyle.Normal;
+        FontStretch = fontStretch ?? FontStretch.Normal;
+        LineHeight = lineHeight ?? fontSize * 1.2f;
+    }
 }

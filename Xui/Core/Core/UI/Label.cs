@@ -31,12 +31,17 @@ namespace Xui.Core.UI
         /// <summary>
         /// Gets or sets the font style (e.g., normal, italic, oblique).
         /// </summary>
-        public FontStyle FontStyle { get; set; } = FontStyle.Italic;
+        public FontStyle FontStyle { get; set; } = FontStyle.Normal;
 
         /// <summary>
         /// Gets or sets the font weight (e.g., normal, bold, numeric weight).
         /// </summary>
-        public int FontWeight { get; set; } = 600;
+        public FontWeight FontWeight { get; set; } = FontWeight.Normal;
+
+        /// <summary>
+        /// Gets or sets the font stretch (e.g., condensed, semi-expanded etc.).
+        /// </summary>
+        public FontStretch FontStretch { get; set; } = FontStretch.Normal;
 
         /// <summary>
         /// Gets or sets the line height of the text.
@@ -53,9 +58,10 @@ namespace Xui.Core.UI
                 FontStyle = this.FontStyle,
                 FontWeight = this.FontWeight,
                 LineHeight = this.LineHeight,
+                FontStretch = this.FontStretch
             });
             var textSize = context.MeasureText(this.Text);
-            return (textSize.X, textSize.Y);
+            return textSize.Size;
         }
 
         /// <inheritdoc/>
@@ -68,7 +74,9 @@ namespace Xui.Core.UI
                 FontStyle = this.FontStyle,
                 FontWeight = this.FontWeight,
                 LineHeight = this.LineHeight,
+                FontStretch = this.FontStretch
             });
+            context.TextBaseline = TextBaseline.Top;
             context.TextAlign = TextAlign.Left;
             context.SetFill(this.TextColor);
             context.FillText(this.Text, this.Frame.TopLeft);

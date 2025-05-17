@@ -4,19 +4,21 @@ namespace Xui.Core.Canvas;
 
 /// <summary>
 /// Provides functionality for measuring text and setting font properties.
-/// Mirrors the measurement behavior of the HTML5 Canvas 2D context.
+/// Mirrors the measurement behavior of the HTML5 Canvas 2D context,
+/// but returns a full <see cref="TextMetrics"/> structure for advanced layout.
 /// </summary>
 public interface ITextMeasureContext
 {
     /// <summary>
-    /// Measures the width and height of the specified text string using the current font.
+    /// Measures the layout and bounding box metrics of the specified text string
+    /// using the current font.
     /// </summary>
     /// <param name="text">The text string to measure.</param>
     /// <returns>
-    /// A <see cref="Vector"/> representing the size of the rendered text.
-    /// Typically, X is width and Y is line height or baseline ascent.
+    /// A <see cref="TextMetrics"/> structure containing both string-specific
+    /// and font-wide metrics.
     /// </returns>
-    Vector MeasureText(string text);
+    TextMetrics MeasureText(string text);
 
     /// <summary>
     /// Sets the font used for all subsequent text drawing and measurement operations.
