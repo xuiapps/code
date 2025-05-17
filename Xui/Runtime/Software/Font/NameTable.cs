@@ -5,8 +5,59 @@ using System.Text;
 
 namespace Xui.Runtime.Software.Font;
 
-public class NameTable
+public partial class NameTable
 {
+    /// <summary>Copyright notice (Name ID 0)</summary>
+    public string? Copyright => GetNameById(0);
+
+    /// <summary>Font family name (Name ID 1)</summary>
+    public string? FamilyName => GetNameById(1);
+
+    /// <summary>Font subfamily name (e.g. Regular, Bold) (Name ID 2)</summary>
+    public string? SubfamilyName => GetNameById(2);
+
+    /// <summary>Unique font identifier (Name ID 3)</summary>
+    public string? UniqueIdentifier => GetNameById(3);
+
+    /// <summary>Full font name (Name ID 4)</summary>
+    public string? FullName => GetNameById(4);
+
+    /// <summary>Version string (Name ID 5)</summary>
+    public string? Version => GetNameById(5);
+
+    /// <summary>PostScript name (Name ID 6)</summary>
+    public string? PostScriptName => GetNameById(6);
+
+    /// <summary>Trademark notice (Name ID 7)</summary>
+    public string? Trademark => GetNameById(7);
+
+    /// <summary>Manufacturer name (Name ID 8)</summary>
+    public string? Manufacturer => GetNameById(8);
+
+    /// <summary>Designer name (Name ID 9)</summary>
+    public string? Designer => GetNameById(9);
+
+    /// <summary>Description of the font (Name ID 10)</summary>
+    public string? Description => GetNameById(10);
+
+    /// <summary>URL of the vendor (Name ID 11)</summary>
+    public string? VendorURL => GetNameById(11);
+
+    /// <summary>URL of the designer (Name ID 12)</summary>
+    public string? DesignerURL => GetNameById(12);
+
+    /// <summary>License description (Name ID 13)</summary>
+    public string? License => GetNameById(13);
+
+    /// <summary>License info URL (Name ID 14)</summary>
+    public string? LicenseURL => GetNameById(14);
+
+    /// <summary>Preferred family (Name ID 16) — used for name linking and fallback grouping</summary>
+    public string? PreferredFamily => GetNameById(16);
+
+    /// <summary>Preferred subfamily (Name ID 17) — used with PreferredFamily</summary>
+    public string? PreferredSubfamily => GetNameById(17);
+
     public IReadOnlyList<NameRecord> Names { get; }
 
     public NameTable(ReadOnlySpan<byte> data)

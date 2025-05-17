@@ -134,6 +134,87 @@ context.Ellipse((49, 18), 3, 3, 0, 0, π * 2, ClockWise);
 context.Fill();
 ```
 
+## Text + Layout Demo
+
+This example uses full layout and text rendering with custom fonts via the `SvgDrawingContext` and demonstrates dynamic font resolution through a resolver that maps embedded fonts to web URLs.
+
+### SVG Font Layout Demo
+
+![SVG Text Demo](svg-context-fonts.svg)
+
+### Example Code
+
+```csharp
+var size = new Size(120, 120);
+using var stream = WriteFile("svg-context-fonts.svg");
+
+using var context = (IContext)new Xui.Runtime.Software.Actual.SvgDrawingContext(
+    size,
+    stream,
+    // List Xui.Core.Fonts embedded fonts
+    Xui.Core.Fonts.Inter.URIs,
+    // Maps embedded://Xui.Core.Fonts/* fonts to xuiapps.com/fonts/* web urls
+    DocsGenerator.XuiDemoFontResolver.Instance);
+
+var root = new VerticalStack()
+{
+    Content = [
+        new Border() {
+            Margin = 5,
+            BorderThickness = 1,
+            BorderColor = Red,
+            CornerRadius = 3,
+            BackgroundColor = White,
+            HorizontalAlignment = Left,
+            Content = new Label() {
+                TextColor = Black,
+                FontFamily = ["Inter"],
+                Text = "Hello World"
+            }
+        },
+        new Border() {
+            Margin = 5,
+            BorderThickness = 1,
+            BorderColor = Red,
+            CornerRadius = 3,
+            BackgroundColor = White,
+            HorizontalAlignment = Left,
+            Content = new Label() {
+                TextColor = Black,
+                FontFamily = ["Inter"],
+                Text = "Xui"
+            }
+        },
+        new Border() {
+            Margin = 5,
+            BorderThickness = 1,
+            BorderColor = Red,
+            CornerRadius = 3,
+            BackgroundColor = White,
+            HorizontalAlignment = Left,
+            Content = new Label() {
+                TextColor = Black,
+                FontFamily = ["Inter"],
+                Text = ":)"
+            }
+        }
+    ]
+};
+
+root.Update(new LayoutGuide()
+{
+    AvailableSize = size,
+    Anchor = (0, 0),
+    XAlign = LayoutGuide.Align.Start,
+    YAlign = LayoutGuide.Align.Start,
+    XSize = LayoutGuide.SizeTo.Exact,
+    YSize = LayoutGuide.SizeTo.Exact,
+    Pass = LayoutGuide.LayoutPass.Measure | LayoutGuide.LayoutPass.Arrange | LayoutGuide.LayoutPass.Render,
+    MeasureContext = context,
+    RenderContext = context
+});
+```
+
 ## Use Cases
 
 `SvgDrawingContext` is ideal for generating static documentation assets, deterministic rendering in CI environments, or regression testing your UI layout logic. Since it bypasses rasterization and targets vector output, it offers a consistent and lightweight alternative for verifying visual structure across platforms.

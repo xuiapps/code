@@ -4,6 +4,8 @@ using static Xui.Core.Canvas.Colors;
 using static Xui.Core.Math2D.Constants;
 using static Xui.Core.Canvas.Winding;
 using Xui.Core.Canvas.SVG;
+using Xui.Core.UI;
+using static Xui.Core.UI.HorizontalAlignment;
 
 namespace DocsGenerator.SvgDrawingContext;
 
@@ -21,6 +23,7 @@ public class SvgDrawingContextArticle : Article
 
         SvgContextDemo();
         SvgXuiGradientsDemo();
+        SvgXuiStackWithLabels();
     }
 
     private void SvgContextDemo()
@@ -127,5 +130,77 @@ public class SvgDrawingContextArticle : Article
         context.BeginPath();
         context.Ellipse((49, 18), 3, 3, 0, 0, π * 2, ClockWise);
         context.Fill();
+    }
+
+    private void SvgXuiStackWithLabels()
+    {
+        var size = new Size(120, 120);
+        using var stream = WriteFile("svg-context-fonts.svg");
+
+        using var context = (IContext)new Xui.Runtime.Software.Actual.SvgDrawingContext(
+            size,
+            stream,
+            // List Xui.Core.Fonts embedded fonts
+            Xui.Core.Fonts.Inter.URIs,
+            // Maps embedded://Xui.Core.Fonts/* fonts to xuiapps.com/fonts/* web urls
+            DocsGenerator.XuiDemoFontResolver.Instance);
+
+        var root = new VerticalStack()
+        {
+            Content = [
+                new Border() {
+                    Margin = 5,
+                    BorderThickness = 1,
+                    BorderColor = Red,
+                    CornerRadius = 3,
+                    BackgroundColor = White,
+                    HorizontalAlignment = Left,
+                    Content = new Label() {
+                        TextColor = Black,
+                        FontFamily = ["Inter"],
+                        Text = "Hello World"
+                    }
+                },
+                new Border() {
+                    Margin = 5,
+                    BorderThickness = 1,
+                    BorderColor = Red,
+                    CornerRadius = 3,
+                    BackgroundColor = White,
+                    HorizontalAlignment = Left,
+                    Content = new Label() {
+                        TextColor = Black,
+                        FontFamily = ["Inter"],
+                        Text = "Xui"
+                    }
+                },
+                new Border() {
+                    Margin = 5,
+                    BorderThickness = 1,
+                    BorderColor = Red,
+                    CornerRadius = 3,
+                    BackgroundColor = White,
+                    HorizontalAlignment = Left,
+                    Content = new Label() {
+                        TextColor = Black,
+                        FontFamily = ["Inter"],
+                        Text = ":)"
+                    }
+                }
+            ]
+        };
+
+        root.Update(new LayoutGuide()
+        {
+            AvailableSize = size,
+            Anchor = (0, 0),
+            XAlign = LayoutGuide.Align.Start,
+            YAlign = LayoutGuide.Align.Start,
+            XSize = LayoutGuide.SizeTo.Exact,
+            YSize = LayoutGuide.SizeTo.Exact,
+            Pass = LayoutGuide.LayoutPass.Measure | LayoutGuide.LayoutPass.Arrange | LayoutGuide.LayoutPass.Render,
+            MeasureContext = context,
+            RenderContext = context
+        });
     }
 }

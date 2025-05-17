@@ -3,10 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 using System.Text;
 using Xui.Core.Canvas;
 using Xui.Core.Curves2D;
 using Xui.Core.Math2D;
+using Xui.Runtime.Software.Font;
 
 namespace Xui.Runtime.Software.Actual;
 
@@ -14,8 +17,10 @@ public sealed class SvgDrawingContext : IContext, IDisposable
 {
     private readonly Stream stream;
 
+    private readonly MemoryStream styleBuffer;
     private readonly MemoryStream defsBuffer;
     private readonly MemoryStream bodyBuffer;
+    private readonly StreamWriter styleWriter;
     private readonly StreamWriter defsWriter;
     private readonly StreamWriter bodyWriter;
 
@@ -36,9 +41,11 @@ public sealed class SvgDrawingContext : IContext, IDisposable
     private FillRule currentFillRule = FillRule.NonZero;
     private bool hasOpenPath = false;
 
+    private Point currentPoint = (0, 0);
+
     private AffineTransform transform = AffineTransform.Identity;
 
-    private nfloat[]? lineDashSegments;
+    private List<nfloat> lineDashSegments = new List<NFloat>();
     private string? currentClipPathId;
     private int clipPathCounter = 0;
 
@@ -54,18 +61,41 @@ public sealed class SvgDrawingContext : IContext, IDisposable
     public nfloat LineDashOffset { get; set; } = 0f;
     public TextAlign TextAlign { get; set; } = TextAlign.Start;
     public TextBaseline TextBaseline { get; set; } = TextBaseline.Alphabetic;
-    
+
+    private Catalog catalog;
+    private SvgFontResolver resolver;
+    private readonly HashSet<FontFace> emittedFontFaces = new(); // to avoid duplicate @font-face
+
+    // Holds resolved font emission mode per FontFace to avoid recomputing.
+    private readonly Dictionary<FontFace, Resolved> fontModeCache = new();
+
+    private FontSnapshot font = new FontSnapshot();
+
+    public SvgDrawingContext(Size canvasSize, Stream output, IEnumerable<Uri> fontUris, SvgFontResolver? resolver = null, bool keepOpen = false)
+        : this(canvasSize, output, new Catalog(fontUris), resolver, keepOpen)
+    {
+    }
 
     public SvgDrawingContext(Size canvasSize, Stream output, bool keepOpen = false)
+        : this(canvasSize, output, (Catalog?)null, (SvgFontResolver?)null, keepOpen)
     {
+    }
+
+    public SvgDrawingContext(Size canvasSize, Stream output, Catalog? catalog, SvgFontResolver? resolver = null, bool keepOpen = false)
+    {
+        this.catalog = catalog ?? new Catalog();
+        this.resolver = resolver ?? SvgFontResolver.Default;
+
         this.stream = output ?? throw new ArgumentNullException(nameof(output));
 
         this.keepOpen = keepOpen;
         this.canvasSize = canvasSize;
 
+        this.styleBuffer = new();
         this.defsBuffer = new();
         this.bodyBuffer = new();
-        
+
+        this.styleWriter = new StreamWriter(styleBuffer, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false), leaveOpen: true);
         this.defsWriter = new StreamWriter(defsBuffer, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false), leaveOpen: true);
         this.bodyWriter = new StreamWriter(bodyBuffer, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false), leaveOpen: true);
     }
@@ -78,10 +108,12 @@ public sealed class SvgDrawingContext : IContext, IDisposable
 
             PopGroupsUntilDepth(0);
 
+            styleWriter.Flush();
             defsWriter.Flush();
             bodyWriter.Flush();
 
             // Rewind both buffers to read from the start
+            styleBuffer.Position = 0;
             defsBuffer.Position = 0;
             bodyBuffer.Position = 0;
 
@@ -92,6 +124,16 @@ public sealed class SvgDrawingContext : IContext, IDisposable
             writer.Flush();
 
             // Write <defs> if any gradients/clips were defined
+            if (styleBuffer.Length > 0)
+            {
+                writer.WriteLine("  <style>");
+                writer.Flush();
+                styleBuffer.CopyTo(writer.BaseStream);
+                writer.Flush();
+                writer.WriteLine("  </style>");
+                writer.Flush();
+            }
+
             if (defsBuffer.Length > 0)
             {
                 writer.WriteLine("  <defs>");
@@ -131,7 +173,7 @@ public sealed class SvgDrawingContext : IContext, IDisposable
             MiterLimit = MiterLimit,
             GlobalAlpha = GlobalAlpha,
             LineDashOffset = LineDashOffset,
-            LineDashSegments = lineDashSegments?.ToArray(),
+            LineDashSegments = lineDashSegments.ToArray(),
             ClipPathId = currentClipPathId,
             HasOpenPath = hasOpenPath,
             CurrentPath = currentPath.ToString(),
@@ -159,7 +201,9 @@ public sealed class SvgDrawingContext : IContext, IDisposable
         GlobalAlpha = state.GlobalAlpha;
         LineDashOffset = state.LineDashOffset;
 
-        lineDashSegments = state.LineDashSegments;
+        lineDashSegments.Clear();
+        lineDashSegments.AddRange(state.LineDashSegments.AsSpan());
+
         currentClipPathId = state.ClipPathId;
 
         currentPath.Clear();
@@ -167,7 +211,17 @@ public sealed class SvgDrawingContext : IContext, IDisposable
         hasOpenPath = state.HasOpenPath;
     }
 
-    void IPenContext.SetLineDash(ReadOnlySpan<nfloat> segments) => throw new NotImplementedException();
+    void IPenContext.SetLineDash(ReadOnlySpan<nfloat> segments)
+    {
+        if (segments.Length == 0)
+        {
+            lineDashSegments.Clear();
+            return;
+        }
+
+        lineDashSegments.AddRange(segments);
+    }
+
     void IPenContext.SetStroke(Color color)
     {
         currentStrokeColor = color;
@@ -279,16 +333,19 @@ public sealed class SvgDrawingContext : IContext, IDisposable
         EnsureClosedSubpath();
         currentPath.Append($"M {F(to.X)} {F(to.Y)} ");
         hasOpenPath = true;
+        currentPoint = to;
     }
 
     void IGlyphPathBuilder.LineTo(Point to)
     {
         currentPath?.Append($"L {F(to.X)} {F(to.Y)} ");
+        currentPoint = to;
     }
 
     void IGlyphPathBuilder.CurveTo(Point control, Point to)
     {
         currentPath?.Append($"Q {F(control.X)} {F(control.Y)}, {F(to.X)} {F(to.Y)} ");
+        currentPoint = to;
     }
 
     void IGlyphPathBuilder.ClosePath()
@@ -311,6 +368,8 @@ public sealed class SvgDrawingContext : IContext, IDisposable
         currentPath.Append("Z ");
 
         hasOpenPath = false;
+
+        currentPoint = rect.BottomRight;
     }
 
     void IPathBuilder.RoundRect(Rect rect, nfloat radius)
@@ -335,6 +394,8 @@ public sealed class SvgDrawingContext : IContext, IDisposable
         currentPath.Append("Z ");
 
         hasOpenPath = false;
+
+        currentPoint = (x + r, y);
     }
 
     void IPathDrawing.Fill(FillRule rule)
@@ -378,36 +439,15 @@ public sealed class SvgDrawingContext : IContext, IDisposable
         nfloat? opacity = null;
 
         if (currentStrokeGradientId != null)
-        {
             stroke = $"url(#{currentStrokeGradientId})";
-        }
         else if (currentStrokeColor.HasValue)
-        {
             stroke = ToSvgColor(currentStrokeColor.Value, out opacity);
-        }
         else
-        {
-            return; // nothing to stroke with
-        }
+            return;
 
         Ident();
-        bodyWriter.Write($"<path d=\"{currentPath}\" fill=\"none\" stroke=\"{stroke}\"");
-
-        if (LineWidth != 1f)
-            bodyWriter.Write($" stroke-width=\"{F(LineWidth)}\"");
-
-        if (LineCap != LineCap.Butt)
-            bodyWriter.Write($" stroke-linecap=\"{LineCap.ToString().ToLowerInvariant()}\"");
-
-        if (LineJoin != LineJoin.Miter)
-            bodyWriter.Write($" stroke-linejoin=\"{LineJoin.ToString().ToLowerInvariant()}\"");
-
-        if (LineJoin == LineJoin.Miter && MiterLimit != 10f)
-            bodyWriter.Write($" stroke-miterlimit=\"{F(MiterLimit)}\"");
-
-        if (opacity.HasValue && opacity.Value > 0f && opacity.Value < 1f)
-            bodyWriter.Write($" stroke-opacity=\"{F(opacity.Value)}\"");
-
+        bodyWriter.Write($"<path d=\"{currentPath}\" fill=\"none\"");
+        WriteStrokeAttributes(stroke, opacity);
         bodyWriter.WriteLine(" />");
     }
 
@@ -415,7 +455,7 @@ public sealed class SvgDrawingContext : IContext, IDisposable
     {
         if (currentPath.Length == 0)
             return;
-        
+
         // Generate a unique ID
         currentClipPathId = $"clip{clipPathCounter++}";
 
@@ -429,11 +469,153 @@ public sealed class SvgDrawingContext : IContext, IDisposable
         PushGroup(null, currentClipPathId);
     }
 
-    void IRectDrawingContext.StrokeRect(Rect rect) => throw new NotImplementedException();
-    void IRectDrawingContext.FillRect(Rect rect) => throw new NotImplementedException();
-    void ITextDrawingContext.FillText(string text, Point pos) => throw new NotImplementedException();
-    Vector ITextMeasureContext.MeasureText(string text) => throw new NotImplementedException();
-    void ITextMeasureContext.SetFont(Core.Canvas.Font font) => throw new NotImplementedException();
+    void IRectDrawingContext.StrokeRect(Rect rect)
+    {
+        string stroke;
+        nfloat? opacity = null;
+
+        if (currentStrokeGradientId != null)
+            stroke = $"url(#{currentStrokeGradientId})";
+        else if (currentStrokeColor.HasValue)
+            stroke = ToSvgColor(currentStrokeColor.Value, out opacity);
+        else
+            return;
+
+        Ident();
+        bodyWriter.Write($"<rect x=\"{F(rect.X)}\" y=\"{F(rect.Y)}\" width=\"{F(rect.Width)}\" height=\"{F(rect.Height)}\" fill=\"none\"");
+        WriteStrokeAttributes(stroke, opacity);
+        bodyWriter.WriteLine(" />");
+    }
+
+    void IRectDrawingContext.FillRect(Rect rect)
+    {
+        string fill;
+        nfloat? opacity = null;
+
+        if (currentFillGradientId != null)
+            fill = $"url(#{currentFillGradientId})";
+        else if (currentFillColor.HasValue)
+            fill = ToSvgColor(currentFillColor.Value, out opacity);
+        else
+            return; // Nothing to fill with
+
+        Ident();
+        bodyWriter.Write($"<rect x=\"{F(rect.X)}\" y=\"{F(rect.Y)}\" width=\"{F(rect.Width)}\" height=\"{F(rect.Height)}\" fill=\"{fill}\"");
+
+        if (opacity.HasValue && opacity.Value > 0f && opacity.Value < 1f)
+            bodyWriter.Write($" fill-opacity=\"{F(opacity.Value)}\"");
+
+        bodyWriter.WriteLine(" />");
+    }
+
+    void ITextDrawingContext.FillText(string text, Point pos)
+    {
+        if (string.IsNullOrEmpty(text))
+            return;
+
+        if (!currentFillColor.HasValue)
+            return; // Only support solid fill for now
+
+        var fill = ToSvgColor(currentFillColor.Value, out var opacity);
+
+        // Emit @font-face if needed
+        if (font.FontFamily.Count > 0)
+        {
+            EmitFontFaceIfNeeded(new (
+                family: font.FontFamily[0],
+                weight: font.FontWeight,
+                style: font.FontStyle,
+                stretch: font.FontStretch
+            ));
+        }
+
+        Ident();
+        bodyWriter.Write($"<text x=\"{F(pos.X)}\" y=\"{F(pos.Y)}\" fill=\"{fill}\"");
+
+        // Horizontal alignment
+        var anchor = TextAlign switch
+        {
+            TextAlign.Center => "middle",
+            TextAlign.Right => "end",
+            _ => "start"
+        };
+        bodyWriter.Write($" text-anchor=\"{anchor}\"");
+
+        // Vertical alignment
+        var baseline = TextBaseline switch
+        {
+            TextBaseline.Top => "text-before-edge",
+            TextBaseline.Middle => "central",
+            TextBaseline.Bottom => "text-after-edge",
+            TextBaseline.Hanging => "hanging",
+            TextBaseline.Alphabetic => "alphabetic",
+            TextBaseline.Ideographic => "ideographic",
+            _ => "alphabetic"
+        };
+        bodyWriter.Write($" dominant-baseline=\"{baseline}\"");
+
+        if (opacity.HasValue && opacity.Value > 0f && opacity.Value < 1f)
+            bodyWriter.Write($" fill-opacity=\"{F(opacity.Value)}\"");
+
+        // Font
+        bodyWriter.Write($" font-size=\"{F(font.FontSize)}\"");
+
+        if (font.FontFamily.Count > 0)
+        {
+            var family = string.Join(",", font.FontFamily.Select(name => $"\"{name}\""));
+            bodyWriter.Write($" font-family={family}");
+        }
+
+        if (font.FontWeight != FontWeight.Normal)
+            bodyWriter.Write($" font-weight=\"{font.FontWeight}\"");
+
+        if (font.FontStyle.IsItalic)
+            bodyWriter.Write($" font-style=\"italic\"");
+
+        bodyWriter.Write(">");
+        bodyWriter.Write(System.Security.SecurityElement.Escape(text));
+        bodyWriter.WriteLine("</text>");
+    }
+
+    private void EmitFontFaceIfNeeded(FontFace fontFace)
+    {
+        var ttf = this.catalog.FontForFace(fontFace);
+        if (ttf is null)
+            return;
+
+        var sourceUri = ttf.SourceUri;
+
+        if (!fontModeCache.TryGetValue(fontFace, out var resolved))
+        {
+            resolved = this.resolver.Resolve(fontFace, sourceUri);
+            fontModeCache[fontFace] = resolved;
+        }
+
+        if (emittedFontFaces.Contains(fontFace))
+            return;
+
+        emittedFontFaces.Add(fontFace);
+
+        if (resolved.Mode == SvgFontMode.WebLink && resolved.WebUri is not null)
+        {
+            styleWriter.WriteLine($"    @font-face {{ font-family: '{fontFace.Family}'; src: url('{resolved.WebUri}'); }}");
+        }
+        else if (resolved.Mode == SvgFontMode.Embedded && sourceUri is not null)
+        {
+            var data = catalog.LoadFromUri(sourceUri);
+            var base64 = Convert.ToBase64String(data.Span);
+            styleWriter.WriteLine($"    @font-face {{ font-family: '{fontFace.Family}'; src: url(data:font/ttf;base64,{base64}); }}");
+        }
+    }
+
+    TextMetrics ITextMeasureContext.MeasureText(string text)
+    {
+        Xui.Core.Canvas.Font font = this.font.Font;
+        TextMetrics textMetrics = this.catalog.MeasureText(in font, text);
+        return textMetrics;
+    }
+
+    void ITextMeasureContext.SetFont(Xui.Core.Canvas.Font font) => this.font.Font = font;
 
     void ITransformContext.Translate(Vector vector) =>
         PushGroup(AffineTransform.Translate(vector));
@@ -472,6 +654,7 @@ public sealed class SvgDrawingContext : IContext, IDisposable
     void IPathBuilder.CurveTo(Point cp1, Point cp2, Point to)
     {
         currentPath.Append($"C {F(cp1.X)} {F(cp1.Y)}, {F(cp2.X)} {F(cp2.Y)}, {F(to.X)} {F(to.Y)} ");
+        currentPoint = to;
     }
 
     void IPathBuilder.Arc(Point center, nfloat radius, nfloat startAngle, nfloat endAngle, Winding winding)
@@ -498,11 +681,58 @@ public sealed class SvgDrawingContext : IContext, IDisposable
         }
 
         currentPath.Append($"A {F(arc.RadiusX)} {F(arc.RadiusY)} {F(arc.Rotation * 180 / nfloat.Pi)} {F(largeArcFlag)} {F(sweepFlag)} {F(arc.End.X)} {F(arc.End.Y)} ");
+
+        currentPoint = arc.End;
     }
 
     void IPathBuilder.ArcTo(Point cp1, Point cp2, nfloat radius)
     {
-        throw new NotImplementedException();
+        // If radius is zero or current point equals cp1, fallback to lineTo
+        if (radius <= 0f || !hasOpenPath)
+        {
+            currentPath.Append($"L {F(cp1.X)} {F(cp1.Y)} ");
+            return;
+        }
+
+        var p0 = this.currentPoint;
+        var p1 = cp1;
+        var p2 = cp2;
+
+        var v0 = (p0 - p1).Normalized;
+        var v1 = (p2 - p1).Normalized;
+
+        var dot = Vector.Dot(v0, v1);
+        if (dot >= 1.0f - 1e-6f)
+        {
+            // Points are collinear → straight line
+            currentPath.Append($"L {F(cp1.X)} {F(cp1.Y)} ");
+            return;
+        }
+
+        // Compute angle between v0 and v1
+        var angle = nfloat.Acos(dot / (v0.Magnitude * v1.Magnitude));
+        var tanHalfAngle = nfloat.Tan(angle / 2f);
+
+        // Length from p1 along both directions to the arc tangents
+        var dist = radius / tanHalfAngle;
+
+        var start = p1 + v0 * dist;
+        var end = p1 + v1 * dist;
+
+        // Direction of arc: counterclockwise if cross product is positive
+        bool sweep = Vector.Cross(v0, v1) < 0;
+
+        // Move to start of arc if needed
+        currentPath.Append($"L {F(start.X)} {F(start.Y)} ");
+
+        // SVG uses endpoint arc, radius x = y, rotation = 0
+        int largeArc = 0;
+        int sweepFlag = sweep ? 1 : 0;
+
+        currentPath.Append($"A {F(radius)} {F(radius)} 0 {largeArc} {sweepFlag} {F(end.X)} {F(end.Y)} ");
+        hasOpenPath = true;
+
+        currentPoint = end;
     }
 
     void IPathBuilder.Ellipse(Point center, nfloat radiusX, nfloat radiusY, nfloat rotation, nfloat startAngle, nfloat endAngle, Winding winding)
@@ -568,6 +798,8 @@ public sealed class SvgDrawingContext : IContext, IDisposable
 
         currentPath.Append("Z ");
         hasOpenPath = false;
+
+        currentPoint = (x + tl, y);
     }
 
     private static string F(nfloat value) =>
@@ -632,6 +864,35 @@ public sealed class SvgDrawingContext : IContext, IDisposable
         return $"matrix({F(t.A)},{F(t.B)},{F(t.C)},{F(t.D)},{F(t.Tx)},{F(t.Ty)})";
     }
 
+    private void WriteStrokeAttributes(string stroke, nfloat? opacity)
+    {
+        bodyWriter.Write($" stroke=\"{stroke}\"");
+
+        if (LineWidth != 1f)
+            bodyWriter.Write($" stroke-width=\"{F(LineWidth)}\"");
+
+        if (LineCap != LineCap.Butt)
+            bodyWriter.Write($" stroke-linecap=\"{LineCap.ToString().ToLowerInvariant()}\"");
+
+        if (LineJoin != LineJoin.Miter)
+            bodyWriter.Write($" stroke-linejoin=\"{LineJoin.ToString().ToLowerInvariant()}\"");
+
+        if (LineJoin == LineJoin.Miter && MiterLimit != 10f)
+            bodyWriter.Write($" stroke-miterlimit=\"{F(MiterLimit)}\"");
+
+        if (lineDashSegments.Count > 0)
+        {
+            var dashArray = string.Join(",", lineDashSegments.Select(F));
+            bodyWriter.Write($" stroke-dasharray=\"{dashArray}\"");
+
+            if (LineDashOffset != 0f)
+                bodyWriter.Write($" stroke-dashoffset=\"{F(LineDashOffset)}\"");
+        }
+
+        if (opacity.HasValue && opacity.Value > 0f && opacity.Value < 1f)
+            bodyWriter.Write($" stroke-opacity=\"{F(opacity.Value)}\"");
+    }
+
     private readonly struct SvgGroup
     {
         public AffineTransform? LocalTransform { get; }
@@ -664,12 +925,84 @@ public sealed class SvgDrawingContext : IContext, IDisposable
         public nfloat GlobalAlpha;
 
         public nfloat LineDashOffset;
-        public nfloat[]? LineDashSegments;
+        public nfloat[] LineDashSegments;
 
         public string? ClipPathId;
         public bool HasOpenPath;
         public string? CurrentPath;
 
         public int GroupDepth;
+    }
+
+    /// <summary>
+    /// Immutable snapshot of a <see cref="Font"/> for storage and comparison.
+    /// </summary>
+    private struct FontSnapshot
+    {
+        public readonly List<string> FontFamily = new List<string>();
+
+        public nfloat FontSize;
+        public FontWeight FontWeight;
+        public FontStyle FontStyle;
+        public FontStretch FontStretch;
+        public nfloat LineHeight;
+
+        public FontSnapshot()
+        {
+        }
+
+        public Xui.Core.Canvas.Font Font
+        {
+            readonly get
+            {
+                return new Xui.Core.Canvas.Font(FontSize,
+                    CollectionsMarshal.AsSpan(FontFamily),
+                    FontWeight,
+                    FontStyle,
+                    FontStretch,
+                    LineHeight);
+            }
+
+            set
+            {
+                this.FontSize = value.FontSize;
+                FontWeight = value.FontWeight;
+                FontStyle = value.FontStyle;
+                FontStretch = value.FontStretch;
+                LineHeight = value.LineHeight;
+
+                FontFamily.Clear();
+                var span = value.FontFamily;
+                for (int i = 0; i < span.Length; i++)
+                    FontFamily.Add(span[i]);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Delegate-based resolver that provides how a specific font should be handled in an SVG.
+    /// </summary>
+    public class SvgFontResolver
+    {
+        public static readonly SvgFontResolver Default = new SvgFontResolver();
+
+        public virtual Resolved Resolve(FontFace face, Uri? uri) => new Resolved(SvgFontMode.System, null);
+    }
+
+    public record struct Resolved (SvgFontMode Mode, Uri? WebUri);
+
+    /// <summary>
+    /// Determines how to emit fonts inside an SVG.
+    /// </summary>
+    public enum SvgFontMode
+    {
+        /// <summary>Assume the font is installed in the system; only use font-family="...".</summary>
+        System,
+
+        /// <summary>Emit a link to an external font using @font-face with a resolved URI.</summary>
+        WebLink,
+
+        /// <summary>Embed the font data as base64 using a data URI inside @font-face.</summary>
+        Embedded
     }
 }

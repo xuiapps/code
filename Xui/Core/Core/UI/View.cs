@@ -182,6 +182,7 @@ public abstract partial class View
                 y += remainingRealignmentSpace * yViewAlignment;
             }
 
+            // TODO: If stretch and available width is finit => width = availableWidth!
             guide.ArrangedRect = new Rect(x, y, width, height) - this.Margin;
             this.Frame = guide.ArrangedRect;
             this.ArrangeCore(guide.ArrangedRect, guide.MeasureContext!);
@@ -221,12 +222,13 @@ public abstract partial class View
     /// </summary>
     /// <param name="rect">The rectangle defining the position and exact size for the view.</param>
     /// <returns>The rectangle occupied by the arranged view.</returns>
-    public Rect Arrange(Rect rect, IMeasureContext context) =>
+    public Rect Arrange(Rect rect, IMeasureContext context, Size? desiredSize = null) =>
         this.Update(
             new LayoutGuide()
             {
                 Pass = LayoutGuide.LayoutPass.Arrange,
-                DesiredSize = rect.Size,
+                AvailableSize = rect.Size,
+                DesiredSize = desiredSize.HasValue ? desiredSize.Value : rect.Size,
                 XSize = LayoutGuide.SizeTo.Exact,
                 YSize = LayoutGuide.SizeTo.Exact,
                 MeasureContext = context,
