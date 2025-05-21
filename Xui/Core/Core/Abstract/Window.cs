@@ -3,6 +3,7 @@ using Xui.Core.Abstract.Events;
 using Xui.Core.Actual;
 using Xui.Core.Math2D;
 using Xui.Core.UI;
+using Xui.Core.UI.Input;
 
 namespace Xui.Core.Abstract;
 
@@ -15,9 +16,11 @@ namespace Xui.Core.Abstract;
 /// acting as a root container for layout and visual composition. Subclasses may override
 /// specific input or rendering behaviors as needed.
 /// </remarks>
-public abstract class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
+public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
 {
     private static IList<Window> openWindows = new List<Window>();
+
+    public EventRouter? EventRouter { get; private set; }
 
     /// <summary>
     /// Gets a read-only list of all currently open Xui windows.
@@ -98,6 +101,8 @@ public abstract class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
                 YSize = LayoutGuide.SizeTo.Exact,
                 RenderContext = context,
             });
+
+            this.EventRouter ??= new EventRouter(this.Content);
         }
     }
 
@@ -130,16 +135,19 @@ public abstract class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
     /// <inheritdoc/>
     public virtual void OnMouseDown(ref MouseDownEventRef e)
     {
+        this.EventRouter?.Dispatch(ref e);
     }
 
     /// <inheritdoc/>
     public virtual void OnMouseMove(ref MouseMoveEventRef e)
     {
+        this.EventRouter?.Dispatch(ref e);
     }
 
     /// <inheritdoc/>
     public virtual void OnMouseUp(ref MouseUpEventRef e)
     {
+        this.EventRouter?.Dispatch(ref e);
     }
 
     /// <inheritdoc/>
@@ -150,6 +158,7 @@ public abstract class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
     /// <inheritdoc/>
     public virtual void OnTouch(ref TouchEventRef e)
     {
+        this.EventRouter?.Dispatch(ref e);
     }
 
     /// <inheritdoc/>

@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../../Xui/Core/Fonts/Xui.Core.Fonts.csproj" />
-    <ProjectReference Include="../../Xui/Runtime/Software/Software.csproj" />
+    <ProjectReference Include="../../Xui/Runtime/Software/Xui.Runtime.Software.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -59,9 +59,9 @@ public class VerticalStackTests
         stack.Update(LayoutTests.DeviceScreen);
 
         Assert.Equal((0, 0, 400, 800), stack.Frame);
-        Assert.Equal((0, 0, 400, 40), b1.Frame);
-        Assert.Equal((0, 40, 400, 30), b2.Frame);
-        Assert.Equal((0, 70, 400, 50), b3.Frame);
+        Assert.Equal((0, 0, 100, 40), b1.Frame);
+        Assert.Equal((0, 40, 120, 30), b2.Frame);
+        Assert.Equal((0, 70, 90, 50), b3.Frame);
     }
 
     [Fact]
@@ -80,8 +80,8 @@ public class VerticalStackTests
         stack.Update(LayoutTests.DeviceScreen);
 
         Assert.Equal((140, 340, 120, 120), stack.Frame);
-        Assert.Equal((140, 340, 120, 40), b1.Frame);
+        Assert.Equal((140, 340, 100, 40), b1.Frame);
         Assert.Equal((140, 380, 120, 30), b2.Frame);
-        Assert.Equal((140, 410, 120, 50), b3.Frame);
+        Assert.Equal((140, 410, 90, 50), b3.Frame);
     }
 }

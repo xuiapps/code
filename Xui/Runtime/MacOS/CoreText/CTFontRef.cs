@@ -15,6 +15,30 @@ public static partial class CoreText
         [LibraryImport(CoreTextLib)]
         public static partial nint CTFontCreateWithFontDescriptorAndOptions(nint ctFontDescriptorRefDescriptor, NFloat size, nint matrixPtr, nint ctFontOptions);
 
+        [LibraryImport(CoreTextLib)]
+        private static partial NFloat CTFontGetAscent(nint font);
+
+        [LibraryImport(CoreTextLib)]
+        private static partial NFloat CTFontGetDescent(nint font);
+
+        [LibraryImport(CoreTextLib)]
+        private static partial NFloat CTFontGetLeading(nint font);
+
+        [LibraryImport(CoreTextLib)]
+        private static partial CGRect CTFontGetBoundingBox(nint font);
+
+        [LibraryImport(CoreTextLib)]
+        private static partial uint CTFontGetUnitsPerEm(nint font);
+
+        [LibraryImport(CoreTextLib)]
+        private static partial NFloat CTFontGetCapHeight(nint font);
+
+        [LibraryImport(CoreTextLib)]
+        private static partial NFloat CTFontGetXHeight(nint font);
+
+        [LibraryImport(CoreTextLib)]
+        private static partial NFloat CTFontGetSize(nint font);
+
         public readonly nint Self;
 
         public CTFontRef(nint self)
@@ -36,6 +60,15 @@ public static partial class CoreText
             : this(CTFontCreateWithFontDescriptorAndOptions(ctFontDescriptorRefDescriptor, 0, 0, ctFontOptions))
         {
         }
+
+        public NFloat Ascent => CTFontGetAscent(Self);
+        public NFloat Descent => CTFontGetDescent(Self);
+        public NFloat Leading => CTFontGetLeading(Self);
+        public NFloat CapHeight => CTFontGetCapHeight(Self);
+        public NFloat XHeight => CTFontGetXHeight(Self);
+        public uint UnitsPerEm => CTFontGetUnitsPerEm(Self);
+        public NFloat PointSize => CTFontGetSize(Self);
+        public CGRect BoundingBox => CTFontGetBoundingBox(Self);
 
         public void Dispose()
         {

@@ -91,25 +91,25 @@ public class MacOSDrawingContext : IContext
         }
     }
 
-    void IPathDrawingContext.Arc(Point center, NFloat radius, NFloat startAngle, NFloat endAngle, Winding winding) =>
+    void IPathBuilder.Arc(Point center, NFloat radius, NFloat startAngle, NFloat endAngle, Winding winding) =>
         CGContextRef.CGContextAddArc(this.cgContextRef, center.X, center.Y, radius, startAngle, endAngle, (int)winding);
 
-    void IPathDrawingContext.ArcTo(Point cp1, Point cp2, NFloat radius) =>
+    void IPathBuilder.ArcTo(Point cp1, Point cp2, NFloat radius) =>
         CGContextRef.CGContextAddArcToPoint(this.cgContextRef, cp1.X, cp1.Y, cp2.X, cp2.Y, radius);
 
-    void IPathDrawingContext.BeginPath() =>
+    void IPathBuilder.BeginPath() =>
         CGContextRef.CGContextBeginPath(this.cgContextRef);
 
-    void IPathDrawingContext.Clip() =>
+    void IPathClipping.Clip() =>
         CGContextRef.CGContextClip(this.cgContextRef);
 
-    void IPathDrawingContext.ClosePath() =>
+    void IGlyphPathBuilder.ClosePath() =>
         CGContextRef.CGContextClosePath(this.cgContextRef);
 
-    void IPathDrawingContext.CurveTo(Point cp1, Point to) =>
+    void IGlyphPathBuilder.CurveTo(Point cp1, Point to) =>
         CGContextRef.CGContextAddQuadCurveToPoint(this.cgContextRef, cp1.X, cp1.Y, to.X, to.Y);
 
-    void IPathDrawingContext.CurveTo(Point cp1, Point cp2, Point to) =>
+    void IPathBuilder.CurveTo(Point cp1, Point cp2, Point to) =>
         CGContextRef.CGContextAddCurveToPoint(this.cgContextRef, cp1.X, cp1.Y, cp2.X, cp2.Y, to.X, to.Y);
 
     void IDisposable.Dispose()
@@ -131,7 +131,7 @@ public class MacOSDrawingContext : IContext
         }
     }
 
-    void IPathDrawingContext.Ellipse(Point center, NFloat radiusX, NFloat radiusY, NFloat rotation, NFloat startAngle, NFloat endAngle, Winding winding)
+    void IPathBuilder.Ellipse(Point center, NFloat radiusX, NFloat radiusY, NFloat rotation, NFloat startAngle, NFloat endAngle, Winding winding)
     {
         CGContextRef.CGContextSaveGState(this.cgContextRef);
         CGContextRef.CGContextTranslateCTM(this.cgContextRef, center.X, center.Y);
@@ -141,7 +141,7 @@ public class MacOSDrawingContext : IContext
         CGContextRef.CGContextRestoreGState(this.cgContextRef);
     }
 
-    void IPathDrawingContext.Fill(FillRule fillRule)
+    void IPathDrawing.Fill(FillRule fillRule)
     {
         if (this.fill.style == PaintStyle.SolidColor)
         {
@@ -228,13 +228,13 @@ public class MacOSDrawingContext : IContext
         }
     }
 
-    void IPathDrawingContext.LineTo(Point to) =>
+    void IGlyphPathBuilder.LineTo(Point to) =>
         CGContextRef.CGContextAddLineToPoint(this.cgContextRef, to.X, to.Y);
 
-    void IPathDrawingContext.MoveTo(Point to) =>
+    void IGlyphPathBuilder.MoveTo(Point to) =>
         CGContextRef.CGContextMoveToPoint(this.cgContextRef, to.X, to.Y);
 
-    void IPathDrawingContext.Rect(Rect rect) =>
+    void IPathBuilder.Rect(Rect rect) =>
         CGContextRef.CGContextAddRect(this.cgContextRef, rect);
 
     void ITransformContext.Rotate(NFloat angle)
@@ -243,13 +243,13 @@ public class MacOSDrawingContext : IContext
         CGContextRef.CGContextRotateCTM(this.cgContextRef, angle);
     }
 
-    void IPathDrawingContext.RoundRect(Rect rect, NFloat radius)
+    void IPathBuilder.RoundRect(Rect rect, NFloat radius)
     {
         using var cgPathRef = CGPathRef.CreateWithRoundedRect(rect, radius);
         CGContextRef.CGContextAddPath(this.cgContextRef, cgPathRef);
     }
 
-    void IPathDrawingContext.RoundRect(Rect rect, CornerRadius radius)
+    void IPathBuilder.RoundRect(Rect rect, CornerRadius radius)
     {
         var context = (IContext)this;
 
@@ -334,7 +334,7 @@ public class MacOSDrawingContext : IContext
         CGContextRef.CGContextConcatCTM(this.cgContextRef, transform);
     }
 
-    void IPathDrawingContext.Stroke()
+    void IPathDrawing.Stroke()
     {
         if (this.stroke.style == PaintStyle.SolidColor)
         {
@@ -427,18 +427,61 @@ public class MacOSDrawingContext : IContext
         NSString.objc_msgSend(nsStringRef, NSString.DrawAtPointWithAttributesSel, pos + offset, attributes);
     }
 
-    Vector ITextMeasureContext.MeasureText(string text)
+    TextMetrics ITextMeasureContext.MeasureText(string text)
     {
         using var nsStringRef = new CFStringRef(text);
         using var attributes = new CFMutableDictionaryRef();
         using var foreground = new NSColorRef(this.fill.color);
+
         attributes.SetValue(NSAttributedString.Key.ForegroundColor, foreground);
         if (this.nsFont != 0)
-        {
             attributes.SetValue(NSAttributedString.Key.Font, this.nsFont);
+
+        using var attrString = new NSAttributedStringRef(nsStringRef, attributes);
+        using var line = CTLineRef.Create(attrString);
+
+        // === Extract Line Metrics (accurate width, left/right bounds, ascent/descent) ===
+        var (ascent, descent, _) = line.GetVerticalMetrics();
+        Rect bounds = line.GetBounds(CoreText.CTLineRef.BoundsOptions.UseOpticalBounds);
+
+        var lineMetrics = new LineMetrics(
+            width: line.GetWidth(),
+            left: bounds.X,
+            right: bounds.X + bounds.Width,
+            ascent: ascent,
+            descent: descent
+        );
+
+        // === Extract Font Metrics ===
+        FontMetrics font;
+        if (this.nsFont != 0)
+        {
+            var ct = new CTFontRef(this.nsFont);
+
+            var unitsPerEm = ct.UnitsPerEm;
+            var pointSize = ct.PointSize;
+            var scale = pointSize / unitsPerEm;
+
+            var emAscent = unitsPerEm * 0.8f * scale;
+            var emDescent = unitsPerEm * 0.2f * scale;
+
+            font = new FontMetrics(
+                fontAscent: ct.Ascent,
+                fontDescent: ct.Descent,
+                emAscent: emAscent,
+                emDescent: emDescent,
+                alphabeticBaseline: 0,
+                hangingBaseline: -ct.CapHeight,
+                ideographicBaseline: -ct.XHeight * 1.25f,
+                lineHeight: ct.Ascent + ct.Descent + ct.Leading
+            );
+        }
+        else
+        {
+            font = default;
         }
 
-        return ObjC.objc_msgSend_retCGSize(nsStringRef, NSString.SizeWithAttributesSel, attributes);
+        return new TextMetrics(lineMetrics, font);
     }
 
     void ITextMeasureContext.SetFont(Font font)

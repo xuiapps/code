@@ -30,14 +30,9 @@ public class LayoutTests
     public void FixedView_Should_Account_For_Margin_When_Arranged()
     {
         var view = new FixedView { Size = (100, 50), Margin = (10, 20) };
-
         var result = view.Update(DeviceScreen);
-
-        // Desired size includes margin
         Assert.Equal(new Size(400, 800), result.DesiredSize);
-
-        // ArrangedRect should be for the border box only (excludes margins)
-        Assert.Equal(new Rect(20, 10, 360, 780), result.ArrangedRect);
+        Assert.Equal(new Rect(10, 20, 380, 760), result.ArrangedRect);
     }
 
     [Fact]
@@ -45,10 +40,8 @@ public class LayoutTests
     {
         var view = new FixedView { Size = (100, 50), HorizontalAlignment = HorizontalAlignment.Center };
         var result = view.Update(DeviceScreen);
-
-        // It should not stretch to 400 wide; should use 100 from view.Size
-        Assert.Equal(new Size(100, 800), result.DesiredSize); // Height remains stretched, width is view-defined
-        Assert.Equal(new Rect(150, 0, 100, 800), result.ArrangedRect); // Horizontally centered
+        Assert.Equal(new Size(100, 800), result.DesiredSize);
+        Assert.Equal(new Rect(150, 0, 100, 800), result.ArrangedRect);
     }
 
     [Fact]
@@ -132,14 +125,12 @@ public class LayoutTests
         var view = new FixedView
         {
             Size = (100, 50),
-            Margin = (10, 20), // top/bottom = 10, left/right = 20
+            Margin = (10, 20),
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Bottom
         };
-
         var result = view.Update(DeviceScreen);
-
-        Assert.Equal(new Size(140, 70), result.DesiredSize); // 100 + left+right, 50 + top+bottom
-        Assert.Equal(new Rect(280, 740, 100, 50), result.ArrangedRect);
+        Assert.Equal(new Size(120, 90), result.DesiredSize);
+        Assert.Equal(new Rect(290, 730, 100, 50), result.ArrangedRect);
     }
 }

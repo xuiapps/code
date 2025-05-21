@@ -84,7 +84,7 @@ public struct Frame
     /// Horizontal is applied to left and right; vertical to top and bottom.
     /// </summary>
     [DebuggerStepThrough]
-    public static implicit operator Frame((nfloat horizontal, nfloat vertical) value) =>
+    public static implicit operator Frame((nfloat vertical, nfloat horizontal) value) =>
         new Frame(value.vertical, value.horizontal, value.vertical, value.horizontal);
 
     /// <summary>

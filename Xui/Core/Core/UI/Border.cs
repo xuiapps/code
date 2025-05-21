@@ -8,10 +8,32 @@ namespace Xui.Core.UI
     /// </summary>
     public class Border : View
     {
+        private View? content;
+
         /// <summary>
         /// Gets or sets the content view displayed inside the border.
         /// </summary>
-        public View? Content { get; set; }
+        public View? Content
+        {
+            get => this.content;
+            set
+            {
+                if (this.content is not null)
+                {
+                    this.content.Parent = null;
+                    this.content = null;
+                }
+
+                if (value is not null)
+                {
+                    if (value.Parent is not null)
+                        throw new InvalidOperationException("View already has a parent.");
+
+                    this.content = value;
+                    this.content.Parent = this;
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets the thickness of the border on each side.
@@ -38,10 +60,24 @@ namespace Xui.Core.UI
         /// </summary>
         public Frame Padding { get; set; } = Math2D.Frame.Zero;
 
+        /// <inheritdoc />
+        public override int Count => this.Content is null ? 0 : 1;
+
+        /// <inheritdoc />
+        public override View this[int index]
+        {
+            get
+            {
+                if (this.Content is not null && index == 0)
+                    return this.Content;
+                throw new IndexOutOfRangeException();
+            }
+        }
+
         /// <inheritdoc/>
         protected override Size MeasureCore(Size constraints, IMeasureContext context)
         {
-            Size contentSize = Content?.Measure(Size.Max(Size.Empty, constraints - this.BorderThickness - this.Padding), context) ?? Size.Empty;
+            Size contentSize = this.Content?.Measure(Size.Max(Size.Empty, constraints - this.BorderThickness - this.Padding), context) ?? Size.Empty;
             return contentSize + this.BorderThickness + this.Padding;
         }
 
@@ -49,7 +85,6 @@ namespace Xui.Core.UI
         protected override void ArrangeCore(Rect rect, IMeasureContext context)
         {
             this.Content?.Arrange(rect - this.Padding - this.BorderThickness, context);
-            base.ArrangeCore(rect, context);
         }
 
         /// <inheritdoc/>

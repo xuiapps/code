@@ -414,18 +414,61 @@ public class IOSDrawingContext : IContext
         NSString.objc_msgSend(nsStringRef, NSString.DrawAtPointWithAttributesSel, pos + offset, attributes);
     }
 
-    Vector ITextMeasureContext.MeasureText(string text)
+    TextMetrics ITextMeasureContext.MeasureText(string text)
     {
         using var nsStringRef = new CFStringRef(text);
         using var attributes = new CFMutableDictionaryRef();
         using var foreground = new UIColorRef(this.fill.color);
+
         attributes.SetValue(NSAttributedString.Key.ForegroundColor, foreground);
         if (this.nsFont != 0)
-        {
             attributes.SetValue(NSAttributedString.Key.Font, this.nsFont);
+
+        using var attrString = new NSAttributedStringRef(nsStringRef, attributes);
+        using var line = CTLineRef.Create(attrString);
+
+        // === Extract Line Metrics (accurate width, left/right bounds, ascent/descent) ===
+        var (ascent, descent, _) = line.GetVerticalMetrics();
+        Rect bounds = line.GetBounds(CoreText.CTLineRef.BoundsOptions.UseOpticalBounds);
+
+        var lineMetrics = new LineMetrics(
+            width: line.GetWidth(),
+            left: bounds.X,
+            right: bounds.X + bounds.Width,
+            ascent: ascent,
+            descent: descent
+        );
+
+        // === Extract Font Metrics ===
+        FontMetrics font;
+        if (this.nsFont != 0)
+        {
+            var ct = new CTFontRef(this.nsFont);
+
+            var unitsPerEm = ct.UnitsPerEm;
+            var pointSize = ct.PointSize;
+            var scale = pointSize / unitsPerEm;
+
+            var emAscent = unitsPerEm * 0.8f * scale;
+            var emDescent = unitsPerEm * 0.2f * scale;
+
+            font = new FontMetrics(
+                fontAscent: ct.Ascent,
+                fontDescent: ct.Descent,
+                emAscent: emAscent,
+                emDescent: emDescent,
+                alphabeticBaseline: 0,
+                hangingBaseline: -ct.CapHeight,
+                ideographicBaseline: -ct.XHeight * 1.25f,
+                lineHeight: ct.Ascent + ct.Descent + ct.Leading
+            );
+        }
+        else
+        {
+            font = default;
         }
 
-        return ObjC.objc_msgSend_retCGSize(nsStringRef, NSString.SizeWithAttributesSel, attributes);
+        return new TextMetrics(lineMetrics, font);
     }
 
     void ITextMeasureContext.SetFont(Font font)

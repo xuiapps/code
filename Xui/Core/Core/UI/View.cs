@@ -7,7 +7,7 @@ namespace Xui.Core.UI;
 /// Base class for all UI elements in the Xui layout engine.
 /// A view participates in layout, rendering, and input hit testing, and may contain child views.
 /// </summary>
-public abstract partial class View
+public partial class View
 {
     /// <summary>
     /// The parent view in the visual hierarchy. This is set automatically when the view is added to a container.
@@ -93,7 +93,14 @@ public abstract partial class View
     /// </summary>
     /// <param name="point">The point to test, relative to this view’s coordinate space.</param>
     /// <returns><c>true</c> if the point is inside the view’s frame; otherwise <c>false</c>.</returns>
-    public virtual bool HitTest(Point point) => false;
+    public virtual bool HitTest(Point point)
+    {
+        for (int i = this.Count - 1; i >= 0; i--)
+            if (this[i].HitTest(point))
+                return true;
+
+        return this.Frame.Contains(point);
+    }
 
     /// <summary>
     /// Performs a full layout pass for a view - measure, arrange and render.
@@ -161,8 +168,8 @@ public abstract partial class View
         {
             nfloat x = guide.Anchor.X - guide.DesiredSize.Width * (int)guide.XAlign * (nfloat).5;
             nfloat y = guide.Anchor.Y - guide.DesiredSize.Height * (int)guide.XAlign * (nfloat).5;
-            nfloat width = guide.DesiredSize.Width;
-            nfloat height = guide.DesiredSize.Height;
+            nfloat width = this.HorizontalAlignment == HorizontalAlignment.Stretch ? guide.AvailableSize.Width : guide.DesiredSize.Width;
+            nfloat height = this.VerticalAlignment == VerticalAlignment.Stretch ? guide.AvailableSize.Height : guide.DesiredSize.Height;
 
             if (guide.XSize == LayoutGuide.SizeTo.Exact &&
                 this.HorizontalAlignment != HorizontalAlignment.Stretch &&
@@ -228,7 +235,8 @@ public abstract partial class View
             {
                 Pass = LayoutGuide.LayoutPass.Arrange,
                 AvailableSize = rect.Size,
-                DesiredSize = desiredSize.HasValue ? desiredSize.Value : rect.Size,
+                // TODO: Instead of calculating desired size here, - calculate inside "Update" only if necessary... Or use cache...
+                DesiredSize = desiredSize.HasValue ? desiredSize.Value : this.Measure(rect.Size, context),
                 XSize = LayoutGuide.SizeTo.Exact,
                 YSize = LayoutGuide.SizeTo.Exact,
                 MeasureContext = context,
@@ -267,8 +275,13 @@ public abstract partial class View
     /// </returns>
     protected virtual Size MeasureCore(Size availableBorderEdgeSize, IMeasureContext context)
     {
-        // Measure content or each child...
-        return (0, 0);
+        Size size = (0, 0);
+        for (var i = 0; i < this.Count; i++)
+        {
+            size = Size.Max(size, this[i].Measure(availableBorderEdgeSize, context));
+        }
+
+        return size;
     }
 
     /// <summary>
@@ -284,7 +297,10 @@ public abstract partial class View
     /// </param>
     protected virtual void ArrangeCore(Rect rect, IMeasureContext context)
     {
-        // Arrange each child...
+        for (var i = 0; i < this.Count; i++)
+        {
+            this[i].Arrange(rect, context);
+        }
     }
 
     /// <summary>
@@ -295,6 +311,9 @@ public abstract partial class View
     /// </param>
     protected virtual void RenderCore(IContext context)
     {
-        // Render each child...
+        for (var i = 0; i < this.Count; i++)
+        {
+            this[i].Render(context);
+        }
     }
 }

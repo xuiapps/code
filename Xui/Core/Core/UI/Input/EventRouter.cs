@@ -3,31 +3,16 @@ using Xui.Core.Abstract.Events;
 
 namespace Xui.Core.UI.Input
 {
-    /// <summary>
-    /// Routes platform-level input events through the view hierarchy, translating them into abstract pointer events.
-    /// Handles pointer capture, enter/leave events, and event phase delivery (tunneling and bubbling).
-    /// </summary>
     public class EventRouter
     {
         private readonly View _rootView;
-
-        // Tracks capture, previous hit target, and last known position per pointer ID
         private readonly Dictionary<int, PointerTracking> _pointerTracking = new();
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="EventRouter"/> class, responsible for translating platform input events
-        /// and dispatching them through the view hierarchy starting from the specified root view.
-        /// </summary>
-        /// <param name="rootView">The root view of the window hierarchy that will receive routed pointer events.</param>
         public EventRouter(View rootView)
         {
             _rootView = rootView;
         }
 
-        /// <summary>
-        /// Dispatches a touch event, normalizing it into abstract pointer events.
-        /// </summary>
-        /// <param name="touchEvent">The touch event to dispatch.</param>
         public void Dispatch(ref TouchEventRef touchEvent)
         {
             foreach (var touch in touchEvent.Touches)
@@ -53,11 +38,7 @@ namespace Xui.Core.UI.Input
                     azimuthAngle: 0,
                     pointerType: PointerType.Touch,
                     button: PointerButton.Left,
-                    buttons: PointerButtons.Left
-                );
-
-                var coalesced = ReadOnlySpan<PointerState>.Empty;
-                var predicted = ReadOnlySpan<PointerState>.Empty;
+                    buttons: PointerButtons.Left);
 
                 var pointerEvent = new PointerEventRef(
                     eventType,
@@ -65,131 +46,259 @@ namespace Xui.Core.UI.Input
                     persistentDeviceId: 0,
                     isPrimary: true,
                     state,
-                    coalesced,
-                    predicted
-                );
+                    ReadOnlySpan<PointerState>.Empty,
+                    ReadOnlySpan<PointerState>.Empty);
 
                 DispatchPointer(ref pointerEvent);
             }
         }
 
-        /// <summary>
-        /// Dispatches a normalized pointer event into the view hierarchy.
-        /// Handles capture, hit-testing, and event phase routing.
-        /// </summary>
+        public void Dispatch(ref MouseDownEventRef e)
+        {
+            var state = new PointerState(
+                position: e.Position,
+                contactSize: new Size(1, 1),
+                pressure: 1.0f,
+                tangentialPressure: 0,
+                tilt: (0, 0),
+                twist: 0,
+                altitudeAngle: MathF.PI / 2,
+                azimuthAngle: 0,
+                pointerType: PointerType.Mouse,
+                button: PointerButton.Left,
+                buttons: PointerButtons.Left);
+
+            var pe = new PointerEventRef(
+                PointerEventType.Down,
+                pointerId: 0,
+                persistentDeviceId: 0,
+                isPrimary: true,
+                state,
+                ReadOnlySpan<PointerState>.Empty,
+                ReadOnlySpan<PointerState>.Empty);
+
+            DispatchPointer(ref pe);
+        }
+
+        public void Dispatch(ref MouseUpEventRef e)
+        {
+            var state = new PointerState(
+                position: e.Position,
+                contactSize: new Size(1, 1),
+                pressure: 0.0f,
+                tangentialPressure: 0,
+                tilt: (0, 0),
+                twist: 0,
+                altitudeAngle: MathF.PI / 2,
+                azimuthAngle: 0,
+                pointerType: PointerType.Mouse,
+                button: PointerButton.Left,
+                buttons: PointerButtons.None);
+
+            var pe = new PointerEventRef(
+                PointerEventType.Up,
+                pointerId: 0,
+                persistentDeviceId: 0,
+                isPrimary: true,
+                state,
+                ReadOnlySpan<PointerState>.Empty,
+                ReadOnlySpan<PointerState>.Empty);
+
+            DispatchPointer(ref pe);
+        }
+
+        public void Dispatch(ref MouseMoveEventRef e)
+        {
+            var state = new PointerState(
+                position: e.Position,
+                contactSize: new Size(1, 1),
+                pressure: 0.0f,
+                tangentialPressure: 0,
+                tilt: (0, 0),
+                twist: 0,
+                altitudeAngle: MathF.PI / 2,
+                azimuthAngle: 0,
+                pointerType: PointerType.Mouse,
+                button: PointerButton.None,
+                buttons: PointerButtons.None);
+
+            var pe = new PointerEventRef(
+                PointerEventType.Move,
+                pointerId: 0,
+                persistentDeviceId: 0,
+                isPrimary: true,
+                state,
+                ReadOnlySpan<PointerState>.Empty,
+                ReadOnlySpan<PointerState>.Empty);
+
+            DispatchPointer(ref pe);
+        }
+
         private void DispatchPointer(ref PointerEventRef e)
         {
-            View? targetView = null;
+            // TODO: This is a solid breakdown of what we need to do here...
+            // Pretty broken... For each pointer, we need a linked list of elements that had been "entered",
+            // then on move (or down, or up, or lost capture) reevaluate the elements under the pointer,
+            // calculate diff - and dispatch leave on the old element and enter on the new elements,
+            // while not dispatching anything on common root element. 
 
-            if (_pointerTracking.TryGetValue(e.PointerId, out var tracking) && tracking.Captured != null)
+            if (!_pointerTracking.TryGetValue(e.PointerId, out var tracking))
             {
+                _pointerTracking[e.PointerId] = tracking = new PointerTracking();
+            }
+
+            View? targetView;
+
+            if (tracking.Captured != null)
+            {
+                // Pointer is captured — force target to captured view
                 targetView = tracking.Captured;
             }
             else
             {
+                // Perform hit test
                 targetView = HitTest(_rootView, e.State.Position);
+
+                // Handle pointerout/pointerover (only when not captured)
+                if (tracking.OverTarget != targetView)
+                {
+                    if (tracking.OverTarget != null)
+                    {
+                        var outEvent = new PointerEventRef(
+                            PointerEventType.Out,
+                            e.PointerId,
+                            e.PersistentDeviceId,
+                            e.IsPrimary,
+                            e.State,
+                            ReadOnlySpan<PointerState>.Empty,
+                            ReadOnlySpan<PointerState>.Empty);
+                        tracking.OverTarget.OnPointerEvent(ref outEvent, EventPhase.Bubble);
+                    }
+
+                    if (targetView != null)
+                    {
+                        var overEvent = new PointerEventRef(
+                            PointerEventType.Over,
+                            e.PointerId,
+                            e.PersistentDeviceId,
+                            e.IsPrimary,
+                            e.State,
+                            ReadOnlySpan<PointerState>.Empty,
+                            ReadOnlySpan<PointerState>.Empty);
+                        targetView.OnPointerEvent(ref overEvent, EventPhase.Bubble);
+                    }
+
+                    tracking = _pointerTracking[e.PointerId];
+                    tracking.OverTarget = targetView;
+                    _pointerTracking[e.PointerId] = tracking;
+                }
+
+                // Handle pointerenter/pointerleave (only when not captured)
+                if (tracking.PreviousTarget != targetView)
+                {
+                    if (tracking.PreviousTarget != null)
+                    {
+                        var leaveEvent = new PointerEventRef(
+                            PointerEventType.Leave,
+                            e.PointerId,
+                            e.PersistentDeviceId,
+                            e.IsPrimary,
+                            e.State,
+                            ReadOnlySpan<PointerState>.Empty,
+                            ReadOnlySpan<PointerState>.Empty);
+                        tracking.PreviousTarget.OnPointerEvent(ref leaveEvent, EventPhase.Bubble);
+                    }
+
+                    if (targetView != null)
+                    {
+                        var enterEvent = new PointerEventRef(
+                            PointerEventType.Enter,
+                            e.PointerId,
+                            e.PersistentDeviceId,
+                            e.IsPrimary,
+                            e.State,
+                            ReadOnlySpan<PointerState>.Empty,
+                            ReadOnlySpan<PointerState>.Empty);
+                        targetView.OnPointerEvent(ref enterEvent, EventPhase.Tunnel);
+                    }
+
+                    tracking = _pointerTracking[e.PointerId];
+                    tracking.PreviousTarget = targetView;
+                    _pointerTracking[e.PointerId] = tracking;
+                }
             }
 
             if (targetView == null)
                 return;
 
-            // Build the route from root to target
+            // Route event to target
             var route = BuildRoute(targetView);
 
-            // Tunneling phase (root ➔ target)
             for (int i = 0; i < route.Count; i++)
-            {
-                route[i].RaisePointerEvent(ref e, EventPhase.Tunnel);
-            }
+                route[i].OnPointerEvent(ref e, EventPhase.Tunnel);
 
-            // Bubbling phase (target ➔ root)
             for (int i = route.Count - 1; i >= 0; i--)
-            {
-                route[i].RaisePointerEvent(ref e, EventPhase.Bubble);
-            }
+                route[i].OnPointerEvent(ref e, EventPhase.Bubble);
 
-            // Update last known position
-            if (_pointerTracking.TryGetValue(e.PointerId, out tracking))
+            tracking = _pointerTracking[e.PointerId];
+            tracking.LastPosition = e.State.Position;
+            tracking.LastState = e.State;
+            _pointerTracking[e.PointerId] = tracking;
+        }
+
+        public void CapturePointer(View view, int pointerId)
+        {
+            if (_pointerTracking.TryGetValue(pointerId, out var tracking))
             {
-                tracking.LastPosition = e.State.Position;
-                _pointerTracking[e.PointerId] = tracking;
-            }
-            else
-            {
-                _pointerTracking[e.PointerId] = new PointerTracking
-                {
-                    Captured = null,
-                    PreviousTarget = null,
-                    LastPosition = e.State.Position
-                };
+                if (tracking.Captured == view)
+                    return;
+
+                tracking.Captured = view;
+                _pointerTracking[pointerId] = tracking;
+
+                var evt = new PointerEventRef(PointerEventType.GotCapture, pointerId, 0, true, tracking.LastState, ReadOnlySpan<PointerState>.Empty, ReadOnlySpan<PointerState>.Empty);
+                view.OnPointerEvent(ref evt, EventPhase.Bubble);
             }
         }
 
-        /// <summary>
-        /// Recursively performs hit-testing starting from the given view,
-        /// returning the deepest visible view under the specified position.
-        /// </summary>
-        /// <param name="view">The view to start hit-testing from.</param>
-        /// <param name="position">The global position to test.</param>
-        /// <returns>The deepest view under the point, or null if none hit.</returns>
+        public void ReleasePointer(View view, int pointerId)
+        {
+            if (_pointerTracking.TryGetValue(pointerId, out var tracking) && tracking.Captured == view)
+            {
+                tracking.Captured = null;
+                _pointerTracking[pointerId] = tracking;
+
+                var evt = new PointerEventRef(PointerEventType.LostCapture, pointerId, 0, true, tracking.LastState, ReadOnlySpan<PointerState>.Empty, ReadOnlySpan<PointerState>.Empty);
+                view.OnPointerEvent(ref evt, EventPhase.Bubble);
+            }
+        }
+
         private View? HitTest(View view, Point position)
         {
-            // Test children first (deepest views take priority)
             for (int i = view.Count - 1; i >= 0; i--)
             {
-                var child = view[i];
-                var result = HitTest(child, position);
-                if (result != null)
-                {
-                    return result;
-                }
+                var hit = HitTest(view[i], position);
+                if (hit != null)
+                    return hit;
             }
-
-            // Then test this view itself
-            if (view.HitTest(position))
-            {
-                return view;
-            }
-
-            return null;
+            return view.HitTest(position) ? view : null;
         }
 
-        /// <summary>
-        /// Builds the route from the root to the target view.
-        /// </summary>
         private List<View> BuildRoute(View target)
         {
             var route = new List<View>();
-
-            View? current = target;
-            while (current != null)
-            {
+            for (var current = target; current != null; current = current.Parent)
                 route.Insert(0, current);
-                current = current.Parent;
-            }
-
             return route;
         }
 
-        /// <summary>
-        /// Tracks information about a specific active pointer (touch, mouse, pen) for routing and event management.
-        /// </summary>
         private struct PointerTracking
         {
-            /// <summary>
-            /// The view that captured this pointer, if any.
-            /// </summary>
             public View? Captured;
-
-            /// <summary>
-            /// The last view hit by this pointer, used for enter/leave tracking.
-            /// </summary>
             public View? PreviousTarget;
-
-            /// <summary>
-            /// The last known position of the pointer in global window coordinates.
-            /// </summary>
+            public View? OverTarget;
             public Point LastPosition;
+            public PointerState LastState;
         }
     }
 }

@@ -57,7 +57,7 @@
     <!-- Add your PackageReferences here -->
 
     <!-- Core -->
-    <ProjectReference Include="../../Core/Core/Xui.Core.csproj" />
+    <ProjectReference Include="../../Core/Core/Core.csproj" />
 
     <!-- Middleware -->
     <ProjectReference

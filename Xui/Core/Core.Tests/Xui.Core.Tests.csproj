@@ -15,16 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Core/Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Using Include="Xunit" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="UI/" />
-    <Folder Include="UI/Layout/" />
+    <ProjectReference Include="../Core/Xui.Core.csproj" />
   </ItemGroup>
 
 </Project>
