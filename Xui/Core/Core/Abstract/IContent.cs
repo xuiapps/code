@@ -6,8 +6,10 @@ namespace Xui.Core.Abstract;
 
 public partial interface IContent
 {
-    Window Window { get; }
+    // Actual
+    void Invalidate();
 
+    // Abstract
     void OnMouseDown(ref MouseDownEventRef e);
 
     void OnMouseMove(ref MouseMoveEventRef e);

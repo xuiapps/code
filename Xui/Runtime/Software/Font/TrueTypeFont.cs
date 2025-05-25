@@ -107,7 +107,6 @@ public partial class TrueTypeFont
         {
             emAscent = OS2.TypoAscender * scale;
             emDescent = -OS2.TypoDescender * scale;
-            alphaBaseline = 0;
             hangingBaseline = OS2.TypoAscender != 0 ? OS2.TypoAscender * scale : emAscent * 0.8f;
             ideographicBaseline = emDescent;
         }
@@ -119,7 +118,25 @@ public partial class TrueTypeFont
             ideographicBaseline = emDescent;
         }
 
-        var lineHeight = font.LineHeight;
+        nfloat lineHeight;
+
+        if (!nfloat.IsNaN(font.LineHeight))
+        {
+            lineHeight = font.LineHeight;
+        }
+        else
+        {
+            // If LineGap is available, compute true line height from metrics
+            if (Hhea.LineGap > 0)
+            {
+                lineHeight = (Hhea.Ascender - Hhea.Descender + Hhea.LineGap) * scale;
+            }
+            else
+            {
+                // Fallback multiplier (typical is 1.2×)
+                lineHeight = font.FontSize * 1.2f;
+            }
+        }
 
         return new FontMetrics(
             fontAscent,

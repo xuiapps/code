@@ -52,6 +52,7 @@ public class ViewCollectionAlignmentExample : Example
             Content =
             new Label
             {
+                FontFamily = ["Inter"],
                 Text = label,
                 FontSize = 12,
                 HorizontalAlignment = Center,

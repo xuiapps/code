@@ -46,7 +46,7 @@ namespace Xui.Core.UI
         /// <summary>
         /// Gets or sets the line height of the text.
         /// </summary>
-        public nfloat LineHeight { get; set; } = 18;
+        public nfloat LineHeight { get; set; } = nfloat.NaN;
 
         /// <inheritdoc/>
         protected override Size MeasureCore(Size availableBorderEdgeSize, IMeasureContext context)
@@ -57,6 +57,7 @@ namespace Xui.Core.UI
                 FontSize = this.FontSize,
                 FontStyle = this.FontStyle,
                 FontWeight = this.FontWeight,
+                // TODO: If LineHeight is not set - use FontSize * something...
                 LineHeight = this.LineHeight,
                 FontStretch = this.FontStretch
             });

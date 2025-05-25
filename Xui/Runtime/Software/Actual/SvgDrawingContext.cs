@@ -66,25 +66,28 @@ public sealed class SvgDrawingContext : IContext, IDisposable
     private SvgFontResolver resolver;
     private readonly HashSet<FontFace> emittedFontFaces = new(); // to avoid duplicate @font-face
 
+    private NumericFormat numericFormat;
+
     // Holds resolved font emission mode per FontFace to avoid recomputing.
     private readonly Dictionary<FontFace, Resolved> fontModeCache = new();
 
     private FontSnapshot font = new FontSnapshot();
 
-    public SvgDrawingContext(Size canvasSize, Stream output, IEnumerable<Uri> fontUris, SvgFontResolver? resolver = null, bool keepOpen = false)
-        : this(canvasSize, output, new Catalog(fontUris), resolver, keepOpen)
+    public SvgDrawingContext(Size canvasSize, Stream output, IEnumerable<Uri> fontUris, SvgFontResolver? resolver = null, NumericFormat? numericFormat = null, bool keepOpen = false)
+        : this(canvasSize, output, new Catalog(fontUris), resolver, numericFormat, keepOpen)
     {
     }
 
     public SvgDrawingContext(Size canvasSize, Stream output, bool keepOpen = false)
-        : this(canvasSize, output, (Catalog?)null, (SvgFontResolver?)null, keepOpen)
+        : this(canvasSize, output, (Catalog?)null, (SvgFontResolver?)null, (NumericFormat?)null, keepOpen)
     {
     }
 
-    public SvgDrawingContext(Size canvasSize, Stream output, Catalog? catalog, SvgFontResolver? resolver = null, bool keepOpen = false)
+    public SvgDrawingContext(Size canvasSize, Stream output, Catalog? catalog, SvgFontResolver? resolver = null, NumericFormat? numericFormat = null, bool keepOpen = false)
     {
         this.catalog = catalog ?? new Catalog();
         this.resolver = resolver ?? SvgFontResolver.Default;
+        this.numericFormat = numericFormat ?? NumericFormat.Default;
 
         this.stream = output ?? throw new ArgumentNullException(nameof(output));
 
@@ -802,8 +805,7 @@ public sealed class SvgDrawingContext : IContext, IDisposable
         currentPoint = (x + tl, y);
     }
 
-    private static string F(nfloat value) =>
-        value.ToString("G", System.Globalization.CultureInfo.InvariantCulture);
+    private string F(nfloat value) => numericFormat.Format(value);
 
     private void PushGroup(AffineTransform? localTransform = null, string? clipPathId = null)
     {
@@ -848,7 +850,7 @@ public sealed class SvgDrawingContext : IContext, IDisposable
         }
     }
 
-    private static string FormatTransform(AffineTransform t)
+    private string FormatTransform(AffineTransform t)
     {
         if (t.B == 0 && t.C == 0)
         {
@@ -976,6 +978,19 @@ public sealed class SvgDrawingContext : IContext, IDisposable
                 for (int i = 0; i < span.Length; i++)
                     FontFamily.Add(span[i]);
             }
+        }
+    }
+
+    public abstract class NumericFormat
+    {
+        public abstract string Format(nfloat number);
+
+        public static NumericFormat Default { get; } = new AngleFriendlyFormat();
+
+        private sealed class AngleFriendlyFormat : NumericFormat
+        {
+            public override string Format(nfloat value) =>
+                value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
         }
     }
 

@@ -15,7 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../../Apps/TestApp/TestApp.Desktop.csproj" />
+    <ProjectReference Include="../../Core/Fonts/Xui.Core.Fonts.csproj" />
     <ProjectReference Include="../../Core/Xui.Core.csproj" />
+    <ProjectReference Include="../../Runtime/Software/Xui.Runtime.Software.csproj" />
     <ProjectReference Include="../../Runtime/Xui.Runtime.Software.csproj" />
   </ItemGroup>
 

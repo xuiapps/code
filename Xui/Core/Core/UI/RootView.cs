@@ -37,8 +37,6 @@ public class RootView : View, IContent
 
     public override View this[int index] => index == 0 && this.Content is not null ? this.Content : throw new IndexOutOfRangeException();
 
-    Window IContent.Window { get => this.Window; }
-
     public RootView(Window window)
     {
         this.Window = window;
@@ -91,6 +89,11 @@ public class RootView : View, IContent
     protected override void OnChildInvalidRender(View child)
     {
         base.OnChildInvalidRender(child);
+        ((IContent)this).Invalidate();
+    }
+
+    void IContent.Invalidate()
+    {
         this.Window.Invalidate();
     }
 }
