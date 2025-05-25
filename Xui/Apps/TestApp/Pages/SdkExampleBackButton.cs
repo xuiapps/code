@@ -16,7 +16,7 @@ public class SdkExampleBackButton : Label
         this.Text = "< Back";
     }
 
-    private void NavigateToExample()
+    private void NavigateBack()
     {
         if (this.TryFindParent<SdkNavigation>(out var navigation))
         {
@@ -30,31 +30,29 @@ public class SdkExampleBackButton : Label
         {
             if (e.Type == PointerEventType.Enter)
             {
-                Window.OpenWindows[0].Invalidate();
                 hover = true;
+                this.InvalidateRender();
             }
             else if (e.Type == PointerEventType.Leave)
             {
-                Window.OpenWindows[0].Invalidate();
                 hover = false;
+                this.InvalidateRender();
             }
             else if (phase == EventPhase.Tunnel && e.Type == PointerEventType.Down)
             {
-                Window window = Window.OpenWindows[0];
-                window.Invalidate();
-                window.EventRouter?.CapturePointer(this, e.PointerId);
+                this.CapturePointer(e.PointerId);
 
                 pressed = true;
+                this.InvalidateRender();
             }
             else if (phase == EventPhase.Tunnel && e.Type == PointerEventType.Up)
             {
-                Window window = Window.OpenWindows[0];
-                window.Invalidate();
-                window.EventRouter?.ReleasePointer(this, e.PointerId);
+                this.ReleasePointer(e.PointerId);
+
+                this.NavigateBack();
 
                 pressed = false;
-
-                this.NavigateToExample();
+                this.InvalidateRender();
             }
         }
 

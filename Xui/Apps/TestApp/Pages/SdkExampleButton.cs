@@ -2,7 +2,6 @@ using Xui.Core.Canvas;
 using Xui.Core.UI;
 using Xui.Core.UI.Input;
 using static Xui.Core.Canvas.Colors;
-using Xui.Core.Abstract;
 using Xui.Apps.TestApp.Examples;
 
 namespace Xui.Apps.TestApp.Pages;
@@ -27,31 +26,29 @@ public class SdkExampleButton<TPage> : Label
         {
             if (e.Type == PointerEventType.Enter)
             {
-                Window.OpenWindows[0].Invalidate();
                 hover = true;
+                this.InvalidateRender();
             }
             else if (e.Type == PointerEventType.Leave)
             {
-                Window.OpenWindows[0].Invalidate();
                 hover = false;
+                this.InvalidateRender();
             }
             else if (phase == EventPhase.Tunnel && e.Type == PointerEventType.Down)
             {
-                Window window = Window.OpenWindows[0];
-                window.Invalidate();
-                window.EventRouter?.CapturePointer(this, e.PointerId);
+                this.CapturePointer(e.PointerId);
 
                 pressed = true;
+                this.InvalidateRender();
             }
             else if (phase == EventPhase.Tunnel && e.Type == PointerEventType.Up)
             {
-                Window window = Window.OpenWindows[0];
-                window.Invalidate();
-                window.EventRouter?.ReleasePointer(this, e.PointerId);
-
-                pressed = false;
+                this.ReleasePointer(e.PointerId);
 
                 this.NavigateToExample();
+
+                pressed = false;
+                this.InvalidateRender();
             }
         }
 

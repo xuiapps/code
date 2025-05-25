@@ -2,6 +2,8 @@ using Xui.Core.UI;
 using static Xui.Core.Canvas.Colors;
 using static Xui.Core.Canvas.FontWeight;
 using static Xui.Core.Canvas.FontStyle;
+using static Xui.Core.UI.HorizontalAlignment;
+using static Xui.Core.UI.VerticalAlignment;
 
 namespace Xui.Apps.TestApp.Examples;
 
@@ -21,6 +23,7 @@ public class TextLayoutExample : Example
                     BorderColor = Gray,
                     BorderThickness = 1,
                     BackgroundColor = LightGray,
+                    HorizontalAlignment = Left,
                     Content = new Label {
                         Text = "Normal text, 14pt",
                         FontSize = 14
@@ -32,6 +35,7 @@ public class TextLayoutExample : Example
                     BorderColor = Gray,
                     BorderThickness = 1,
                     BackgroundColor = LightGray,
+                    HorizontalAlignment = Left,
                     Content = new Label {
                         Text = "Bold text, 16pt",
                         FontSize = 16,
@@ -44,6 +48,7 @@ public class TextLayoutExample : Example
                     BorderColor = Gray,
                     BorderThickness = 1,
                     BackgroundColor = LightGray,
+                    HorizontalAlignment = Left,
                     Content = new Label {
                         Text = "Italic text, 18pt",
                         FontSize = 18,
@@ -56,6 +61,7 @@ public class TextLayoutExample : Example
                     BorderColor = Gray,
                     BorderThickness = 1,
                     BackgroundColor = LightGray,
+                    HorizontalAlignment = Left,
                     Content = new Label {
                         Text = "Bold + Italic, 20pt",
                         FontSize = 20,
@@ -69,6 +75,7 @@ public class TextLayoutExample : Example
                     BorderColor = Gray,
                     BorderThickness = 1,
                     BackgroundColor = LightGray,
+                    HorizontalAlignment = Left,
                     Content = new Label {
                         Text = "Larger text, 24pt",
                         FontSize = 24,

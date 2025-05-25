@@ -3,7 +3,6 @@ using Xui.Core.Abstract.Events;
 using Xui.Core.Actual;
 using Xui.Core.Math2D;
 using Xui.Core.UI;
-using Xui.Core.UI.Input;
 
 namespace Xui.Core.Abstract;
 
@@ -19,8 +18,6 @@ namespace Xui.Core.Abstract;
 public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
 {
     private static IList<Window> openWindows = new List<Window>();
-
-    public EventRouter? EventRouter { get; private set; }
 
     /// <summary>
     /// Gets a read-only list of all currently open Xui windows.
@@ -38,10 +35,9 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
     /// <inheritdoc/>
     public virtual Rect SafeArea { get; set; }
 
-    /// <summary>
-    /// The root view of the window's content hierarchy.
-    /// </summary>
-    public virtual View? Content { get; set; }
+    public RootView RootView { get; }
+
+    public View Content { init => this.RootView.Content = value; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Window"/> class.
@@ -50,6 +46,7 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
     public Window()
     {
         this.Actual = this.CreateActualWindow();
+        this.RootView = new RootView(this);
     }
 
     /// <summary>
@@ -82,28 +79,8 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
     /// <inheritdoc/>
     public virtual void Render(ref RenderEventRef renderEventRef)
     {
-        if (this.Content != null)
-        {
-            using var context = Runtime.Current.DrawingContext;
-
-            this.Content.Update(new LayoutGuide()
-            {
-                Anchor = (0, 0),
-                Pass =
-                    LayoutGuide.LayoutPass.Arrange |
-                    LayoutGuide.LayoutPass.Measure |
-                    LayoutGuide.LayoutPass.Render,
-                AvailableSize = renderEventRef.Rect.Size,
-                MeasureContext = context,
-                XAlign = LayoutGuide.Align.Start,
-                YAlign = LayoutGuide.Align.Start,
-                XSize = LayoutGuide.SizeTo.Exact,
-                YSize = LayoutGuide.SizeTo.Exact,
-                RenderContext = context,
-            });
-
-            this.EventRouter ??= new EventRouter(this.Content);
-        }
+        using var context = Runtime.Current.DrawingContext;
+        ((IContent)this.RootView).Update(renderEventRef.Rect, context);
     }
 
     /// <inheritdoc/>
@@ -135,19 +112,19 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
     /// <inheritdoc/>
     public virtual void OnMouseDown(ref MouseDownEventRef e)
     {
-        this.EventRouter?.Dispatch(ref e);
+        ((IContent)this.RootView).OnMouseDown(ref e);
     }
 
     /// <inheritdoc/>
     public virtual void OnMouseMove(ref MouseMoveEventRef e)
     {
-        this.EventRouter?.Dispatch(ref e);
+        ((IContent)this.RootView).OnMouseMove(ref e);
     }
 
     /// <inheritdoc/>
     public virtual void OnMouseUp(ref MouseUpEventRef e)
     {
-        this.EventRouter?.Dispatch(ref e);
+        ((IContent)this.RootView).OnMouseUp(ref e);
     }
 
     /// <inheritdoc/>
@@ -158,7 +135,7 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
     /// <inheritdoc/>
     public virtual void OnTouch(ref TouchEventRef e)
     {
-        this.EventRouter?.Dispatch(ref e);
+        ((IContent)this.RootView).OnTouch(ref e);
     }
 
     /// <inheritdoc/>
