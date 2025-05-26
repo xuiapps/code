@@ -33,12 +33,12 @@ public readonly struct TextMetrics
     /// </summary>
     public Rect BoundingBox => new Rect(
         x: Line.ActualBoundingBoxLeft,
-        y: -Line.ActualBoundingBoxAscent,
+        y: -Font.FontBoundingBoxAscent,
         width: Line.ActualBoundingBoxRight - Line.ActualBoundingBoxLeft,
-        height: Line.ActualHeight
+        height: Font.FontBoundingBoxAscent + Font.FontBoundingBoxDescent
     );
 
-    public Size Size => new Size(this.Line.Width, this.Font.LineHeight);
+    public Size Size => new Size(this.Line.Width, this.Font.Height);
 
     /// <summary>
     /// Implicitly converts the text metrics to a <see cref="Size"/>, using the
@@ -46,5 +46,5 @@ public readonly struct TextMetrics
     /// how far the cursor should advance, not the visual width.
     /// </summary>
     public static implicit operator Size(TextMetrics metrics) =>
-        new Size(metrics.Line.Width, metrics.Font.LineHeight);
+        new Size(metrics.Line.Width, metrics.Font.Height);
 }

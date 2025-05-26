@@ -122,12 +122,12 @@ public class Catalog
         return score;
     }
 
-    public TextMetrics MeasureText(in Core.Canvas.Font font, string text)
+    public TextMetrics MeasureText(in Core.Canvas.Font font, string text, TextAlign textAlign = TextAlign.Left, TextBaseline textBaseline = TextBaseline.Alphabetic)
     {
         var ttf = FontForFace(ToFace(in font));
         if (ttf is not null)
         {
-            return ttf.MeasureText(text, font);
+            return ttf.MeasureText(text, font, textAlign, textBaseline);
         }
 
         return default;

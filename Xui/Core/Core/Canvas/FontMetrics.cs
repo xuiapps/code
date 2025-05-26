@@ -18,11 +18,13 @@ public readonly struct FontMetrics
 
     /// <summary>
     /// Height from baseline to top of the em square.
+    /// Recommended for app layout.
     /// </summary>
     public readonly nfloat EmHeightAscent;
 
     /// <summary>
     /// Height from baseline to bottom of the em square.
+    /// Recommended for app layout.
     /// </summary>
     public readonly nfloat EmHeightDescent;
 
@@ -42,20 +44,9 @@ public readonly struct FontMetrics
     public readonly nfloat IdeographicBaseline;
 
     /// <summary>
-    /// Total line height used for layout purposes, typically equal to or greater than the font's em height.
-    /// This value reflects the line spacing set by the user or framework, not derived from glyph bounds.
-    /// </summary>
-    public readonly nfloat LineHeight;
-
-    /// <summary>
     /// Total height of the font bounding box.
     /// </summary>
-    public nfloat FontBoundingBoxHeight => FontBoundingBoxAscent + FontBoundingBoxDescent;
-
-    /// <summary>
-    /// Total height of the em box.
-    /// </summary>
-    public nfloat EmHeight => EmHeightAscent + EmHeightDescent;
+    public nfloat Height => this.EmHeightAscent + this.EmHeightDescent;
 
     /// <summary>
     /// Initializes a new <see cref="FontMetrics"/> instance.
@@ -67,7 +58,6 @@ public readonly struct FontMetrics
     /// <param name="alphabeticBaseline">Position of the alphabetic baseline (typically 0).</param>
     /// <param name="hangingBaseline">Position of the hanging baseline for scripts that use it.</param>
     /// <param name="ideographicBaseline">Position of the ideographic baseline for CJK layout.</param>
-    /// <param name="lineHeight">Total line height to be used for layout spacing, including any extra leading or padding.</param>
     public FontMetrics(
         nfloat fontAscent,
         nfloat fontDescent,
@@ -75,8 +65,7 @@ public readonly struct FontMetrics
         nfloat emDescent,
         nfloat alphabeticBaseline,
         nfloat hangingBaseline,
-        nfloat ideographicBaseline,
-        nfloat lineHeight)
+        nfloat ideographicBaseline)
     {
         FontBoundingBoxAscent = fontAscent;
         FontBoundingBoxDescent = fontDescent;
@@ -85,6 +74,5 @@ public readonly struct FontMetrics
         AlphabeticBaseline = alphabeticBaseline;
         HangingBaseline = hangingBaseline;
         IdeographicBaseline = ideographicBaseline;
-        LineHeight = lineHeight;
     }
 }

@@ -12,6 +12,7 @@ public class NestedStacksExampleTest
     [InlineData("NestedStacksExample", typeof(NestedStacksExample))]
     [InlineData("TextLayoutExample", typeof(TextLayoutExample))]
     [InlineData("ViewCollectionAlignmentExample", typeof(ViewCollectionAlignmentExample))]
+    [InlineData("TextMetricsExample", typeof(TextMetricsExample))]
     public void SvgExampleSnapshotTest(string name, Type type)
     {
         var view = (View)Activator.CreateInstance(type)!;

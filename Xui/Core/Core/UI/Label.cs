@@ -44,8 +44,13 @@ namespace Xui.Core.UI
         public FontStretch FontStretch { get; set; } = FontStretch.Normal;
 
         /// <summary>
-        /// Gets or sets the line height of the text.
+        /// Gets or sets the line height of the text, in user units.
         /// </summary>
+        /// <remarks>
+        /// If set to a numeric value, this value overrides the default line height computation from the font metrics.
+        /// If set to <see cref="nfloat.NaN"/>, the line height will be automatically computed based on the font's ascender,
+        /// descender, and line gap, or fallback to a platform-specific multiplier of the <see cref="Font.FontSize"/> (typically 1.2×).
+        /// </remarks>
         public nfloat LineHeight { get; set; } = nfloat.NaN;
 
         /// <inheritdoc/>
@@ -57,7 +62,6 @@ namespace Xui.Core.UI
                 FontSize = this.FontSize,
                 FontStyle = this.FontStyle,
                 FontWeight = this.FontWeight,
-                // TODO: If LineHeight is not set - use FontSize * something...
                 LineHeight = this.LineHeight,
                 FontStretch = this.FontStretch
             });

@@ -16,6 +16,9 @@ public class TextLayout
     private readonly TrueTypeFont _font;
     private readonly NFloat _scale;
 
+    private TextAlign textAlign = TextAlign.Left;
+    private TextBaseline textBaseline = TextBaseline.Alphabetic;
+
     public IReadOnlyList<GlyphPosition> Glyphs => _glyphs;
 
     /// <summary>
@@ -27,8 +30,11 @@ public class TextLayout
     {
     }
 
-    public TextLayout(TrueTypeFont font, string text, nfloat fontSize)
+    public TextLayout(TrueTypeFont font, string text, nfloat fontSize, TextAlign textAlign = TextAlign.Left, TextBaseline textBaseline = TextBaseline.Alphabetic)
     {
+        this.textAlign = textAlign;
+        this.textBaseline = textBaseline;
+
         _font = font ?? throw new ArgumentNullException(nameof(font));
 
         if (font.Head == null || font.Cmap == null || font.Hmtx == null)
@@ -39,8 +45,8 @@ public class TextLayout
         NFloat x = 0;
         NFloat boundingBoxLeft = 0;
         NFloat boundingBoxRight = 0;
-        NFloat boundingBoxAscent = 0;
-        NFloat boundingBoxDescent = 0;
+        NFloat boundingBoxTop = 0;
+        NFloat boundingBoxBottom = 0;
 
         char? prevChar = null;
 
@@ -62,22 +68,30 @@ public class TextLayout
             if (font.TryGetGlyph(id, out var glyph))
             {
                 var bounds = glyph.Bounds;
-                var scaledLeft   = x + bounds.Left * _scale;
-                var scaledRight  = x + bounds.Right * _scale;
-                var scaledAscent = -bounds.Top * _scale;
-                var scaledDescent = bounds.Bottom * _scale;
+                var scaledLeft   = x + bounds.XMin * _scale;
+                var scaledRight  = x + bounds.XMax * _scale;
+                var scaledTop = bounds.YMax * _scale;
+                var scaledBottom = bounds.YMin * _scale;
 
                 boundingBoxLeft = nfloat.Min(boundingBoxLeft, scaledLeft);
                 boundingBoxRight = nfloat.Max(boundingBoxRight, scaledRight);
-                boundingBoxAscent = nfloat.Max(boundingBoxAscent, scaledAscent);
-                boundingBoxDescent = nfloat.Max(boundingBoxDescent, scaledDescent);
+                boundingBoxTop = nfloat.Max(boundingBoxTop, scaledTop);
+                boundingBoxBottom = nfloat.Max(boundingBoxBottom, scaledBottom);
             }
 
             x += metric.AdvanceWidth * _scale;
             prevChar = ch;
         }
 
-        LineMetrics = new LineMetrics(x, boundingBoxLeft, boundingBoxRight, boundingBoxAscent, boundingBoxDescent);
+        // Horizontal alignment offset
+        nfloat dx = textAlign switch
+        {
+            TextAlign.Center => x / 2,
+            TextAlign.Right => x,
+            _ => 0
+        };
+
+        LineMetrics = new LineMetrics(x, boundingBoxLeft + dx, boundingBoxRight - dx, boundingBoxTop, boundingBoxBottom);
     }
 
     /// <summary>

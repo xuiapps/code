@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Text Metrics Visualizer</title>
+  <style>
+    body { background: #eee; margin: 0; padding: 2em; font-family: sans-serif; }
+    canvas { background: #fff; border: 1px solid #ccc; display: block; margin: auto; }
+  </style>
+</head>
+<body>
+<canvas id="canvas" width="900" height="400"></canvas>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+ctx.font = "128px Inter, sans-serif";
+ctx.textAlign = "center";
+ctx.textBaseline = "alphabetic";
+
+const centerX = canvas.width / 2;
+const centerY = canvas.height / 2;
+
+const metrics = ctx.measureText("Hello World!");
+
+// Draw the text
+ctx.fillStyle = "black";
+ctx.fillText("Hello World!", centerX, centerY);
+
+ctx.beginPath();
+ctx.moveTo(centerX - 400, centerY - metrics.hangingBaseline);
+ctx.lineTo(centerX + 400, centerY - metrics.hangingBaseline);
+ctx.strokeStyle = "blue";
+ctx.lineWidth = 1;
+ctx.stroke();
+
+ctx.beginPath();
+ctx.moveTo(centerX - 400, centerY + metrics.alphabeticBaseline);
+ctx.lineTo(centerX + 400, centerY + metrics.alphabeticBaseline);
+ctx.strokeStyle = "black";
+ctx.lineWidth = 1;
+ctx.stroke();
+
+ctx.beginPath();
+ctx.moveTo(centerX - 400, centerY - metrics.ideographicBaseline);
+ctx.lineTo(centerX + 400, centerY - metrics.ideographicBaseline);
+ctx.strokeStyle = "green";
+ctx.lineWidth = 1;
+ctx.stroke();
+
+var emHeightBoundingBox = {
+    left: centerX - metrics.actualBoundingBoxLeft,
+    right: centerX + metrics.actualBoundingBoxRight,
+    top: centerY - metrics.emHeightAscent,
+    bottom: centerY + metrics.emHeightDescent
+};
+ctx.strokeStyle = "green";
+ctx.lineWidth = 5;
+ctx.strokeRect(emHeightBoundingBox.left, emHeightBoundingBox.top, emHeightBoundingBox.right - emHeightBoundingBox.left, emHeightBoundingBox.bottom - emHeightBoundingBox.top);
+
+
+var boundingBox = {
+    left: centerX - metrics.actualBoundingBoxLeft,
+    right: centerX + metrics.actualBoundingBoxRight,
+    top: centerY - metrics.fontBoundingBoxAscent,
+    bottom: centerY + metrics.fontBoundingBoxDescent
+};
+ctx.strokeStyle = "orange";
+ctx.lineWidth = 3;
+ctx.strokeRect(boundingBox.left, boundingBox.top, boundingBox.right - boundingBox.left, boundingBox.bottom - boundingBox.top);
+
+var actualBoundingBox = {
+    left: centerX - metrics.actualBoundingBoxLeft,
+    right: centerX + metrics.actualBoundingBoxRight,
+    top: centerY - metrics.actualBoundingBoxAscent,
+    bottom: centerY + metrics.actualBoundingBoxDescent
+};
+ctx.strokeStyle = "red";
+ctx.lineWidth = 1;
+ctx.strokeRect(actualBoundingBox.left, actualBoundingBox.top, actualBoundingBox.right - actualBoundingBox.left, actualBoundingBox.bottom - actualBoundingBox.top);
+
+</script>
+</body>
+</html>

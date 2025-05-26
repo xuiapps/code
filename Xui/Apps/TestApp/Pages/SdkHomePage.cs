@@ -14,6 +14,11 @@ public class SdkHomePage : VerticalStack
             FontSize = 24,
             FontWeight = Bold
         });
+        this.Add(new SdkExampleButton<TextMetricsExample>()
+        {
+            Margin = 3,
+            Text = "TextMetrics",
+        });
         this.Add(new SdkExampleButton<TextLayoutExample>()
         {
             Margin = 3,

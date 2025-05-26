@@ -1,17 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
-  <rect x="7" y="7" width="124.53" height="28.8" fill="#D3D3D3" />
-  <rect x="6.5" y="6.5" width="125.53" height="29.8" fill="none" stroke="#808080" />
+  <rect x="7" y="7" width="124.53" height="28.94" fill="#D3D3D3" />
+  <rect x="6.5" y="6.5" width="125.53" height="29.94" fill="none" stroke="#808080" />
   <text x="13" y="13" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Inter">Normal text, 14pt</text>
-  <rect x="7" y="49.8" width="123.26" height="31.2" fill="#D3D3D3" />
-  <rect x="6.5" y="49.3" width="124.26" height="32.2" fill="none" stroke="#808080" />
-  <text x="13" y="55.8" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="16" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight">Bold text, 16pt</text>
-  <rect x="7" y="95" width="135.35" height="33.6" fill="#D3D3D3" />
-  <rect x="6.5" y="94.5" width="136.35" height="34.6" fill="none" stroke="#808080" />
-  <text x="13" y="101" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="18" font-family="Inter" font-style="italic">Italic text, 18pt</text>
-  <rect x="7" y="142.6" width="184.31" height="36" fill="#D3D3D3" />
-  <rect x="6.5" y="142.1" width="185.31" height="37" fill="none" stroke="#808080" />
-  <text x="13" y="148.6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="20" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight" font-style="italic">Bold + Italic, 20pt</text>
-  <rect x="7" y="192.6" width="200.65" height="40.8" fill="#D3D3D3" />
-  <rect x="6.5" y="192.1" width="201.65" height="41.8" fill="none" stroke="#808080" />
-  <text x="13" y="198.6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="24" font-family="Inter">Larger text, 24pt</text>
+  <rect x="7" y="49.94" width="123.26" height="31.36" fill="#D3D3D3" />
+  <rect x="6.5" y="49.44" width="124.26" height="32.36" fill="none" stroke="#808080" />
+  <text x="13" y="55.94" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="16" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight">Bold text, 16pt</text>
+  <rect x="7" y="95.3" width="135.35" height="33.78" fill="#D3D3D3" />
+  <rect x="6.5" y="94.8" width="136.35" height="34.78" fill="none" stroke="#808080" />
+  <text x="13" y="101.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="18" font-family="Inter" font-style="italic">Italic text, 18pt</text>
+  <rect x="7" y="143.08" width="184.31" height="36.2" fill="#D3D3D3" />
+  <rect x="6.5" y="142.58" width="185.31" height="37.2" fill="none" stroke="#808080" />
+  <text x="13" y="149.08" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="20" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight" font-style="italic">Bold + Italic, 20pt</text>
+  <rect x="7" y="193.28" width="200.65" height="41.04" fill="#D3D3D3" />
+  <rect x="6.5" y="192.78" width="201.65" height="42.04" fill="none" stroke="#808080" />
+  <text x="13" y="199.28" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="24" font-family="Inter">Larger text, 24pt</text>
 </svg>

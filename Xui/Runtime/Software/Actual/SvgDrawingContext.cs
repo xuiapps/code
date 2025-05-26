@@ -614,7 +614,7 @@ public sealed class SvgDrawingContext : IContext, IDisposable
     TextMetrics ITextMeasureContext.MeasureText(string text)
     {
         Xui.Core.Canvas.Font font = this.font.Font;
-        TextMetrics textMetrics = this.catalog.MeasureText(in font, text);
+        TextMetrics textMetrics = this.catalog.MeasureText(in font, text, this.TextAlign, this.TextBaseline);
         return textMetrics;
     }
 

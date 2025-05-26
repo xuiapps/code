@@ -77,9 +77,9 @@ public partial class TrueTypeFont
         Face = FontFace(Head, Name, OS2);
     }
 
-    public TextMetrics MeasureText(string text, Xui.Core.Canvas.Font font)
+    public TextMetrics MeasureText(string text, Xui.Core.Canvas.Font font, TextAlign textAlign = TextAlign.Left, TextBaseline textBaseline = TextBaseline.Alphabetic)
     {
-        var layout = new TextLayout(this, text, font.FontSize);
+        var layout = new TextLayout(this, text, font.FontSize, textAlign, textBaseline);
         var lineMetrics = layout.LineMetrics;
         var fontMetrics = this.Metrics(font);
 
@@ -94,48 +94,27 @@ public partial class TrueTypeFont
         nfloat unitsPerEm = Head.UnitsPerEm;
         nfloat scale = font.FontSize / unitsPerEm;
 
-        nfloat fontAscent  = Hhea.Ascender * scale;
+        nfloat emAscent = Hhea.Ascender * scale;
+        nfloat emDescent = -Hhea.Descender * scale;
+
+        // nfloat fontAscent = Head.YMax * scale;
+        // nfloat fontDescent = -Head.YMin * scale;
+        nfloat fontAscent = Hhea.Ascender * scale;
         nfloat fontDescent = -Hhea.Descender * scale;
 
-        nfloat emAscent;
-        nfloat emDescent;
         nfloat alphaBaseline = 0;
         nfloat hangingBaseline;
         nfloat ideographicBaseline;
 
         if (OS2 is not null)
         {
-            emAscent = OS2.TypoAscender * scale;
-            emDescent = -OS2.TypoDescender * scale;
-            hangingBaseline = OS2.TypoAscender != 0 ? OS2.TypoAscender * scale : emAscent * 0.8f;
-            ideographicBaseline = emDescent;
+            hangingBaseline = OS2.TypoAscender != 0 ? -OS2.TypoAscender * scale : emAscent;
+            ideographicBaseline = OS2.TypoDescender != 0 ? -OS2.TypoDescender * scale : emDescent;
         }
         else
         {
-            emAscent = fontAscent;
-            emDescent = fontDescent;
-            hangingBaseline = emAscent * 0.8f;
-            ideographicBaseline = emDescent;
-        }
-
-        nfloat lineHeight;
-
-        if (!nfloat.IsNaN(font.LineHeight))
-        {
-            lineHeight = font.LineHeight;
-        }
-        else
-        {
-            // If LineGap is available, compute true line height from metrics
-            if (Hhea.LineGap > 0)
-            {
-                lineHeight = (Hhea.Ascender - Hhea.Descender + Hhea.LineGap) * scale;
-            }
-            else
-            {
-                // Fallback multiplier (typical is 1.2×)
-                lineHeight = font.FontSize * 1.2f;
-            }
+            hangingBaseline = emAscent;
+            ideographicBaseline = -emDescent;
         }
 
         return new FontMetrics(
@@ -145,8 +124,7 @@ public partial class TrueTypeFont
             emDescent,
             alphaBaseline,
             hangingBaseline,
-            ideographicBaseline,
-            lineHeight
+            ideographicBaseline
         );
     }
 

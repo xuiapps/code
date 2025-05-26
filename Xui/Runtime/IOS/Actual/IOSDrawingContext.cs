@@ -385,32 +385,59 @@ public class IOSDrawingContext : IContext
     {
         using var nsStringRef = new CFStringRef(text);
         using var attributes = new CFMutableDictionaryRef();
+
         using var foreground = new UIColorRef(this.fill.color);
         attributes.SetValue(NSAttributedString.Key.ForegroundColor, foreground);
+
         if (this.nsFont != 0)
         {
             attributes.SetValue(NSAttributedString.Key.Font, this.nsFont);
         }
 
+        // === Horizontal alignment ===
         Vector offset = (0, 0);
-        switch(this.TextAlign)
+        if (this.TextAlign != TextAlign.Left && this.TextAlign != TextAlign.Start)
         {
-            case TextAlign.Left:
-                break;
-            case TextAlign.Center:
-                offset.X +=
-                    ObjC.objc_msgSend_retCGSize(nsStringRef, NSString.SizeWithAttributesSel, attributes)
-                    .Width * -0.5f;;
-                break;
-            case TextAlign.Right:
-                offset.X += ObjC.objc_msgSend_retCGSize(nsStringRef, NSString.SizeWithAttributesSel, attributes)
-                    .Width * -1.0f;
-                break;
-            case TextAlign.Start:
-            case TextAlign.End:
-                throw new NotSupportedException();
+            var size = ObjC.objc_msgSend_retCGSize(nsStringRef, NSString.SizeWithAttributesSel, attributes);
+
+            switch (this.TextAlign)
+            {
+                case TextAlign.Center: offset.X -= size.Width * 0.5f; break;
+
+                case TextAlign.End: offset.X -= size.Width; break;
+                case TextAlign.Right: offset.X -= size.Width; break;
+
+                case TextAlign.Left: break;
+                case TextAlign.Start: break;
+            }
         }
 
+        // === Vertical alignment ===
+        if (this.TextBaseline != TextBaseline.Top)
+        {
+            if (this.nsFont != 0)
+            {
+                var ctFont = new CTFontRef(this.nsFont);
+
+                var ascent = ctFont.Ascent;
+                var descent = ctFont.Descent;
+                var leading = ctFont.Leading;
+                var lineHeight = ascent + descent + leading;
+
+                offset.Y -= this.TextBaseline switch
+                {
+                    TextBaseline.Top         => 0f, // Top already matches
+                    TextBaseline.Middle      => -ascent * 0.5f + descent * 0.5f,
+                    TextBaseline.Alphabetic  => ascent,
+                    TextBaseline.Hanging     => ascent - ctFont.CapHeight, // Cap height below top
+                    TextBaseline.Ideographic => ascent - ctFont.XHeight * 1.25f,
+                    TextBaseline.Bottom      => ascent + descent,
+                    _                        => ascent
+                };
+            }
+        }
+
+        // === Final draw ===
         NSString.objc_msgSend(nsStringRef, NSString.DrawAtPointWithAttributesSel, pos + offset, attributes);
     }
 
@@ -428,15 +455,22 @@ public class IOSDrawingContext : IContext
         using var line = CTLineRef.Create(attrString);
 
         // === Extract Line Metrics (accurate width, left/right bounds, ascent/descent) ===
-        var (ascent, descent, _) = line.GetVerticalMetrics();
-        Rect bounds = line.GetBounds(CoreText.CTLineRef.BoundsOptions.UseOpticalBounds);
+        Rect glyphBounds = line.GetBounds(CoreText.CTLineRef.BoundsOptions.UseGlyphPathBounds);
+        Rect opticalBounds = line.GetBounds(CoreText.CTLineRef.BoundsOptions.UseOpticalBounds);
+
+        NFloat alignOffset = this.TextAlign switch
+        {
+            TextAlign.Center => opticalBounds.Width * 0.5f,
+            TextAlign.Right  => opticalBounds.Width,
+            _ => 0f
+        };
 
         var lineMetrics = new LineMetrics(
-            width: line.GetWidth(),
-            left: bounds.X,
-            right: bounds.X + bounds.Width,
-            ascent: ascent,
-            descent: descent
+            width: opticalBounds.Width,
+            left: alignOffset,
+            right: opticalBounds.Width - alignOffset,
+            ascent: glyphBounds.Height + glyphBounds.Y,
+            descent: -glyphBounds.Y
         );
 
         // === Extract Font Metrics ===
@@ -445,22 +479,20 @@ public class IOSDrawingContext : IContext
         {
             var ct = new CTFontRef(this.nsFont);
 
-            var unitsPerEm = ct.UnitsPerEm;
-            var pointSize = ct.PointSize;
-            var scale = pointSize / unitsPerEm;
+            var ascent = ct.Ascent;
+            var descent = ct.Descent;
 
-            var emAscent = unitsPerEm * 0.8f * scale;
-            var emDescent = unitsPerEm * 0.2f * scale;
+            // Too complicated, reads font tables, accurate but...
+            // font = ct.FontMetrics;
 
             font = new FontMetrics(
-                fontAscent: ct.Ascent,
-                fontDescent: ct.Descent,
-                emAscent: emAscent,
-                emDescent: emDescent,
+                fontAscent: ascent,
+                fontDescent: descent,
+                emAscent: ascent,
+                emDescent: descent,
                 alphabeticBaseline: 0,
-                hangingBaseline: -ct.CapHeight,
-                ideographicBaseline: -ct.XHeight * 1.25f,
-                lineHeight: ct.Ascent + ct.Descent + ct.Leading
+                hangingBaseline: -ascent,
+                ideographicBaseline: descent
             );
         }
         else
