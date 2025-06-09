@@ -1,15 +1,18 @@
 using System;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
 using Xui.Core.Abstract.Events;
 using Xui.Core.Math2D;
 using static Xui.Runtime.MacOS.AppKit;
 using static Xui.Runtime.MacOS.AppKit.NSEventRef;
 using static Xui.Runtime.MacOS.CoreAnimation;
+using static Xui.Runtime.MacOS.CoreFoundation;
 using static Xui.Runtime.MacOS.Foundation;
 using static Xui.Runtime.MacOS.ObjC;
 
 namespace Xui.Runtime.MacOS.Actual;
 
-public class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
+public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
 {
     public static readonly Sel CloseSel = new Sel("close");
 
@@ -23,7 +26,7 @@ public class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
         .AddMethod("animationFrame:", AnimationFrame)
         .AddMethod("close", Close)
         .Register();
-    
+
     protected static void SendEvent(nint self, nint sel, nint e) =>
         Marshalling.Get<MacOSWindow>(self)
             .SendEvent(sel, new NSEventRef(e));
@@ -39,25 +42,30 @@ public class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
     private TimeSpan previousFrameTime;
     private TimeSpan nextFrameTime;
 
+    // Custom resize mechanism
+    private WindowHitTestEventRef.WindowArea _activeResizeEdge = WindowHitTestEventRef.WindowArea.Default;
+    private Point _resizeStartPoint;
+    private NSRect _resizeStartFrame;
+
     public static nint InitWithAbstract(Xui.Core.Abstract.IWindow @abstract)
     {
-        NSWindowStyleMask mask = 
+        NSWindowStyleMask mask =
             NSWindowStyleMask.Titled |
             NSWindowStyleMask.Closable |
             NSWindowStyleMask.Miniaturizable |
             NSWindowStyleMask.Resizable;
-        
+
         Rect rect = new Rect(200, 200, 600, 400);
-        
+
         if (@abstract is Xui.Core.Abstract.IWindow.IDesktopStyle dws)
         {
             if (dws.Chromeless)
             {
-                mask = 
-                    // NSWindowStyleMask.Titled |
-                    // NSWindowStyleMask.Closable |
-                    // NSWindowStyleMask.Miniaturizable |
-                    // NSWindowStyleMask.Resizable;
+                mask =
+                    NSWindowStyleMask.Titled |
+                    NSWindowStyleMask.Closable |
+                    NSWindowStyleMask.Miniaturizable |
+                    NSWindowStyleMask.Resizable |
                     NSWindowStyleMask.FullSizeContentView |
                     NSWindowStyleMask.Borderless;
             }
@@ -68,13 +76,15 @@ public class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
             }
         }
 
-        return InitWithContentRectStyleMaskBackingDefer(
+        nint windowIntPtr = InitWithContentRectStyleMaskBackingDefer(
             Class.Alloc(),
             rect: rect,
             nswindowstylemask: mask,
             nsbackingstoretype: NSBackingStoreType.Buffered,
             defer: false
         );
+
+        return windowIntPtr;
     }
 
     public MacOSWindow(Xui.Core.Abstract.IWindow @abstract) : base(InitWithAbstract(@abstract))
@@ -94,6 +104,15 @@ public class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
             this.BackgroundColor = transparent;
             this.TitleVisibility = NSWindowTitleVisibility.Hidden;
             this.TitlebarAppearsTransparent = true;
+            // this.HideTitleButtons();
+
+            this.StyleMask |= NSWindowStyleMask.FullSizeContentView;
+            this.Toolbar = new NSToolbar
+            {
+                ShowsBaselineSeparator = false,
+                Visible = true
+            };
+            this.ToolbarStyle = NSWindowToolbarStyle.Unified;
         }
 
         this.displayLink = CADisplayLink.DisplayLink(this, AnimationFrameSel);
@@ -113,25 +132,28 @@ public class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
     protected void SendEvent(nint sel, NSEventRef e)
     {
         var type = e.Type;
-        // System.Diagnostics.Debug.WriteLine("XuiWindow sendEvent " + type);
+        // if (type == NSEventType.AppKitDefined)
+        // {
+        //     System.Diagnostics.Debug.WriteLine("XuiWindow sendEvent " + type + " " + e.Subtype);
+        // }
+        // else
+        // {
+        //     System.Diagnostics.Debug.WriteLine("XuiWindow sendEvent " + type);
+        // }
+
         if (type == NSEventType.AppKitDefined)
         {
         }
         else if (type == NSEventType.MouseEntered)
         {
-            var rect =this.Rect;
-            WindowHitTestEventRef eventRef = new ()
+            var rect = this.Rect;
+            WindowHitTestEventRef eventRef = new()
             {
                 Area = WindowHitTestEventRef.WindowArea.Default,
                 Point = e.LocationInWindow,
                 Window = rect
             };
             this.Abstract.WindowHitTest(ref eventRef);
-            if (eventRef.Area != WindowHitTestEventRef.WindowArea.Default)
-            {
-                // TODO: Set mouse cursor and organize drag and resize...
-                // return;
-            }
         }
         else if (type == NSEventType.KeyDown || type == NSEventType.KeyUp)
         {
@@ -148,49 +170,70 @@ public class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
             var rect = this.Rect;
             var position = this.ContentView!.ConvertPointFromView(e.LocationInWindow, null);
 
-            WindowHitTestEventRef eventRef = new ()
+            WindowHitTestEventRef eventRef = new()
             {
                 Area = WindowHitTestEventRef.WindowArea.Default,
                 Point = position,
                 Window = new Rect(0, 0, rect.Size.width, rect.Size.height)
             };
-            this.Abstract.WindowHitTest(ref eventRef);
 
-            var evRef = new MouseMoveEventRef()
+            // Custom frame window chrome resizing.
+            if (type == NSEventType.LeftMouseDragged && _activeResizeEdge != WindowHitTestEventRef.WindowArea.Default)
             {
-                Position = position
-            };
-            this.Abstract.OnMouseMove(ref evRef);
-            // TODO: Consider the position reported by mouse move to update the cursor...
-
-            if (eventRef.Area != WindowHitTestEventRef.WindowArea.Default)
-            {
-                switch(eventRef.Area)
+                var delta = position - _resizeStartPoint;
+                switch (_activeResizeEdge)
                 {
-                    case WindowHitTestEventRef.WindowArea.BorderTopLeft:
-                    case WindowHitTestEventRef.WindowArea.BorderBottomRight:
-                        NSCursor._WindowResizeNorthWestSouthEastCursor.Set();
-                        break;
                     case WindowHitTestEventRef.WindowArea.BorderTopRight:
-                    case WindowHitTestEventRef.WindowArea.BorderBottomLeft:
-                        NSCursor._WindowResizeNorthEastSouthWestCursor.Set();
-                        break;
-                    case WindowHitTestEventRef.WindowArea.BorderTop:
-                    case WindowHitTestEventRef.WindowArea.BorderBottom:
-                        NSCursor._WindowResizeNorthSouthCursor.Set();
-                        break;
-                    case WindowHitTestEventRef.WindowArea.BorderLeft:
                     case WindowHitTestEventRef.WindowArea.BorderRight:
-                        NSCursor._WindowResizeEastWestCursor.Set();
+                    case WindowHitTestEventRef.WindowArea.BorderBottomRight:
+                        _resizeStartFrame.Size.width += delta.X;
+                        _resizeStartPoint.X += delta.X;
                         break;
-                    default:
-                        NSCursor.ArrowCursor.Set();
+                    case WindowHitTestEventRef.WindowArea.BorderTopLeft:
+                    case WindowHitTestEventRef.WindowArea.BorderLeft:
+                    case WindowHitTestEventRef.WindowArea.BorderBottomLeft:
+                        _resizeStartFrame.Size.width -= delta.X;
+                        _resizeStartFrame.Origin.x += delta.X;
                         break;
                 }
 
-                // TODO: Organize drag and resize...
-                // return;
+                switch (_activeResizeEdge)
+                {
+                    case WindowHitTestEventRef.WindowArea.BorderTopLeft:
+                    case WindowHitTestEventRef.WindowArea.BorderTop:
+                    case WindowHitTestEventRef.WindowArea.BorderTopRight:
+                        _resizeStartFrame.Size.height -= delta.Y;
+                        break;
+                    case WindowHitTestEventRef.WindowArea.BorderBottomLeft:
+                    case WindowHitTestEventRef.WindowArea.BorderBottom:
+                    case WindowHitTestEventRef.WindowArea.BorderBottomRight:
+                        _resizeStartFrame.Origin.y -= delta.Y;
+                        _resizeStartFrame.Size.height += delta.Y;
+                        _resizeStartPoint.Y += delta.Y;
+                        break;
+                }
+
+                ApplyNSCursor(_activeResizeEdge);
+                SetFrame(_resizeStartFrame, true);
+
+                eventRef.Area = _activeResizeEdge;
             }
+            else
+            {
+                this.Abstract.WindowHitTest(ref eventRef);
+
+                var evRef = new MouseMoveEventRef()
+                {
+                    Position = position
+                };
+                this.Abstract.OnMouseMove(ref evRef);
+            }
+
+            if (eventRef.Area != WindowHitTestEventRef.WindowArea.Default)
+            {
+                ApplyNSCursor(eventRef.Area);
+            }
+
             // Debug.WriteLine("XuiWindow sendEvent " + type + " " + point.x + " : " + point.y);
         }
         else if (type == NSEventType.ScrollWheel)
@@ -206,7 +249,7 @@ public class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
             var rect = this.Rect;
             var position = this.ContentView!.ConvertPointFromView(e.LocationInWindow, null);
 
-            WindowHitTestEventRef eventRef = new ()
+            WindowHitTestEventRef eventRef = new()
             {
                 Area = WindowHitTestEventRef.WindowArea.Default,
                 Point = position,
@@ -218,7 +261,7 @@ public class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
             {
                 Position = position
             };
-            switch(type)
+            switch (type)
             {
                 case NSEventType.LeftMouseDown:
                     evRef.Button = MouseButton.Left;
@@ -230,14 +273,50 @@ public class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
                     evRef.Button = MouseButton.Other;
                     break;
             }
-            this.Abstract.OnMouseDown(ref evRef);
+
+            if (type == NSEventType.LeftMouseDown &&
+                (eventRef.Area is
+                    WindowHitTestEventRef.WindowArea.BorderTop or
+                    WindowHitTestEventRef.WindowArea.BorderBottom or
+                    WindowHitTestEventRef.WindowArea.BorderLeft or
+                    WindowHitTestEventRef.WindowArea.BorderRight or
+                    WindowHitTestEventRef.WindowArea.BorderTopLeft or
+                    WindowHitTestEventRef.WindowArea.BorderTopRight or
+                    WindowHitTestEventRef.WindowArea.BorderBottomLeft or
+                    WindowHitTestEventRef.WindowArea.BorderBottomRight))
+            {
+                // Disable resizable as we will handle it in custom code...
+                this.StyleMask &= ~NSWindowStyleMask.Resizable;
+
+                _activeResizeEdge = eventRef.Area;
+                _resizeStartPoint = position;
+                _resizeStartFrame = this.Rect;
+            }
+            else if (type == NSEventType.LeftMouseDown &&
+                eventRef.Area is WindowHitTestEventRef.WindowArea.Title)
+            {
+                // TODO: If user clicked on the window chrome buttons - don't perform drag to allow close/miniaturize etc.
+
+                this.OrderFrontRegardless();
+                this.PerformDrag(e);
+
+                // TODO: If use clicked on the window border - return here to prevent default resize behavior
+                // return;
+            }
+            else
+            {
+                this.Abstract.OnMouseDown(ref evRef);
+            }
         }
         else if (type == NSEventType.LeftMouseUp || type == NSEventType.RightMouseUp || type == NSEventType.OtherMouseUp)
         {
+            // When custom resize is performed, and mouse is released - return resizable...
+            this.StyleMask |= NSWindowStyleMask.Resizable;
+
             var rect = this.Rect;
             var position = this.ContentView!.ConvertPointFromView(e.LocationInWindow, null);
 
-            WindowHitTestEventRef eventRef = new ()
+            WindowHitTestEventRef eventRef = new()
             {
                 Area = WindowHitTestEventRef.WindowArea.Default,
                 Point = position,
@@ -245,11 +324,19 @@ public class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
             };
             this.Abstract.WindowHitTest(ref eventRef);
 
+            if (e.Type == NSEventType.LeftMouseUp &&
+                e.ClickCount == 2 &&
+                eventRef.Area == WindowHitTestEventRef.WindowArea.Title &&
+                this.Abstract is Xui.Core.Abstract.IWindow.IDesktopStyle dws && dws.Chromeless)
+            {
+                this.PerformZoom();
+            }
+
             var evRef = new MouseUpEventRef()
             {
                 Position = position
             };
-            switch(type)
+            switch (type)
             {
                 case NSEventType.LeftMouseDown:
                     evRef.Button = MouseButton.Left;
@@ -261,6 +348,9 @@ public class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
                     evRef.Button = MouseButton.Other;
                     break;
             }
+
+            _activeResizeEdge = WindowHitTestEventRef.WindowArea.Default;
+
             this.Abstract.OnMouseUp(ref evRef);
         }
         else if (type == NSEventType.Pressure)
@@ -280,6 +370,37 @@ public class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
         // Note you don't have to call super, and if you don't native UI wont receive events... even paint..
         Super super = new Super(this, NSWindow.Class);
         ObjC.objc_msgSendSuper(ref super, sel, e);
+
+        if (this.Abstract is Xui.Core.Abstract.IWindow.IDesktopStyle dwsc && dwsc.Chromeless)
+        {
+            // this.HideTitleButtons();
+        }
+    }
+
+    private static void ApplyNSCursor(WindowHitTestEventRef.WindowArea area)
+    {
+        switch (area)
+        {
+            case WindowHitTestEventRef.WindowArea.BorderTopLeft:
+            case WindowHitTestEventRef.WindowArea.BorderBottomRight:
+                NSCursor._WindowResizeNorthWestSouthEastCursor.Set();
+                break;
+            case WindowHitTestEventRef.WindowArea.BorderTopRight:
+            case WindowHitTestEventRef.WindowArea.BorderBottomLeft:
+                NSCursor._WindowResizeNorthEastSouthWestCursor.Set();
+                break;
+            case WindowHitTestEventRef.WindowArea.BorderTop:
+            case WindowHitTestEventRef.WindowArea.BorderBottom:
+                NSCursor._WindowResizeNorthSouthCursor.Set();
+                break;
+            case WindowHitTestEventRef.WindowArea.BorderLeft:
+            case WindowHitTestEventRef.WindowArea.BorderRight:
+                NSCursor._WindowResizeEastWestCursor.Set();
+                break;
+            default:
+                NSCursor.ArrowCursor.Set();
+                break;
+        }
     }
 
     protected void Close()
@@ -303,8 +424,8 @@ public class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
 
     internal void Render(NSRect rect)
     {
-        FrameEventRef frame = new (this.previousFrameTime, this.nextFrameTime);
-        RenderEventRef render = new (rect, frame);
+        FrameEventRef frame = new(this.previousFrameTime, this.nextFrameTime);
+        RenderEventRef render = new(rect, frame);
 
         this.Abstract.Render(ref render);
     }

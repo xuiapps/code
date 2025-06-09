@@ -63,6 +63,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestApp", "TestApp", "{72D6
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp.Desktop", "Xui\Apps\TestApp\TestApp.Desktop.csproj", "{E719722D-EC4A-48D2-A6FB-5B9BDBD5313B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp.Emulator", "Xui\Apps\TestApp\TestApp.Emulator.csproj", "{ECE7C58B-AD3E-405F-B32C-33D162AC13EA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -157,6 +159,10 @@ Global
 		{E719722D-EC4A-48D2-A6FB-5B9BDBD5313B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E719722D-EC4A-48D2-A6FB-5B9BDBD5313B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E719722D-EC4A-48D2-A6FB-5B9BDBD5313B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECE7C58B-AD3E-405F-B32C-33D162AC13EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECE7C58B-AD3E-405F-B32C-33D162AC13EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECE7C58B-AD3E-405F-B32C-33D162AC13EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECE7C58B-AD3E-405F-B32C-33D162AC13EA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -186,5 +192,6 @@ Global
 		{C5C0DC6C-6162-4360-97B7-CF5FC6EA9AFF} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{72D65884-D302-45E6-E4A7-0C0F4072C23F} = {1787FE1D-075E-9E68-7218-25F1BD1BBEAB}
 		{E719722D-EC4A-48D2-A6FB-5B9BDBD5313B} = {72D65884-D302-45E6-E4A7-0C0F4072C23F}
+		{ECE7C58B-AD3E-405F-B32C-33D162AC13EA} = {72D65884-D302-45E6-E4A7-0C0F4072C23F}
 	EndGlobalSection
 EndGlobal

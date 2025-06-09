@@ -20,6 +20,7 @@ public static partial class AppKit
 
         private static readonly Sel SetAcceptsMouseMovedEventsSel = new Sel("setAcceptsMouseMovedEvents:");
         private static readonly Sel MakeKeyAndOrderFrontSel = new Sel("makeKeyAndOrderFront:");
+        private static readonly Sel OrderFrontRegardlessSel = new Sel("orderFrontRegardless");
 
         public static readonly Prop.String TitleProp = new Prop.String("title", "setTitle:");
 
@@ -47,6 +48,14 @@ public static partial class AppKit
 
         private static readonly Sel AddTitlebarAccessoryViewControllerSel = new Sel("addTitlebarAccessoryViewController:");
 
+        public static readonly Sel PerformWindowDragWithEventSel = new Sel("performWindowDragWithEvent:");
+
+        public static readonly Sel SetFrameDisplaySel = new Sel("setFrame:display:");
+
+        public static readonly Sel PerformZoomSel = new Sel("performZoom:");
+
+        private static readonly Sel SetContentMinSizeSel = new Sel("setContentMinSize:");
+
         public NSWindow(nint id) : base(id)
         {
         }
@@ -72,17 +81,25 @@ public static partial class AppKit
             get => Marshalling.Get<NSView>(ObjC.objc_msgSend_retIntPtr(this, ContentViewSel));
             set => ObjC.objc_msgSend_retIntPtr(this, SetContentViewSel, value == null ? 0 : value);
         }
+        
+        public NSSize MinSize
+        {
+            set => objc_msgSend(this, SetContentMinSizeSel, value);
+        }
 
         protected static nint CreateNSWindowWithTitle(nint self, string title)
         {
             nint nsWindowRef = InitWithContentRectStyleMaskBackingDefer(
                 self,
-                rect: new NSRect {
-                    Origin = new NSPoint {
+                rect: new NSRect
+                {
+                    Origin = new NSPoint
+                    {
                         x = 200,
                         y = 200
                     },
-                    Size = new NSSize {
+                    Size = new NSSize
+                    {
                         width = 600,
                         height = 400
                     }
@@ -105,7 +122,7 @@ public static partial class AppKit
             {
                 TitleProp.Set(nsWindowRef, title);
             }
-            
+
             return nsWindowRef;
         }
 
@@ -169,7 +186,15 @@ public static partial class AppKit
             set => DelegateProp.Set(this, value);
         }
 
+        public void PerformDrag(NSEventRef e) => objc_msgSend(this, PerformWindowDragWithEventSel, e);
+
+        public void PerformZoom() => objc_msgSend(this, PerformZoomSel, IntPtr.Zero);
+
+        public void SetFrame(NSRect frame, bool display) => objc_msgSend_frameDisplay(this, SetFrameDisplaySel, frame, display);
+
         public void MakeKeyAndOrderFront(nint sender = 0) => objc_msgSend_retIntPtr(this, MakeKeyAndOrderFrontSel, sender);
+
+        public void OrderFrontRegardless() => objc_msgSend(this, OrderFrontRegardlessSel);
 
         public void AddTitlebarAccessoryViewController(NSTitlebarAccessoryViewController controller) => objc_msgSend(this, AddTitlebarAccessoryViewControllerSel, controller);
 
@@ -187,6 +212,9 @@ public static partial class AppKit
 
         [LibraryImport(CoreFoundationLib, EntryPoint = "objc_msgSend")]
         private static partial IntPtr objc_msgSend_retIntPtr(nint obj, nint sel, nint id1);
+
+        [LibraryImport(AppKitLib, EntryPoint = "objc_msgSend")]
+        private static partial void objc_msgSend_frameDisplay(nint obj, nint sel, NSRect frame, [MarshalAs(UnmanagedType.I1)] bool display);
 
         protected static nint InitWithContentRectStyleMaskBackingDefer(nint id, NSRect rect, NSWindowStyleMask nswindowstylemask, NSBackingStoreType nsbackingstoretype, bool defer)
             => objc_msgSend_retIntPtr(id, InitWithContentRectStyleMaskBackingDeferSel, rect, (nuint)nswindowstylemask, (nuint)nsbackingstoretype, defer);

@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using Xui.Core.Math2D;
 
 namespace Xui.Runtime.MacOS;
 
@@ -15,5 +16,7 @@ public static partial class Foundation
             this.width = width;
             this.height = height;
         }
+
+        public static implicit operator NSSize(Size size) => new NSSize(size.Width, size.Height);
     }
 }

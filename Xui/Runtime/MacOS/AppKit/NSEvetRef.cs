@@ -29,6 +29,8 @@ public static partial class AppKit
 
         private static readonly Sel PressedMouseButtonsSel = new Sel("pressedMouseButtons");
 
+        private static readonly Sel ClickCountSel = new Sel("clickCount");
+
         public readonly nint Self;
 
         public NSEventRef(nint self)
@@ -46,6 +48,8 @@ public static partial class AppKit
         public NSEventSubtype Subtype => (NSEventSubtype)objc_msgSend_retIntPtr(this, SubtypeSel);
 
         public NSPoint LocationInWindow => objc_msgSend_NSPointRet(this, LocationInWindowSel);
+
+        public int ClickCount => (int)objc_msgSend_retIntPtr(this, ClickCountSel);
 
         public NSPoint ScrollingDelta => new NSPoint(
                 objc_msgSend_retNFloat(this, ScrollingDeltaXSel),
