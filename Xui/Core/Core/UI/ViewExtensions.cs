@@ -66,7 +66,7 @@ namespace Xui.Core.UI
                 /// Initializes a new instance of the <see cref="Enumerator"/> struct.
                 /// </summary>
                 /// <param name="start">The starting view for traversal.</param>
-                public Enumerator(View? start) => current = start?.Parent;
+                public Enumerator(View? start) => current = start;
 
                 /// <summary>
                 /// Gets the current parent view in the traversal.
