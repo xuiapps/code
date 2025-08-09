@@ -41,13 +41,17 @@ public class SdkExamplePage<T> : ViewCollection
 
     protected override Size MeasureCore(Size availableBorderEdgeSize, IMeasureContext context)
     {
-        this.header.Measure((availableBorderEdgeSize.Width, 24), context);
-        return this.content.Measure(availableBorderEdgeSize - (0, 24), context) + new Size(0, 24);
+        var headerHeight = 24;
+
+        this.header.Measure((availableBorderEdgeSize.Width, headerHeight), context);
+        return this.content.Measure(availableBorderEdgeSize - (0, headerHeight), context) + new Size(0, headerHeight);
     }
 
     protected override void ArrangeCore(Rect rect, IMeasureContext context)
     {
-        this.header.Arrange((0, 0, rect.Width, 24), context);
-        this.content.Arrange((0, 24, rect.Width, rect.Height - 24), context);
+        var headerHeight = 24;
+
+        this.header.Arrange((rect.X, rect.Y, rect.Width, headerHeight), context);
+        this.content.Arrange((rect.X, rect.Y + headerHeight, rect.Width, rect.Height - headerHeight), context);
     }
 }
