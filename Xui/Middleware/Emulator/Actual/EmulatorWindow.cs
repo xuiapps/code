@@ -2,6 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using Xui.Core.Abstract;
 using Xui.Core.Abstract.Events;
+using Xui.Core.Animation;
 using Xui.Core.Canvas;
 using Xui.Core.Math2D;
 
@@ -23,7 +24,7 @@ namespace Xui.Middleware.Emulator.Actual;
 /// and translates desktop mouse events into synthetic mobile touch input.
 /// </para>
 /// </summary>
-public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow, Xui.Core.Abstract.IWindow.IDesktopStyle
+public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow, Xui.Core.Abstract.IWindow.IDesktopStyle
 {
     private Point? leftMouseButtonTouch = null;
 
@@ -184,8 +185,8 @@ public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
         NFloat borderOutline = 2.5f; // Included in borderWidth
         NFloat screenCornerRadius = 45f;
 
-        Rect titleRect = new (0, 0, render.Rect.Width, titleHeight);
-        Rect emulatorRect = new (
+        Rect titleRect = new(0, 0, render.Rect.Width, titleHeight);
+        Rect emulatorRect = new(
             x: borderWidth,
             y: titleHeight + gap + borderWidth,
             width: render.Rect.Width - borderWidth - borderWidth,
@@ -200,7 +201,6 @@ public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
             ctx.Clip();
 
             ctx.BeginPath();
-
             ctx.Translate((borderWidth, titleHeight + gap + borderWidth));
 
             RenderEventRef emulatorRender = new RenderEventRef(
@@ -214,10 +214,6 @@ public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
             Abstract!.DisplayArea = emulatorRender.Rect;
             Abstract!.SafeArea = emulatorRender.Rect - new Frame(40, 0, 20, 0);
 
-            // TODO: DrawingContext is disposable,
-            // each call is supposed to capture and dispose,
-            // but it doesn't understand the callstack,
-            // so Render will dispose it with the ctx above... 
             Abstract!.Render(ref emulatorRender);
         }
 
@@ -247,19 +243,7 @@ public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
                 ctx.Restore();
             }
 
-            // Pinch-hole:
-            ctx.BeginPath();
-            ctx.RoundRect(
-                rect: new Rect(
-                    x: render.Rect.Width / 2f - 45f,
-                    y: titleHeight + gap + borderWidth + 12f,
-                    width: 90f,
-                    height: 26f),
-                radius: 13f
-            );
-            ctx.SetFill(0x111111FF);
-            ctx.Fill();
-
+            // Outer device frame stroke
             ctx.BeginPath();
             ctx.RoundRect(
                 rect: emulatorRect.Expand(borderWidth * 0.5f),
@@ -276,86 +260,36 @@ public class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
             ctx.LineWidth = borderOutline;
             ctx.Stroke();
 
-            // Clock
-            ctx.SetFill(Colors.Black);
-            ctx.TextAlign = TextAlign.Center;
-            ctx.SetFont(new Font()
-            {
-                FontFamily = ["Verdana"],
-                FontSize = 12,
-                FontWeight = 600,
-                FontStyle = FontStyle.Normal,
-                LineHeight = 16
-            });
-            ctx.FillText(DateTime.Now.ToString("H:mm"), ((render.Rect.Width / 2f - 22f) / 2, titleHeight + gap + borderWidth + 18));
+            NFloat phoneToTabletT = Easing.Normalize(render.Rect.Width, 500, 575);
 
-            // Signal Strength
-            ctx.Save();
-            ctx.Translate((232, titleHeight + gap + borderWidth + 18 + 13.5f));
+            // Icons (refactored)
+            PinholeCutout.Instance.Render(ctx, (
+                render.Rect.Width / 2f - 45f,
+                titleHeight + gap + borderWidth + 12f
+            ));
 
-            ctx.BeginPath();
-            ctx.SetStroke(Colors.Black);
-            ctx.Arc((0, 0), 2.5f, NFloat.Pi * 1.75f, + NFloat.Pi * 1.25f, Winding.ClockWise);
-            ctx.LineWidth = 4f;
-            ctx.Stroke();
+            NFloat clockX = NFloat.Lerp(
+                (render.Rect.Width / 2f - 22f) / 2,
+                (300 / 2f - 22f) / 2,
+                Easing.EaseInOutSine(phoneToTabletT));
+            ClockIcon.Instance.Render(ctx, (clockX, titleHeight + gap + borderWidth + 18));
 
-            ctx.BeginPath();
-            ctx.SetStroke(Colors.Black);
-            ctx.Arc((0, 0), 7.5f, NFloat.Pi * 1.75f, + NFloat.Pi * 1.25f, Winding.ClockWise);
-            ctx.LineWidth = 2f;
-            ctx.Stroke();
+            NFloat instrumentsX = NFloat.Lerp(
+                render.Rect.Width / 2f + 45f + (render.Rect.Width / 2f - 45f - 22f) / 2f,
+                render.Rect.Width - 80f,
+                Easing.EaseInOutSine(phoneToTabletT));
 
-            ctx.BeginPath();
-            ctx.SetStroke(0x00000055);
-            ctx.Arc((0, 0), 11.5f, NFloat.Pi * 1.75f, + NFloat.Pi * 1.25f, Winding.ClockWise);
-            ctx.LineWidth = 2f;
-            ctx.Stroke();
-            ctx.Restore();
-
-            // 5G
-            ctx.SetFill(Colors.Black);
-            ctx.TextAlign = TextAlign.Center;
-            ctx.SetFont(new Font()
-            {
-                FontFamily = ["Verdana"],
-                FontSize = 12,
-                FontWeight = 600,
-                FontStyle = FontStyle.Normal,
-                LineHeight = 16
-            });
-            ctx.FillText("5G", ((render.Rect.Width - 73f), titleHeight + gap + borderWidth + 18));
-
-            // Battery
-            ctx.Save();
-            ctx.Translate((272, titleHeight + gap + borderWidth + 18 + 2.5f));
-
-            ctx.BeginPath();
-            ctx.RoundRect(new Rect(0, 0, 20, 10), 3f);
-            ctx.LineWidth = 1f;
-            ctx.SetStroke(Colors.Black);
-            ctx.Stroke();
-
-            ctx.BeginPath();
-            ctx.RoundRect(new Rect(1.5f, 1.5f, 12, 7), 2f);
-            ctx.LineWidth = 1f;
-            ctx.SetFill(Colors.Black);
-            ctx.Fill();
-            ctx.Restore();
+            SignalStrengthIcon.Instance.Render(ctx, (instrumentsX - 12f - 8f, titleHeight + gap + borderWidth + 18 + 13.5f));
+            BatteryIcon.Instance.Render(ctx, (instrumentsX - 8f, titleHeight + gap + borderWidth + 18 + 2.5f));
+            FiveGIcon.Instance.Render(ctx, (instrumentsX + 36f - 8f, titleHeight + gap + borderWidth + 18));
 
             // Menu Handle
-            ctx.BeginPath();
-            ctx.RoundRect(
-                rect: new Rect(
-                    x: render.Rect.Width / 2f - 55f,
-                    y: render.Rect.Height - borderWidth - 3f - 5f,
-                    width: 110f,
-                    height: 4f),
-                radius: 1.5f
-            );
-            ctx.SetFill(0x111111FF);
-            ctx.Fill();
+            MenuHandle.Instance.Render(ctx, (
+                render.Rect.Width / 2f,
+                render.Rect.Height - borderWidth - 3f
+            ));
 
-            // Window title
+            // Title background
             ctx.BeginPath();
             ctx.RoundRect(titleRect, 10f);
             ctx.SetFill(new Color(0x333333FF));
