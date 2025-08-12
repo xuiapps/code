@@ -86,9 +86,9 @@ public class RootView : View, IContent
         });
     }
 
-    protected override void OnChildInvalidRender(View child)
+    protected override void OnChildRenderChanged(View child)
     {
-        base.OnChildInvalidRender(child);
+        base.OnChildRenderChanged(child);
         ((IContent)this).Invalidate();
     }
 

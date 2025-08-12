@@ -13,6 +13,17 @@ public struct LayoutGuide
     /// </summary>
     public LayoutPass Pass;
 
+    /// <summary>
+    /// The time of the previous animation frame.
+    /// </summary>
+    public TimeSpan PreviousTime;
+
+    /// <summary>
+    /// The time of the current animation frame for this view.
+    /// For Measure/Arrange/Render passes, this may be <see cref="TimeSpan.Zero"/>.
+    /// </summary>
+    public TimeSpan CurrentTime;
+
     // Measure spec
 
     /// <summary>
@@ -76,6 +87,11 @@ public struct LayoutGuide
     public IContext? RenderContext;
 
     /// <summary>
+    /// Returns true if this guide represents an animation pass.
+    /// </summary>
+    public bool IsAnimate => (this.Pass & LayoutPass.Animate) == LayoutPass.Animate;
+
+    /// <summary>
     /// Returns true if this guide represents a Measure pass.
     /// </summary>
     public bool IsMeasure => (this.Pass & LayoutPass.Measure) == LayoutPass.Measure;
@@ -98,19 +114,25 @@ public struct LayoutGuide
     public enum LayoutPass : byte
     {
         /// <summary>
+        /// Indicates an animation timing pass. Views can update time-based state
+        /// for the current frame (e.g., tweens). Typically runs before layout/render.
+        /// </summary>
+        Animate = 1 << 0,
+
+        /// <summary>
         /// Indicates a Measure pass to determine desired size.
         /// </summary>
-        Measure = 1 << 0,
+        Measure = 1 << 1,
 
         /// <summary>
         /// Indicates an Arrange pass to finalize layout position and size.
         /// </summary>
-        Arrange = 1 << 1,
+        Arrange = 1 << 2,
 
         /// <summary>
         /// Indicates a Render pass to draw the view's content.
         /// </summary>
-        Render = 1 << 2,
+        Render = 1 << 3,
     }
 
     /// <summary>

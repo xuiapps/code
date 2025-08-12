@@ -124,6 +124,16 @@ public partial class View
     /// <returns></returns>
     public virtual LayoutGuide Update(LayoutGuide guide)
     {
+        if (guide.IsAnimate)
+        {
+            this.ResetAnimationFlags();
+            this.AnimateCore(guide.PreviousTime, guide.CurrentTime);
+            for (int i = 0; i < this.Count; i++)
+            {
+                this[i].Animate(guide.PreviousTime, guide.CurrentTime);
+            }
+        }
+
         if (guide.IsMeasure)
         {
             Size availableMarginBoxSize = Size.Max((0, 0), guide.AvailableSize);
@@ -135,7 +145,7 @@ public partial class View
                 nfloat.IsFinite(guide.AvailableSize.Width) &&
                 this.HorizontalAlignment == HorizontalAlignment.Stretch;
 
-            bool fixedHeight = 
+            bool fixedHeight =
                 guide.YSize == LayoutGuide.SizeTo.Exact &&
                 nfloat.IsFinite(guide.AvailableSize.Height) &&
                 this.VerticalAlignment == VerticalAlignment.Stretch;
@@ -189,9 +199,10 @@ public partial class View
                 y += remainingRealignmentSpace * yViewAlignment;
             }
 
-            // TODO: If stretch and available width is finit => width = availableWidth!
             guide.ArrangedRect = new Rect(x, y, width, height) - this.Margin;
             this.Frame = guide.ArrangedRect;
+
+            this.ValidateArrange();
             this.ArrangeCore(guide.ArrangedRect, guide.MeasureContext!);
         }
 
@@ -200,10 +211,46 @@ public partial class View
             // Emit render commands that would draw this view within guide.ArrangeRect
             // The context is required within measure and arrange phases to measure text
             // And to limit layout forks, it can be used to emit the display list commands.
+            this.ValidateRender();
             this.RenderCore(guide.RenderContext!);
         }
 
         return guide;
+    }
+
+    /// <summary>
+    /// Traverses this view and its subtree to advance animation state for the current frame.
+    /// Call this once per UI tick before measure/arrange/render, passing the previous and
+    /// the current (anticipated) frame times.
+    ///
+    /// Behavior:
+    /// - Clears <see cref="ViewFlags.Animated"/> and <see cref="ViewFlags.DescendantAnimated"/> on entry.
+    /// - Invokes <see cref="AnimateCore(System.TimeSpan,System.TimeSpan)"/> so the view can update its
+    ///   time-based state and optionally call <see cref="RequestAnimationFrame"/> (and <see cref="InvalidateRender"/>).
+    /// - Recursively calls <see cref="Animate(System.TimeSpan,System.TimeSpan)"/> on children; any child
+    ///   requesting another frame will re-mark ancestors via <see cref="OnChildRequestedAnimationFrame(View)"/>.
+    /// </summary>
+    /// <param name="previousTime">The previous frame's monotonic UI time.</param>
+    /// <param name="currentTime">The current/anticipated frame's monotonic UI time.</param>
+    public void Animate(TimeSpan previousTime, TimeSpan currentTime) =>
+        this.Update(
+            new LayoutGuide()
+            {
+                Pass = LayoutGuide.LayoutPass.Animate,
+                PreviousTime = previousTime,
+                CurrentTime = currentTime,
+            });
+
+    /// <summary>
+    /// Per-frame animation hook for this view. Override in controls that animate.
+    /// Use <paramref name="previousTime"/> and <paramref name="currentTime"/> to compute delta/time,
+    /// mutate animated properties, and if visuals changed, call <see cref="InvalidateRender"/>.
+    /// If the animation should continue, call <see cref="RequestAnimationFrame"/> to request the next tick.
+    /// </summary>
+    /// <param name="previousTime">The previous frame's monotonic UI time.</param>
+    /// <param name="currentTime">The current/anticipated frame's monotonic UI time.</param>
+    protected virtual void AnimateCore(TimeSpan previousTime, TimeSpan currentTime)
+    {
     }
 
     /// <summary>
@@ -235,8 +282,10 @@ public partial class View
             {
                 Pass = LayoutGuide.LayoutPass.Arrange,
                 AvailableSize = rect.Size,
-                // TODO: Instead of calculating desired size here, - calculate inside "Update" only if necessary... Or use cache...
+
+                // TODO: Instead of calculating desired size here, - calculate inside "Update" only if necessary... Or use cache... Definitely use cache... delete desiredSize param!
                 DesiredSize = desiredSize.HasValue ? desiredSize.Value : this.Measure(rect.Size, context),
+
                 XSize = LayoutGuide.SizeTo.Exact,
                 YSize = LayoutGuide.SizeTo.Exact,
                 MeasureContext = context,
@@ -315,5 +364,7 @@ public partial class View
         {
             this[i].Render(context);
         }
+
+        this.ValidateRender();
     }
 }
