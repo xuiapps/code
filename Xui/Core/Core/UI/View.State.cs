@@ -195,6 +195,7 @@ public partial class View
     public void ValidateArrange()
     {
         this.Flags &= ~ViewFlags.ArrangeChanged;
+        this.Flags &= ~ViewFlags.DescendantArrangeChanged;
     }
 
     /// <summary>
@@ -205,6 +206,7 @@ public partial class View
     public void ValidateRender()
     {
         this.Flags &= ~ViewFlags.RenderChanged;
+        this.Flags &= ~ViewFlags.DescendantRenderChanged;
     }
 
     /// <summary>
@@ -215,6 +217,7 @@ public partial class View
     public void ValidateHitTest()
     {
         this.Flags &= ~ViewFlags.HitTestChanged;
+        this.Flags &= ~ViewFlags.DescendantHitTestChanged;
     }
 
     /// <summary>
@@ -225,7 +228,7 @@ public partial class View
     /// <param name="child">The child view whose measure state has changed.</param>
     protected virtual void OnChildMeasureChanged(View child)
     {
-        this.Parent?.OnChildMeasureChanged(this);
+        this.InvalidateArrange();
     }
 
     /// <summary>
@@ -236,6 +239,10 @@ public partial class View
     /// <param name="child">The child view whose arrange state has changed.</param>
     protected virtual void OnChildArrangeChanged(View child)
     {
+        if ((this.Flags & ViewFlags.DescendantArrangeChanged) != 0)
+            return;
+
+        this.Flags |= ViewFlags.DescendantArrangeChanged;
         this.Parent?.OnChildArrangeChanged(this);
     }
 
@@ -246,6 +253,10 @@ public partial class View
     /// <param name="child">The child view whose render state has changed.</param>
     protected virtual void OnChildRenderChanged(View child)
     {
+        if ((this.Flags & ViewFlags.DescendantRenderChanged) != 0)
+            return;
+
+        this.Flags |= ViewFlags.DescendantRenderChanged;
         this.Parent?.OnChildRenderChanged(this);
     }
 
@@ -257,6 +268,10 @@ public partial class View
     /// <param name="child">The child view whose hit testing state has changed.</param>
     protected virtual void OnChildHitTestChanged(View child)
     {
+        if ((this.Flags & ViewFlags.DescendantHitTestChanged) != 0)
+            return;
+
+        this.Flags |= ViewFlags.DescendantHitTestChanged;
         this.Parent?.OnChildHitTestChanged(this);
     }
 

@@ -177,7 +177,7 @@ public partial class View
         if (guide.IsArrange)
         {
             nfloat x = guide.Anchor.X - guide.DesiredSize.Width * (int)guide.XAlign * (nfloat).5;
-            nfloat y = guide.Anchor.Y - guide.DesiredSize.Height * (int)guide.XAlign * (nfloat).5;
+            nfloat y = guide.Anchor.Y - guide.DesiredSize.Height * (int)guide.YAlign * (nfloat).5;
             nfloat width = this.HorizontalAlignment == HorizontalAlignment.Stretch ? guide.AvailableSize.Width : guide.DesiredSize.Width;
             nfloat height = this.VerticalAlignment == VerticalAlignment.Stretch ? guide.AvailableSize.Height : guide.DesiredSize.Height;
 
