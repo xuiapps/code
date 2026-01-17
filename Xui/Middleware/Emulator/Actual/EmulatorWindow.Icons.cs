@@ -60,6 +60,7 @@ public partial class EmulatorWindow
             ctx.Translate(position);
             ctx.SetFill(Colors.Black);
             ctx.TextAlign = TextAlign.Center;
+            ctx.TextBaseline = TextBaseline.Top;
             ctx.SetFont(new Font()
             {
                 FontFamily = ["Verdana"],

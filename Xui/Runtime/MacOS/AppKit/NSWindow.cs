@@ -56,12 +56,20 @@ public static partial class AppKit
 
         private static readonly Sel SetContentMinSizeSel = new Sel("setContentMinSize:");
 
+        private static readonly Prop.NInt LevelProp = new Prop.NInt("level", "setLevel:");
+
         public NSWindow(nint id) : base(id)
         {
         }
 
         public NSWindow(string title) : this(CreateNSWindowWithTitle(Class.Alloc(), title))
         {
+        }
+
+        public NSWindowLevel Level
+        {
+            get => (NSWindowLevel)LevelProp.Get(this);
+            set => LevelProp.Set(this, (nint)value);
         }
 
         public bool IsReleasedWhenClosed

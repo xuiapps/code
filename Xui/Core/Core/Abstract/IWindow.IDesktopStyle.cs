@@ -13,7 +13,7 @@ public partial interface IWindow
     /// and this interface has no effect. On desktop, implementing this interface allows
     /// apps to influence window chrome, border visibility, and initial sizing.
     /// </remarks>
-    public interface IDesktopStyle
+    public partial interface IDesktopStyle
     {
         /// <summary>
         /// If <c>true</c>, the window will be created without a system title bar or border.
@@ -27,5 +27,10 @@ public partial interface IWindow
         /// If <c>null</c>, the platform will decide the initial size.
         /// </summary>
         public Size? StartupSize => null;
+
+        /// <summary>
+        /// Controls the window stacking level (Z-order) relative to other windows.
+        /// </summary>
+        public DesktopWindowLevel Level => DesktopWindowLevel.Normal;
     }
 }

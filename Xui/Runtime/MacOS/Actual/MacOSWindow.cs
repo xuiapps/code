@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Xui.Core.Abstract.Events;
 using Xui.Core.Math2D;
+using static Xui.Core.Abstract.IWindow.IDesktopStyle;
 using static Xui.Runtime.MacOS.AppKit;
 using static Xui.Runtime.MacOS.AppKit.NSEventRef;
 using static Xui.Runtime.MacOS.CoreAnimation;
@@ -98,21 +99,33 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
         this.IsReleasedWhenClosed = false;
         this.AcceptsMouseMovedEvents = true;
 
-        if (@abstract is Xui.Core.Abstract.IWindow.IDesktopStyle dws && dws.Chromeless)
+        if (@abstract is Xui.Core.Abstract.IWindow.IDesktopStyle dws)
         {
-            using var transparent = new NSColorRef(0, 0, 0, 0);
-            this.BackgroundColor = transparent;
-            this.TitleVisibility = NSWindowTitleVisibility.Hidden;
-            this.TitlebarAppearsTransparent = true;
-            // this.HideTitleButtons();
-
-            this.StyleMask |= NSWindowStyleMask.FullSizeContentView;
-            this.Toolbar = new NSToolbar
+            this.Level = dws.Level switch
             {
-                ShowsBaselineSeparator = false,
-                Visible = true
+                DesktopWindowLevel.Normal    => NSWindowLevel.Normal,
+                DesktopWindowLevel.Floating  => NSWindowLevel.Floating,
+                DesktopWindowLevel.StatusBar => NSWindowLevel.StatusBar,
+                DesktopWindowLevel.Modal     => NSWindowLevel.ModalPanel,
+                _                            => NSWindowLevel.Normal
             };
-            this.ToolbarStyle = NSWindowToolbarStyle.Unified;
+
+            if (dws.Chromeless)
+            {
+                using var transparent = new NSColorRef(0, 0, 0, 0);
+                this.BackgroundColor = transparent;
+                this.TitleVisibility = NSWindowTitleVisibility.Hidden;
+                this.TitlebarAppearsTransparent = true;
+                // this.HideTitleButtons();
+
+                this.StyleMask |= NSWindowStyleMask.FullSizeContentView;
+                this.Toolbar = new NSToolbar
+                {
+                    ShowsBaselineSeparator = false,
+                    Visible = true
+                };
+                this.ToolbarStyle = NSWindowToolbarStyle.Unified;
+            }
         }
 
         this.displayLink = CADisplayLink.DisplayLink(this, AnimationFrameSel);

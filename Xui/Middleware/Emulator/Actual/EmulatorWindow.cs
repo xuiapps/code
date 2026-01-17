@@ -5,6 +5,7 @@ using Xui.Core.Abstract.Events;
 using Xui.Core.Animation;
 using Xui.Core.Canvas;
 using Xui.Core.Math2D;
+using static Xui.Core.Abstract.IWindow.IDesktopStyle;
 
 namespace Xui.Middleware.Emulator.Actual;
 
@@ -46,6 +47,11 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
     /// Gets whether the emulator should appear without OS window chrome.
     /// </summary>
     bool Xui.Core.Abstract.IWindow.IDesktopStyle.Chromeless => true;
+
+    /// <summary>
+    /// Controls the window stacking level (Z-order) relative to other windows.
+    /// </summary>
+    DesktopWindowLevel Xui.Core.Abstract.IWindow.IDesktopStyle.Level => DesktopWindowLevel.Floating;
 
     /// <summary>
     /// Gets the preferred size of the emulator window at startup.
