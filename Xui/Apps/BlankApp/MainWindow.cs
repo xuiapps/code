@@ -390,8 +390,8 @@ public class MainWindow : Window
 
         // Title
         var titleContentToHeaderProgress = Normalize(-this.scrollPoint.Y, 60, 190);
-        var titlePositionInContent = new Point(centerGuide, 260 + this.scrollPoint.Y);
-        var titlePositionInHeader = new Point(this.SafeArea.Left + 100, this.SafeArea.Top + 10);
+        var titlePositionInContent = new Point(centerGuide, 286 + this.scrollPoint.Y);
+        var titlePositionInHeader = new Point(this.SafeArea.Left + 105, this.SafeArea.Top + 30);
         var titlePosition = Point.Lerp(
             titlePositionInContent,
             titlePositionInHeader,

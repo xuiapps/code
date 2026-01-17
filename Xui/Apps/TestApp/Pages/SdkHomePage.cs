@@ -8,30 +8,30 @@ public class SdkHomePage : VerticalStack
 {
     public SdkHomePage()
     {
-        this.Add(new Label
-        {
+        this.Add(new Label {
             Text = "Xui SDK Examples ",
             FontSize = 24,
             FontWeight = Bold
         });
-        this.Add(new SdkExampleButton<TextMetricsExample>()
-        {
+        this.Add(new SdkExampleButton<TextMetricsExample>() {
             Margin = 3,
             Text = "TextMetrics",
         });
-        this.Add(new SdkExampleButton<TextLayoutExample>()
-        {
+        this.Add(new SdkExampleButton<TextLayoutExample>() {
             Margin = 3,
             Text = "Text Layout",
         });
-        this.Add(new SdkExampleButton<NestedStacksExample>()
-        {
+        this.Add(new SdkExampleButton<NestedStacksExample>() {
             Margin = 3,
             Text = "Nested Stacks"
         });
         this.Add(new SdkExampleButton<ViewCollectionAlignmentExample>() {
             Margin = 3,
             Text = "ViewCollection Alignment"
+        });
+        this.Add(new SdkExampleButton<AnimatedHeartExample>() {
+            Margin = 3,
+            Text = "Animated Heart"
         });
     }
 }

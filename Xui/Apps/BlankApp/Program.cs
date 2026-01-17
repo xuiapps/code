@@ -38,61 +38,61 @@ public class App : Xui.Core.Abstract.Application
         {
             Title = "Xui BlankApp",
 
-            Content = new VerticalStack()
-            {
-                Margin = (50, 0, 0, 0),
-                Content = [
-                    new HorizontalUniformStack()
-                    {
-                        Content = [
-                            new Border()
-                            {
-                                BorderThickness = 2,
-                                BackgroundColor = Teal,
-                                BorderColor = Red,
-                                MinimumWidth = 50,
-                                MinimumHeight = 40,
-                                Content = new Label()
-                                {
-                                    Text = "Hello World"
-                                }
-                            },
-                            new Border()
-                            {
-                                BorderThickness = 10,
-                                BackgroundColor = Teal,
-                                BorderColor = Red,
-                                CornerRadius = 20,
-                                MinimumWidth = 50,
-                                MinimumHeight = 40
-                            },
-                            new Border()
-                            {
-                                BorderThickness = 10,
-                                BackgroundColor = Teal,
-                                BorderColor = Red,
-                                CornerRadius = (20, 0, 20, 0),
-                                MinimumWidth = 50,
-                                MinimumHeight = 40
-                            }
-                        ]
-                    },
-                    new Border() 
-                    {
-                        BorderThickness = 1,
-                        BorderColor = Orange,
-                        Margin = 5,
-                        Content = new Label()
-                        {
-                            Text = "Line2",
-                            Margin = 5,
-                            FontStyle = FontStyle.Normal,
-                            FontWeight = 400,
-                            FontSize = 23
-                        }
-                    }
-                ]
-            }
+            // Content = new VerticalStack()
+            // {
+            //     Margin = (50, 0, 0, 0),
+            //     Content = [
+            //         new HorizontalUniformStack()
+            //         {
+            //             Content = [
+            //                 new Border()
+            //                 {
+            //                     BorderThickness = 2,
+            //                     BackgroundColor = Teal,
+            //                     BorderColor = Red,
+            //                     MinimumWidth = 50,
+            //                     MinimumHeight = 40,
+            //                     Content = new Label()
+            //                     {
+            //                         Text = "Hello World"
+            //                     }
+            //                 },
+            //                 new Border()
+            //                 {
+            //                     BorderThickness = 10,
+            //                     BackgroundColor = Teal,
+            //                     BorderColor = Red,
+            //                     CornerRadius = 20,
+            //                     MinimumWidth = 50,
+            //                     MinimumHeight = 40
+            //                 },
+            //                 new Border()
+            //                 {
+            //                     BorderThickness = 10,
+            //                     BackgroundColor = Teal,
+            //                     BorderColor = Red,
+            //                     CornerRadius = (20, 0, 20, 0),
+            //                     MinimumWidth = 50,
+            //                     MinimumHeight = 40
+            //                 }
+            //             ]
+            //         },
+            //         new Border() 
+            //         {
+            //             BorderThickness = 1,
+            //             BorderColor = Orange,
+            //             Margin = 5,
+            //             Content = new Label()
+            //             {
+            //                 Text = "Line2",
+            //                 Margin = 5,
+            //                 FontStyle = FontStyle.Normal,
+            //                 FontWeight = 400,
+            //                 FontSize = 23
+            //             }
+            //         }
+            //     ]
+            // }
 
             // Content = new Border
             // {

@@ -72,7 +72,10 @@ public class RootView : View, IContent
         this.Update(new LayoutGuide()
         {
             Anchor = rect.TopLeft,
+            PreviousTime = DateTime.Now - DateTime.MinValue,
+            CurrentTime = DateTime.Now - DateTime.MinValue,
             Pass =
+                LayoutGuide.LayoutPass.Animate |
                 LayoutGuide.LayoutPass.Arrange |
                 LayoutGuide.LayoutPass.Measure |
                 LayoutGuide.LayoutPass.Render,
