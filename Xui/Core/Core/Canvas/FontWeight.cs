@@ -22,6 +22,9 @@ public readonly struct FontWeight : IComparable<FontWeight>, IEquatable<FontWeig
     /// <summary>Implicitly converts a <see cref="FontWeight"/> to <see cref="nfloat"/>.</summary>
     public static implicit operator nfloat(FontWeight weight) => weight.Value;
 
+    /// <summary>Implicitly converts a <see cref="FontWeight"/> to <see cref="nfloat"/>.</summary>
+    public static implicit operator uint(FontWeight weight) => (uint)weight.Value;
+
     /// <summary>Implicitly converts a <see cref="nfloat"/> to <see cref="FontWeight"/>.</summary>
     public static implicit operator FontWeight(nfloat value) => new(value);
 

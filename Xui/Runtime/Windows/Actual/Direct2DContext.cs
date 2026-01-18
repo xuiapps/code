@@ -147,40 +147,38 @@ public partial class Direct2DContext : IDisposable, IContext
     void IPenContext.SetFill(RadialGradient radialGradient) =>
         this.fill.SetRadialGradient(radialGradient);
 
-    void IPathDrawingContext.BeginPath() =>
+    void IPathBuilder.BeginPath() =>
         this.Path.BeginPath();
 
-    void IPathDrawingContext.MoveTo(Point to) => this.Path.MoveTo(to);
+    void IGlyphPathBuilder.MoveTo(Point to) => this.Path.MoveTo(to);
 
-    void IPathDrawingContext.LineTo(Point to) => this.Path.LineTo(to);
+    void IGlyphPathBuilder.LineTo(Point to) => this.Path.LineTo(to);
 
-    void IPathDrawingContext.ClosePath() => this.Path.ClosePath();
+    void IGlyphPathBuilder.ClosePath() => this.Path.ClosePath();
 
-    void IPathDrawingContext.CurveTo(Point cp1, Point to) => this.Path.CurveTo(cp1, to);
+    void IGlyphPathBuilder.CurveTo(Point cp1, Point to) => this.Path.CurveTo(cp1, to);
 
-    void IPathDrawingContext.CurveTo(Point cp1, Point cp2, Point to) => this.Path.CurveTo(cp1, cp2, to);
+    void IPathBuilder.CurveTo(Point cp1, Point cp2, Point to) => this.Path.CurveTo(cp1, cp2, to);
 
-    void IPathDrawingContext.Arc(Point center, NFloat radius, NFloat startAngle, NFloat endAngle, Winding winding) =>
+    void IPathBuilder.Arc(Point center, NFloat radius, NFloat startAngle, NFloat endAngle, Winding winding) =>
         this.Path.Arc(center, radius, startAngle, endAngle, winding);
 
-    void IPathDrawingContext.ArcTo(Point cp1, Point cp2, NFloat radius) =>
+    void IPathBuilder.ArcTo(Point cp1, Point cp2, NFloat radius) =>
         this.Path.ArcTo(cp1, cp2, radius);
 
-    void IPathDrawingContext.Ellipse(Point center, NFloat radiusX, NFloat radiusY, NFloat rotation, NFloat startAngle, NFloat endAngle, Winding winding) =>
+    void IPathBuilder.Ellipse(Point center, NFloat radiusX, NFloat radiusY, NFloat rotation, NFloat startAngle, NFloat endAngle, Winding winding) =>
         this.Path.Ellipse(center, radiusX, radiusY, rotation, startAngle, endAngle, winding);
 
-    void IPathDrawingContext.Rect(Rect rect)
-    {
-        throw new NotImplementedException();
-    }
+    void IPathBuilder.Rect(Rect rect) =>
+        this.Path.Rect(rect);
 
-    void IPathDrawingContext.RoundRect(Rect rect, NFloat radius) =>
+    void IPathBuilder.RoundRect(Rect rect, NFloat radius) =>
         this.Path.RoundRect(rect, radius);
 
-    void IPathDrawingContext.RoundRect(Rect rect, CornerRadius radius) =>
+    void IPathBuilder.RoundRect(Rect rect, CornerRadius radius) =>
         this.Path.RoundRect(rect, radius);
 
-    void IPathDrawingContext.Fill(FillRule rule)
+    void IPathDrawing.Fill(FillRule rule)
     {
         var path = this.Path.PrepareToUse();
         if (path != null)
@@ -190,7 +188,7 @@ public partial class Direct2DContext : IDisposable, IContext
         this.Path.ClearAfterUse();
     }
 
-    void IPathDrawingContext.Stroke()
+    void IPathDrawing.Stroke()
     {
         var path = this.Path.PrepareToUse();
         if (path != null)
@@ -200,7 +198,7 @@ public partial class Direct2DContext : IDisposable, IContext
         this.Path.ClearAfterUse();
     }
 
-    void IPathDrawingContext.Clip()
+    void IPathClipping.Clip()
     {
         unsafe
         {
@@ -230,16 +228,22 @@ public partial class Direct2DContext : IDisposable, IContext
         }
     }
 
-    Vector ITextMeasureContext.MeasureText(string text)
+    Core.Canvas.TextMetrics ITextMeasureContext.MeasureText(string text)
     {
+        Vector size = (0, 0);
+        // TODO: Implement getting the static font metrics from the font.
         if (this.textFormat != null)
         {
             using var layout = this.DWriteFactory.CreateTextLayout(text, this.textFormat, float.PositiveInfinity, float.PositiveInfinity);
             var textMetrics = layout.GetTextMetrics();
-            return (textMetrics.Width, textMetrics.Height);
+            size = (textMetrics.Width, textMetrics.Height);
         }
 
-        return (0, 0);
+        return new Core.Canvas.TextMetrics(
+            // TODO: size.Y has to be distributed between ascent and descent based on TextBaseline 
+            new LineMetrics(size.X, 0, 0, 0, size.Y),
+            new FontMetrics(0, 0, 0, 0, 0, 0, 0)
+        );
     }
 
     void ITextMeasureContext.SetFont(Xui.Core.Canvas.Font font)
@@ -247,10 +251,10 @@ public partial class Direct2DContext : IDisposable, IContext
         string fontFamilyName = font.FontFamily[0];
         // Use system default
         FontCollection? fontCollection = null;
-        FontWeight fontWeight = (FontWeight)(uint)font.FontWeight;
+        DWrite.FontWeight fontWeight = (DWrite.FontWeight)(uint)font.FontWeight;
         DWrite.FontStyle fontStyle = font.FontStyle.IsItalic ? DWrite.FontStyle.Italic : (font.FontStyle.IsOblique ? DWrite.FontStyle.Oblique : DWrite.FontStyle.Normal);
         float fontSize = (float)font.FontSize;
-        FontStretch fontStretch = FontStretch.Normal;
+        DWrite.FontStretch fontStretch = DWrite.FontStretch.Normal;
 
         this.textFormat?.Dispose();
         this.textFormat =  this.DWriteFactory.CreateTextFormat(fontFamilyName, fontCollection, fontWeight, fontStyle, fontStretch, fontSize, "en-US");
@@ -815,6 +819,17 @@ public partial class Direct2DContext : IDisposable, IContext
                 SweepDirection = Map(winding),
                 ArcSize = ArcSize.Small
             });
+        }
+
+        public void Rect(Rect rect)
+        {
+            this.CreatePathOnDemand();
+            this.BeginFigureOnDemand();
+            this.MoveTo(rect.TopLeft);
+            this.LineTo(rect.TopRight);
+            this.LineTo(rect.BottomRight);
+            this.LineTo(rect.BottomLeft);
+            this.ClosePath();
         }
 
         public void RoundRect(Rect rect, NFloat radius) =>
