@@ -1,11 +1,12 @@
 using System.Runtime.InteropServices;
 using static Xui.Runtime.Windows.Win32.User32;
 using static Xui.Runtime.Windows.Win32.Types;
+using static Xui.Runtime.Windows.Win32.User32.Types;
 using System;
 using System.Collections.Generic;
-using static Xui.Runtime.Windows.Win32.User32.Types;
 using Xui.Core.Abstract.Events;
 using Xui.Core.Math2D;
+using static Xui.Core.Abstract.IWindow.IDesktopStyle;
 
 namespace Xui.Runtime.Windows.Actual;
 
@@ -15,6 +16,11 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
 
     [ThreadStatic]
     private static Win32Window? constructedInstanceOnStack;
+
+    private static Dictionary<HWND, Win32Window> HwndToWindow = new Dictionary<HWND, Win32Window>();
+
+    private TimeSpan previous;
+    private TimeSpan next;
 
     private static int OnMessageStatic(HWND hWnd, WindowMessage uMsg, WPARAM wParam, LPARAM lParam)
     {
@@ -38,22 +44,14 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
         return window.OnMessage(hWnd, uMsg, wParam, lParam);
     }
 
-    private static Dictionary<HWND, Win32Window> HwndToWindow = new Dictionary<HWND, Win32Window>();
-
-    private TimeSpan previous;
-
-    private TimeSpan next;
-
     public Win32Window(Xui.Core.Abstract.IWindow @abstract)
     {
         this.Abstract = @abstract;
-
         this.Title = "";
 
         nint hbrBackground = GetSysColorBrush((int)WindowColor.COLOR_3DFACE);
 
         WNDPROC wndProcDelegate = OnMessageStatic;
-
         GCHandle.Alloc(wndProcDelegate);
         nint wndProc = Marshal.GetFunctionPointerForDelegate(wndProcDelegate);
 
@@ -68,7 +66,7 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
             hInstance = 0,
             hIcon = 0,
             hCursor = 0,
-            hbrBackground = 0, //hbrBackground,
+            hbrBackground = 0, // hbrBackground,
             lpszMenuName = 0,
             lpszClassName = lpszClassNamePtr,
             hIconSm = 0
@@ -80,14 +78,36 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
 
         ushort classAtom = RegisterClassEx(w);
 
-        // minimize button, maximize button, deep frame, etc.
         uint dwExStyle;
         uint dwStyle;
 
-        if (this.Abstract is Xui.Core.Abstract.IWindow.IDesktopStyle desktopStyle && desktopStyle.Chromeless)
+        int x = 100;
+        int y = 100;
+        int width = 800;
+        int height = 600;
+
+        DesktopWindowLevel level = DesktopWindowLevel.Normal;
+
+        if (this.Abstract is Xui.Core.Abstract.IWindow.IDesktopStyle desktopStyle)
         {
-            dwExStyle = (uint)ExtendedWindowStyles.WS_EX_NOREDIRECTIONBITMAP;
-            dwStyle = (uint)WindowStyles.WS_POPUP;
+            level = desktopStyle.Level;
+
+            if (desktopStyle.StartupSize.HasValue)
+            {
+                width = (int)desktopStyle.StartupSize.Value.Width;
+                height = (int)desktopStyle.StartupSize.Value.Height;
+            }
+
+            if (desktopStyle.Chromeless)
+            {
+                dwExStyle = (uint)ExtendedWindowStyles.WS_EX_NOREDIRECTIONBITMAP;
+                dwStyle = (uint)WindowStyles.WS_POPUP;
+            }
+            else
+            {
+                dwExStyle = 0;
+                dwStyle = (uint)WindowStyles.WS_TILEDWINDOW;
+            }
         }
         else
         {
@@ -100,8 +120,8 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
             dwExStyle,
             classAtom,
             this.Title,
-            dwStyle, 
-            100, 100, 800, 600,
+            dwStyle,
+            x, y, width, height,
             hWndParent: 0,
             hMenu: 0,
             hInstance: 0,
@@ -111,7 +131,10 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
         {
             constructedInstanceOnStack = null;
         }
+
         HwndToWindow[this.Hwnd] = this;
+
+        SetLevel(this.Hwnd, level);
 
         // Make black color in layered window transparent
         SetLayeredWindowAttributes(this.Hwnd, new COLORREF(0), 255, LayeredWindowAttribute.LWA_COLORKEY);
@@ -130,13 +153,10 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
             this.Hwnd.GetWindowText(out var str, 2048);
             return str;
         }
-
         set => this.Hwnd.SetWindowText(value);
     }
 
     public bool RequireKeyboard { get; set; }
-
-    public static bool didd2d1 = false;
 
     public int OnMessage(HWND hWnd, WindowMessage uMsg, WPARAM wParam, LPARAM lParam)
     {
@@ -150,12 +170,11 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
         switch (msg)
         {
             case WindowMessage.WM_CREATE:
-            break;
+                break;
+
             case WindowMessage.WM_DESTROY:
-                // This will exit the run-loop
-                // PostQuitMessage(0);
-                // return 0;
-            break;
+                break;
+
             case WindowMessage.WM_NCHITTEST:
                 POINT win32ClientPoint = new POINT() { X = lParam.LoWord, Y = lParam.HiWord };
                 this.Hwnd.ScreenToClient(ref win32ClientPoint);
@@ -168,7 +187,7 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
                 this.Abstract.WindowHitTest(ref eventRef);
 
                 var area = eventRef.Area;
-                switch(area)
+                switch (area)
                 {
                     case WindowHitTestEventRef.WindowArea.Title: return (int)HitTest.HTCAPTION;
 
@@ -190,8 +209,10 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
                 }
 
                 break;
+
             case WindowMessage.WM_PAINT:
                 return 0;
+
             case WindowMessage.WM_MOUSEMOVE:
                 MouseMoveEventRef mouseMoveEventRef = new MouseMoveEventRef()
                 {
@@ -199,16 +220,15 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
                 };
 
                 this.OnMouseMove(mouseMoveEventRef);
-
                 return 0;
+
             case WindowMessage.WM_MOUSEWHEEL:
                 ScrollWheelEventRef scrollWheelEventRef = new ScrollWheelEventRef()
                 {
                     Delta = wParam.WheelDelta
                 };
-                
+
                 this.OnScrollWheel(scrollWheelEventRef);
-                
                 return 0;
         }
 
@@ -221,24 +241,37 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
     protected virtual void OnScrollWheel(ScrollWheelEventRef scrollWheelEventRef) =>
         this.Abstract.OnScrollWheel(ref scrollWheelEventRef);
 
-    protected virtual void Render(RenderEventRef render) =>
-        this.Abstract.Render(ref render);
-
     public void Show()
     {
         this.Hwnd.ShowWindow();
         this.Hwnd.UpdateWindow();
     }
 
-    public virtual void Invalidate() =>
-        this.Hwnd.Invalidate();
+    public virtual void Invalidate() => this.Hwnd.Invalidate();
 
     public void OnCompositionFrame() => this.Renderer.CheckForCompositionFrame();
 
-    private void OnAnimationFrame(FrameEventRef animationFrame)
+    internal void Render(RenderEventRef render) => this.Abstract.Render(ref render);
+
+    internal void OnAnimationFrame(FrameEventRef animationFrame)
     {
         this.previous = animationFrame.Previous;
         this.next = animationFrame.Next;
         this.Abstract.OnAnimationFrame(ref animationFrame);
+    }
+
+    private static void SetLevel(HWND hwnd, DesktopWindowLevel level)
+    {
+        HWND insertAfter = level == DesktopWindowLevel.Normal
+            ? HWND.HWND_NOTOPMOST
+            : HWND.HWND_TOPMOST;
+
+        HWND.SetWindowPos(
+            hwnd,
+            insertAfter,
+            0, 0, 0, 0,
+            SetWindowPosFlags.SWP_NOMOVE |
+            SetWindowPosFlags.SWP_NOSIZE |
+            SetWindowPosFlags.SWP_NOACTIVATE);
     }
 }

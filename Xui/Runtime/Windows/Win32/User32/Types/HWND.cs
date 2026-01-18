@@ -12,6 +12,11 @@ public static partial class User32
         [DebuggerDisplay("{Value}")]
         public partial struct HWND
         {
+            // Win32 Z-order insert-after special HWND values.
+            // These are defined as (HWND)-1 and (HWND)-2.
+            public static readonly HWND HWND_TOPMOST = new HWND(new nint(-1));
+            public static readonly HWND HWND_NOTOPMOST = new HWND(new nint(-2));
+
             [LibraryImport(User32Lib)]
             [return: MarshalAs(UnmanagedType.Bool)]
             public static partial bool ShowWindow(HWND hWnd, int nCmdShow);
@@ -26,6 +31,10 @@ public static partial class User32
 
             [LibraryImport(User32Lib, EntryPoint="GetWindowTextW")]
             public static partial int GetWindowText(HWND hWnd, [MarshalAs(UnmanagedType.LPWStr)] out string lpString, int maxLength);
+
+            [LibraryImport(User32Lib, EntryPoint = "SetWindowPos")]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            public static partial bool SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, Types.SetWindowPosFlags uFlags);
 
             [LibraryImport(User32Lib, EntryPoint="GetClientRect")]
             [return: MarshalAs(UnmanagedType.Bool)]
