@@ -51,7 +51,58 @@ public partial class Win32Window
 
         public override bool HandleOnMessage(User32.Types.HWND hWnd, User32.WindowMessage uMsg, Win32.Types.WPARAM wParam, Win32.Types.LPARAM lParam, out int result)
         {
-            if (uMsg == WindowMessage.WM_PAINT)
+            if (uMsg == WindowMessage.WM_SIZE)
+            {
+                if (this.SwapChain1 != null && this.D2D1DeviceContext != null)
+                {
+                    hWnd.GetClientRect(out var rc);
+
+                    uint width = (uint)Math.Max(1, rc.Right - rc.Left);
+                    uint height = (uint)Math.Max(1, rc.Bottom - rc.Top);
+
+                    // Detach target before resizing
+                    this.D2D1DeviceContext.SetTarget(null);
+
+                    // Release size-dependent resources
+                    this.D2D1Bitmap1?.Dispose();
+                    this.D2D1Bitmap1 = null;
+
+                    this.DXGISurface?.Dispose();
+                    this.DXGISurface = null;
+
+                    // Resize swapchain buffers
+                    this.SwapChain1.ResizeBuffers(
+                        bufferCount: 2,
+                        width: width,
+                        height: height,
+                        newFormat: Format.B8G8R8A8_UNORM,
+                        swapChainFlags: 0);
+
+                    // Rebind backbuffer as D2D target
+                    this.DXGISurface = this.SwapChain1.GetBufferAsSurface(0);
+
+                    D2D1.BitmapProperties1 bitmapProperties1 = new D2D1.BitmapProperties1()
+                    {
+                        PixelFormat = new D2D1.PixelFormat()
+                        {
+                            AlphaMode = D2D1.AlphaMode.Premultiplied,
+                            Format = Format.B8G8R8A8_UNORM
+                        },
+                        BitmapOptions = D2D1.BitmapOptions.Target | D2D1.BitmapOptions.CannotDraw,
+                    };
+
+                    this.D2D1Bitmap1 =
+                        this.D2D1DeviceContext.CreateBitmapFromDxgiSurface(
+                            this.DXGISurface,
+                            bitmapProperties1);
+
+                    this.D2D1DeviceContext.SetTarget(this.D2D1Bitmap1);
+                }
+
+                result = 0;
+                return true;
+            }
+            else if (uMsg == WindowMessage.WM_PAINT)
             {
                 unsafe
                 {
