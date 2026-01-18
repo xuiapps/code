@@ -18,31 +18,31 @@ public partial class Win32Window
         }
 
         // Composition SwapChain
-        protected D3D11.Device D3D11Device { get; private set; }
+        protected D3D11.Device? D3D11Device { get; private set; }
         protected D3D11.FeatureLevel D3D11FeatureLevel { get; private set; }
-        protected D3D11.DeviceContext D3D11DeviceContext { get; private set; }
-        protected DXGI.Device DXGIDevice { get; private set; }
-        protected DXGI.Factory2 DXGIFactory2 { get; private set; }
-        protected DXGI.SwapChain1 SwapChain1 { get; private set; }
+        protected D3D11.DeviceContext? D3D11DeviceContext { get; private set; }
+        protected DXGI.Device? DXGIDevice { get; private set; }
+        protected DXGI.Factory2? DXGIFactory2 { get; private set; }
+        protected DXGI.SwapChain1? SwapChain1 { get; private set; }
 
         // Direct2D
-        protected D2D1.Factory3 D2D1Factory3 { get; private set; }
-        protected D2D1.Device1 D2D1Device1 { get; private set; }
-        protected D2D1.DeviceContext D2D1DeviceContext { get; private set; }
+        protected D2D1.Factory3? D2D1Factory3 { get; private set; }
+        protected D2D1.Device1? D2D1Device1 { get; private set; }
+        protected D2D1.DeviceContext? D2D1DeviceContext { get; private set; }
 
         //
-        protected DXGI.Surface DXGISurface { get; private set; }
-        protected D2D1.Bitmap1 D2D1Bitmap1 { get; private set; }
+        protected DXGI.Surface? DXGISurface { get; private set; }
+        protected D2D1.Bitmap1? D2D1Bitmap1 { get; private set; }
 
         // DComposition
-        protected DComp.Device DCompDevice { get; private set; }
-        protected DComp.Target DCompTarget { get; private set; }
-        protected DComp.Visual DCompVisual { get; private set; }
+        protected DComp.Device? DCompDevice { get; private set; }
+        protected DComp.Target? DCompTarget { get; private set; }
+        protected DComp.Visual? DCompVisual { get; private set; }
 
         // 
         protected D2D1.RenderTarget? RenderTarget => this.D2D1DeviceContext;
-        protected DWrite.Factory DWriteFactory { get; private set; }
-        protected Direct2DContext Direct2DContext { get; private set; }
+        protected DWrite.Factory? DWriteFactory { get; private set; }
+        protected Direct2DContext? Direct2DContext { get; private set; }
 
         // Frame
         private TimeSpan LastFrameTime = TimeSpan.Zero;
