@@ -122,6 +122,8 @@ public static partial class User32
         WM_SYSCOMMAND = 0x0112,
 
         // Timer
-        WM_TIMER = 0x0113
+        WM_TIMER = 0x0113,
+
+        WM_DPICHANGED = 0x02E0,
     }
 }

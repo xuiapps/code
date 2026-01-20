@@ -12,6 +12,9 @@ public partial class Win32Window
 {
     public partial class D2DComp : RenderTarget
     {
+        /** 1.0 @ 100%, 2.0 @ 200% */
+        private float DpiScale = 1.0f;
+        private float InverseDpiScale = 1.0f;
 
         public D2DComp(Win32Window win32Window) : base(win32Window)
         {
@@ -51,14 +54,24 @@ public partial class Win32Window
 
         public override bool HandleOnMessage(User32.Types.HWND hWnd, User32.WindowMessage uMsg, Win32.Types.WPARAM wParam, Win32.Types.LPARAM lParam, out int result)
         {
-            if (uMsg == WindowMessage.WM_SIZE)
+            if (uMsg == WindowMessage.WM_SIZE || uMsg == WindowMessage.WM_DPICHANGED)
             {
+                if (uMsg == WindowMessage.WM_DPICHANGED)
+                {
+                    this.UpdateDPI(hWnd);
+                }
+
                 if (this.SwapChain1 != null && this.D2D1DeviceContext != null)
                 {
                     hWnd.GetClientRect(out var rc);
 
-                    uint width = (uint)Math.Max(1, rc.Right - rc.Left);
-                    uint height = (uint)Math.Max(1, rc.Bottom - rc.Top);
+                    this.UpdateDPI(hWnd);
+
+                    uint logicalW = (uint)Math.Max(1, rc.Right - rc.Left);
+                    uint logicalH = (uint)Math.Max(1, rc.Bottom - rc.Top);
+
+                    uint physicalW = (uint)Math.Max(1, logicalW * this.DpiScale);
+                    uint physicalH = (uint)Math.Max(1, logicalH * this.DpiScale);
 
                     // Detach target before resizing
                     this.D2D1DeviceContext.SetTarget(null);
@@ -73,8 +86,8 @@ public partial class Win32Window
                     // Resize swapchain buffers
                     this.SwapChain1.ResizeBuffers(
                         bufferCount: 2,
-                        width: width,
-                        height: height,
+                        width: physicalW,
+                        height: physicalH,
                         newFormat: Format.B8G8R8A8_UNORM,
                         swapChainFlags: 0);
 
@@ -102,12 +115,15 @@ public partial class Win32Window
                 result = 0;
                 return true;
             }
-            else if (uMsg == WindowMessage.WM_PAINT)
+            
+            if (uMsg == WindowMessage.WM_PAINT)
             {
                 unsafe
                 {
                     if (this.SwapChain1 == null)
                     {
+                        this.UpdateDPI(hWnd);
+
                         // Composition SwapChain
                         D3D11.CreateDevice(out var d3d11Device, out var d3d11FeatureLevel, out var d3d11DeviceContext);
                         this.D3D11Device = d3d11Device;
@@ -117,10 +133,17 @@ public partial class Win32Window
                         this.DXGIFactory2 = DXGI.Factory2.Create();
 
                         hWnd.GetClientRect(out var rect);
+
+                        uint logicalW = (uint)Math.Max(1, rect.Right - rect.Left);
+                        uint logicalH = (uint)Math.Max(1, rect.Bottom - rect.Top);
+
+                        uint physicalW = (uint)Math.Max(1, logicalW * this.DpiScale);
+                        uint physicalH = (uint)Math.Max(1, logicalH * this.DpiScale);
+
                         SwapChainDesc1 swapChainDesc1 = new SwapChainDesc1()
                         {
-                            Width = (uint)(rect.Right - rect.Left),
-                            Height = (uint)(rect.Bottom - rect.Top),
+                            Width = physicalW,
+                            Height = physicalH,
                             Format = Format.B8G8R8A8_UNORM,
                             Stereo = false,
                             SampleDesc = new SampleDesc()
@@ -182,23 +205,39 @@ public partial class Win32Window
                         hWnd.BeginPaint(ref ps);
 
                         FrameEventRef f = new FrameEventRef(this.LastNextEstimatedFrameTime, this.NextEstimatedFrameTime);
-                        RenderEventRef e = new RenderEventRef(new Rect(0, 0, size.Width, size.Height), f);
+                        RenderEventRef e = new RenderEventRef(new Rect(0, 0, size.Width / this.DpiScale, size.Height / this.DpiScale), f);
 
                         this.RenderTarget.BeginDraw();
                         this.RenderTarget.Clear(new ColorF() { A = 0f, B = 0, G = 0, R = 0 });
 
-                        this.Direct2DContext.BeginDraw();
-                        Win32Platform.DisplayContextStack.Push(this.Direct2DContext);
-                        try
+                        if (this.Direct2DContext != null)
                         {
-                            hWnd.GetClientRect(out var rect);
+                            this.Direct2DContext.BeginDraw();
 
-                            this.Win32Window.Render(e);
-                            this.Direct2DContext.EndDraw();
-                        }
-                        finally
-                        {
-                            Win32Platform.DisplayContextStack.Pop();
+                            if (this.D2D1DeviceContext != null)
+                            {
+                                this.D2D1DeviceContext.SetTransform(new D2D1.Matrix3X2F {
+                                    _11 = this.DpiScale,
+                                    _12 = 0,
+                                    _21 = 0,
+                                    _22 = this.DpiScale,
+                                    _31 = 0,
+                                    _32 = 0
+                                });
+                            }
+
+                            Win32Platform.DisplayContextStack.Push(this.Direct2DContext);
+                            try
+                            {
+                                hWnd.GetClientRect(out var rect);
+
+                                this.Win32Window.Render(e);
+                                this.Direct2DContext.EndDraw();
+                            }
+                            finally
+                            {
+                                Win32Platform.DisplayContextStack.Pop();
+                            }
                         }
 
                         this.RenderTarget.EndDraw();
@@ -238,6 +277,13 @@ public partial class Win32Window
             }
 
             base.CheckForCompositionFrame();
+        }
+
+        private void UpdateDPI(User32.Types.HWND hWnd)
+        {
+            var dpi = hWnd.DPI;
+            this.DpiScale = dpi / 96f;
+            this.InverseDpiScale = 1.0f / this.DpiScale;
         }
     }
 }

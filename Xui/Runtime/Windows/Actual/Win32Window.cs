@@ -115,6 +115,13 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
             dwStyle = (uint)WindowStyles.WS_TILEDWINDOW;
         }
 
+        // This sets a property for the whole process.
+        // That's better be in its own platform abstraction like PlatformUIProcess. 
+        SetProcessDpiAwarenessContext((nint)DPIAwarenessContext.DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+
+        width = (int)(width * PrimaryMonitorDPIScale);
+        height = (int)(height * PrimaryMonitorDPIScale);
+
         constructedInstanceOnStack = this;
         this.Hwnd = CreateWindowEx(
             dwExStyle,
@@ -178,7 +185,7 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
             case WindowMessage.WM_NCHITTEST:
                 POINT win32ClientPoint = new POINT() { X = lParam.LoWord, Y = lParam.HiWord };
                 this.Hwnd.ScreenToClient(ref win32ClientPoint);
-                Point point = (win32ClientPoint.X, win32ClientPoint.Y);
+                Point point = new Point(win32ClientPoint.X, win32ClientPoint.Y);
 
                 hWnd.GetClientRect(out var rc);
                 Rect rect = new Rect(0, 0, rc.Right - rc.Left, rc.Bottom - rc.Top);
@@ -274,4 +281,6 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
             SetWindowPosFlags.SWP_NOSIZE |
             SetWindowPosFlags.SWP_NOACTIVATE);
     }
+
+    public static float PrimaryMonitorDPIScale => GetDpiForSystem() / 96f;
 }

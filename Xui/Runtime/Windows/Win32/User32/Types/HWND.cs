@@ -60,6 +60,9 @@ public static partial class User32
             [LibraryImport(User32Lib)]
             public static partial BOOL ScreenToClient(HWND hWnd, ref POINT lpPoint);
 
+            [LibraryImport(User32Lib)]
+            public static partial uint GetDpiForWindow(HWND hwnd);
+
             public nint value;
 
             public HWND(nint value)
@@ -90,6 +93,14 @@ public static partial class User32
                 EndPaint(this, ref lpPaint);
 
             public nint Value => this.value;
+
+            /// <summary>
+            /// Gets the DPI scale for this window.
+            /// 1.0 = 100% DPI (96 DPI), 2.0 = 200% DPI (192 DPI).
+            /// </summary>
+            public uint DPI => GetDpiForWindow(this);
+
+            public NFloat DPIScale => this.DPI / (NFloat)96;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static implicit operator nint(HWND v) => v.value;

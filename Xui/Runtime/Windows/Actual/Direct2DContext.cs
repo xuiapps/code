@@ -222,26 +222,135 @@ public partial class Direct2DContext : IDisposable, IContext
 
     void ITextDrawingContext.FillText(string text, Point pos)
     {
-        if (this.textFormat != null)
+        if (this.textFormat == null)
         {
-            this.RenderTarget.DrawText(text, this.textFormat, new RectF((float)pos.X, (float)pos.Y, float.PositiveInfinity, float.PositiveInfinity), this.fill.Brush);
+            return;
+        }
+
+        using var layout = this.DWriteFactory.CreateTextLayout(
+            text,
+            this.textFormat,
+            float.PositiveInfinity,
+            float.PositiveInfinity);
+
+        var tm = layout.GetTextMetrics();
+        var lines = layout.GetLineMetrics();
+
+        // Prefer line metrics for baseline + height
+        float lineHeight = tm.Height;
+        float alphabeticBaseline = 0f;
+
+        if (lines.Length > 0)
+        {
+            lineHeight = lines[0].Height;
+            alphabeticBaseline = lines[0].Baseline;
+        }
+
+        // If you later expose WidthIncludingTrailingWhitespace, prefer that here.
+        float width = tm.Width;
+
+        float dx = GetTextAlignOffsetX(this.TextAlign, width);
+        float dy = GetTextBaselineOffsetY(this.TextBaseline, lineHeight, alphabeticBaseline);
+
+        var x = (float)pos.X + dx;
+        var y = (float)pos.Y + dy;
+
+        this.RenderTarget.DrawText(
+            text,
+            this.textFormat,
+            new RectF(x, y, float.PositiveInfinity, float.PositiveInfinity),
+            this.fill.Brush);
+
+        static float GetTextAlignOffsetX(TextAlign align, float width)
+        {
+            switch (align)
+            {
+                case TextAlign.Center:
+                    return -width * 0.5f;
+
+                case TextAlign.Right:
+                case TextAlign.End:
+                    return -width;
+
+                case TextAlign.Left:
+                case TextAlign.Start:
+                default:
+                    return 0f;
+            }
+        }
+
+        static float GetTextBaselineOffsetY(TextBaseline baseline, float lineHeight, float alphabeticBaseline)
+        {
+            switch (baseline)
+            {
+                case TextBaseline.Top:
+                    return 0f;
+
+                case TextBaseline.Middle:
+                    // Placeholder until FontMetrics exist.
+                    return -lineHeight * 0.5f;
+
+                case TextBaseline.Bottom:
+                    return -lineHeight;
+
+                case TextBaseline.Alphabetic:
+                    return -alphabeticBaseline;
+
+                case TextBaseline.Hanging:
+                    // Placeholder until hanging baseline exists.
+                    return -alphabeticBaseline;
+
+                case TextBaseline.Ideographic:
+                    // Placeholder until ideographic baseline exists.
+                    return -lineHeight;
+
+                default:
+                    return -alphabeticBaseline;
+            }
         }
     }
 
     Core.Canvas.TextMetrics ITextMeasureContext.MeasureText(string text)
     {
-        Vector size = (0, 0);
-        // TODO: Implement getting the static font metrics from the font.
-        if (this.textFormat != null)
+        if (this.textFormat == null)
         {
-            using var layout = this.DWriteFactory.CreateTextLayout(text, this.textFormat, float.PositiveInfinity, float.PositiveInfinity);
-            var textMetrics = layout.GetTextMetrics();
-            size = (textMetrics.Width, textMetrics.Height);
+            return new Core.Canvas.TextMetrics(
+                new Core.Canvas.LineMetrics(0, 0, 0, 0, 0),
+                new FontMetrics(0, 0, 0, 0, 0, 0, 0)
+            );
         }
 
+        using var layout = this.DWriteFactory.CreateTextLayout(
+            text,
+            this.textFormat,
+            float.PositiveInfinity,
+            float.PositiveInfinity);
+
+        var tm = layout.GetTextMetrics();
+        var lines = layout.GetLineMetrics();
+
+        float width = tm.Width;
+        float height;
+        float baseline;
+
+        if (lines.Length > 0)
+        {
+            height = lines[0].Height;
+            baseline = lines[0].Baseline;
+        }
+        else
+        {
+            // Empty string fallback. Keep it stable.
+            height = 0f;
+            baseline = 0f;
+        }
+
+        float ascent = baseline;
+        float descent = Math.Max(0f, height - baseline);
+        float leading = 0f;
+
         return new Core.Canvas.TextMetrics(
-            // TODO: size.Y has to be distributed between ascent and descent based on TextBaseline 
-            new LineMetrics(size.X, 0, 0, 0, size.Y),
+            new Core.Canvas.LineMetrics(width, ascent, descent, leading, height),
             new FontMetrics(0, 0, 0, 0, 0, 0, 0)
         );
     }

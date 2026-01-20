@@ -23,6 +23,10 @@ public static partial class User32
     [LibraryImport(User32Lib, EntryPoint="CreateWindowExW")]
     public static partial nint CreateWindowEx(uint dwExStyle, ushort atom, [MarshalAs(UnmanagedType.LPUTF8Str)] string lpWindowName, uint dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, nint hMenu, nint hInstance, nint lpParam);
     
+    [LibraryImport(User32Lib)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool SetProcessDpiAwarenessContext(nint dpiContext);
+
     /// <summary>https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-translatemessage</summary>
     [LibraryImport(User32Lib)]
     public static partial int TranslateMessage(ref MSG msg);
@@ -51,4 +55,7 @@ public static partial class User32
 
     [LibraryImport(User32Lib)]
     public static unsafe partial BOOL SetLayeredWindowAttributes(HWND hWnd, COLORREF crKey, byte bAlpha, LayeredWindowAttribute dwFlags);
+
+    [LibraryImport(User32Lib)]
+    public static partial uint GetDpiForSystem();
 }
