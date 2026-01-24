@@ -27,10 +27,20 @@ public static partial class DWrite
         {
         }
 
-        public FontCollection GetSystemFontCollection()
+        public Factory(void* ptr) : base(ptr)
+        {
+        }
+
+        public FontCollection GetSystemFontCollection(bool checkForUpdates = false)
         {
             void* fontCollection;
-            Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, void**, int>)this[4])(this, &fontCollection));
+
+            Marshal.ThrowExceptionForHR(
+                ((delegate* unmanaged[MemberFunction]<void*, void**, int, int>)this[3])(
+                    this,
+                    &fontCollection,
+                    checkForUpdates ? 1 : 0));
+
             return new FontCollection(fontCollection);
         }
 

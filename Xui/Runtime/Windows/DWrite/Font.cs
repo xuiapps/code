@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using static Xui.Runtime.Windows.COM;
 
 namespace Xui.Runtime.Windows;
@@ -11,6 +12,15 @@ public static partial class DWrite
 
         public Font(void* ptr) : base(ptr)
         {
+        }
+
+        public FontFace CreateFontFace()
+        {
+            void* fontFace;
+            Marshal.ThrowExceptionForHR(
+                ((delegate* unmanaged[MemberFunction]<void*, void**, int>)this[13])(
+                    this, &fontFace));
+            return new FontFace(fontFace);
         }
     }
 }

@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Runtime.InteropServices;
 using Xui.Core.Canvas;
 using Xui.Core.Math2D;
-using Xui.Runtime.Windows.Win32;
 using static Xui.Runtime.Windows.D2D1;
 using static Xui.Runtime.Windows.DWrite;
 
@@ -34,6 +32,13 @@ public partial class Direct2DContext : IDisposable, IContext
     private Stack<State> states;
 
     private TextFormat? textFormat;
+
+    private float currentFontSizeDip;
+    private Core.Canvas.FontMetrics currentFontMetrics;
+    private string? currentFontFamilyName;
+    private DWrite.FontWeight currentFontWeight;
+    private DWrite.FontStyle currentFontStyle;
+    private DWrite.FontStretch currentFontStretch;
 
     private struct State
     {
@@ -316,8 +321,7 @@ public partial class Direct2DContext : IDisposable, IContext
         {
             return new Core.Canvas.TextMetrics(
                 new Core.Canvas.LineMetrics(0, 0, 0, 0, 0),
-                new FontMetrics(0, 0, 0, 0, 0, 0, 0)
-            );
+                new Core.Canvas.FontMetrics(0, 0, 0, 0, 0, 0, 0));
         }
 
         using var layout = this.DWriteFactory.CreateTextLayout(
@@ -329,44 +333,120 @@ public partial class Direct2DContext : IDisposable, IContext
         var tm = layout.GetTextMetrics();
         var lines = layout.GetLineMetrics();
 
-        float width = tm.Width;
-        float height;
-        float baseline;
+        // Prefer advance width including trailing whitespace for layout (cursor advance).
+        float advanceWidth = tm.WidthIncludingTrailingWhitespace;
+
+        // Approximate visual left/right in layout coordinates.
+        // DWRITE_TEXT_METRICS::left is the leftmost point of the formatted text box.
+        float left = tm.Left;
+        float right = tm.Left + tm.Width; // visual width (not including trailing whitespace)
+
+        float baseline = 0f;
+        float lineHeight = 0f;
 
         if (lines.Length > 0)
         {
-            height = lines[0].Height;
             baseline = lines[0].Baseline;
-        }
-        else
-        {
-            // Empty string fallback. Keep it stable.
-            height = 0f;
-            baseline = 0f;
+            lineHeight = lines[0].Height;
         }
 
-        float ascent = baseline;
-        float descent = Math.Max(0f, height - baseline);
-        float leading = 0f;
+        // String-specific visual ascent/descent relative to baseline.
+        float visualAscent = baseline;
+        float visualDescent = Math.Max(0f, lineHeight - baseline);
 
-        return new Core.Canvas.TextMetrics(
-            new Core.Canvas.LineMetrics(width, ascent, descent, leading, height),
-            new FontMetrics(0, 0, 0, 0, 0, 0, 0)
-        );
+        var line = new Core.Canvas.LineMetrics(
+            width: advanceWidth,
+            left: left,
+            right: right,
+            ascent: visualAscent,
+            descent: visualDescent);
+
+        // Font metrics are cached in SetFont()
+        var font = this.currentFontMetrics;
+
+        return new Core.Canvas.TextMetrics(line, font);
     }
 
     void ITextMeasureContext.SetFont(Xui.Core.Canvas.Font font)
     {
         string fontFamilyName = font.FontFamily[0];
+
         // Use system default
         FontCollection? fontCollection = null;
+
         DWrite.FontWeight fontWeight = (DWrite.FontWeight)(uint)font.FontWeight;
-        DWrite.FontStyle fontStyle = font.FontStyle.IsItalic ? DWrite.FontStyle.Italic : (font.FontStyle.IsOblique ? DWrite.FontStyle.Oblique : DWrite.FontStyle.Normal);
+        DWrite.FontStyle fontStyle =
+            font.FontStyle.IsItalic ? DWrite.FontStyle.Italic :
+            (font.FontStyle.IsOblique ? DWrite.FontStyle.Oblique : DWrite.FontStyle.Normal);
+
         float fontSize = (float)font.FontSize;
         DWrite.FontStretch fontStretch = DWrite.FontStretch.Normal;
 
         this.textFormat?.Dispose();
-        this.textFormat =  this.DWriteFactory.CreateTextFormat(fontFamilyName, fontCollection, fontWeight, fontStyle, fontStretch, fontSize, "en-US");
+        this.textFormat = this.DWriteFactory.CreateTextFormat(
+            fontFamilyName, fontCollection, fontWeight, fontStyle, fontStretch, fontSize, "en-US");
+
+        this.currentFontMetrics = this.TryComputeFontMetrics(
+            fontFamilyName, fontWeight, fontStyle, fontStretch, fontSize);
+    }
+
+    private Core.Canvas.FontMetrics TryComputeFontMetrics(
+        string familyName,
+        DWrite.FontWeight weight,
+        DWrite.FontStyle style,
+        DWrite.FontStretch stretch,
+        float fontSizeDip)
+    {
+        // Stable fallback (avoid zero height)
+        Core.Canvas.FontMetrics fallback = new Core.Canvas.FontMetrics(
+            fontAscent: fontSizeDip * 0.8f,
+            fontDescent: fontSizeDip * 0.2f,
+            emAscent: fontSizeDip * 0.8f,
+            emDescent: fontSizeDip * 0.2f,
+            alphabeticBaseline: 0,
+            hangingBaseline: 0,
+            ideographicBaseline: 0);
+
+        try
+        {
+            using var collection = this.DWriteFactory.GetSystemFontCollection();
+
+            collection.FindFamilyName(familyName, out uint familyIndex, out bool exists);
+            if (!exists)
+            {
+                return fallback;
+            }
+
+            using var family = collection.GetFontFamily(familyIndex);
+            using var dwFont = family.GetFirstMatchingFont(weight, stretch, style);
+
+            using var face0 = dwFont.CreateFontFace();
+            using var face1 = DWrite.FontFace1.FromFontFace(face0);
+
+            face1.GetMetrics(out DWrite.FontMetrics1 m);
+
+            float unitsPerEm = Math.Max(1f, m.DesignUnitsPerEm);
+            float scale = fontSizeDip / unitsPerEm;
+
+            float emAscent = m.Ascent * scale;
+            float emDescent = m.Descent * scale;
+
+            float fontAscent = (-m.GlyphBoxTop) * scale;
+            float fontDescent = (m.GlyphBoxBottom) * scale;
+
+            return new Core.Canvas.FontMetrics(
+                fontAscent: fontAscent,
+                fontDescent: fontDescent,
+                emAscent: emAscent,
+                emDescent: emDescent,
+                alphabeticBaseline: 0,
+                hangingBaseline: 0,
+                ideographicBaseline: 0);
+        }
+        catch
+        {
+            return fallback;
+        }
     }
 
     void ITransformContext.Translate(Vector vector)

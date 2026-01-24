@@ -21,8 +21,28 @@ public static partial class DWrite
         public FontFamily GetFontFamily(uint index)
         {
             void* fontFamily;
-            Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, void**, int>)this[5])(this, &fontFamily));
+
+            Marshal.ThrowExceptionForHR(
+                ((delegate* unmanaged[MemberFunction]<void*, uint, void**, int>)this[4])(
+                    this, index, &fontFamily));
+
             return new FontFamily(fontFamily);
+        }
+
+        public void FindFamilyName(string familyName, out uint index, out bool exists)
+        {
+            uint idx = 0;
+            int ex = 0;
+
+            fixed (void* familyNamePtr = &global::System.Runtime.InteropServices.Marshalling.Utf16StringMarshaller.GetPinnableReference(familyName))
+            {
+                Marshal.ThrowExceptionForHR(
+                    ((delegate* unmanaged[MemberFunction]<void*, void*, uint*, int*, int>)this[5])(
+                        this, familyNamePtr, &idx, &ex));
+            }
+
+            index = idx;
+            exists = ex != 0;
         }
     }
 }

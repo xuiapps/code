@@ -17,7 +17,11 @@ public static partial class DWrite
         public Font GetFirstMatchingFont(FontWeight fontWeight, FontStretch fontStretch, FontStyle fontStyle)
         {
             void* font;
-            Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, FontWeight, FontStretch, FontStyle, void**, int>)this[5])(this, fontWeight, fontStretch, fontStyle, &font));
+
+            Marshal.ThrowExceptionForHR(
+                ((delegate* unmanaged[MemberFunction]<void*, FontWeight, FontStretch, FontStyle, void**, int>)this[7])(
+                    this, fontWeight, fontStretch, fontStyle, &font));
+
             return new Font(font);
         }
     }

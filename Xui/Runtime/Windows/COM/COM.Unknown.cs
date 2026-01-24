@@ -31,6 +31,23 @@ public static partial class COM
             return ppv;
         }
 
+        public static void* QueryInterface(void* comPtr, in Guid refId)
+        {
+            if (comPtr == null)
+            {
+                return null;
+            }
+
+            void* ppv;
+            fixed (Guid* pIID = &refId)
+            {
+                // vtbl[0] is QueryInterface
+                var qi = (delegate* unmanaged[MemberFunction]<void*, Guid*, void**, int>)(*(*(void***)comPtr + 0));
+                Marshal.ThrowExceptionForHR(qi(comPtr, pIID, &ppv));
+            }
+            return ppv;
+        }
+
         public uint AddRef() => ((delegate* unmanaged[MemberFunction]<void*, uint>)this[1])(this);
         public uint Release() => ((delegate* unmanaged[MemberFunction]<void*, uint>)this[2])(this);
 
