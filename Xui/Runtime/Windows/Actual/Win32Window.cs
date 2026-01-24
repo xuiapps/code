@@ -22,6 +22,12 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
     private TimeSpan previous;
     private TimeSpan next;
 
+    private NFloat dpiScale = 1.0f;
+
+    private NFloat invDpiScale = 1.0f;
+
+    private bool trackingMouseLeave;
+
     private static int OnMessageStatic(HWND hWnd, WindowMessage uMsg, WPARAM wParam, LPARAM lParam)
     {
         Win32Window window;
@@ -177,18 +183,39 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
         switch (msg)
         {
             case WindowMessage.WM_CREATE:
+                this.UpdateDpiScale();
                 break;
 
             case WindowMessage.WM_DESTROY:
                 break;
 
+            case WindowMessage.WM_DPICHANGED:
+                this.UpdateDpiScale();
+
+                // lParam points to a RECT in *physical pixels* (suggested new bounds)
+                unsafe
+                {
+                    RECT* suggested = (RECT*)lParam.Value;
+                    HWND.SetWindowPos(
+                        this.Hwnd,
+                        0,
+                        suggested->Left,
+                        suggested->Top,
+                        suggested->Right - suggested->Left,
+                        suggested->Bottom - suggested->Top,
+                        SetWindowPosFlags.SWP_NOZORDER | SetWindowPosFlags.SWP_NOACTIVATE);
+                }
+
+                return 0;
+
             case WindowMessage.WM_NCHITTEST:
                 POINT win32ClientPoint = new POINT() { X = lParam.LoWord, Y = lParam.HiWord };
                 this.Hwnd.ScreenToClient(ref win32ClientPoint);
-                Point point = new Point(win32ClientPoint.X, win32ClientPoint.Y);
+
+                Point point = this.ToDip(new Point(win32ClientPoint.X, win32ClientPoint.Y));
 
                 hWnd.GetClientRect(out var rc);
-                Rect rect = new Rect(0, 0, rc.Right - rc.Left, rc.Bottom - rc.Top);
+                Rect rect = this.ToDip(new Rect(0, 0, rc.Right - rc.Left, rc.Bottom - rc.Top));
 
                 WindowHitTestEventRef eventRef = new WindowHitTestEventRef(point, rect);
                 this.Abstract.WindowHitTest(ref eventRef);
@@ -221,13 +248,106 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
                 return 0;
 
             case WindowMessage.WM_MOUSEMOVE:
+            {
+                // Ensure we get WM_MOUSELEAVE so hover can clear when leaving the window.
+                if (!this.trackingMouseLeave)
+                {
+                    TRACKMOUSEEVENT tme = new TRACKMOUSEEVENT
+                    {
+                        cbSize = (uint)Marshal.SizeOf<TRACKMOUSEEVENT>(),
+                        dwFlags = TrackMouseEventFlags.TME_LEAVE,
+                        hwndTrack = this.Hwnd,
+                        dwHoverTime = 0
+                    };
+
+                    TrackMouseEvent(ref tme);
+                    this.trackingMouseLeave = true;
+                }
+
+                var pos = this.GetMousePosDip(lParam);
+
                 MouseMoveEventRef mouseMoveEventRef = new MouseMoveEventRef()
                 {
-                    Position = lParam.MousePosition
+                    Position = pos
                 };
 
                 this.OnMouseMove(mouseMoveEventRef);
                 return 0;
+            }
+
+            case WindowMessage.WM_MOUSELEAVE:
+            {
+                this.trackingMouseLeave = false;
+
+                // Optional: if Xui has a "mouse left window" concept, call it here.
+                // Otherwise, many systems just send a move far away or clear hover internally.
+                return 0;
+            }
+
+            case WindowMessage.WM_LBUTTONDOWN:
+            {
+                // Capture so we continue to get mouse up even if the cursor leaves the window while pressed.
+                this.Hwnd.CaptureMouse();
+
+                var pos = this.GetMousePosDip(lParam);
+
+                // If you want parity with macOS: do a hit test first.
+                var hit = new WindowHitTestEventRef(pos, this.GetClientRectDip(hWnd));
+                this.Abstract.WindowHitTest(ref hit);
+
+                // For now: always forward to Xui unless you're doing custom chrome behaviors.
+                this.RaiseMouseDown(MouseButton.Left, pos);
+                return 0;
+            }
+
+            case WindowMessage.WM_LBUTTONUP:
+            {
+                HWND.ReleaseCapture();
+
+                var pos = this.GetMousePosDip(lParam);
+
+                var hit = new WindowHitTestEventRef(pos, this.GetClientRectDip(hWnd));
+                this.Abstract.WindowHitTest(ref hit);
+
+                this.RaiseMouseUp(MouseButton.Left, pos);
+                return 0;
+            }
+
+            case WindowMessage.WM_RBUTTONDOWN:
+            {
+                this.Hwnd.CaptureMouse();
+
+                var pos = this.GetMousePosDip(lParam);
+                this.RaiseMouseDown(MouseButton.Right, pos);
+                return 0;
+            }
+
+            case WindowMessage.WM_RBUTTONUP:
+            {
+                HWND.ReleaseCapture();
+
+                var pos = this.GetMousePosDip(lParam);
+                this.RaiseMouseUp(MouseButton.Right, pos);
+                return 0;
+            }
+
+            case WindowMessage.WM_MBUTTONDOWN:
+            {
+                this.Hwnd.CaptureMouse();
+
+                var pos = this.GetMousePosDip(lParam);
+                this.RaiseMouseDown(MouseButton.Other, pos);
+                return 0;
+            }
+
+            case WindowMessage.WM_MBUTTONUP:
+            {
+                HWND.ReleaseCapture();
+
+                var pos = this.GetMousePosDip(lParam);
+                this.RaiseMouseUp(MouseButton.Other, pos);
+                return 0;
+            }
 
             case WindowMessage.WM_MOUSEWHEEL:
                 ScrollWheelEventRef scrollWheelEventRef = new ScrollWheelEventRef()
@@ -283,4 +403,48 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
     }
 
     public static float PrimaryMonitorDPIScale => GetDpiForSystem() / 96f;
+
+    private void UpdateDpiScale()
+    {
+        this.dpiScale = (NFloat)this.Hwnd.DPIScale;
+        this.invDpiScale = (NFloat)1.0 / this.dpiScale;
+    }
+
+    private Point ToDip(Point p) => new Point(p.X * this.invDpiScale, p.Y * this.invDpiScale);
+
+    private Rect ToDip(Rect r) => new Rect(
+        r.X * this.invDpiScale,
+        r.Y * this.invDpiScale,
+        r.Width * this.invDpiScale,
+        r.Height * this.invDpiScale);
+
+    private Point GetMousePosDip(LPARAM lParam) =>
+        lParam.MousePosition * this.invDpiScale;
+
+    private Rect GetClientRectDip(HWND hWnd)
+    {
+        hWnd.GetClientRect(out var rc);
+        return this.ToDip(new Rect(0, 0, rc.Right - rc.Left, rc.Bottom - rc.Top));
+    }
+
+    private void RaiseMouseDown(MouseButton button, Point pos)
+    {
+        var evRef = new MouseDownEventRef()
+        {
+            Position = pos,
+            Button = button
+        };
+        this.Abstract.OnMouseDown(ref evRef);
+    }
+
+    private void RaiseMouseUp(MouseButton button, Point pos)
+    {
+        var evRef = new MouseUpEventRef()
+        {
+            Position = pos,
+            Button = button
+        };
+        this.Abstract.OnMouseUp(ref evRef);
+    }
+
 }

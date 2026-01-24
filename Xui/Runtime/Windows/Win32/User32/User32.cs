@@ -58,4 +58,7 @@ public static partial class User32
 
     [LibraryImport(User32Lib)]
     public static partial uint GetDpiForSystem();
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern BOOL TrackMouseEvent(ref TRACKMOUSEEVENT lpEventTrack);
 }

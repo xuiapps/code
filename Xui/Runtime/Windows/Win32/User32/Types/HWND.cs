@@ -63,6 +63,13 @@ public static partial class User32
             [LibraryImport(User32Lib)]
             public static partial uint GetDpiForWindow(HWND hwnd);
 
+            [LibraryImport(User32Lib, EntryPoint = "SetCapture")]
+            public static partial HWND SetCapture(HWND hWnd);
+
+            [LibraryImport(User32Lib, EntryPoint = "ReleaseCapture")]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            public static partial bool ReleaseCapture();
+
             public nint value;
 
             public HWND(nint value)
@@ -101,6 +108,8 @@ public static partial class User32
             public uint DPI => GetDpiForWindow(this);
 
             public NFloat DPIScale => this.DPI / (NFloat)96;
+
+            public HWND CaptureMouse() => SetCapture(this);
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static implicit operator nint(HWND v) => v.value;
