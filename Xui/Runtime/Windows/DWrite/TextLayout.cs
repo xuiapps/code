@@ -20,6 +20,13 @@ public static partial class DWrite
             return textMetrics;
         }
 
+        public OverhangMetrics GetOverhangMetrics()
+        {
+            OverhangMetrics m;
+            Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, OverhangMetrics*, int>)this[61])(this, &m));
+            return m;
+        }
+
         public LineMetrics[] GetLineMetrics()
         {
             uint actual = this.GetLineMetricsLinesCount();

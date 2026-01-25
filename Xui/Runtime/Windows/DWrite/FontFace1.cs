@@ -14,12 +14,12 @@ public static partial class DWrite
 
         public static FontFace1 FromFontFace(FontFace face)
         {
-            if (face == null)
+            void* p = face.QueryInterface(in IID);
+            if (p == null)
             {
-                throw new ArgumentNullException(nameof(face));
+                throw new NotSupportedException("IDWriteTextLayout1 is not available on this system.");
             }
 
-            void* p = face.QueryInterface(in IID);
             return new FontFace1(p);
         }
 

@@ -333,26 +333,35 @@ public partial class Direct2DContext : IDisposable, IContext
         var tm = layout.GetTextMetrics();
         var lines = layout.GetLineMetrics();
 
-        // Prefer advance width including trailing whitespace for layout (cursor advance).
-        float advanceWidth = tm.WidthIncludingTrailingWhitespace;
-
-        // Approximate visual left/right in layout coordinates.
-        // DWRITE_TEXT_METRICS::left is the leftmost point of the formatted text box.
-        float left = tm.Left;
-        float right = tm.Left + tm.Width; // visual width (not including trailing whitespace)
-
         float baseline = 0f;
-        float lineHeight = 0f;
-
         if (lines.Length > 0)
         {
             baseline = lines[0].Baseline;
-            lineHeight = lines[0].Height;
         }
 
-        // String-specific visual ascent/descent relative to baseline.
-        float visualAscent = baseline;
-        float visualDescent = Math.Max(0f, lineHeight - baseline);
+        // Keep your current width behavior for now.
+        float advanceWidth = tm.WidthIncludingTrailingWhitespace;
+
+        // Alignment width must match FillText's behavior to keep visuals consistent
+        float alignWidth = tm.Width; // same width you use in FillText dx computation
+        float dx = GetTextAlignOffsetX(this.TextAlign, alignWidth);
+
+        // tm.Left/tm.Width are in layout-box coordinates (origin at 0).
+        // Shift into anchor-relative coordinates by applying the same dx as FillText.
+        float left = tm.Left - dx;
+        float right = (tm.Left + tm.Width) + dx;
+
+        // Ink-ish vertical bounds via overhangs
+        var overhang = layout.GetOverhangMetrics();
+
+        float inkTop = -overhang.Top;
+        float inkBottom = tm.Height + overhang.Bottom;
+
+        float visualAscent = baseline - inkTop;
+        float visualDescent = inkBottom - baseline;
+
+        if (visualAscent < 0f) visualAscent = 0f;
+        if (visualDescent < 0f) visualDescent = 0f;
 
         var line = new Core.Canvas.LineMetrics(
             width: advanceWidth,
@@ -361,10 +370,25 @@ public partial class Direct2DContext : IDisposable, IContext
             ascent: visualAscent,
             descent: visualDescent);
 
-        // Font metrics are cached in SetFont()
-        var font = this.currentFontMetrics;
+        return new Core.Canvas.TextMetrics(line, this.currentFontMetrics);
 
-        return new Core.Canvas.TextMetrics(line, font);
+        static float GetTextAlignOffsetX(TextAlign align, float width)
+        {
+            switch (align)
+            {
+                case TextAlign.Center:
+                    return -width * 0.5f;
+
+                case TextAlign.Right:
+                case TextAlign.End:
+                    return -width;
+
+                case TextAlign.Left:
+                case TextAlign.Start:
+                default:
+                    return 0f;
+            }
+        }
     }
 
     void ITextMeasureContext.SetFont(Xui.Core.Canvas.Font font)
@@ -397,15 +421,15 @@ public partial class Direct2DContext : IDisposable, IContext
         DWrite.FontStretch stretch,
         float fontSizeDip)
     {
-        // Stable fallback (avoid zero height)
+        // Stable fallback (avoid zero height) + baselines consistent with our contract
         Core.Canvas.FontMetrics fallback = new Core.Canvas.FontMetrics(
             fontAscent: fontSizeDip * 0.8f,
             fontDescent: fontSizeDip * 0.2f,
             emAscent: fontSizeDip * 0.8f,
             emDescent: fontSizeDip * 0.2f,
-            alphabeticBaseline: 0,
-            hangingBaseline: 0,
-            ideographicBaseline: 0);
+            alphabeticBaseline: 0f,
+            hangingBaseline: -(fontSizeDip * 0.8f),
+            ideographicBaseline: fontSizeDip * 0.2f);
 
         try
         {
@@ -428,20 +452,30 @@ public partial class Direct2DContext : IDisposable, IContext
             float unitsPerEm = Math.Max(1f, m.DesignUnitsPerEm);
             float scale = fontSizeDip / unitsPerEm;
 
+            // Em metrics (typographic)
             float emAscent = m.Ascent * scale;
             float emDescent = m.Descent * scale;
 
-            float fontAscent = (-m.GlyphBoxTop) * scale;
-            float fontDescent = (m.GlyphBoxBottom) * scale;
+            // Font bounding box (for your Orange box)
+            // To match your macOS implementation (which uses CTFont.Ascent/Descent for the "font box"),
+            // use the same typographic ascent/descent here.
+            float fontAscent = emAscent;
+            float fontDescent = emDescent;
+
+            // Baselines (offsets relative to alphabetic baseline at 0)
+            float alphabeticBaseline = 0f;
+
+            float hangingBaseline = -emAscent;
+            float ideographicBaseline = emDescent;
 
             return new Core.Canvas.FontMetrics(
                 fontAscent: fontAscent,
                 fontDescent: fontDescent,
                 emAscent: emAscent,
                 emDescent: emDescent,
-                alphabeticBaseline: 0,
-                hangingBaseline: 0,
-                ideographicBaseline: 0);
+                alphabeticBaseline: alphabeticBaseline,
+                hangingBaseline: hangingBaseline,
+                ideographicBaseline: ideographicBaseline);
         }
         catch
         {
