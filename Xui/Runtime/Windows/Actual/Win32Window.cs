@@ -357,6 +357,22 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
 
                 this.OnScrollWheel(scrollWheelEventRef);
                 return 0;
+
+            case WindowMessage.WM_SETCURSOR:
+            {
+                // LOWORD(lParam) == hit-test code
+                int hitTest = (short)lParam.LoWord;
+
+                if (hitTest == (int)HitTest.HTCLIENT)
+                {
+                    var arrow = Win32.User32.LoadCursor(0, (int)Win32.User32.SystemCursor.Arrow);
+                    Win32.User32.SetCursor(arrow);
+                    return 1;
+                }
+
+                // Let Windows handle resize / caption / etc
+                return this.Hwnd.DefWindowProc(uMsg, wParam, lParam);
+            }
         }
 
         return this.Hwnd.DefWindowProc(uMsg, wParam, lParam);

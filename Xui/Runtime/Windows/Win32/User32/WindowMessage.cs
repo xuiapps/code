@@ -16,6 +16,8 @@ public static partial class User32
 
         WM_ERASEBKGND = 0x0014,
 
+        WM_SETCURSOR = 0x0020,
+
         WM_ACTIVATEAPP = 0x001C,
         WM_CANCELMODE = 0x001F,
         WM_CHILDACTIVATE = 0x0022,

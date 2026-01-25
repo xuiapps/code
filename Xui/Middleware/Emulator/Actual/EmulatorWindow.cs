@@ -303,16 +303,11 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
         }
     }
 
-    /// <summary>
-    /// Performs custom hit testing for window resizing, title drag area, and inner emulator frame.
-    /// </summary>
     void Xui.Core.Abstract.IWindow.WindowHitTest(ref WindowHitTestEventRef evRef)
     {
         NFloat titleHeight = 52f;
         NFloat gap = 8f;
-
         NFloat borderWidth = 8f;
-
         NFloat screenCornerRadius = 45f;
 
         var point = evRef.Point;
@@ -322,7 +317,12 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
             evRef.Area = WindowHitTestEventRef.WindowArea.Title;
         }
 
-        Rect emulatorRect = new Rect(evRef.Window.Left, evRef.Window.Top + titleHeight + gap, evRef.Window.Width, evRef.Window.Height - titleHeight - gap);
+        Rect emulatorRect = new Rect(
+            evRef.Window.Left,
+            evRef.Window.Top + titleHeight + gap,
+            evRef.Window.Width,
+            evRef.Window.Height - titleHeight - gap);
+
         if (emulatorRect.Contains(point))
         {
             var topLeftCenter = emulatorRect.TopLeft + (screenCornerRadius, screenCornerRadius);
@@ -331,6 +331,7 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
             var bottomRightCenter = emulatorRect.BottomRight + (-screenCornerRadius, -screenCornerRadius);
 
             NFloat signedBorderDistance;
+
             if (point.X < topLeftCenter.X && point.Y < topLeftCenter.Y)
             {
                 signedBorderDistance = (point - topLeftCenter).Magnitude - screenCornerRadius;
@@ -359,43 +360,24 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
             {
                 NFloat resizeRect = 48f;
 
-                // On border!
                 if (point.X <= emulatorRect.Left + resizeRect && point.Y <= emulatorRect.Top + resizeRect)
-                {
                     evRef.Area = WindowHitTestEventRef.WindowArea.BorderTopLeft;
-                }
                 else if (point.X >= emulatorRect.Right - resizeRect && point.Y <= emulatorRect.Top + resizeRect)
-                {
                     evRef.Area = WindowHitTestEventRef.WindowArea.BorderTopRight;
-                }
                 else if (point.X >= emulatorRect.Right - resizeRect && point.Y >= emulatorRect.Bottom - resizeRect)
-                {
                     evRef.Area = WindowHitTestEventRef.WindowArea.BorderBottomRight;
-                }
                 else if (point.X <= emulatorRect.Left + resizeRect && point.Y >= emulatorRect.Bottom - resizeRect)
-                {
                     evRef.Area = WindowHitTestEventRef.WindowArea.BorderBottomLeft;
-                }
                 else if (point.Y <= emulatorRect.Top + resizeRect)
-                {
                     evRef.Area = WindowHitTestEventRef.WindowArea.BorderTop;
-                }
                 else if (point.Y >= emulatorRect.Bottom - resizeRect)
-                {
                     evRef.Area = WindowHitTestEventRef.WindowArea.BorderBottom;
-                }
                 else if (point.X <= emulatorRect.Left + resizeRect)
-                {
                     evRef.Area = WindowHitTestEventRef.WindowArea.BorderLeft;
-                }
                 else if (point.X >= emulatorRect.Right - resizeRect)
-                {
                     evRef.Area = WindowHitTestEventRef.WindowArea.BorderRight;
-                }
                 else
-                {
                     evRef.Area = WindowHitTestEventRef.WindowArea.Client;
-                }
             }
             else if (signedBorderDistance <= 0)
             {
@@ -407,5 +389,6 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
             }
         }
     }
+
     #endregion
 }

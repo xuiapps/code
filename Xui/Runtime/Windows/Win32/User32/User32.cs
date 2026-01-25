@@ -59,6 +59,12 @@ public static partial class User32
     [LibraryImport(User32Lib)]
     public static partial uint GetDpiForSystem();
 
-    [DllImport("user32.dll", SetLastError = true)]
+    [DllImport(User32Lib, SetLastError = true)]
     public static extern BOOL TrackMouseEvent(ref TRACKMOUSEEVENT lpEventTrack);
+
+    [LibraryImport(User32Lib, EntryPoint = "LoadCursorW", SetLastError = true)]
+    public static partial nint LoadCursor(nint hInstance, int lpCursorName);
+
+    [LibraryImport(User32Lib)]
+    public static partial nint SetCursor(nint hCursor);
 }
