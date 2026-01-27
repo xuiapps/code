@@ -17,14 +17,12 @@ public class ViewCollection : View
     /// <summary>
     /// Gets the number of child views in this collection.
     /// </summary>
-    public override int Count => children.Count;
+    public override int Count => this.children.Count;
 
     /// <summary>
     /// Gets the child view at the specified index.
     /// </summary>
-    /// <param name="index">The index of the child to retrieve.</param>
-    /// <returns>The child view at the given index.</returns>
-    public override View this[int index] => children[index];
+    public override View this[int index] => this.children[index];
 
     /// <summary>
     /// Adds the provided views to this container during object initialization.
@@ -36,7 +34,7 @@ public class ViewCollection : View
         {
             foreach (var view in value)
             {
-                Add(view);
+                this.Add(view);
             }
         }
     }
@@ -44,23 +42,49 @@ public class ViewCollection : View
     /// <summary>
     /// Adds a view to this container.
     /// </summary>
-    /// <param name="child">The view to add.</param>
     /// <exception cref="InvalidOperationException">Thrown if the view already has a parent.</exception>
     public virtual void Add(View child)
     {
-        if (child.Parent != null)
-            throw new InvalidOperationException("View already has a parent.");
-        child.Parent = this;
-        children.Add(child);
+        if (child is null)
+            throw new ArgumentNullException(nameof(child));
+
+        // Centralized parent wiring + invalidation
+        this.AddProtectedChild(child);
+
+        // Maintain the list after we know attach succeeded
+        this.children.Add(child);
     }
 
     /// <summary>
     /// Removes a view from this container.
     /// </summary>
-    /// <param name="child">The view to remove.</param>
     public virtual void Remove(View child)
     {
-        if (children.Remove(child))
-            child.Parent = null;
+        if (child is null)
+            throw new ArgumentNullException(nameof(child));
+
+        // Only detach if it was actually present
+        if (this.children.Remove(child))
+        {
+            // Centralized parent unwiring + invalidation
+            this.RemoveProtectedChild(child);
+        }
+    }
+
+    /// <summary>
+    /// Removes all child views from this container.
+    /// </summary>
+    public virtual void Clear()
+    {
+        if (this.children.Count == 0)
+            return;
+
+        // Detach all first (so if something throws you don't end half-detached)
+        for (int i = 0; i < this.children.Count; i++)
+        {
+            this.RemoveProtectedChild(this.children[i]);
+        }
+
+        this.children.Clear();
     }
 }

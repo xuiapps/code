@@ -1,14 +1,19 @@
 using Xui.Core.UI;
 
-namespace Xui.Apps.TestApp.Examples;
-
 public class Example : View
 {
+    private View? content;
+
     public string Title { init; get; } = "Example";
 
-    public View? Content { init; get; }
+    public View? Content
+    {
+        get => this.content;
+        init => this.SetProtectedChild(ref this.content, value);
+    }
 
-    public override int Count => this.Content is null ? 0 : 1;
+    public override int Count => this.content is null ? 0 : 1;
 
-    public override View this[int index] => index == 0 && this.Content is not null ? this.Content : throw new IndexOutOfRangeException();
+    public override View this[int index] =>
+        index == 0 && this.content is not null ? this.content : throw new IndexOutOfRangeException();
 }

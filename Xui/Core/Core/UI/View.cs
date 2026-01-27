@@ -76,18 +76,6 @@ public partial class View
     public nfloat MaximumHeight { get; set; } = nfloat.PositiveInfinity;
 
     /// <summary>
-    /// Returns the number of child views. Used by layout containers and traversal logic.
-    /// Leaf views should return 0.
-    /// </summary>
-    public virtual int Count { get; } = 0;
-
-    /// <summary>
-    /// Indexer to access child views by index.
-    /// Layout containers should implement this to expose their children.
-    /// </summary>
-    public virtual View this[int index] { get => throw new IndexOutOfRangeException(); }
-
-    /// <summary>
     /// Determines whether the given point (in local coordinates) hits this view’s visual bounds.
     /// Used for input dispatch and hit testing.
     /// </summary>
