@@ -3,6 +3,7 @@ using static Xui.Core.Canvas.Colors;
 using Xui.Core.Canvas;
 using Xui.Core.Abstract;
 using Xui.Apps.TestApp.Pages;
+using Xui.Core.Debug;
 
 namespace Xui.Apps.BlankApp;
 
@@ -30,7 +31,7 @@ public class App : Xui.Core.Abstract.Application
 #elif BROWSER
         Xui.Core.Actual.Runtime.Current = Xui.Runtime.Browser.Actual.BrowserPlatform.Instance;
 #endif
-
+        Xui.Core.Actual.Runtime.Instruments = Xui.Core.Debug.Instruments.Console;
         return new App().Run();
     }
 

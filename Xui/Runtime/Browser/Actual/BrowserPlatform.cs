@@ -3,6 +3,7 @@ using System.Runtime.InteropServices.JavaScript;
 using Xui.Core.Abstract;
 using Xui.Core.Actual;
 using Xui.Core.Canvas;
+using Xui.Core.Debug;
 
 namespace Xui.Runtime.Browser.Actual;
 
@@ -14,7 +15,7 @@ public partial class BrowserPlatform : Xui.Core.Actual.IRuntime
 
     public IDispatcher MainDispatcher => throw new System.NotImplementedException();
 
-    public IRunLoop CreateRunloop(Application applicationAbstract) => new BrowserRunLoop(applicationAbstract);
+    public IRunLoop CreateRunloop(Application applicationAbstract, IRunLoopInstruments? instruments) => new BrowserRunLoop(applicationAbstract, instruments);
 
     public Core.Actual.IWindow CreateWindow(Core.Abstract.IWindow windowAbstract)
     {

@@ -24,10 +24,10 @@ public abstract class Application
     /// This method may block until the application exits,
     /// or may return immediately if the platform bootstraps a runtime loop before instantiating the app delegate.
     /// </summary>
-    /// <returns>The application’s exit code.</returns>
+    /// <returns>The application's exit code.</returns>
     public int Run() =>
         Runtime.Current
-            .CreateRunloop(this)
+            .CreateRunloop(this, Runtime.Instruments?.CreateRunLoop())
             .Run();
 
     /// <summary>

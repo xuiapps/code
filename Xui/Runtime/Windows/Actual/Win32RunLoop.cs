@@ -1,11 +1,13 @@
 using System;
 using System.Threading;
+using Xui.Core.Actual;
+using Xui.Core.Debug;
 using Xui.Runtime.Windows.Win32;
 using static Xui.Runtime.Windows.Win32.User32;
 
 namespace Xui.Runtime.Windows.Actual;
 
-public class Win32RunLoop : Xui.Core.Actual.IRunLoop, Xui.Core.Actual.IDispatcher
+public class Win32RunLoop : IRunLoop, IDispatcher
 {
     public const uint WM_DISPATCH_POST_MSG = 0x0400;
 
@@ -13,11 +15,14 @@ public class Win32RunLoop : Xui.Core.Actual.IRunLoop, Xui.Core.Actual.IDispatche
 
     protected Xui.Core.Abstract.Application Application { get; }
 
-    public Win32RunLoop(Xui.Core.Abstract.Application application)
+    public IRunLoopInstruments? Instruments { get; }
+
+    public Win32RunLoop(Xui.Core.Abstract.Application application, IRunLoopInstruments? instruments)
     {
         this.synchronizationContext = new Win32SynchronizationContext(this);
         SynchronizationContext.SetSynchronizationContext(this.synchronizationContext);
         this.Application = application;
+        this.Instruments = instruments;
     }
 
     public void Post(Action callback)
@@ -27,7 +32,9 @@ public class Win32RunLoop : Xui.Core.Actual.IRunLoop, Xui.Core.Actual.IDispatche
 
     public int Run()
     {
-        this.Application.Start();
+        Xui.Core.Actual.Runtime.CurrentRunLoop = this;
+        using var runTrace = this.Instruments.NullableTrace(LevelOfDetail.Essential, Aspect.ApplicationOS, $"Win32RunLoop.Run()");
+        Application.Start();
 
         if (Environment.OSVersion.Version.Major <= 10)
         {
@@ -53,6 +60,7 @@ public class Win32RunLoop : Xui.Core.Actual.IRunLoop, Xui.Core.Actual.IDispatche
                     }
                     else
                     {
+                        using var msgTrace = this.Instruments.NullableTrace(LevelOfDetail.Diagnostic, Aspect.ApplicationOS, $"Message {msg.message}");
                         var transalted = TranslateMessage(ref msg);
                         nint result = DispatchMessage(ref msg);
                     }
@@ -67,6 +75,7 @@ public class Win32RunLoop : Xui.Core.Actual.IRunLoop, Xui.Core.Actual.IDispatche
             {
                 while (PeekMessage(ref msg, 0, 0, 0, 1) && (uint)msg.message != (uint)WindowMessage.WM_QUIT)
                 {
+                    using var msgTrace = this.Instruments.NullableTrace(LevelOfDetail.Diagnostic, Aspect.ApplicationOS, $"Message {msg.message}");
                     var transalted = TranslateMessage(ref msg);
                     nint result = DispatchMessage(ref msg);
                 }

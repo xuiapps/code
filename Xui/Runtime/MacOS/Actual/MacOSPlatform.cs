@@ -1,5 +1,6 @@
 using Xui.Core.Actual;
 using Xui.Core.Canvas;
+using Xui.Core.Debug;
 
 namespace Xui.Runtime.MacOS.Actual;
 
@@ -18,7 +19,7 @@ public class MacOSPlatform : Xui.Core.Actual.IRuntime
 
     public IDispatcher MainDispatcher => macOSRunLoop!;
 
-    public IRunLoop CreateRunloop(Xui.Core.Abstract.Application application) => this.macOSRunLoop = new MacOSRunLoop(application);
+    public IRunLoop CreateRunloop(Xui.Core.Abstract.Application application, IRunLoopInstruments? instruments) => this.macOSRunLoop = new MacOSRunLoop(application, instruments);
 
     public IWindow CreateWindow(Xui.Core.Abstract.IWindow window) => new MacOSWindow(window);
 }

@@ -1,5 +1,6 @@
 using Xui.Core.Actual;
 using Xui.Core.Canvas;
+using Xui.Core.Debug;
 
 namespace Xui.Core.Actual;
 
@@ -64,4 +65,15 @@ public static class Runtime
         {
         }
     }
+
+    public static IInstruments? Instruments { get; set; }
+
+    /// <summary>
+    /// Gets or sets the current thread's run loop instance.
+    /// This is a thread-static property that tracks the IRunLoop executing on the current thread,
+    /// allowing windows and other components to access the run loop and its instrumentation
+    /// without direct coupling.
+    /// </summary>
+    [ThreadStatic]
+    public static IRunLoop? CurrentRunLoop;
 }

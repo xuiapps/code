@@ -1,4 +1,5 @@
 using Xui.Core.Canvas;
+using Xui.Core.Debug;
 
 namespace Xui.Core.Actual;
 
@@ -33,9 +34,28 @@ public interface IRuntime
 
     /// <summary>
     /// Creates a platform-specific run loop associated with the given abstract application.
-    /// The returned run loop is responsible for managing the application's execution lifecycle.
+    /// The returned run loop is responsible for managing the application's execution lifecycle,
+    /// including event dispatch, animation timing, layout, and rendering.
+    ///
+    /// An optional <see cref="IRunLoopInstruments"/> instance may be provided to enable
+    /// low-overhead runtime instrumentation for this run loop. When supplied, the run loop
+    /// will use it to record structured events such as frame boundaries, scheduling decisions,
+    /// timing scopes, and state transitions (e.g. invalidation and rendering phases).
+    ///
+    /// The instruments instance is assumed to be thread-aligned and owned by the run loop
+    /// for its entire lifetime. Implementations must not share a single instruments instance
+    /// across multiple run loops or threads.
     /// </summary>
-    /// <param name="applicationAbstract">The abstract application instance defined by user code.</param>
-    /// <returns>A platform-specific run loop instance.</returns>
-    IRunLoop CreateRunloop(Abstract.Application applicationAbstract);
+    /// <param name="applicationAbstract">
+    /// The abstract application instance defined by user code.
+    /// </param>
+    /// <param name="instruments">
+    /// An optional run-loop-aligned instrumentation instance used for tracing and performance
+    /// analysis. When <c>null</c>, the run loop should operate without instrumentation and
+    /// incur no additional overhead.
+    /// </param>
+    /// <returns>
+    /// A platform-specific run loop instance.
+    /// </returns>
+    IRunLoop CreateRunloop(Abstract.Application applicationAbstract, IRunLoopInstruments? instruments);
 }

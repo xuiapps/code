@@ -5,6 +5,8 @@ using static Xui.Runtime.Windows.Win32.User32.Types;
 using System;
 using System.Collections.Generic;
 using Xui.Core.Abstract.Events;
+using Xui.Core.Actual;
+using Xui.Core.Debug;
 using Xui.Core.Math2D;
 using static Xui.Core.Abstract.IWindow.IDesktopStyle;
 
@@ -173,6 +175,7 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
 
     public int OnMessage(HWND hWnd, WindowMessage uMsg, WPARAM wParam, LPARAM lParam)
     {
+        using var trace = (Xui.Core.Actual.Runtime.CurrentRunLoop?.Instruments).NullableTrace(LevelOfDetail.Diagnostic, Aspect.InputEvents, $"WndProc {uMsg}");
         var msg = (WindowMessage)uMsg;
 
         if (this.Renderer.HandleOnMessage(hWnd, uMsg, wParam, lParam, out var result))
@@ -392,7 +395,11 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
 
     public virtual void Invalidate() => this.Hwnd.Invalidate();
 
-    public void OnCompositionFrame() => this.Renderer.CheckForCompositionFrame();
+    public void OnCompositionFrame()
+    {
+        using var trace = (Xui.Core.Actual.Runtime.CurrentRunLoop?.Instruments).NullableTrace(LevelOfDetail.Info, Aspect.WindowRendering, $"OnCompositionFrame");
+        this.Renderer.CheckForCompositionFrame();
+    }
 
     internal void Render(RenderEventRef render) => this.Abstract.Render(ref render);
 

@@ -1,6 +1,7 @@
 using Xui.Core.Abstract;
 using Xui.Core.Actual;
 using Xui.Core.Canvas;
+using Xui.Core.Debug;
 
 namespace Xui.Middleware.Emulator.Actual;
 
@@ -37,9 +38,10 @@ public class EmulatorPlatform : IRuntime
     /// Forwards run loop creation directly to the base platform.
     /// </summary>
     /// <param name="applicationAbstract">The abstract application instance.</param>
+    /// <param name="instruments">Optional instrumentation for the run loop.</param>
     /// <returns>The native run loop for the base platform.</returns>
-    public IRunLoop CreateRunloop(Application applicationAbstract) =>
-        this.BasePlatform.CreateRunloop(applicationAbstract);
+    public IRunLoop CreateRunloop(Application applicationAbstract, IRunLoopInstruments? instruments) =>
+        this.BasePlatform.CreateRunloop(applicationAbstract, instruments);
 
     /// <summary>
     /// Intercepts window creation to insert a simulated mobile emulator window between the abstract and platform layers.

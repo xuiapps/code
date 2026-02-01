@@ -1,26 +1,32 @@
 using System;
 using System.Threading;
+using Xui.Core.Actual;
+using Xui.Core.Debug;
 using Xui.Runtime.MacOS;
 using static Xui.Runtime.MacOS.AppKit;
 using static Xui.Runtime.MacOS.Block;
 
 namespace Xui.Runtime.MacOS.Actual;
 
-public class MacOSRunLoop : Xui.Core.Actual.IRunLoop, Xui.Core.Actual.IDispatcher
+public class MacOSRunLoop : IRunLoop, IDispatcher
 {
     private SynchronizationContext synchronizationContext;
 
     protected Xui.Core.Abstract.Application Application { get; }
 
-    public MacOSRunLoop(Xui.Core.Abstract.Application application)
+    public IRunLoopInstruments? Instruments { get; }
+
+    public MacOSRunLoop(Xui.Core.Abstract.Application application, IRunLoopInstruments? instruments)
     {
         this.synchronizationContext = new MacOSSynchronizationContext(this);
         SynchronizationContext.SetSynchronizationContext(this.synchronizationContext);
         this.Application = application;
+        this.Instruments = instruments;
     }
 
     public int Run()
     {
+        Xui.Core.Actual.Runtime.CurrentRunLoop = this;
         var nsAppRef = NSApplication.SharedApplication!;
         nsAppRef.SetActivationPolicy(NSApplicationActivationPolicy.Regular);
 

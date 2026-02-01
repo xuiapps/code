@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Xui.Core.Actual;
 using Xui.Core.Canvas;
+using Xui.Core.Debug;
 
 namespace Xui.Runtime.Windows.Actual;
 
@@ -21,7 +22,7 @@ public class Win32Platform : IRuntime
     // NOTE: This will have to be thread static, if we want to render in multiple threads.
     public static Stack<IContext> DisplayContextStack { get; } = new Stack<IContext>();
 
-    public IRunLoop CreateRunloop(Xui.Core.Abstract.Application applicationAbstract) => this.win32RunLoop = new Win32RunLoop(applicationAbstract);
+    public IRunLoop CreateRunloop(Xui.Core.Abstract.Application applicationAbstract, IRunLoopInstruments? instruments) => this.win32RunLoop = new Win32RunLoop(applicationAbstract, instruments);
 
     public Xui.Core.Actual.IWindow CreateWindow(Xui.Core.Abstract.IWindow windowAbstract) => new Win32Window(windowAbstract);
 }

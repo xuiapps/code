@@ -1,3 +1,5 @@
+using Xui.Core.Debug;
+
 namespace Xui.Core.Actual;
 
 /// <summary>
@@ -10,11 +12,17 @@ namespace Xui.Core.Actual;
 public interface IRunLoop
 {
     /// <summary>
+    /// Gets the instrumentation instance for this run loop, if available.
+    /// This allows access to performance tracing and diagnostic events for the run loop.
+    /// </summary>
+    IRunLoopInstruments? Instruments { get; }
+
+    /// <summary>
     /// Starts the main run loop for the application.
     /// This method may block until the application terminates or exits naturally.
     /// On platforms with built-in UI event loops (e.g., iOS, Android),
     /// this method may return immediately after bootstrapping the application delegate.
     /// </summary>
-    /// <returns>The application’s exit code.</returns>
+    /// <returns>The application's exit code.</returns>
     int Run();
 }
