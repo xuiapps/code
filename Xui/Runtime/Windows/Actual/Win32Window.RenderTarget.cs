@@ -22,7 +22,7 @@ public partial class Win32Window
             return false;
         }
 
-        public virtual void CheckForCompositionFrame()
+        public virtual void Render()
         {
         }
     }

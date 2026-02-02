@@ -74,7 +74,7 @@ public partial class Win32Window
             }
             else if (uMsg == WindowMessage.WM_PAINT)
             {
-                this.CheckForCompositionFrame();
+                this.Render();
 
                 this.CreateWindowResources();
                 this.CreateRenderTarget();
@@ -201,30 +201,6 @@ public partial class Win32Window
 
                 hWnd.EndPaint(ref ps);
             }
-        }
-
-        public override void CheckForCompositionFrame()
-        {
-            if (this.DCompDevice != null)
-            {
-                var frameStats = this.DCompDevice.GetFrameStatistics();
-                var lastFrameTime = TimeSpan.FromSeconds(frameStats.LastFrameTime / (double)frameStats.TimeFrequency);
-                var currentTime = TimeSpan.FromSeconds(frameStats.CurrentTime / (double)frameStats.TimeFrequency);
-                var nextEstimatedFrameTime = TimeSpan.FromSeconds(frameStats.NextEstimatedFrameTime / (double)frameStats.TimeFrequency);
-
-                if (lastFrameTime != this.LastFrameTime)
-                {
-                    FrameEventRef animationFrame = new FrameEventRef(this.LastNextEstimatedFrameTime, nextEstimatedFrameTime);
-
-                    this.LastFrameTime = lastFrameTime;
-                    this.LastNextEstimatedFrameTime = this.NextEstimatedFrameTime;
-                    this.NextEstimatedFrameTime = nextEstimatedFrameTime;
-
-                    this.Win32Window.OnAnimationFrame(animationFrame);
-                }
-            }
-
-            base.CheckForCompositionFrame();
         }
 
         public void Dispose()
