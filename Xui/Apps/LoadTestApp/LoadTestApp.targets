@@ -1,0 +1,19 @@
+<Project>
+
+  <PropertyGroup>
+    <RootNamespace>Xui.Apps.LoadTestApp</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <ApplicationTitle>Xui LoadTestApp</ApplicationTitle>
+    <ApplicationId>com.xuiapps.LoadTestApp</ApplicationId>
+
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+	  <ApplicationVersion>1</ApplicationVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Add your PackageReferences here -->
+  </ItemGroup>
+
+</Project>

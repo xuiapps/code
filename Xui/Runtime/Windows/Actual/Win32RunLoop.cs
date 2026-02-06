@@ -66,9 +66,26 @@ public class Win32RunLoop : Xui.Core.Actual.IRunLoop, Xui.Core.Actual.IDispatche
         return 0;
     }
 
-    private static void WaitForNextFrame()
+    private static unsafe void WaitForNextFrame()
     {
-        DComp.DCompositionWaitForCompositorClock(0, 0, 16);
+        DComp.DCompositionWaitForCompositorClock(0, 0, 32);
+
+        // var windows = Win32Platform.Instance.Windows;
+        // int count = 0;
+
+        // Span<nint> handles = stackalloc nint[windows.Count];
+        // foreach (var w in windows)
+        // {
+        //     if (w.Renderer is Win32Window.D2DComp d2dComp && d2dComp.FrameLatencyHandle != 0)
+        //     {
+        //         handles[count++] = d2dComp.FrameLatencyHandle;
+        //     }
+        // }
+
+        // fixed (nint* ptr = handles)
+        // {
+        //     DComp.DCompositionWaitForCompositorClock((uint)count, (nint)ptr, 16);
+        // }
     }
 
     private void AnimationClockAndRender()

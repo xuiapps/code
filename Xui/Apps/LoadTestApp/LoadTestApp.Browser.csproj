@@ -20,6 +20,6 @@
   </ItemGroup>
 
   <Import Project="Xui.targets" />
-  <Import Project="BlankApp.targets" />
+  <Import Project="LoadTestApp.targets" />
 
 </Project>

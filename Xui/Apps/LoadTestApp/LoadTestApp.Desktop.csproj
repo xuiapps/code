@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -6,6 +6,6 @@
   </PropertyGroup>
 
   <Import Project="Xui.targets" />
-  <Import Project="ClockApp.targets" />
+  <Import Project="LoadTestApp.targets" />
 
 </Project>

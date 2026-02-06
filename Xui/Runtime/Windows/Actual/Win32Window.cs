@@ -191,13 +191,7 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
 
     public int OnMessage(HWND hWnd, WindowMessage uMsg, WPARAM wParam, LPARAM lParam)
     {
-        // Console.WriteLine("WndProc " + hWnd + " " + uMsg);
         var msg = (WindowMessage)uMsg;
-
-        // if (this.Renderer.HandleOnMessage(hWnd, uMsg, wParam, lParam, out var result))
-        // {
-        //     return result;
-        // }
 
         switch (msg)
         {
