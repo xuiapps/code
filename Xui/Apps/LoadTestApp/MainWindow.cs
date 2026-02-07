@@ -13,41 +13,41 @@ public class MainWindow : Window
     private NFloat CellHeight = 22;
     private NFloat ScrollY = 0;
 
-    // --- Perf sampling (rolling ~5 seconds) ---
-    private const double SampleWindowSeconds = 5.0;
+    private long previousFrameMemory;
+    private bool hasPreviousFrameMemory;
+
+    // --- Perf sampling (fixed circular buffer of 300 samples) ---
+    private const int MaxSamples = 300;
 
     private struct PerfSample
     {
         public long Timestamp;   // Stopwatch ticks
-        public long AllocBytes;  // per-frame allocated bytes
+        public long AllocBytes;  // per-frame allocated bytes (diff vs previous frame)
     }
 
-    private readonly Queue<PerfSample> samples = new(1024);
+    private readonly PerfSample[] samples = new PerfSample[MaxSamples];
+    private int sampleIndex = 0;
+    private int sampleCount = 0;
 
     private static double TicksToSeconds(long ticks)
         => (double)ticks / Stopwatch.Frequency;
 
     private void AddSample(long allocBytes)
     {
-        long now = Stopwatch.GetTimestamp();
-
-        this.samples.Enqueue(new PerfSample
+        this.samples[this.sampleIndex] = new PerfSample
         {
-            Timestamp = now,
+            Timestamp = Stopwatch.GetTimestamp(),
             AllocBytes = allocBytes
-        });
+        };
 
-        // Trim anything older than window
-        long oldestAllowed = now - (long)(SampleWindowSeconds * Stopwatch.Frequency);
-        while (this.samples.Count > 2 && this.samples.Peek().Timestamp < oldestAllowed)
-        {
-            this.samples.Dequeue();
-        }
+        this.sampleIndex = (this.sampleIndex + 1) % MaxSamples;
+        if (this.sampleCount < MaxSamples)
+            this.sampleCount++;
     }
 
     private void ComputeStats(out double fpsAvg, out long allocMin, out long allocMax, out long allocAvg, out int count)
     {
-        count = this.samples.Count;
+        count = this.sampleCount;
 
         if (count < 2)
         {
@@ -56,26 +56,18 @@ public class MainWindow : Window
             return;
         }
 
-        // Iterate without allocations
-        long firstTs = 0;
-        long lastTs = 0;
+        int oldest = (this.sampleIndex - count + MaxSamples) % MaxSamples;
+        long firstTs = this.samples[oldest].Timestamp;
+        int newest = (this.sampleIndex - 1 + MaxSamples) % MaxSamples;
+        long lastTs = this.samples[newest].Timestamp;
 
         long min = long.MaxValue;
         long max = long.MinValue;
         long sum = 0;
 
-        bool first = true;
-        foreach (var s in this.samples)
+        for (int i = 0; i < count; i++)
         {
-            if (first)
-            {
-                firstTs = s.Timestamp;
-                first = false;
-            }
-
-            lastTs = s.Timestamp;
-
-            long a = s.AllocBytes;
+            long a = this.samples[(oldest + i) % MaxSamples].AllocBytes;
             if (a < min) min = a;
             if (a > max) max = a;
             sum += a;
@@ -91,7 +83,23 @@ public class MainWindow : Window
 
     public override void Render(ref RenderEventRef render)
     {
-        long allocBefore = GC.GetAllocatedBytesForCurrentThread();
+        // Capture once per frame and diff against previous frame.
+        // (This avoids calling GetAllocatedBytesForCurrentThread twice.)
+        long memNow = GC.GetAllocatedBytesForCurrentThread();
+        long allocated = 0;
+
+        if (this.hasPreviousFrameMemory)
+        {
+            allocated = memNow - this.previousFrameMemory;
+
+            // If anything weird happens (thread switch, counter reset),
+            // clamp to 0 so stats don't explode.
+            if (allocated < 0)
+                allocated = 0;
+        }
+
+        this.previousFrameMemory = memNow;
+        this.hasPreviousFrameMemory = true;
 
         using var ctx = Xui.Core.Actual.Runtime.DrawingContext!;
 
@@ -134,14 +142,12 @@ public class MainWindow : Window
 
                 NFloat brightness = (r + g + b) / 3;
                 ctx.SetFill(brightness > 0.5 ? Colors.Black : Colors.White);
-                ctx.FillText($"{col},{row}", (x + this.CellWidth / 2, y + this.CellHeight / 2));
+
+                ctx.FillText($"C{col},{row}", (x + this.CellWidth / 2, y + this.CellHeight / 2));
             }
         }
 
         // --- Perf ---
-        long allocAfter = GC.GetAllocatedBytesForCurrentThread();
-        long allocated = allocAfter - allocBefore;
-
         this.AddSample(allocated);
 
         this.ComputeStats(
@@ -163,10 +169,8 @@ public class MainWindow : Window
         ctx.TextAlign = TextAlign.Left;
         ctx.TextBaseline = TextBaseline.Top;
 
-        // Round FPS to an integer so it doesn't wobble 59.9 / 60.9
         int fpsRounded = (int)Math.Round(fpsAvg);
 
-        // Optional: also round to nearest 10 bytes to reduce tiny jitter
         static long RoundTo(long value, long step)
             => step <= 1 ? value : ((value + (step / 2)) / step) * step;
 
@@ -178,15 +182,15 @@ public class MainWindow : Window
 
         const int lines = 4;
         const int lineH = 18;
-        int overlayH = 12 + lines * lineH + 6;
+        int overlayH = 8 + lines * lineH;
 
         ctx.SetFill(new Color(0, 0, 0, 0.7f));
-        ctx.FillRect(new Rect(8, 8, 360, overlayH));
+        ctx.FillRect(new Rect(8, 8, 160, overlayH));
 
         ctx.SetFill(Colors.Lime);
 
         int y2 = 12;
-        ctx.FillText($"FPS(avg {SampleWindowSeconds:0}s): {fpsRounded}", (12, y2));
+        ctx.FillText($"FPS(avg {sampleCount}): {fpsRounded}", (12, y2));
         y2 += lineH;
         ctx.FillText($"Samples: {sampleCount}", (12, y2));
         y2 += lineH;
@@ -194,7 +198,6 @@ public class MainWindow : Window
         y2 += lineH;
         ctx.FillText($"Alloc Range: {allocRangeR}", (12, y2));
 
-        // Request continuous animation
         Invalidate();
 
         base.Render(ref render);

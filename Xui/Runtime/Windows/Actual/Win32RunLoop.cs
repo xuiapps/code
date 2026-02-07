@@ -96,8 +96,9 @@ public class Win32RunLoop : Xui.Core.Actual.IRunLoop, Xui.Core.Actual.IDispatche
         var next = stats.NextEstimatedFrameTimeSpan;
 
         FrameEventRef @event = new FrameEventRef(previous, next);
-        foreach (var w in Win32Platform.Instance.Windows)
+        for (int i = 0; i < Win32Platform.Instance.Windows.Count; i++)
         {
+            var w = Win32Platform.Instance.Windows[i];
             w.OnAnimationFrame(ref @event);
             w.Render();
         }

@@ -34,32 +34,35 @@ public ref struct FillTextInterpolatedStringHandler
     public void AppendLiteral(string s)
     {
         if (s.Length > buffer.Length - pos)
+        {
             Grow(s.Length);
+        }
 
         s.AsSpan().CopyTo(buffer[pos..]);
         pos += s.Length;
     }
 
-    public void AppendFormatted<T>(T value)
+    // Zero-alloc path for "any span-formattable" value types and structs.
+    // This is the important one: no boxing, no interface-cast allocations.
+    public void AppendFormatted<T>(T value) where T : ISpanFormattable
     {
-        if (value is ISpanFormattable spanFormattable)
+        int charsWritten;
+        while (!value.TryFormat(buffer[pos..], out charsWritten, default, provider: null))
         {
-            int charsWritten;
-            while (!spanFormattable.TryFormat(buffer[pos..], out charsWritten, default, null))
-                Grow(16);
-            pos += charsWritten;
+            Grow(16);
         }
-        else
-        {
-            AppendLiteral(value?.ToString() ?? "");
-        }
+
+        pos += charsWritten;
     }
 
     public void AppendFormatted<T>(T value, ReadOnlySpan<char> format) where T : ISpanFormattable
     {
         int charsWritten;
-        while (!value.TryFormat(buffer[pos..], out charsWritten, format, null))
+        while (!value.TryFormat(buffer[pos..], out charsWritten, format, provider: null))
+        {
             Grow(16);
+        }
+
         pos += charsWritten;
     }
 
@@ -77,10 +80,13 @@ public ref struct FillTextInterpolatedStringHandler
         ApplyAlignment(start, alignment);
     }
 
+    // Common fast-paths the compiler will pick for these interpolations.
     public void AppendFormatted(ReadOnlySpan<char> value)
     {
         if (value.Length > buffer.Length - pos)
+        {
             Grow(value.Length);
+        }
 
         value.CopyTo(buffer[pos..]);
         pos += value.Length;
@@ -88,6 +94,11 @@ public ref struct FillTextInterpolatedStringHandler
 
     public void AppendFormatted(string? value) =>
         AppendLiteral(value ?? "");
+
+    // Explicitly "allocating fallback" for non-span-formattable objects.
+    // Keeping it explicit avoids accidental boxing allocations in a generic method.
+    public void AppendFormatted(object? value) =>
+        AppendLiteral(value?.ToString() ?? "");
 
     public readonly ReadOnlySpan<char> AsSpan() => buffer[..pos];
 
@@ -104,11 +115,15 @@ public ref struct FillTextInterpolatedStringHandler
     {
         int needed = pos + additionalRequired;
         int newSize = Math.Max(buffer.Length * 2, needed);
+
         char[] newRented = ArrayPool<char>.Shared.Rent(newSize);
+
         buffer[..pos].CopyTo(newRented);
 
         if (rented != null)
+        {
             ArrayPool<char>.Shared.Return(rented);
+        }
 
         rented = newRented;
         buffer = rented;
@@ -118,10 +133,15 @@ public ref struct FillTextInterpolatedStringHandler
     {
         int written = pos - start;
         int padding = Math.Abs(alignment) - written;
-        if (padding <= 0) return;
+        if (padding <= 0)
+        {
+            return;
+        }
 
         if (padding > buffer.Length - pos)
+        {
             Grow(padding);
+        }
 
         if (alignment > 0)
         {
