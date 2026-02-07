@@ -232,7 +232,7 @@ public partial class Direct2DContext : IDisposable, IContext
             return;
         }
 
-        using var layout = this.DWriteFactory.CreateTextLayout(
+        using var layout = this.DWriteFactory.CreateTextLayoutRef(
             text,
             this.textFormat,
             float.PositiveInfinity,
@@ -260,10 +260,9 @@ public partial class Direct2DContext : IDisposable, IContext
         var x = (float)pos.X + dx;
         var y = (float)pos.Y + dy;
 
-        this.RenderTarget.DrawText(
-            text,
-            this.textFormat,
-            new RectF(x, y, float.PositiveInfinity, float.PositiveInfinity),
+        this.RenderTarget.DrawTextLayout(
+            (x, y),
+            layout,
             this.fill.Brush);
 
         static float GetTextAlignOffsetX(TextAlign align, float width)
@@ -324,7 +323,7 @@ public partial class Direct2DContext : IDisposable, IContext
                 new Core.Canvas.FontMetrics(0, 0, 0, 0, 0, 0, 0));
         }
 
-        using var layout = this.DWriteFactory.CreateTextLayout(
+        using var layout = this.DWriteFactory.CreateTextLayoutRef(
             text,
             this.textFormat,
             float.PositiveInfinity,
@@ -433,7 +432,7 @@ public partial class Direct2DContext : IDisposable, IContext
 
         try
         {
-            using var collection = this.DWriteFactory.GetSystemFontCollection();
+            using var collection = this.DWriteFactory.GetSystemFontCollectionRef();
 
             collection.FindFamilyName(familyName, out uint familyIndex, out bool exists);
             if (!exists)
@@ -445,7 +444,7 @@ public partial class Direct2DContext : IDisposable, IContext
             using var dwFont = family.GetFirstMatchingFont(weight, stretch, style);
 
             using var face0 = dwFont.CreateFontFace();
-            using var face1 = DWrite.FontFace1.FromFontFace(face0);
+            using var face1 = DWrite.FontFace1.Ref.FromFontFace(face0);
 
             face1.GetMetrics(out DWrite.FontMetrics1 m);
 

@@ -115,6 +115,12 @@ public static partial class D2D1
             }
         }
 
+        public void DrawTextLayout(Point2F origin, DWrite.TextLayout textLayout, Brush defaultFillBrush, DrawTextOptions options = DrawTextOptions.None) =>
+            ((delegate* unmanaged[MemberFunction]<void*, Point2F, void*, void*, DrawTextOptions, void>)this[28])(this, origin, textLayout, defaultFillBrush, options);
+
+        public void DrawTextLayout(Point2F origin, DWrite.TextLayout.Ref textLayout, Brush defaultFillBrush, DrawTextOptions options = DrawTextOptions.None) =>
+            ((delegate* unmanaged[MemberFunction]<void*, Point2F, void*, void*, DrawTextOptions, void>)this[28])(this, origin, textLayout, defaultFillBrush, options);
+
         public void SetTransform(in Matrix3X2F transform)
         {
             fixed(Matrix3X2F* transformPtr = &transform)
