@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using static Xui.Runtime.Windows.COM;
 
 namespace Xui.Runtime.Windows;
@@ -11,6 +12,13 @@ public static partial class DXGI
 
         public Device(void* ptr) : base(ptr)
         {
+        }
+
+        public DXGI.Adapter GetAdapter()
+        {
+            void* adapter;
+            Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, void**, int>)this[7])(this, &adapter));
+            return new DXGI.Adapter(adapter);
         }
     }
 }

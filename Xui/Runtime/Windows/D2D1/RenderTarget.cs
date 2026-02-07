@@ -27,6 +27,17 @@ public static partial class D2D1
             return new SolidColorBrush(brush);
         }
 
+        public Brush.Ptr CreateSolidColorBrushPtr(in ColorF color)
+        {
+            void* brush;
+            fixed (BrushProperties* bpPtr = &defaultBrushProperties)
+            fixed (ColorF* colorPtr = &color)
+            {
+                Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, ColorF*, BrushProperties*, void**, int> )this[8])(this, colorPtr, bpPtr, &brush));
+            }
+            return new Brush.Ptr(brush);
+        }
+
         public void* CreateGradientStopCollectionPtr(ReadOnlySpan<GradientStop> gradientStops, Gamma gamma = Gamma.Gamma_2_2, ExtendMode extendMode = ExtendMode.Clamp)
         {
             void* gradientStopCollectionPtr;
@@ -67,8 +78,50 @@ public static partial class D2D1
             }
         }
 
+        public Brush.Ptr CreateLinearGradientBrushPtr(in LinearGradientBrush.Properties linearGradientBrushProperties, in BrushProperties brushProperties, ReadOnlySpan<GradientStop> gradientStops, Gamma gamma = Gamma.Gamma_2_2, ExtendMode extendMode = ExtendMode.Clamp)
+        {
+            fixed(LinearGradientBrush.Properties* linearGradientBrushPropertiesPtr = &linearGradientBrushProperties)
+            fixed(BrushProperties* brushPropertiesPtr = &brushProperties)
+            {
+                void* gradientStopCollectionPtr = CreateGradientStopCollectionPtr(gradientStops, gamma, extendMode);
+                void* linearGradientBrushPtr;
+                Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, LinearGradientBrush.Properties*, BrushProperties*, void*, void**, int>)this[10])(this, linearGradientBrushPropertiesPtr, brushPropertiesPtr, gradientStopCollectionPtr, &linearGradientBrushPtr));
+                Release(gradientStopCollectionPtr);
+                return new Brush.Ptr(linearGradientBrushPtr);
+            }
+        }
+
+        public Brush.Ptr CreateRadialGradientBrushPtr(in RadialGradientBrush.Properties radialGradientBrushProperties, in BrushProperties brushProperties, ReadOnlySpan<GradientStop> gradientStops, Gamma gamma = Gamma.Gamma_2_2, ExtendMode extendMode = ExtendMode.Clamp)
+        {
+            fixed(RadialGradientBrush.Properties* radialGradientBrushPropertiesPtr = &radialGradientBrushProperties)
+            fixed(BrushProperties* brushPropertiesPtr = &brushProperties)
+            {
+                void* gradientStopCollectionPtr = CreateGradientStopCollectionPtr(gradientStops, gamma, extendMode);
+                void* radialGradientBrushPtr;
+                Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, RadialGradientBrush.Properties*, BrushProperties*, void*, void**, int>)this[11])(this, radialGradientBrushPropertiesPtr, brushPropertiesPtr, gradientStopCollectionPtr, &radialGradientBrushPtr));
+                Release(gradientStopCollectionPtr);
+                return new Brush.Ptr(radialGradientBrushPtr);
+            }
+        }
+
         
         public void DrawRectangle(in RectF rect, Brush brush, float strokeWidth = 1.0f, StrokeStyle? strokeStyle = null)
+        {
+            fixed (RectF* rectPtr = &rect)
+            {
+                ((delegate* unmanaged[MemberFunction]<void*, RectF*, void*, float, void*, void>)this[16])(this, rectPtr, brush, strokeWidth, strokeStyle);
+            }
+        }
+
+        public void DrawRectangle(in RectF rect, Brush.Ptr brush, float strokeWidth = 1.0f, StrokeStyle? strokeStyle = null)
+        {
+            fixed (RectF* rectPtr = &rect)
+            {
+                ((delegate* unmanaged[MemberFunction]<void*, RectF*, void*, float, void*, void>)this[16])(this, rectPtr, brush, strokeWidth, strokeStyle);
+            }
+        }
+
+        public void DrawRectangle(in RectF rect, Brush.Ptr brush, float strokeWidth, StrokeStyle.Ptr strokeStyle)
         {
             fixed (RectF* rectPtr = &rect)
             {
@@ -84,7 +137,23 @@ public static partial class D2D1
             }
         }
 
+        public void FillRectangle(in RectF rect, Brush.Ptr brush)
+        {
+            fixed (RectF* rectPtr = &rect)
+            {
+                ((delegate* unmanaged[MemberFunction]<void*, RectF*, void*, void> )this[17])(this, rectPtr, brush);
+            }
+        }
+
         public void DrawRoundedRectangle(in RoundRect roundRect, Brush brush, float strokeWidth = 1f, StrokeStyle? strokeStyle = null)
+        {
+            fixed(RoundRect* roundedRectPtr = &roundRect)
+            {
+                ((delegate* unmanaged[MemberFunction]<void*, RoundRect*, void*, float, void*, void> )this[18])(this, roundedRectPtr, brush, strokeWidth, strokeStyle);
+            }
+        }
+
+        public void DrawRoundedRectangle(in RoundRect roundRect, Brush.Ptr brush, float strokeWidth = 1f, StrokeStyle? strokeStyle = null)
         {
             fixed(RoundRect* roundedRectPtr = &roundRect)
             {
@@ -100,11 +169,31 @@ public static partial class D2D1
             }
         }
 
+        public void FillRoundedRectangle(in RoundRect roundRect, Brush.Ptr brush)
+        {
+            fixed(RoundRect* roundedRectPtr = &roundRect)
+            {
+                ((delegate* unmanaged[MemberFunction]<void*, RoundRect*, void*, void> )this[19])(this, roundedRectPtr, brush);
+            }
+        }
+
         public void DrawGeometry(Geometry geometry, Brush brush, float strokeWidth = 1f, StrokeStyle? strokeStyle = null) =>
+            ((delegate* unmanaged[MemberFunction]<void*, void*, void*, float, void*, void> )this[22])(this, geometry, brush, strokeWidth, strokeStyle);
+
+        public void DrawGeometry(Geometry geometry, Brush.Ptr brush, float strokeWidth = 1f, StrokeStyle? strokeStyle = null) =>
+            ((delegate* unmanaged[MemberFunction]<void*, void*, void*, float, void*, void> )this[22])(this, geometry, brush, strokeWidth, strokeStyle);
+
+        public void DrawGeometry(PathGeometry.Ptr geometry, Brush.Ptr brush, float strokeWidth = 1f, StrokeStyle.Ptr strokeStyle = default) =>
             ((delegate* unmanaged[MemberFunction]<void*, void*, void*, float, void*, void> )this[22])(this, geometry, brush, strokeWidth, strokeStyle);
 
         public void FillGeometry(Geometry geometry, Brush brush, Brush? opacityBrush = null) =>
             ((delegate* unmanaged[MemberFunction]<void*, void*, void*, void*, void> )this[23])(this, geometry, brush, opacityBrush);
+
+        public void FillGeometry(Geometry geometry, Brush.Ptr brush) =>
+            ((delegate* unmanaged[MemberFunction]<void*, void*, void*, void*, void> )this[23])(this, geometry, brush, null);
+
+        public void FillGeometry(PathGeometry.Ptr geometry, Brush.Ptr brush) =>
+            ((delegate* unmanaged[MemberFunction]<void*, void*, void*, void*, void> )this[23])(this, geometry, brush, null);
 
         public void DrawText(string text, TextFormat textFormat, in RectF layoutRect, Brush defaultFillBrush, DrawTextOptions options = DrawTextOptions.None, MeasuringMode measuringMode = MeasuringMode.Natural)
         {
@@ -114,6 +203,18 @@ public static partial class D2D1
                 ((delegate* unmanaged[MemberFunction]<void*, void*, uint, void*, RectF*, void*, DrawTextOptions, MeasuringMode, void>)this[27])(this, textPtr, (uint)text.Length, textFormat, layoutRectPtr, defaultFillBrush, options, measuringMode);
             }
         }
+
+        public void DrawTextLayout(Point2F origin, DWrite.TextLayout textLayout, Brush defaultFillBrush, DrawTextOptions options = DrawTextOptions.None) =>
+            ((delegate* unmanaged[MemberFunction]<void*, Point2F, void*, void*, DrawTextOptions, void>)this[28])(this, origin, textLayout, defaultFillBrush, options);
+
+        public void DrawTextLayout(Point2F origin, DWrite.TextLayout.Ref textLayout, Brush defaultFillBrush, DrawTextOptions options = DrawTextOptions.None) =>
+            ((delegate* unmanaged[MemberFunction]<void*, Point2F, void*, void*, DrawTextOptions, void>)this[28])(this, origin, textLayout, defaultFillBrush, options);
+
+        public void DrawTextLayout(Point2F origin, DWrite.TextLayout textLayout, Brush.Ptr defaultFillBrush, DrawTextOptions options = DrawTextOptions.None) =>
+            ((delegate* unmanaged[MemberFunction]<void*, Point2F, void*, void*, DrawTextOptions, void>)this[28])(this, origin, textLayout, defaultFillBrush, options);
+
+        public void DrawTextLayout(Point2F origin, DWrite.TextLayout.Ref textLayout, Brush.Ptr defaultFillBrush, DrawTextOptions options = DrawTextOptions.None) =>
+            ((delegate* unmanaged[MemberFunction]<void*, Point2F, void*, void*, DrawTextOptions, void>)this[28])(this, origin, textLayout, defaultFillBrush, options);
 
         public void SetTransform(in Matrix3X2F transform)
         {
@@ -145,7 +246,13 @@ public static partial class D2D1
         public void SaveDrawingState(DrawingStateBlock drawingStateBlock) =>
             ((delegate* unmanaged[MemberFunction]<void*, void*, void>)this[43])(this, drawingStateBlock);
 
+        public void SaveDrawingState(DrawingStateBlock.Ptr drawingStateBlock) =>
+            ((delegate* unmanaged[MemberFunction]<void*, void*, void>)this[43])(this, drawingStateBlock);
+
         public void RestoreDrawingState(DrawingStateBlock drawingStateBlock) =>
+            ((delegate* unmanaged[MemberFunction]<void*, void*, void>)this[44])(this, drawingStateBlock);
+
+        public void RestoreDrawingState(DrawingStateBlock.Ptr drawingStateBlock) =>
             ((delegate* unmanaged[MemberFunction]<void*, void*, void>)this[44])(this, drawingStateBlock);
 
         public void Clear(ColorF color) =>

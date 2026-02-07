@@ -1,12 +1,13 @@
-using System.Runtime.InteropServices;
-using static Xui.Runtime.Windows.Win32.User32;
-using static Xui.Runtime.Windows.Win32.Types;
-using static Xui.Runtime.Windows.Win32.User32.Types;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using Xui.Core.Abstract.Events;
 using Xui.Core.Math2D;
+using Xui.Runtime.Windows.Win32;
 using static Xui.Core.Abstract.IWindow.IDesktopStyle;
+using static Xui.Runtime.Windows.Win32.Types;
+using static Xui.Runtime.Windows.Win32.User32;
+using static Xui.Runtime.Windows.Win32.User32.Types;
 
 namespace Xui.Runtime.Windows.Actual;
 
@@ -19,6 +20,10 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
 
     private static Dictionary<HWND, Win32Window> HwndToWindow = new Dictionary<HWND, Win32Window>();
 
+    private volatile bool invalid = true;
+
+    public bool NeedsFrame => this.invalid;
+
     private TimeSpan previous;
     private TimeSpan next;
 
@@ -27,6 +32,19 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
     private NFloat invDpiScale = 1.0f;
 
     private bool trackingMouseLeave;
+
+    public nint CompositionFrameHandle
+    {
+        get
+        {
+            if (this.Renderer is D2DComp d2dComp)
+            {
+                return d2dComp.FrameLatencyHandle;
+            }
+
+            return 0;
+        }
+    }
 
     private static int OnMessageStatic(HWND hWnd, WindowMessage uMsg, WPARAM wParam, LPARAM lParam)
     {
@@ -122,7 +140,7 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
         }
 
         // This sets a property for the whole process.
-        // That's better be in its own platform abstraction like PlatformUIProcess. 
+        // That's better be in its own platform abstraction like PlatformUIProcess.
         SetProcessDpiAwarenessContext((nint)DPIAwarenessContext.DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
         width = (int)(width * PrimaryMonitorDPIScale);
@@ -175,21 +193,10 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
     {
         var msg = (WindowMessage)uMsg;
 
-        if (this.Renderer.HandleOnMessage(hWnd, uMsg, wParam, lParam, out var result))
-        {
-            return result;
-        }
-
         switch (msg)
         {
-            case WindowMessage.WM_CREATE:
-                this.UpdateDpiScale();
-                break;
-
-            case WindowMessage.WM_DESTROY:
-                break;
-
             case WindowMessage.WM_DPICHANGED:
+            {
                 this.UpdateDpiScale();
 
                 // lParam points to a RECT in *physical pixels* (suggested new bounds)
@@ -206,7 +213,41 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
                         SetWindowPosFlags.SWP_NOZORDER | SetWindowPosFlags.SWP_NOACTIVATE);
                 }
 
+                var res = this.Hwnd.DefWindowProc(uMsg, wParam, lParam);
+                ((D2DComp)this.Renderer).ResizeBuffers(hWnd);
+                this.invalid = true;
+                this.Render();
+                return res;
+            }
+            case WindowMessage.WM_SIZE:
+            {
+                var res = this.Hwnd.DefWindowProc(uMsg, wParam, lParam);
+                ((D2DComp)this.Renderer).ResizeBuffers(hWnd);
+                this.invalid = true;
+                this.Render();
+                this.invalid = true;
+                return res;
+            }
+
+            case WindowMessage.WM_PAINT:
+            {
+                // Validate the update region; do not render here.
+                // Rendering should be driven by compositor pacing (frame latency handle / run loop),
+                // not by WM_PAINT.
+                PAINTSTRUCT ps = new();
+                hWnd.BeginPaint(ref ps);
+                hWnd.EndPaint(ref ps);
+
                 return 0;
+            }
+
+            case WindowMessage.WM_CREATE:
+                this.UpdateDpiScale();
+                break;
+
+            case WindowMessage.WM_DESTROY:
+                Win32Platform.Instance.RemoveWindow(this);
+                break;
 
             case WindowMessage.WM_NCHITTEST:
                 POINT win32ClientPoint = new POINT() { X = lParam.LoWord, Y = lParam.HiWord };
@@ -244,9 +285,6 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
 
                 break;
 
-            case WindowMessage.WM_PAINT:
-                return 0;
-
             case WindowMessage.WM_MOUSEMOVE:
             {
                 // Ensure we get WM_MOUSELEAVE so hover can clear when leaving the window.
@@ -278,9 +316,6 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
             case WindowMessage.WM_MOUSELEAVE:
             {
                 this.trackingMouseLeave = false;
-
-                // Optional: if Xui has a "mouse left window" concept, call it here.
-                // Otherwise, many systems just send a move far away or clear hover internally.
                 return 0;
             }
 
@@ -384,17 +419,43 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
     protected virtual void OnScrollWheel(ScrollWheelEventRef scrollWheelEventRef) =>
         this.Abstract.OnScrollWheel(ref scrollWheelEventRef);
 
+    private void EnsureRendererInitialized()
+    {
+        if (this.Renderer is D2DComp d2dComp)
+        {
+            d2dComp.EnsureInitialized(this.Hwnd);
+        }
+    }
+
     public void Show()
     {
         this.Hwnd.ShowWindow();
         this.Hwnd.UpdateWindow();
+
+        // Initialize swapchain/DComp outside WM_PAINT so the run loop can
+        // use the frame latency handle to pace frames.
+        this.EnsureRendererInitialized();
     }
 
-    public virtual void Invalidate() => this.Hwnd.Invalidate();
+    public virtual void Invalidate() => this.invalid = true;
 
-    public void OnCompositionFrame() => this.Renderer.CheckForCompositionFrame();
+    public void OnAnimationFrame(ref FrameEventRef @event) =>
+        this.Abstract.OnAnimationFrame(ref @event);
 
-    internal void Render(RenderEventRef render) => this.Abstract.Render(ref render);
+    public void Render()
+    {
+        if (this.invalid)
+        {
+            this.invalid = false;
+            this.Renderer.Render();
+        }
+    }
+
+    internal void Render(RenderEventRef render)
+    {
+        // Console.WriteLine("Render()");
+        this.Abstract.Render(ref render);
+    }
 
     internal void OnAnimationFrame(FrameEventRef animationFrame)
     {
@@ -462,5 +523,4 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
         };
         this.Abstract.OnMouseUp(ref evRef);
     }
-
 }

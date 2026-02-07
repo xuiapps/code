@@ -1,89 +1,129 @@
 using System;
+using System.Collections.Concurrent;
 using System.Threading;
-using Xui.Runtime.Windows.Win32;
+using Xui.Core.Abstract.Events;
 using static Xui.Runtime.Windows.Win32.User32;
 
 namespace Xui.Runtime.Windows.Actual;
 
 public class Win32RunLoop : Xui.Core.Actual.IRunLoop, Xui.Core.Actual.IDispatcher
 {
-    public const uint WM_DISPATCH_POST_MSG = 0x0400;
+    // From WinUser.h
+    public const uint PM_REMOVE = 0x0001;
 
-    private SynchronizationContext synchronizationContext;
+    private readonly SynchronizationContext synchronizationContext;
+    private readonly ConcurrentQueue<Action> postQueue = new();
 
     protected Xui.Core.Abstract.Application Application { get; }
+
+    // Devices (app lifetime)
+    private DXGI.Device? dxgiDevice;
+    private DComp.Device? dCompDevice;
+
+    // Timing state (app lifetime)
+    private TimeSpan lastCurrent;
 
     public Win32RunLoop(Xui.Core.Abstract.Application application)
     {
         this.synchronizationContext = new Win32SynchronizationContext(this);
         SynchronizationContext.SetSynchronizationContext(this.synchronizationContext);
+
         this.Application = application;
     }
 
     public void Post(Action callback)
     {
-        throw new NotImplementedException();
+        if (callback == null)
+        {
+            return;
+        }
+
+        this.postQueue.Enqueue(callback);
     }
 
     public int Run()
     {
         this.Application.Start();
 
-        if (Environment.OSVersion.Version.Major <= 10)
+        unsafe
         {
-            nuint timerId = User32.SetTimer(0, 0, 16, 0);
-
-            MSG msg = new MSG();
-            do
-            {
-                while(GetMessage(ref msg, 0, 0, 0))
-                {
-                    if (msg.message == WindowMessage.WM_TIMER)
-                    {
-                        if (msg.wParam == timerId)
-                        {
-                            foreach(var w in Xui.Core.Abstract.Window.OpenWindows)
-                            {
-                                if (w.Actual is Win32Window win32window)
-                                {
-                                    win32window.OnCompositionFrame();
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        var transalted = TranslateMessage(ref msg);
-                        nint result = DispatchMessage(ref msg);
-                    }
-                }
-            }
-            while((uint)msg.message != (uint)WindowMessage.WM_QUIT);
+            // Create once
+            D3D11.CreateDevice(out var d3d11Device, out var _, out var _);
+            this.dxgiDevice = new DXGI.Device(d3d11Device.QueryInterface(in DXGI.Device.IID));
+            this.dCompDevice = DComp.Device.Create(this.dxgiDevice);
         }
-        else
+
+        MSG m = new MSG();
+
+        while(m.message != WindowMessage.WM_QUIT)
         {
-            MSG msg = new MSG();
-            do
-            {
-                while (PeekMessage(ref msg, 0, 0, 0, 1) && (uint)msg.message != (uint)WindowMessage.WM_QUIT)
-                {
-                    var transalted = TranslateMessage(ref msg);
-                    nint result = DispatchMessage(ref msg);
-                }
-
-                DComp.DCompositionWaitForCompositorClock(0, 0, 16);
-
-                foreach(var w in Xui.Core.Abstract.Window.OpenWindows)
-                {
-                    if (w.Actual is Win32Window win32window)
-                    {
-                        win32window.OnCompositionFrame();
-                    }
-                }
-            }
-            while((uint)msg.message != (uint)WindowMessage.WM_QUIT);
+            HandleInput(ref m);
+            ApplicationMessages();
+            AnimationClockAndRender();
+            WaitForNextFrame();
         }
 
         return 0;
+    }
+
+    private static unsafe void WaitForNextFrame()
+    {
+        DComp.DCompositionWaitForCompositorClock(0, 0, 32);
+
+        // var windows = Win32Platform.Instance.Windows;
+        // int count = 0;
+
+        // Span<nint> handles = stackalloc nint[windows.Count];
+        // foreach (var w in windows)
+        // {
+        //     if (w.Renderer is Win32Window.D2DComp d2dComp && d2dComp.FrameLatencyHandle != 0)
+        //     {
+        //         handles[count++] = d2dComp.FrameLatencyHandle;
+        //     }
+        // }
+
+        // fixed (nint* ptr = handles)
+        // {
+        //     DComp.DCompositionWaitForCompositorClock((uint)count, (nint)ptr, 16);
+        // }
+    }
+
+    private void AnimationClockAndRender()
+    {
+        var stats = this.dCompDevice!.GetFrameStatistics();
+
+        var previous = stats.CurrentTimeSpan;
+        var next = stats.NextEstimatedFrameTimeSpan;
+
+        FrameEventRef @event = new FrameEventRef(previous, next);
+        for (int i = 0; i < Win32Platform.Instance.Windows.Count; i++)
+        {
+            var w = Win32Platform.Instance.Windows[i];
+            w.OnAnimationFrame(ref @event);
+            w.Render();
+        }
+    }
+
+    private void ApplicationMessages()
+    {
+        while (this.postQueue.TryDequeue(out var action))
+        {
+            try
+            {
+                action();
+            }
+            catch
+            {
+            }
+        }
+    }
+
+    private static void HandleInput(ref MSG m)
+    {
+        while (PeekMessage(ref m, 0, 0, 0, PM_REMOVE) && m.message != WindowMessage.WM_QUIT)
+        {
+            TranslateMessage(ref m);
+            DispatchMessage(ref m);
+        }
     }
 }

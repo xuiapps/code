@@ -16,7 +16,7 @@ public static partial class DWrite
 
         public static TextLayout1 FromTextLayout(TextLayout layout)
         {
-            void* p = COM.Unknown.QueryInterface(layout.Ptr, IID);
+            void* p = COM.Unknown.QueryInterface((void*)layout, IID);
             if (p == null)
             {
                 throw new NotSupportedException("IDWriteTextLayout1 is not available on this system.");

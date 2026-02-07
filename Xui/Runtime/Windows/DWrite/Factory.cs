@@ -44,6 +44,19 @@ public static partial class DWrite
             return new FontCollection(fontCollection);
         }
 
+        public FontCollection.Ref GetSystemFontCollectionRef(bool checkForUpdates = false)
+        {
+            void* fontCollection;
+
+            Marshal.ThrowExceptionForHR(
+                ((delegate* unmanaged[MemberFunction]<void*, void**, int, int>)this[3])(
+                    this,
+                    &fontCollection,
+                    checkForUpdates ? 1 : 0));
+
+            return new FontCollection.Ref(fontCollection);
+        }
+
         public TextFormat CreateTextFormat(string fontFamilyName, FontCollection? fontCollection, FontWeight fontWeight, FontStyle fontStyle, FontStretch fontStretch, float fontSize, string localeName)
         {
             void* textFormat;
@@ -57,6 +70,19 @@ public static partial class DWrite
             return new TextFormat(textFormat);
         }
 
+        public TextFormat.Ptr CreateTextFormatPtr(string fontFamilyName, FontCollection? fontCollection, FontWeight fontWeight, FontStyle fontStyle, FontStretch fontStretch, float fontSize, string localeName)
+        {
+            void* textFormat;
+
+            fixed (void* fontFamilyNamePtr = &global::System.Runtime.InteropServices.Marshalling.Utf16StringMarshaller.GetPinnableReference(fontFamilyName))
+            fixed (void* localeNamePtr = &global::System.Runtime.InteropServices.Marshalling.Utf16StringMarshaller.GetPinnableReference(localeName))
+            {
+                Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, void*, void*, FontWeight, FontStyle, FontStretch, float, void*, void**, int>)this[15])(this, fontFamilyNamePtr, fontCollection, fontWeight, fontStyle, fontStretch, fontSize, localeNamePtr, &textFormat));
+            }
+
+            return new TextFormat.Ptr(textFormat);
+        }
+
         public TextLayout CreateTextLayout(string text, TextFormat textFormat, float maxWidth, float maxHeight)
         {
             void* textLayout;
@@ -65,6 +91,46 @@ public static partial class DWrite
                 Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, void*, uint, void*, float, float, void**, int>)this[18])(this, textPtr, (uint)text.Length, textFormat, maxWidth, maxHeight, &textLayout));
             }
             return new TextLayout(textLayout);
+        }
+
+        public TextLayout.Ref CreateTextLayoutRef(string text, TextFormat textFormat, float maxWidth, float maxHeight)
+        {
+            void* textLayout;
+            fixed (void* textPtr = &global::System.Runtime.InteropServices.Marshalling.Utf16StringMarshaller.GetPinnableReference(text))
+            {
+                Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, void*, uint, void*, float, float, void**, int>)this[18])(this, textPtr, (uint)text.Length, textFormat, maxWidth, maxHeight, &textLayout));
+            }
+            return new TextLayout.Ref(textLayout);
+        }
+
+        public TextLayout.Ref CreateTextLayoutRef(ReadOnlySpan<char> text, TextFormat textFormat, float maxWidth, float maxHeight)
+        {
+            void* textLayout;
+            fixed (char* textPtr = text)
+            {
+                Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, void*, uint, void*, float, float, void**, int>)this[18])(this, textPtr, (uint)text.Length, textFormat, maxWidth, maxHeight, &textLayout));
+            }
+            return new TextLayout.Ref(textLayout);
+        }
+
+        public TextLayout.Ref CreateTextLayoutRef(string text, TextFormat.Ptr textFormat, float maxWidth, float maxHeight)
+        {
+            void* textLayout;
+            fixed (void* textPtr = &global::System.Runtime.InteropServices.Marshalling.Utf16StringMarshaller.GetPinnableReference(text))
+            {
+                Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, void*, uint, void*, float, float, void**, int>)this[18])(this, textPtr, (uint)text.Length, textFormat, maxWidth, maxHeight, &textLayout));
+            }
+            return new TextLayout.Ref(textLayout);
+        }
+
+        public TextLayout.Ref CreateTextLayoutRef(ReadOnlySpan<char> text, TextFormat.Ptr textFormat, float maxWidth, float maxHeight)
+        {
+            void* textLayout;
+            fixed (char* textPtr = text)
+            {
+                Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, void*, uint, void*, float, float, void**, int>)this[18])(this, textPtr, (uint)text.Length, textFormat, maxWidth, maxHeight, &textLayout));
+            }
+            return new TextLayout.Ref(textLayout);
         }
     }
 }

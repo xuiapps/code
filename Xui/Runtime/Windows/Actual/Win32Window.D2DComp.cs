@@ -5,6 +5,7 @@ using Xui.Runtime.Windows.Win32;
 using static Xui.Runtime.Windows.D2D1;
 using static Xui.Runtime.Windows.DXGI;
 using static Xui.Runtime.Windows.Win32.User32;
+using static Xui.Runtime.Windows.Win32.User32.Types;
 
 namespace Xui.Runtime.Windows.Actual;
 
@@ -33,7 +34,6 @@ public partial class Win32Window
         protected D2D1.Device1? D2D1Device1 { get; private set; }
         protected D2D1.DeviceContext? D2D1DeviceContext { get; private set; }
 
-        //
         protected DXGI.Surface? DXGISurface { get; private set; }
         protected D2D1.Bitmap1? D2D1Bitmap1 { get; private set; }
 
@@ -42,241 +42,258 @@ public partial class Win32Window
         protected DComp.Target? DCompTarget { get; private set; }
         protected DComp.Visual? DCompVisual { get; private set; }
 
-        // 
         protected D2D1.RenderTarget? RenderTarget => this.D2D1DeviceContext;
         protected DWrite.Factory? DWriteFactory { get; private set; }
         protected Direct2DContext? Direct2DContext { get; private set; }
+
+        /// <summary>
+        /// IDXGISwapChain2::GetFrameLatencyWaitableObject() handle.
+        /// </summary>
+        public nint FrameLatencyHandle { get; private set; }
 
         // Frame
         private TimeSpan LastFrameTime = TimeSpan.Zero;
         private TimeSpan LastNextEstimatedFrameTime = TimeSpan.Zero;
         private TimeSpan NextEstimatedFrameTime = TimeSpan.Zero;
 
-        public override bool HandleOnMessage(User32.Types.HWND hWnd, User32.WindowMessage uMsg, Win32.Types.WPARAM wParam, Win32.Types.LPARAM lParam, out int result)
+        /// <summary>
+        /// Initializes the swapchain + D2D target + DComp visual tree.
+        /// Must not be done in WM_PAINT (we validate there only).
+        /// </summary>
+        public void EnsureInitialized(HWND hWnd)
         {
-            if (uMsg == WindowMessage.WM_SIZE || uMsg == WindowMessage.WM_DPICHANGED)
+            if (this.SwapChain1 != null)
             {
-                if (uMsg == WindowMessage.WM_DPICHANGED)
-                {
-                    this.UpdateDPI(hWnd);
-                }
-
-                if (this.SwapChain1 != null && this.D2D1DeviceContext != null)
-                {
-                    hWnd.GetClientRect(out var rc);
-
-                    this.UpdateDPI(hWnd);
-
-                    uint logicalW = (uint)Math.Max(1, rc.Right - rc.Left);
-                    uint logicalH = (uint)Math.Max(1, rc.Bottom - rc.Top);
-
-                    uint physicalW = (uint)Math.Max(1, logicalW * this.DpiScale);
-                    uint physicalH = (uint)Math.Max(1, logicalH * this.DpiScale);
-
-                    // Detach target before resizing
-                    this.D2D1DeviceContext.SetTarget(null);
-
-                    // Release size-dependent resources
-                    this.D2D1Bitmap1?.Dispose();
-                    this.D2D1Bitmap1 = null;
-
-                    this.DXGISurface?.Dispose();
-                    this.DXGISurface = null;
-
-                    // Resize swapchain buffers
-                    this.SwapChain1.ResizeBuffers(
-                        bufferCount: 2,
-                        width: physicalW,
-                        height: physicalH,
-                        newFormat: Format.B8G8R8A8_UNORM,
-                        swapChainFlags: 0);
-
-                    // Rebind backbuffer as D2D target
-                    this.DXGISurface = this.SwapChain1.GetBufferAsSurface(0);
-
-                    D2D1.BitmapProperties1 bitmapProperties1 = new D2D1.BitmapProperties1()
-                    {
-                        PixelFormat = new D2D1.PixelFormat()
-                        {
-                            AlphaMode = D2D1.AlphaMode.Premultiplied,
-                            Format = Format.B8G8R8A8_UNORM
-                        },
-                        BitmapOptions = D2D1.BitmapOptions.Target | D2D1.BitmapOptions.CannotDraw,
-                    };
-
-                    this.D2D1Bitmap1 =
-                        this.D2D1DeviceContext.CreateBitmapFromDxgiSurface(
-                            this.DXGISurface,
-                            bitmapProperties1);
-
-                    this.D2D1DeviceContext.SetTarget(this.D2D1Bitmap1);
-                }
-
-                result = 0;
-                return true;
-            }
-            
-            if (uMsg == WindowMessage.WM_PAINT)
-            {
-                unsafe
-                {
-                    if (this.SwapChain1 == null)
-                    {
-                        this.UpdateDPI(hWnd);
-
-                        // Composition SwapChain
-                        D3D11.CreateDevice(out var d3d11Device, out var d3d11FeatureLevel, out var d3d11DeviceContext);
-                        this.D3D11Device = d3d11Device;
-                        this.D3D11FeatureLevel = d3d11FeatureLevel;
-                        this.D3D11DeviceContext = d3d11DeviceContext;
-                        this.DXGIDevice = new DXGI.Device(this.D3D11Device.QueryInterface(in DXGI.Device.IID));
-                        this.DXGIFactory2 = DXGI.Factory2.Create();
-
-                        hWnd.GetClientRect(out var rect);
-
-                        uint logicalW = (uint)Math.Max(1, rect.Right - rect.Left);
-                        uint logicalH = (uint)Math.Max(1, rect.Bottom - rect.Top);
-
-                        uint physicalW = (uint)Math.Max(1, logicalW * this.DpiScale);
-                        uint physicalH = (uint)Math.Max(1, logicalH * this.DpiScale);
-
-                        SwapChainDesc1 swapChainDesc1 = new SwapChainDesc1()
-                        {
-                            Width = physicalW,
-                            Height = physicalH,
-                            Format = Format.B8G8R8A8_UNORM,
-                            Stereo = false,
-                            SampleDesc = new SampleDesc()
-                            {
-                                Count = 1,
-                                Quality = 0,
-                            },
-                            BufferUsage = Usage.RenderTargetOutput,
-                            BufferCount = 2,
-                            Scaling = Scaling.Stretch,
-                            SwapEffect = SwapEffect.FlipSequential,
-                            AlphaMode = DXGI.AlphaMode.Premultiplied,
-                            Flags = 0
-                        };
-                        this.SwapChain1 = this.DXGIFactory2.CreateSwapChainForComposition(this.DXGIDevice, swapChainDesc1);
-
-                        // Now Direct2D
-                        this.D2D1Factory3 = new D2D1.Factory3();
-                        this.D2D1Device1 = this.D2D1Factory3.CreateDevice(this.DXGIDevice);
-                        this.D2D1DeviceContext = this.D2D1Device1.CreateDeviceContext(D2D1.DeviceContextOptions.None);
-
-                        // 
-                        this.DXGISurface = this.SwapChain1.GetBufferAsSurface(0);
-                        D2D1.BitmapProperties1 bitmapProperties1 = new D2D1.BitmapProperties1()
-                        {
-                            PixelFormat = new D2D1.PixelFormat()
-                            {
-                                AlphaMode = D2D1.AlphaMode.Premultiplied,
-                                Format = Format.B8G8R8A8_UNORM
-                            },
-                            BitmapOptions = D2D1.BitmapOptions.Target | D2D1.BitmapOptions.CannotDraw,
-                        };
-                        this.D2D1Bitmap1 = this.D2D1DeviceContext.CreateBitmapFromDxgiSurface(this.DXGISurface, bitmapProperties1);
-                        this.D2D1DeviceContext.SetTarget(this.D2D1Bitmap1);
-
-                        this.DWriteFactory = new DWrite.Factory();
-
-                        this.Direct2DContext = new Direct2DContext(this.D2D1DeviceContext, D2D1Factory3, DWriteFactory);
-
-                        // DComposition
-                        this.DCompDevice = DComp.Device.Create(this.DXGIDevice);
-                        this.DCompTarget = this.DCompDevice.CreateTargetForHwnd(hWnd, false);
-                        this.DCompVisual = this.DCompDevice.CreateVisual();
-                        this.DCompVisual.SetContent(this.SwapChain1);
-                        this.DCompTarget.SetRoot(this.DCompVisual);
-                        this.DCompDevice.Commit();
-                    }
-
-                    if (this.RenderTarget != null)
-                    {
-                        hWnd.GetClientRect(out var rc);
-                        D2D1.SizeU size = new SizeU()
-                        {
-                            Width = (uint)(rc.Right - rc.Left),
-                            Height = (uint)(rc.Bottom - rc.Top)
-                        };
-
-                        PAINTSTRUCT ps = new();
-                        hWnd.BeginPaint(ref ps);
-
-                        FrameEventRef f = new FrameEventRef(this.LastNextEstimatedFrameTime, this.NextEstimatedFrameTime);
-                        RenderEventRef e = new RenderEventRef(new Rect(0, 0, size.Width / this.DpiScale, size.Height / this.DpiScale), f);
-
-                        this.RenderTarget.BeginDraw();
-                        this.RenderTarget.Clear(new ColorF() { A = 0f, B = 0, G = 0, R = 0 });
-
-                        if (this.Direct2DContext != null)
-                        {
-                            this.Direct2DContext.BeginDraw();
-
-                            if (this.D2D1DeviceContext != null)
-                            {
-                                this.D2D1DeviceContext.SetTransform(new D2D1.Matrix3X2F {
-                                    _11 = this.DpiScale,
-                                    _12 = 0,
-                                    _21 = 0,
-                                    _22 = this.DpiScale,
-                                    _31 = 0,
-                                    _32 = 0
-                                });
-                            }
-
-                            Win32Platform.DisplayContextStack.Push(this.Direct2DContext);
-                            try
-                            {
-                                hWnd.GetClientRect(out var rect);
-
-                                this.Win32Window.Render(e);
-                                this.Direct2DContext.EndDraw();
-                            }
-                            finally
-                            {
-                                Win32Platform.DisplayContextStack.Pop();
-                            }
-                        }
-
-                        this.RenderTarget.EndDraw();
-
-                        this.SwapChain1.Present(0, 0);
-
-                        hWnd.EndPaint(ref ps);
-                    }
-                }
-
-                result = 1;
-                return true;
+                return;
             }
 
-            return base.HandleOnMessage(hWnd, uMsg, wParam, lParam, out result);
+            unsafe
+            {
+                this.UpdateDPI(hWnd);
+
+                // Composition SwapChain
+                D3D11.CreateDevice(out var d3d11Device, out var d3d11FeatureLevel, out var d3d11DeviceContext);
+                this.D3D11Device = d3d11Device;
+                this.D3D11FeatureLevel = d3d11FeatureLevel;
+                this.D3D11DeviceContext = d3d11DeviceContext;
+
+                this.DXGIDevice = new DXGI.Device(this.D3D11Device.QueryInterface(in DXGI.Device.IID));
+
+                using var adapter = this.DXGIDevice.GetAdapter();
+                this.DXGIFactory2 = adapter.GetParentFactory2();
+
+                hWnd.GetClientRect(out var rect);
+
+                uint logicalW = (uint)Math.Max(1, rect.Right - rect.Left);
+                uint logicalH = (uint)Math.Max(1, rect.Bottom - rect.Top);
+
+                uint physicalW = (uint)Math.Max(1, logicalW * this.DpiScale);
+                uint physicalH = (uint)Math.Max(1, logicalH * this.DpiScale);
+
+                SwapChainDesc1 swapChainDesc1 = new SwapChainDesc1()
+                {
+                    Width = physicalW,
+                    Height = physicalH,
+                    Format = Format.B8G8R8A8_UNORM,
+                    Stereo = false,
+                    SampleDesc = new SampleDesc()
+                    {
+                        Count = 1,
+                        Quality = 0,
+                    },
+                    BufferUsage = Usage.RenderTargetOutput,
+                    BufferCount = 2,
+                    Scaling = Scaling.Stretch,
+                    SwapEffect = SwapEffect.FlipDiscard,
+                    AlphaMode = DXGI.AlphaMode.Premultiplied,
+                    Flags = (uint)DXGI.SwapChainFlags.FrameLatencyWaitableObject
+                };
+
+                this.SwapChain1 = this.DXGIFactory2.CreateSwapChainForComposition(this.DXGIDevice, swapChainDesc1);
+
+                this.RefreshFrameLatencyHandle();
+
+                // Direct2D
+                this.D2D1Factory3 = new D2D1.Factory3();
+                this.D2D1Device1 = this.D2D1Factory3.CreateDevice(this.DXGIDevice);
+                this.D2D1DeviceContext = this.D2D1Device1.CreateDeviceContext(D2D1.DeviceContextOptions.None);
+
+                // Bind backbuffer as D2D target
+                this.RecreateSizeDependentTargets();
+
+                this.DWriteFactory = new DWrite.Factory();
+                this.Direct2DContext = new Direct2DContext(this.D2D1DeviceContext, D2D1Factory3, DWriteFactory);
+
+                // DComposition
+                this.DCompDevice = DComp.Device.Create(this.DXGIDevice);
+                this.DCompTarget = this.DCompDevice.CreateTargetForHwnd(hWnd, false);
+                this.DCompVisual = this.DCompDevice.CreateVisual();
+                this.DCompVisual.SetContent(this.SwapChain1);
+                this.DCompTarget.SetRoot(this.DCompVisual);
+                this.DCompDevice.Commit();
+            }
         }
-    
-        public override void CheckForCompositionFrame()
+
+        public void ResizeBuffers(HWND hWnd)
+        {
+            if (this.SwapChain1 != null && this.D2D1DeviceContext != null)
+            {
+                hWnd.GetClientRect(out var rc);
+
+                this.UpdateDPI(hWnd);
+
+                uint logicalW = (uint)Math.Max(1, rc.Right - rc.Left);
+                uint logicalH = (uint)Math.Max(1, rc.Bottom - rc.Top);
+
+                uint physicalW = (uint)Math.Max(1, logicalW * this.DpiScale);
+                uint physicalH = (uint)Math.Max(1, logicalH * this.DpiScale);
+
+                // Detach target before resizing
+                this.D2D1DeviceContext.SetTarget(null);
+
+                // Release size-dependent resources
+                this.D2D1Bitmap1?.Dispose();
+                this.D2D1Bitmap1 = null;
+
+                this.DXGISurface?.Dispose();
+                this.DXGISurface = null;
+
+                // Resize swapchain buffers
+                this.SwapChain1.ResizeBuffers(
+                    bufferCount: 2,
+                    width: physicalW,
+                    height: physicalH,
+                    newFormat: Format.B8G8R8A8_UNORM,
+                    swapChainFlags: DXGI.SwapChainFlags.FrameLatencyWaitableObject);
+
+                // Rebind backbuffer as D2D target
+                this.RecreateSizeDependentTargets();
+
+                this.RefreshFrameLatencyHandle();
+            }
+        }
+
+        public override void Render()
         {
             if (this.DCompDevice != null)
             {
                 var frameStats = this.DCompDevice.GetFrameStatistics();
                 var lastFrameTime = TimeSpan.FromSeconds(frameStats.LastFrameTime / (double)frameStats.TimeFrequency);
-                var currentTime = TimeSpan.FromSeconds(frameStats.CurrentTime / (double)frameStats.TimeFrequency);
                 var nextEstimatedFrameTime = TimeSpan.FromSeconds(frameStats.NextEstimatedFrameTime / (double)frameStats.TimeFrequency);
 
-                if (lastFrameTime != this.LastFrameTime)
+                var animationFrame = new FrameEventRef(this.LastNextEstimatedFrameTime, nextEstimatedFrameTime);
+
+                this.LastFrameTime = lastFrameTime;
+                this.LastNextEstimatedFrameTime = this.NextEstimatedFrameTime;
+                this.NextEstimatedFrameTime = nextEstimatedFrameTime;
+
+                this.Win32Window.OnAnimationFrame(animationFrame);
+
+                if (this.D2D1DeviceContext == null || this.Direct2DContext == null || this.SwapChain1 == null)
                 {
-                    FrameEventRef animationFrame = new FrameEventRef(this.LastNextEstimatedFrameTime, nextEstimatedFrameTime);
-
-                    this.LastFrameTime = lastFrameTime;
-                    this.LastNextEstimatedFrameTime = this.NextEstimatedFrameTime;
-                    this.NextEstimatedFrameTime = nextEstimatedFrameTime;
-
-                    this.Win32Window.OnAnimationFrame(animationFrame);
+                    return;
                 }
+
+                var hWnd = this.Win32Window.Hwnd;
+                hWnd.GetClientRect(out var rc);
+
+                uint logicalW = (uint)Math.Max(1, rc.Right - rc.Left);
+                uint logicalH = (uint)Math.Max(1, rc.Bottom - rc.Top);
+
+                var frame = new FrameEventRef(this.LastNextEstimatedFrameTime, this.NextEstimatedFrameTime);
+                var render = new RenderEventRef(
+                    new Rect(0, 0, logicalW / this.DpiScale, logicalH / this.DpiScale),
+                    frame);
+
+                this.D2D1DeviceContext.BeginDraw();
+                this.D2D1DeviceContext.Clear(new ColorF { A = 0f });
+
+                this.Direct2DContext.BeginDraw();
+
+                this.D2D1DeviceContext.SetTransform(new D2D1.Matrix3X2F
+                {
+                    _11 = this.DpiScale,
+                    _22 = this.DpiScale,
+                    _12 = 0,
+                    _21 = 0,
+                    _31 = 0,
+                    _32 = 0
+                });
+
+                Win32Platform.DisplayContextStack.Push(this.Direct2DContext);
+                try
+                {
+                    this.Win32Window.Render(render);
+                    this.Direct2DContext.EndDraw();
+                }
+                finally
+                {
+                    Win32Platform.DisplayContextStack.Pop();
+                }
+
+                this.D2D1DeviceContext.EndDraw();
+
+                this.SwapChain1.Present(0, 0);
+            }
+        }
+
+        private void RecreateSizeDependentTargets()
+        {
+            if (this.SwapChain1 == null || this.D2D1DeviceContext == null)
+            {
+                return;
             }
 
-            base.CheckForCompositionFrame();
+            // Release old first
+            this.D2D1Bitmap1?.Dispose();
+            this.D2D1Bitmap1 = null;
+
+            this.DXGISurface?.Dispose();
+            this.DXGISurface = null;
+
+            // Bind new backbuffer
+            this.DXGISurface = this.SwapChain1.GetBufferAsSurface(0);
+
+            D2D1.BitmapProperties1 bitmapProperties1 = new D2D1.BitmapProperties1()
+            {
+                PixelFormat = new D2D1.PixelFormat()
+                {
+                    AlphaMode = D2D1.AlphaMode.Premultiplied,
+                    Format = Format.B8G8R8A8_UNORM
+                },
+                BitmapOptions = D2D1.BitmapOptions.Target | D2D1.BitmapOptions.CannotDraw,
+            };
+
+            this.D2D1Bitmap1 =
+                this.D2D1DeviceContext.CreateBitmapFromDxgiSurface(
+                    this.DXGISurface,
+                    bitmapProperties1);
+
+            this.D2D1DeviceContext.SetTarget(this.D2D1Bitmap1);
+        }
+
+        private void RefreshFrameLatencyHandle()
+        {
+            if (this.SwapChain1 == null)
+            {
+                this.FrameLatencyHandle = 0;
+                return;
+            }
+
+            unsafe
+            {
+                void* sc2Ptr = COM.Unknown.QueryInterface(this.SwapChain1, in DXGI.SwapChain2.IID);
+                if (sc2Ptr == null)
+                {
+                    this.FrameLatencyHandle = 0;
+                    return;
+                }
+
+                using var sc2 = new DXGI.SwapChain2(sc2Ptr);
+                sc2.SetMaximumFrameLatency(1);
+
+                this.FrameLatencyHandle = sc2.GetFrameLatencyWaitableObject();
+            }
         }
 
         private void UpdateDPI(User32.Types.HWND hWnd)
@@ -287,4 +304,3 @@ public partial class Win32Window
         }
     }
 }
-

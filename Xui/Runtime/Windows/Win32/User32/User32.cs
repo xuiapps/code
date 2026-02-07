@@ -67,4 +67,18 @@ public static partial class User32
 
     [LibraryImport(User32Lib)]
     public static partial nint SetCursor(nint hCursor);
+
+    /// <summary>https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-postthreadmessagew</summary>
+    [LibraryImport(User32Lib, EntryPoint = "PostThreadMessageW", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool PostThreadMessage(uint idThread, uint Msg, nuint wParam, nint lParam);
+
+    /// <summary>https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-msgwaitformultipleobjectsex</summary>
+    [LibraryImport(User32Lib, SetLastError = true)]
+    public static partial uint MsgWaitForMultipleObjectsEx(
+        uint nCount,
+        nint[]? pHandles,
+        uint dwMilliseconds,
+        uint dwWakeMask,
+        uint dwFlags);
 }
