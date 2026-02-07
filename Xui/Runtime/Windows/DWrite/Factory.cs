@@ -89,5 +89,15 @@ public static partial class DWrite
             }
             return new TextLayout.Ref(textLayout);
         }
+
+        public TextLayout.Ref CreateTextLayoutRef(ReadOnlySpan<char> text, TextFormat textFormat, float maxWidth, float maxHeight)
+        {
+            void* textLayout;
+            fixed (char* textPtr = text)
+            {
+                Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, void*, uint, void*, float, float, void**, int>)this[18])(this, textPtr, (uint)text.Length, textFormat, maxWidth, maxHeight, &textLayout));
+            }
+            return new TextLayout.Ref(textLayout);
+        }
     }
 }

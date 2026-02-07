@@ -1,3 +1,4 @@
+using System;
 using Xui.Core.Math2D;
 
 namespace Xui.Core.Canvas;
@@ -19,6 +20,17 @@ public interface ITextMeasureContext
     /// and font-wide metrics.
     /// </returns>
     TextMetrics MeasureText(string text);
+
+    /// <summary>
+    /// Measures the layout and bounding box metrics of the specified text
+    /// without allocating a string.
+    /// </summary>
+    /// <param name="text">The text characters to measure.</param>
+    /// <returns>
+    /// A <see cref="TextMetrics"/> structure containing both string-specific
+    /// and font-wide metrics.
+    /// </returns>
+    TextMetrics MeasureText(ReadOnlySpan<char> text) => MeasureText(new string(text));
 
     /// <summary>
     /// Sets the font used for all subsequent text drawing and measurement operations.

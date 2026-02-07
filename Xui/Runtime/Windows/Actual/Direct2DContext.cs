@@ -314,6 +314,90 @@ public partial class Direct2DContext : IDisposable, IContext
         }
     }
 
+    void ITextDrawingContext.FillText(ReadOnlySpan<char> text, Point pos)
+    {
+        if (this.textFormat == null)
+        {
+            return;
+        }
+
+        using var layout = this.DWriteFactory.CreateTextLayoutRef(
+            text,
+            this.textFormat,
+            float.PositiveInfinity,
+            float.PositiveInfinity);
+
+        var tm = layout.GetTextMetrics();
+        var lines = layout.GetLineMetrics();
+
+        float lineHeight = tm.Height;
+        float alphabeticBaseline = 0f;
+
+        if (lines.Length > 0)
+        {
+            lineHeight = lines[0].Height;
+            alphabeticBaseline = lines[0].Baseline;
+        }
+
+        float width = tm.Width;
+
+        float dx = GetTextAlignOffsetX(this.TextAlign, width);
+        float dy = GetTextBaselineOffsetY(this.TextBaseline, lineHeight, alphabeticBaseline);
+
+        var x = (float)pos.X + dx;
+        var y = (float)pos.Y + dy;
+
+        this.RenderTarget.DrawTextLayout(
+            (x, y),
+            layout,
+            this.fill.Brush);
+
+        static float GetTextAlignOffsetX(TextAlign align, float width)
+        {
+            switch (align)
+            {
+                case TextAlign.Center:
+                    return -width * 0.5f;
+
+                case TextAlign.Right:
+                case TextAlign.End:
+                    return -width;
+
+                case TextAlign.Left:
+                case TextAlign.Start:
+                default:
+                    return 0f;
+            }
+        }
+
+        static float GetTextBaselineOffsetY(TextBaseline baseline, float lineHeight, float alphabeticBaseline)
+        {
+            switch (baseline)
+            {
+                case TextBaseline.Top:
+                    return 0f;
+
+                case TextBaseline.Middle:
+                    return -lineHeight * 0.5f;
+
+                case TextBaseline.Bottom:
+                    return -lineHeight;
+
+                case TextBaseline.Alphabetic:
+                    return -alphabeticBaseline;
+
+                case TextBaseline.Hanging:
+                    return -alphabeticBaseline;
+
+                case TextBaseline.Ideographic:
+                    return -lineHeight;
+
+                default:
+                    return -alphabeticBaseline;
+            }
+        }
+    }
+
     Core.Canvas.TextMetrics ITextMeasureContext.MeasureText(string text)
     {
         if (this.textFormat == null)
@@ -351,6 +435,77 @@ public partial class Direct2DContext : IDisposable, IContext
         float right = (tm.Left + tm.Width) + dx;
 
         // Ink-ish vertical bounds via overhangs
+        var overhang = layout.GetOverhangMetrics();
+
+        float inkTop = -overhang.Top;
+        float inkBottom = tm.Height + overhang.Bottom;
+
+        float visualAscent = baseline - inkTop;
+        float visualDescent = inkBottom - baseline;
+
+        if (visualAscent < 0f) visualAscent = 0f;
+        if (visualDescent < 0f) visualDescent = 0f;
+
+        var line = new Core.Canvas.LineMetrics(
+            width: advanceWidth,
+            left: left,
+            right: right,
+            ascent: visualAscent,
+            descent: visualDescent);
+
+        return new Core.Canvas.TextMetrics(line, this.currentFontMetrics);
+
+        static float GetTextAlignOffsetX(TextAlign align, float width)
+        {
+            switch (align)
+            {
+                case TextAlign.Center:
+                    return -width * 0.5f;
+
+                case TextAlign.Right:
+                case TextAlign.End:
+                    return -width;
+
+                case TextAlign.Left:
+                case TextAlign.Start:
+                default:
+                    return 0f;
+            }
+        }
+    }
+
+    Core.Canvas.TextMetrics ITextMeasureContext.MeasureText(ReadOnlySpan<char> text)
+    {
+        if (this.textFormat == null)
+        {
+            return new Core.Canvas.TextMetrics(
+                new Core.Canvas.LineMetrics(0, 0, 0, 0, 0),
+                new Core.Canvas.FontMetrics(0, 0, 0, 0, 0, 0, 0));
+        }
+
+        using var layout = this.DWriteFactory.CreateTextLayoutRef(
+            text,
+            this.textFormat,
+            float.PositiveInfinity,
+            float.PositiveInfinity);
+
+        var tm = layout.GetTextMetrics();
+        var lines = layout.GetLineMetrics();
+
+        float baseline = 0f;
+        if (lines.Length > 0)
+        {
+            baseline = lines[0].Baseline;
+        }
+
+        float advanceWidth = tm.WidthIncludingTrailingWhitespace;
+
+        float alignWidth = tm.Width;
+        float dx = GetTextAlignOffsetX(this.TextAlign, alignWidth);
+
+        float left = tm.Left - dx;
+        float right = (tm.Left + tm.Width) + dx;
+
         var overhang = layout.GetOverhangMetrics();
 
         float inkTop = -overhang.Top;

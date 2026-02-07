@@ -14,6 +14,8 @@ public class MainWindow : Window
 
     public override void Render(ref RenderEventRef render)
     {
+        long allocBefore = GC.GetAllocatedBytesForCurrentThread();
+
         using var ctx = Xui.Core.Actual.Runtime.DrawingContext!;
 
         // Clear background
@@ -66,6 +68,24 @@ public class MainWindow : Window
                 ctx.FillText($"{col},{row}", (x + CellWidth / 2, y + CellHeight / 2));
             }
         }
+
+        // Allocation overlay
+        long allocAfter = GC.GetAllocatedBytesForCurrentThread();
+        long allocated = allocAfter - allocBefore;
+
+        ctx.SetFont(new Font
+        {
+            FontFamily = ["Inter", "sans-serif"],
+            FontSize = 14,
+            FontWeight = 700
+        });
+        ctx.TextAlign = TextAlign.Left;
+        ctx.TextBaseline = TextBaseline.Top;
+
+        ctx.SetFill(new Color(0, 0, 0, 0.7f));
+        ctx.FillRect(new Rect(8, 8, 220, 24));
+        ctx.SetFill(Colors.Lime);
+        ctx.FillText($"Alloc: {allocated} bytes", (12, 12));
 
         // Request continuous animation
         Invalidate();

@@ -1,4 +1,6 @@
+using System;
 using Xui.Core.Math2D;
+using Xui.Core.Memory;
 
 namespace Xui.Core.Canvas;
 
@@ -25,4 +27,24 @@ public interface ITextDrawingContext : ITextMeasureContext
     /// <param name="text">The text string to render.</param>
     /// <param name="pos">The position at which to start rendering the text.</param>
     void FillText(string text, Point pos);
+
+    /// <summary>
+    /// Draws filled text at the specified position without allocating a string.
+    /// Use with <c>stackalloc</c> and <see cref="ISpanFormattable.TryFormat"/> for zero-allocation rendering.
+    /// </summary>
+    /// <param name="text">The text characters to render.</param>
+    /// <param name="pos">The position at which to start rendering the text.</param>
+    void FillText(ReadOnlySpan<char> text, Point pos) => FillText(new string(text), pos);
+
+    /// <summary>
+    /// Draws filled text from an interpolated string without heap-allocating the string.
+    /// The compiler automatically prefers this overload for interpolated string arguments.
+    /// </summary>
+    /// <param name="handler">The interpolated string handler that formats into a stack buffer.</param>
+    /// <param name="pos">The position at which to start rendering the text.</param>
+    void FillText(FillTextInterpolatedStringHandler handler, Point pos)
+    {
+        FillText(handler.AsSpan(), pos);
+        handler.Dispose();
+    }
 }
