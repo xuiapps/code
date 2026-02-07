@@ -26,12 +26,12 @@ public partial class Direct2DContext : IDisposable, IContext
 
     private float lineWidth = 1f;
 
-    private Stack<DrawingStateBlock> drawingStateBlocks;
+    private Stack<DrawingStateBlock.Ptr> drawingStateBlocks;
     private Stack<AffineTransform> transforms;
     private int layersCount = 0;
     private Stack<State> states;
 
-    private TextFormat? textFormat;
+    private TextFormat.Ptr textFormat;
 
     private float currentFontSizeDip;
     private Core.Canvas.FontMetrics currentFontMetrics;
@@ -66,7 +66,7 @@ public partial class Direct2DContext : IDisposable, IContext
         this.StrokeStyle = new StrokeStyleStruct(this.D2D1Factory);
         this.Path = new PathStruct(this.D2D1Factory);
 
-        this.drawingStateBlocks = new Stack<DrawingStateBlock>();
+        this.drawingStateBlocks = new Stack<DrawingStateBlock.Ptr>();
         this.transforms = new Stack<AffineTransform>();
         this.states = new Stack<State>();
     }
@@ -92,7 +92,7 @@ public partial class Direct2DContext : IDisposable, IContext
             Layers = this.layersCount
         });
 
-        var block = this.D2D1Factory.CreateDrawingStateBlock();
+        var block = this.D2D1Factory.CreateDrawingStateBlockPtr();
         this.RenderTarget.SaveDrawingState(block);
         this.drawingStateBlocks.Push(block);
 
@@ -186,7 +186,7 @@ public partial class Direct2DContext : IDisposable, IContext
     void IPathDrawing.Fill(FillRule rule)
     {
         var path = this.Path.PrepareToUse();
-        if (path != null)
+        if (!path.IsNull)
         {
             this.RenderTarget.FillGeometry(path, this.fill.Brush);
         }
@@ -196,7 +196,7 @@ public partial class Direct2DContext : IDisposable, IContext
     void IPathDrawing.Stroke()
     {
         var path = this.Path.PrepareToUse();
-        if (path != null)
+        if (!path.IsNull)
         {
             this.RenderTarget.DrawGeometry(path, this.stroke.Brush, this.lineWidth, this.StrokeStyle.StrokeStyle);
         }
@@ -207,8 +207,8 @@ public partial class Direct2DContext : IDisposable, IContext
     {
         unsafe
         {
-            Geometry? geometry = this.Path.PrepareToUse();
-            if (geometry != null)
+            var geometry = this.Path.PrepareToUse();
+            if (!geometry.IsNull)
             {
                 LayerParameters layerParameters = new LayerParameters();
                 layerParameters.GeometricMask = geometry;
@@ -227,7 +227,7 @@ public partial class Direct2DContext : IDisposable, IContext
 
     void ITextDrawingContext.FillText(string text, Point pos)
     {
-        if (this.textFormat == null)
+        if (this.textFormat.IsNull)
         {
             return;
         }
@@ -314,7 +314,7 @@ public partial class Direct2DContext : IDisposable, IContext
 
     void ITextDrawingContext.FillText(ReadOnlySpan<char> text, Point pos)
     {
-        if (this.textFormat == null)
+        if (this.textFormat.IsNull)
         {
             return;
         }
@@ -397,7 +397,7 @@ public partial class Direct2DContext : IDisposable, IContext
 
     Core.Canvas.TextMetrics ITextMeasureContext.MeasureText(string text)
     {
-        if (this.textFormat == null)
+        if (this.textFormat.IsNull)
         {
             return new Core.Canvas.TextMetrics(
                 new Core.Canvas.LineMetrics(0, 0, 0, 0, 0),
@@ -472,7 +472,7 @@ public partial class Direct2DContext : IDisposable, IContext
 
     Core.Canvas.TextMetrics ITextMeasureContext.MeasureText(ReadOnlySpan<char> text)
     {
-        if (this.textFormat == null)
+        if (this.textFormat.IsNull)
         {
             return new Core.Canvas.TextMetrics(
                 new Core.Canvas.LineMetrics(0, 0, 0, 0, 0),
@@ -555,8 +555,8 @@ public partial class Direct2DContext : IDisposable, IContext
         float fontSize = (float)font.FontSize;
         DWrite.FontStretch fontStretch = DWrite.FontStretch.Normal;
 
-        this.textFormat?.Dispose();
-        this.textFormat = this.DWriteFactory.CreateTextFormat(
+        this.textFormat.Dispose();
+        this.textFormat = this.DWriteFactory.CreateTextFormatPtr(
             fontFamilyName, fontCollection, fontWeight, fontStyle, fontStretch, fontSize, "en-US");
 
         this.currentFontMetrics = this.TryComputeFontMetrics(
@@ -823,7 +823,7 @@ public partial class Direct2DContext : IDisposable, IContext
     {
         public readonly Factory3 Factory;
 
-        private StrokeStyle? strokeStyle;
+        private StrokeStyle.Ptr strokeStyle;
 
         private bool strokeStyleValid = false;
 
@@ -845,7 +845,7 @@ public partial class Direct2DContext : IDisposable, IContext
             this.lineDashOffset = 0f;
         }
 
-        public StrokeStyle? StrokeStyle => this.UpdateStrokeStyle();
+        public StrokeStyle.Ptr StrokeStyle => this.UpdateStrokeStyle();
 
         public LineCap LineCap
         {
@@ -907,12 +907,11 @@ public partial class Direct2DContext : IDisposable, IContext
 
         private void InvalidateStroke()
         {
-            this.strokeStyle?.Dispose();
-            this.strokeStyle = null;
+            this.strokeStyle.Dispose();
             this.strokeStyleValid = false;
         }
 
-        private StrokeStyle? UpdateStrokeStyle()
+        private StrokeStyle.Ptr UpdateStrokeStyle()
         {
             if (!this.strokeStyleValid)
             {
@@ -934,7 +933,7 @@ public partial class Direct2DContext : IDisposable, IContext
                         DashStyle = this.dashList.Count == 0 ? DashStyle.Solid : DashStyle.Custom,
                         DashOffset = this.lineDashOffset
                     };
-                    this.strokeStyle = this.Factory.CreateStrokeStyle(strokeStyleProperties, CollectionsMarshal.AsSpan(this.dashList));
+                    this.strokeStyle = this.Factory.CreateStrokeStylePtr(strokeStyleProperties, CollectionsMarshal.AsSpan(this.dashList));
                 }
 
                 this.strokeStyleValid = true;
@@ -970,9 +969,9 @@ public partial class Direct2DContext : IDisposable, IContext
 
         public readonly Factory3 Factory;
 
-        public PathGeometry? PathGeometry;
+        public PathGeometry.Ptr PathGeometry;
 
-        public GeometrySink? GeometrySink;
+        public GeometrySink.Ptr GeometrySink;
 
         private Point point = Point.Zero;
         private bool hasOpenFigure;
@@ -980,22 +979,18 @@ public partial class Direct2DContext : IDisposable, IContext
         public PathStruct(Factory3 factory)
         {
             this.Factory = factory;
-            this.PathGeometry = null;
-            this.GeometrySink = null;
         }
 
         public void Dispose()
         {
-            this.GeometrySink?.Dispose();
-            this.GeometrySink = null;
-            this.PathGeometry?.Dispose();
-            this.PathGeometry = null;
+            this.GeometrySink.Dispose();
+            this.PathGeometry.Dispose();
         }
 
         public void BeginPath()
         {
             this.CloseFigureIfAny();
-            this.GeometrySink?.Close();
+            if (!this.GeometrySink.IsNull) this.GeometrySink.Close();
             this.ClearAfterUse();
         }
 
@@ -1004,7 +999,7 @@ public partial class Direct2DContext : IDisposable, IContext
             this.CreatePathOnDemand();
             this.BeginFigureOnDemand();
 
-            this.GeometrySink!.AddQuadraticBezier(new QuadraticBezierSegment()
+            this.GeometrySink.AddQuadraticBezier(new QuadraticBezierSegment()
             {
                 Point1 = cp1,
                 Point2 = to
@@ -1018,7 +1013,7 @@ public partial class Direct2DContext : IDisposable, IContext
             this.CreatePathOnDemand();
             this.BeginFigureOnDemand();
 
-            this.GeometrySink!.AddBezier(new BezierSegment()
+            this.GeometrySink.AddBezier(new BezierSegment()
             {
                 Point1 = cp1,
                 Point2 = cp2,
@@ -1033,7 +1028,7 @@ public partial class Direct2DContext : IDisposable, IContext
             this.CreatePathOnDemand();
             this.BeginFigureOnDemand();
 
-            this.GeometrySink!.AddLine(to);
+            this.GeometrySink.AddLine(to);
 
             this.point = to;
         }
@@ -1049,15 +1044,15 @@ public partial class Direct2DContext : IDisposable, IContext
             if (this.hasOpenFigure)
             {
                 this.hasOpenFigure = false;
-                this.GeometrySink!.EndFigure(FigureEnd.Closed);
+                this.GeometrySink.EndFigure(FigureEnd.Closed);
             }
         }
 
         public void CreatePathOnDemand()
         {
-            if (this.PathGeometry == null)
+            if (this.PathGeometry.IsNull)
             {
-                this.PathGeometry = this.Factory.CreatePathGeometry();
+                this.PathGeometry = this.Factory.CreatePathGeometryPtr();
                 this.GeometrySink = this.PathGeometry.Open();
             }
         }
@@ -1066,7 +1061,7 @@ public partial class Direct2DContext : IDisposable, IContext
         {
             if (!this.hasOpenFigure)
             {
-                this.GeometrySink!.BeginFigure(this.point, FigureBegin.Filled);
+                this.GeometrySink.BeginFigure(this.point, FigureBegin.Filled);
                 this.hasOpenFigure = true;
             }
         }
@@ -1080,7 +1075,7 @@ public partial class Direct2DContext : IDisposable, IContext
             else
             {
                 this.MoveTo(startPoint);
-                this.GeometrySink!.BeginFigure(this.point, FigureBegin.Filled);
+                this.GeometrySink.BeginFigure(this.point, FigureBegin.Filled);
                 this.hasOpenFigure = true;
             }
         }
@@ -1090,23 +1085,21 @@ public partial class Direct2DContext : IDisposable, IContext
             if (this.hasOpenFigure)
             {
                 this.hasOpenFigure = false;
-                this.GeometrySink!.EndFigure(FigureEnd.Open);
+                this.GeometrySink.EndFigure(FigureEnd.Open);
             }
         }
 
-        public Geometry? PrepareToUse()
+        public PathGeometry.Ptr PrepareToUse()
         {
             this.CloseFigureIfAny();
-            this.GeometrySink?.Close();
+            if (!this.GeometrySink.IsNull) this.GeometrySink.Close();
             return this.PathGeometry;
         }
 
         public void ClearAfterUse()
         {
-            this.GeometrySink?.Dispose();
-            this.GeometrySink = null;
-            this.PathGeometry?.Dispose();
-            this.PathGeometry = null;
+            this.GeometrySink.Dispose();
+            this.PathGeometry.Dispose();
         }
 
         public void Arc(Point center, NFloat radius, NFloat startAngle, NFloat endAngle, Winding winding)
@@ -1126,7 +1119,7 @@ public partial class Direct2DContext : IDisposable, IContext
                 ArcSize = float.Abs((float)endAngle - (float)startAngle) > float.Pi ? ArcSize.Large : ArcSize.Small
             };
 
-            this.GeometrySink!.AddArc(arcSegment);
+            this.GeometrySink.AddArc(arcSegment);
         }
 
         private SweepDirection Map(Winding winding)
@@ -1150,7 +1143,7 @@ public partial class Direct2DContext : IDisposable, IContext
             var a = Vector.Angle(to, median);
             var mDist = radius / NFloat.Sin(a);
             var sDist = NFloat.Sin(a) * mDist;
-            
+
             var center = cp1 + median * mDist;
             var startPoint = cp1 + from.Normalized * sDist;
             var endPoint = cp1 + to.Normalized * sDist;
@@ -1160,7 +1153,7 @@ public partial class Direct2DContext : IDisposable, IContext
             this.CreatePathOnDemand();
             this.BeginFigureOnDemandOrLineTo(this.point);
             this.LineTo(startPoint);
-            this.GeometrySink!.AddArc(new ()
+            this.GeometrySink.AddArc(new ()
             {
                 Point = endPoint,
                 Size = new SizeF((float)radius),
@@ -1183,7 +1176,7 @@ public partial class Direct2DContext : IDisposable, IContext
             this.MoveTo(startPoint);
             this.BeginFigureOnDemand();
 
-            this.GeometrySink!.AddArc(new()
+            this.GeometrySink.AddArc(new()
             {
                 Point = endPoint,
                 Size = new SizeF((float)radiusX, (float)radiusY),
@@ -1212,7 +1205,7 @@ public partial class Direct2DContext : IDisposable, IContext
             this.CreatePathOnDemand();
             this.BeginFigureOnDemandOrLineTo(rect.TopLeft + (0, radius.TopLeft));
 
-            this.GeometrySink!.AddArc(new()
+            this.GeometrySink.AddArc(new()
             {
                 Point = rect.TopLeft + (radius.TopLeft, 0),
                 Size = new SizeF((float)radius.TopLeft),
@@ -1221,7 +1214,7 @@ public partial class Direct2DContext : IDisposable, IContext
                 ArcSize = ArcSize.Small
             });
             this.GeometrySink.AddLine(rect.TopRight + (-radius.TopRight, 0));
-            this.GeometrySink!.AddArc(new()
+            this.GeometrySink.AddArc(new()
             {
                 Point = rect.TopRight + (0, radius.TopRight),
                 Size = new SizeF((float)radius.TopRight),
@@ -1230,7 +1223,7 @@ public partial class Direct2DContext : IDisposable, IContext
                 ArcSize = ArcSize.Small
             });
             this.GeometrySink.AddLine(rect.BottomRight + (0, -radius.BottomRight));
-            this.GeometrySink!.AddArc(new()
+            this.GeometrySink.AddArc(new()
             {
                 Point = rect.BottomRight + (-radius.BottomRight, 0),
                 Size = new SizeF((float)radius.BottomRight),
@@ -1239,7 +1232,7 @@ public partial class Direct2DContext : IDisposable, IContext
                 ArcSize = ArcSize.Small
             });
             this.GeometrySink.AddLine(rect.BottomLeft + (radius.BottomLeft, 0));
-            this.GeometrySink!.AddArc(new()
+            this.GeometrySink.AddArc(new()
             {
                 Point = rect.BottomLeft + (0, -radius.BottomLeft),
                 Size = new SizeF((float)radius.BottomLeft),

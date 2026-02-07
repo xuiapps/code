@@ -121,6 +121,14 @@ public static partial class D2D1
             }
         }
 
+        public void DrawRectangle(in RectF rect, Brush.Ptr brush, float strokeWidth, StrokeStyle.Ptr strokeStyle)
+        {
+            fixed (RectF* rectPtr = &rect)
+            {
+                ((delegate* unmanaged[MemberFunction]<void*, RectF*, void*, float, void*, void>)this[16])(this, rectPtr, brush, strokeWidth, strokeStyle);
+            }
+        }
+
         public void FillRectangle(in RectF rect, Brush brush)
         {
             fixed (RectF* rectPtr = &rect)
@@ -175,10 +183,16 @@ public static partial class D2D1
         public void DrawGeometry(Geometry geometry, Brush.Ptr brush, float strokeWidth = 1f, StrokeStyle? strokeStyle = null) =>
             ((delegate* unmanaged[MemberFunction]<void*, void*, void*, float, void*, void> )this[22])(this, geometry, brush, strokeWidth, strokeStyle);
 
+        public void DrawGeometry(PathGeometry.Ptr geometry, Brush.Ptr brush, float strokeWidth = 1f, StrokeStyle.Ptr strokeStyle = default) =>
+            ((delegate* unmanaged[MemberFunction]<void*, void*, void*, float, void*, void> )this[22])(this, geometry, brush, strokeWidth, strokeStyle);
+
         public void FillGeometry(Geometry geometry, Brush brush, Brush? opacityBrush = null) =>
             ((delegate* unmanaged[MemberFunction]<void*, void*, void*, void*, void> )this[23])(this, geometry, brush, opacityBrush);
 
         public void FillGeometry(Geometry geometry, Brush.Ptr brush) =>
+            ((delegate* unmanaged[MemberFunction]<void*, void*, void*, void*, void> )this[23])(this, geometry, brush, null);
+
+        public void FillGeometry(PathGeometry.Ptr geometry, Brush.Ptr brush) =>
             ((delegate* unmanaged[MemberFunction]<void*, void*, void*, void*, void> )this[23])(this, geometry, brush, null);
 
         public void DrawText(string text, TextFormat textFormat, in RectF layoutRect, Brush defaultFillBrush, DrawTextOptions options = DrawTextOptions.None, MeasuringMode measuringMode = MeasuringMode.Natural)
@@ -232,7 +246,13 @@ public static partial class D2D1
         public void SaveDrawingState(DrawingStateBlock drawingStateBlock) =>
             ((delegate* unmanaged[MemberFunction]<void*, void*, void>)this[43])(this, drawingStateBlock);
 
+        public void SaveDrawingState(DrawingStateBlock.Ptr drawingStateBlock) =>
+            ((delegate* unmanaged[MemberFunction]<void*, void*, void>)this[43])(this, drawingStateBlock);
+
         public void RestoreDrawingState(DrawingStateBlock drawingStateBlock) =>
+            ((delegate* unmanaged[MemberFunction]<void*, void*, void>)this[44])(this, drawingStateBlock);
+
+        public void RestoreDrawingState(DrawingStateBlock.Ptr drawingStateBlock) =>
             ((delegate* unmanaged[MemberFunction]<void*, void*, void>)this[44])(this, drawingStateBlock);
 
         public void Clear(ColorF color) =>

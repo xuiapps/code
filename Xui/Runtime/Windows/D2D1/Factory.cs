@@ -45,6 +45,13 @@ public static partial class D2D1
             return new PathGeometry(pathGeometry);
         }
 
+        public PathGeometry.Ptr CreatePathGeometryPtr()
+        {
+            void* pathGeometry;
+            Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, void**, int>)this[10])(this, &pathGeometry));
+            return new PathGeometry.Ptr(pathGeometry);
+        }
+
         public StrokeStyle CreateStrokeStyle(in StrokeStyleProperties strokeStyleProperties, ReadOnlySpan<float> dashes)
         {
             void* strokeStyle;
@@ -56,11 +63,29 @@ public static partial class D2D1
             return new StrokeStyle(strokeStyle);
         }
 
-        public  DrawingStateBlock CreateDrawingStateBlock()
+        public StrokeStyle.Ptr CreateStrokeStylePtr(in StrokeStyleProperties strokeStyleProperties, ReadOnlySpan<float> dashes)
+        {
+            void* strokeStyle;
+            fixed(StrokeStyleProperties* strokeStylePropertiesPtr = &strokeStyleProperties)
+            fixed(float* dashesPtr = dashes)
+            {
+                Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, StrokeStyleProperties*, float*, uint, void**, int>)this[11])(this, strokeStylePropertiesPtr, dashesPtr, (uint)dashes.Length, &strokeStyle));
+            }
+            return new StrokeStyle.Ptr(strokeStyle);
+        }
+
+        public DrawingStateBlock CreateDrawingStateBlock()
         {
             void* drawingStateBlock;
             Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, void*, void*, void**, int>)this[12])(this, null, null, &drawingStateBlock));
             return new DrawingStateBlock(drawingStateBlock);
+        }
+
+        public DrawingStateBlock.Ptr CreateDrawingStateBlockPtr()
+        {
+            void* drawingStateBlock;
+            Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, void*, void*, void**, int>)this[12])(this, null, null, &drawingStateBlock));
+            return new DrawingStateBlock.Ptr(drawingStateBlock);
         }
     }
 }
