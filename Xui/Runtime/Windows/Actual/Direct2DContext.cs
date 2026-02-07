@@ -239,19 +239,17 @@ public partial class Direct2DContext : IDisposable, IContext
             float.PositiveInfinity);
 
         var tm = layout.GetTextMetrics();
-        var lines = layout.GetLineMetrics();
 
         // Prefer line metrics for baseline + height
         float lineHeight = tm.Height;
         float alphabeticBaseline = 0f;
 
-        if (lines.Length > 0)
+        if (layout.TryGetFirstLineMetrics(out var firstLine))
         {
-            lineHeight = lines[0].Height;
-            alphabeticBaseline = lines[0].Baseline;
+            lineHeight = firstLine.Height;
+            alphabeticBaseline = firstLine.Baseline;
         }
 
-        // If you later expose WidthIncludingTrailingWhitespace, prefer that here.
         float width = tm.Width;
 
         float dx = GetTextAlignOffsetX(this.TextAlign, width);
@@ -328,15 +326,14 @@ public partial class Direct2DContext : IDisposable, IContext
             float.PositiveInfinity);
 
         var tm = layout.GetTextMetrics();
-        var lines = layout.GetLineMetrics();
 
         float lineHeight = tm.Height;
         float alphabeticBaseline = 0f;
 
-        if (lines.Length > 0)
+        if (layout.TryGetFirstLineMetrics(out var firstLine))
         {
-            lineHeight = lines[0].Height;
-            alphabeticBaseline = lines[0].Baseline;
+            lineHeight = firstLine.Height;
+            alphabeticBaseline = firstLine.Baseline;
         }
 
         float width = tm.Width;
@@ -414,12 +411,11 @@ public partial class Direct2DContext : IDisposable, IContext
             float.PositiveInfinity);
 
         var tm = layout.GetTextMetrics();
-        var lines = layout.GetLineMetrics();
 
         float baseline = 0f;
-        if (lines.Length > 0)
+        if (layout.TryGetFirstLineMetrics(out var firstLine))
         {
-            baseline = lines[0].Baseline;
+            baseline = firstLine.Baseline;
         }
 
         // Keep your current width behavior for now.
@@ -490,12 +486,11 @@ public partial class Direct2DContext : IDisposable, IContext
             float.PositiveInfinity);
 
         var tm = layout.GetTextMetrics();
-        var lines = layout.GetLineMetrics();
 
         float baseline = 0f;
-        if (lines.Length > 0)
+        if (layout.TryGetFirstLineMetrics(out var firstLine))
         {
-            baseline = lines[0].Baseline;
+            baseline = firstLine.Baseline;
         }
 
         float advanceWidth = tm.WidthIncludingTrailingWhitespace;
@@ -736,30 +731,30 @@ public partial class Direct2DContext : IDisposable, IContext
 
         public PaintStyle PaintStyle;
 
-        public Brush Brush;
+        public Brush.Ptr Brush;
 
         public PaintStruct(RenderTarget renderTarget, Color color)
         {
             this.PaintStyle = PaintStyle.SolidColor;
             this.RenderTarget = renderTarget;
-            this.Brush = this.RenderTarget.CreateSolidColorBrush(color);
+            this.Brush = this.RenderTarget.CreateSolidColorBrushPtr(color);
         }
 
         public void Dispose()
         {
-            this.Brush?.Dispose();
+            this.Brush.Dispose();
         }
 
         public void SetSolidColor(Color color)
         {
-            this.Brush?.Dispose();
-            this.Brush = this.RenderTarget.CreateSolidColorBrush(color);
+            this.Brush.Dispose();
+            this.Brush = this.RenderTarget.CreateSolidColorBrushPtr(color);
             this.PaintStyle = PaintStyle.SolidColor;
         }
 
         public void SetLinearGradient(LinearGradient linearGradient)
         {
-            this.Brush?.Dispose();
+            this.Brush.Dispose();
 
             LinearGradientBrush.Properties linearGradientBrushProperties = new()
             {
@@ -784,13 +779,13 @@ public partial class Direct2DContext : IDisposable, IContext
                 };
             }
 
-            this.Brush = this.RenderTarget.CreateLinearGradientBrush(linearGradientBrushProperties, brushProperties, gradientStops, Gamma.Gamma_2_2, ExtendMode.Clamp);
+            this.Brush = this.RenderTarget.CreateLinearGradientBrushPtr(linearGradientBrushProperties, brushProperties, gradientStops, Gamma.Gamma_2_2, ExtendMode.Clamp);
             this.PaintStyle = PaintStyle.LinearGradient;
         }
 
         public void SetRadialGradient(RadialGradient radialGradient)
         {
-            this.Brush?.Dispose();
+            this.Brush.Dispose();
 
             RadialGradientBrush.Properties radialGradientBrushProperties = new()
             {
@@ -819,7 +814,7 @@ public partial class Direct2DContext : IDisposable, IContext
                 };
             }
 
-            this.Brush = this.RenderTarget.CreateRadialGradientBrush(radialGradientBrushProperties, brushProperties, gradientStops, Gamma.Gamma_2_2, ExtendMode.Clamp);
+            this.Brush = this.RenderTarget.CreateRadialGradientBrushPtr(radialGradientBrushProperties, brushProperties, gradientStops, Gamma.Gamma_2_2, ExtendMode.Clamp);
             this.PaintStyle = PaintStyle.LinearGradient;
         }
     }

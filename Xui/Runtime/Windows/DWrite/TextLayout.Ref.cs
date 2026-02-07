@@ -69,6 +69,44 @@ public static partial class DWrite
                 }
             }
 
+            public bool TryGetFirstLineMetrics(out LineMetrics lineMetrics)
+            {
+                lineMetrics = default;
+                uint actualLineCount;
+                LineMetrics single;
+                uint written;
+                int hr = ((delegate* unmanaged[MemberFunction]<void*, LineMetrics*, uint, uint*, int>)this[59])(
+                    this.ptr, &single, 1, &written);
+
+                if (hr >= 0 && written > 0)
+                {
+                    lineMetrics = single;
+                    return true;
+                }
+
+                // If buffer was too small (E_NOT_SUFFICIENT_BUFFER = 0x8007007A), that still means there's at least 1 line.
+                // Re-query with 1 element.
+                if (hr < 0)
+                {
+                    ((delegate* unmanaged[MemberFunction]<void*, LineMetrics*, uint, uint*, int>)this[59])(
+                        this.ptr, null, 0, &actualLineCount);
+
+                    if (actualLineCount > 0)
+                    {
+                        written = 0;
+                        Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, LineMetrics*, uint, uint*, int>)this[59])(
+                            this.ptr, &single, 1, &written));
+                        if (written > 0)
+                        {
+                            lineMetrics = single;
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
+
             public void Dispose()
             {
                 if (this.ptr != null)
