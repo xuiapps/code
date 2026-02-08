@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using Xui.Core.UI;
 using Xui.Core.Canvas;
 using Xui.Core.Math2D;
@@ -30,7 +29,7 @@ namespace Xui.Apps.TestApp.Examples
 
         public class AnimatedHeartView : View
         {
-            private readonly Stopwatch _clock = Stopwatch.StartNew();
+            private NFloat _elapsedSeconds;
 
             /// <summary>Heart rate in beats per minute.</summary>
             public NFloat BeatsPerMinute { get; set; } = 70f;
@@ -43,6 +42,7 @@ namespace Xui.Apps.TestApp.Examples
 
             protected override void AnimateCore(TimeSpan previousTime, TimeSpan currentTime)
             {
+                _elapsedSeconds = (NFloat)currentTime.TotalSeconds;
                 base.AnimateCore(previousTime, currentTime);
                 this.InvalidateRender();
                 this.RequestAnimationFrame();
@@ -51,7 +51,7 @@ namespace Xui.Apps.TestApp.Examples
             protected override void RenderCore(IContext context)
             {
                 // --- Animation timing
-                NFloat t = (NFloat)_clock.Elapsed.TotalSeconds;
+                NFloat t = _elapsedSeconds;
                 NFloat beat = Heartbeat02(t, BeatsPerMinute); // 0..1 envelope with a double pulse
                 NFloat s = 1.0f + PulseAmplitude * beat;
 

@@ -10,6 +10,18 @@ namespace Xui.Core.UI;
 public partial class View
 {
     /// <summary>
+    /// An optional unique identifier for this view, used for lookup via
+    /// <see cref="ViewExtensions.FindViewById"/>.
+    /// </summary>
+    public string? Id { get; set; }
+
+    /// <summary>
+    /// The set of class names assigned to this view, used for lookup via
+    /// <see cref="ViewExtensions.FindViewsByClass"/>.
+    /// </summary>
+    public ClassNameCollection ClassName;
+
+    /// <summary>
     /// The parent view in the visual hierarchy. This is set automatically when the view is added to a container.
     /// </summary>
     public View? Parent { get; internal set; }

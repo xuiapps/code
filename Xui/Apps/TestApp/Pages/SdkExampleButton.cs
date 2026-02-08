@@ -12,6 +12,11 @@ public class SdkExampleButton<TPage> : Label
     bool hover = false;
     bool pressed = false;
 
+    public SdkExampleButton()
+    {
+        this.FontFamily = ["Inter"];
+    }
+
     private void NavigateToExample()
     {
         if (this.TryFindParent<SdkNavigation>(out var navigation))

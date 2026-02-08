@@ -29,6 +29,7 @@ public class SdkExamplePage<T> : ViewCollection
                     new Label()
                     {
                         Margin = (0, 0, 0, 24),
+                        FontFamily = ["Inter"],
                         Text = this.content.Title
                     }
                 ]
