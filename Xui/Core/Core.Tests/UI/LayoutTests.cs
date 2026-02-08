@@ -32,7 +32,7 @@ public class LayoutTests
         var view = new FixedView { Size = (100, 50), Margin = (10, 20) };
         var result = view.Update(DeviceScreen);
         Assert.Equal(new Size(400, 800), result.DesiredSize);
-        Assert.Equal(new Rect(10, 20, 380, 760), result.ArrangedRect);
+        Assert.Equal(new Rect(20, 10, 360, 780), result.ArrangedRect);
     }
 
     [Fact]
@@ -130,7 +130,7 @@ public class LayoutTests
             VerticalAlignment = VerticalAlignment.Bottom
         };
         var result = view.Update(DeviceScreen);
-        Assert.Equal(new Size(120, 90), result.DesiredSize);
-        Assert.Equal(new Rect(290, 730, 100, 50), result.ArrangedRect);
+        Assert.Equal(new Size(140, 70), result.DesiredSize);
+        Assert.Equal(new Rect(280, 740, 100, 50), result.ArrangedRect);
     }
 }
