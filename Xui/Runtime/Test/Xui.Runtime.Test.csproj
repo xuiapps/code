@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>13</LangVersion>
+    <RootNamespace>Xui.Runtime.Test</RootNamespace>
+    <AssemblyName>Xui.Runtime.Test</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../Core/Core/Xui.Core.csproj" />
+    <ProjectReference Include="../Software/Xui.Runtime.Software.csproj" />
+    <ProjectReference Include="../../Core/Fonts/Xui.Core.Fonts.csproj" />
+  </ItemGroup>
+
+</Project>

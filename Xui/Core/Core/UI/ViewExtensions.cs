@@ -38,6 +38,41 @@ namespace Xui.Core.UI
         }
 
         /// <summary>
+        /// Performs a depth-first search of the view subtree (including <paramref name="root"/> itself)
+        /// and returns the first view whose <see cref="View.Id"/> matches <paramref name="id"/>.
+        /// </summary>
+        /// <returns>The matching view, or <c>null</c> if not found.</returns>
+        public static View? FindViewById(this View root, string id)
+        {
+            if (root.Id == id)
+                return root;
+
+            for (int i = 0; i < root.Count; i++)
+            {
+                var result = root[i].FindViewById(id);
+                if (result is not null)
+                    return result;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Performs a depth-first search of the view subtree (including <paramref name="root"/> itself)
+        /// and collects all views whose <see cref="View.ClassName"/> contains <paramref name="className"/>.
+        /// </summary>
+        public static void FindViewsByClass(this View root, string className, List<View> results)
+        {
+            if (root.ClassName.Contains(className))
+                results.Add(root);
+
+            for (int i = 0; i < root.Count; i++)
+            {
+                root[i].FindViewsByClass(className, results);
+            }
+        }
+
+        /// <summary>
         /// Allocation-free enumerable for walking up the parent chain of a view.
         /// </summary>
         public readonly ref struct ParentsEnumerable
