@@ -80,7 +80,7 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
     public virtual void Render(ref RenderEventRef renderEventRef)
     {
         using var context = Runtime.Current.DrawingContext;
-        ((IContent)this.RootView).Update(renderEventRef.Rect, context);
+        ((IContent)this.RootView).Update(ref renderEventRef, context);
     }
 
     /// <inheritdoc/>

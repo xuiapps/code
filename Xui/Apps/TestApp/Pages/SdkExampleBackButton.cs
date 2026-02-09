@@ -13,6 +13,7 @@ public class SdkExampleBackButton : Label
 
     public SdkExampleBackButton()
     {
+        this.Id = "Back";
         this.Text = "< Back";
         this.FontFamily = ["Inter"];
     }

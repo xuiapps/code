@@ -20,5 +20,5 @@ public partial interface IContent
 
     void OnTouch(ref TouchEventRef e);
 
-    void Update(Rect rect, IContext context);
+    void Update(ref RenderEventRef @event, IContext context);
 }

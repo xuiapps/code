@@ -29,7 +29,7 @@ namespace Xui.Apps.TestApp.Examples
 
         public class AnimatedHeartView : View
         {
-            private NFloat _elapsedSeconds;
+            private NFloat _elapsedSeconds = 0;
 
             /// <summary>Heart rate in beats per minute.</summary>
             public NFloat BeatsPerMinute { get; set; } = 70f;
