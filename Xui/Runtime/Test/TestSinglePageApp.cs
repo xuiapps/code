@@ -28,6 +28,8 @@ public class TestSinglePageApp : IDisposable
     private bool mouseLeftPressed;
     private bool hasMouseInteraction;
     private bool disposed;
+    private TimeSpan lastFramePrevious;
+    private TimeSpan lastFrameNext;
 
     /// <summary>
     /// The first (and typically only) window created by the application.
@@ -115,6 +117,8 @@ public class TestSinglePageApp : IDisposable
     /// </summary>
     public void AnimationFrame(TimeSpan previous, TimeSpan next)
     {
+        this.lastFramePrevious = previous;
+        this.lastFrameNext = next;
         var frame = new FrameEventRef(previous, next);
         ((Xui.Core.Abstract.IWindow)this.Window).OnAnimationFrame(ref frame);
     }
@@ -133,7 +137,7 @@ public class TestSinglePageApp : IDisposable
             this.Size, stream, Xui.Core.Fonts.Inter.URIs, keepOpen: true);
         this.platform.CurrentDrawingContext = context;
 
-        var frame = new FrameEventRef(TimeSpan.Zero, TimeSpan.Zero);
+        var frame = new FrameEventRef(this.lastFramePrevious, this.lastFrameNext);
         var rect = new Rect(0, 0, this.Size.Width, this.Size.Height);
         var render = new RenderEventRef(rect, frame);
         ((Xui.Core.Abstract.IWindow)this.Window).Render(ref render);
@@ -167,11 +171,17 @@ public class TestSinglePageApp : IDisposable
         File.WriteAllText(actualPath, svg);
 
         string? expectedSvg = null;
-        bool passed = false;
+        bool passed;
         if (File.Exists(expectedPath))
         {
             expectedSvg = File.ReadAllText(expectedPath);
             passed = expectedSvg == svg;
+        }
+        else
+        {
+            File.Copy(actualPath, expectedPath);
+            expectedSvg = svg;
+            passed = false;
         }
 
         this.snapshots.Add(new SnapshotEntry(this.snapshotCounter, name, svg, expectedSvg, passed));
@@ -237,6 +247,7 @@ public class TestSinglePageApp : IDisposable
         html.AppendLine("      <div class=\"layer\" id=\"expected-layer\"></div>");
         html.AppendLine("      <div class=\"layer\" id=\"actual-layer\"></div>");
         html.AppendLine("      <div class=\"separator\" id=\"separator\"></div>");
+        html.AppendLine("      <div class=\"sep-handle\" id=\"sep-handle\"></div>");
         html.AppendLine("      <span class=\"sep-label\" id=\"label-left\">Actual</span>");
         html.AppendLine("      <span class=\"sep-label\" id=\"label-right\">Expected</span>");
         html.AppendLine("    </div>");
@@ -289,12 +300,13 @@ public class TestSinglePageApp : IDisposable
         .pass .badge { color: green; }
         .fail .badge { color: red; }
         .label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .compare { overflow: auto; cursor: ew-resize; }
+        .compare { overflow: auto; }
         .compare-content { display: grid; position: relative; min-height: 100%; }
-        .layer { grid-area: 1 / 1; display: flex; justify-content: center; align-items: start; padding: 24px 250px; pointer-events: none; }
+        .layer { grid-area: 1 / 1; display: flex; justify-content: center; align-items: start; padding: 24px 250px; pointer-events: none; user-select: none; }
         .layer svg { border: 1px solid #ddd; }
         .separator { position: absolute; top: 0; bottom: 0; width: 2px; background: #000; z-index: 10; pointer-events: none; }
-        .sep-label { position: absolute; top: 8px; font-size: 11px; color: #666; z-index: 11; pointer-events: none; }
+        .sep-handle { position: absolute; top: 0; bottom: 0; width: 20px; transform: translateX(-50%); z-index: 12; cursor: ew-resize; }
+        .sep-label { position: absolute; top: 8px; font-size: 11px; color: #666; z-index: 11; pointer-events: none; user-select: none; }
         #label-left { transform: translateX(-100%); padding-right: 8px; }
         #label-right { padding-left: 8px; }
     """;
@@ -306,6 +318,7 @@ public class TestSinglePageApp : IDisposable
         const actualLayer = document.getElementById('actual-layer');
         const expectedLayer = document.getElementById('expected-layer');
         const separator = document.getElementById('separator');
+        const sepHandle = document.getElementById('sep-handle');
         const labelLeft = document.getElementById('label-left');
         const labelRight = document.getElementById('label-right');
         let currentStep = 0;
@@ -331,9 +344,9 @@ public class TestSinglePageApp : IDisposable
             const has = !!step.expected;
             expectedLayer.innerHTML = has ? decodeBase64(step.expected) : '';
             separator.style.display = has ? '' : 'none';
+            sepHandle.style.display = has ? '' : 'none';
             labelLeft.style.display = has ? '' : 'none';
             labelRight.style.display = has ? '' : 'none';
-            compare.style.cursor = has ? 'ew-resize' : 'default';
             if (has) { updateSeparator(); } else { actualLayer.style.clipPath = 'none'; expectedLayer.style.clipPath = 'none'; }
         }
 
@@ -347,13 +360,14 @@ public class TestSinglePageApp : IDisposable
             actualLayer.style.clipPath = `inset(0 ${w - x}px 0 0)`;
             expectedLayer.style.clipPath = `inset(0 0 0 ${x}px)`;
             separator.style.left = x + 'px';
+            sepHandle.style.left = x + 'px';
             labelLeft.style.left = x + 'px';
             labelRight.style.left = x + 'px';
         }
 
         let dragging = false;
-        compare.addEventListener('mousedown', (e) => { dragging = true; moveSeparator(e); });
-        document.addEventListener('mousemove', (e) => { if (dragging) moveSeparator(e); });
+        sepHandle.addEventListener('mousedown', (e) => { e.preventDefault(); dragging = true; });
+        document.addEventListener('mousemove', (e) => { if (dragging) { e.preventDefault(); moveSeparator(e); } });
         document.addEventListener('mouseup', () => { dragging = false; });
 
         function moveSeparator(e) {

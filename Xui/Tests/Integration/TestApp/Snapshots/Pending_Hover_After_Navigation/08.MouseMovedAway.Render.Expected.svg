@@ -5,4 +5,7 @@
   <text x="3" y="80.34" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">Nested Stacks</text>
   <text x="3" y="104.49" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">ViewCollection Alignment</text>
   <text x="3" y="128.64" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">Animated Heart</text>
+  <g transform="translate(10 10)" opacity="0.9">
+    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
+  </g>
 </svg>

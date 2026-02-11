@@ -67,19 +67,19 @@ public class RootView : View, IContent
         this.EventRouter.Dispatch(ref e);
     }
 
-    void IContent.Update(Rect rect, IContext context)
+    void IContent.Update(ref RenderEventRef @event, IContext context)
     {
         this.Update(new LayoutGuide()
         {
-            Anchor = rect.TopLeft,
-            PreviousTime = DateTime.Now - DateTime.MinValue,
-            CurrentTime = DateTime.Now - DateTime.MinValue,
+            Anchor = @event.Rect.TopLeft,
+            PreviousTime = @event.Frame.Previous,
+            CurrentTime = @event.Frame.Next,
             Pass =
                 LayoutGuide.LayoutPass.Animate |
                 LayoutGuide.LayoutPass.Arrange |
                 LayoutGuide.LayoutPass.Measure |
                 LayoutGuide.LayoutPass.Render,
-            AvailableSize = rect.Size,
+            AvailableSize = @event.Rect.Size,
             MeasureContext = context,
             XAlign = LayoutGuide.Align.Start,
             YAlign = LayoutGuide.Align.Start,
