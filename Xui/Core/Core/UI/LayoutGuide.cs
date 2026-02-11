@@ -1,4 +1,5 @@
 using Xui.Core.Canvas;
+using Xui.Core.Debug;
 using Xui.Core.Math2D;
 
 namespace Xui.Core.UI;
@@ -85,6 +86,11 @@ public struct LayoutGuide
     /// Optional rendering context for drawing during the Render pass.
     /// </summary>
     public IContext? RenderContext;
+
+    /// <summary>
+    /// Instrumentation accessor for zero-alloc logging during layout passes.
+    /// </summary>
+    public InstrumentsAccessor Instruments;
 
     /// <summary>
     /// Returns true if this guide represents an animation pass.
