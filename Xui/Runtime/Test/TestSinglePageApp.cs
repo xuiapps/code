@@ -175,7 +175,7 @@ public class TestSinglePageApp : IDisposable
         if (File.Exists(expectedPath))
         {
             expectedSvg = File.ReadAllText(expectedPath);
-            passed = expectedSvg == svg;
+            passed = NormalizeLineEndings(expectedSvg) == NormalizeLineEndings(svg);
         }
         else
         {
@@ -286,6 +286,9 @@ public class TestSinglePageApp : IDisposable
 
     private static string Base64Encode(string text) =>
         Convert.ToBase64String(Encoding.UTF8.GetBytes(text));
+
+    private static string NormalizeLineEndings(string text) =>
+        text.ReplaceLineEndings("\n");
 
     private const string HtmlStyles = """
         * { margin: 0; padding: 0; box-sizing: border-box; }
