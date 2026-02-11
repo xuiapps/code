@@ -2,6 +2,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using Xui.Core.Abstract.Events;
+using Xui.Core.Debug;
+using CoreRuntime = Xui.Core.Actual.Runtime;
 using static Xui.Runtime.Windows.Win32.User32;
 
 namespace Xui.Runtime.Windows.Actual;
@@ -43,7 +45,12 @@ public class Win32RunLoop : Xui.Core.Actual.IRunLoop, Xui.Core.Actual.IDispatche
 
     public int Run()
     {
+        var instruments = CoreRuntime.CurrentInstruments;
+        instruments.Log(Scope.Application, LevelOfDetail.Essential, $"Win32RunLoop.Run starting");
+
         this.Application.Start();
+
+        instruments.Log(Scope.Application, LevelOfDetail.Essential, $"Win32RunLoop.Run Application.Start completed");
 
         unsafe
         {
@@ -52,6 +59,8 @@ public class Win32RunLoop : Xui.Core.Actual.IRunLoop, Xui.Core.Actual.IDispatche
             this.dxgiDevice = new DXGI.Device(d3d11Device.QueryInterface(in DXGI.Device.IID));
             this.dCompDevice = DComp.Device.Create(this.dxgiDevice);
         }
+
+        instruments.Log(Scope.Application, LevelOfDetail.Essential, $"Win32RunLoop.Run entering message loop");
 
         MSG m = new MSG();
 
@@ -63,6 +72,7 @@ public class Win32RunLoop : Xui.Core.Actual.IRunLoop, Xui.Core.Actual.IDispatche
             WaitForNextFrame();
         }
 
+        instruments.Log(Scope.Application, LevelOfDetail.Essential, $"Win32RunLoop.Run exiting");
         return 0;
     }
 

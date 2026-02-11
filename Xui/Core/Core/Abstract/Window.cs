@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using Xui.Core.Abstract.Events;
 using Xui.Core.Actual;
+using Xui.Core.Debug;
 using Xui.Core.Math2D;
 using Xui.Core.UI;
 
@@ -72,6 +73,8 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
     /// </summary>
     public void Show()
     {
+        Runtime.CurrentInstruments.Log(Scope.Application, LevelOfDetail.Essential,
+            $"Window.Show {this.GetType().Name}");
         this.Actual.Show();
         openWindows.Add(this);
     }
@@ -79,6 +82,9 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
     /// <inheritdoc/>
     public virtual void Render(ref RenderEventRef renderEventRef)
     {
+        var rect = renderEventRef.Rect;
+        using var trace = Runtime.CurrentInstruments.Trace(Scope.Rendering, LevelOfDetail.Essential,
+            $"Window.Render Rect({rect.X:F1}, {rect.Y:F1}, {rect.Width:F1}, {rect.Height:F1})");
         using var context = Runtime.Current.DrawingContext;
         ((IContent)this.RootView).Update(ref renderEventRef, context);
     }
@@ -90,11 +96,18 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
     }
 
     /// <inheritdoc/>
-    public virtual bool Closing() => true;
+    public virtual bool Closing()
+    {
+        Runtime.CurrentInstruments.Log(Scope.Application, LevelOfDetail.Essential,
+            $"Window.Closing {this.GetType().Name}");
+        return true;
+    }
 
     /// <inheritdoc/>
     public virtual void Closed()
     {
+        Runtime.CurrentInstruments.Log(Scope.Application, LevelOfDetail.Essential,
+            $"Window.Closed {this.GetType().Name}");
         openWindows.Remove(this);
     }
 
@@ -112,18 +125,24 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
     /// <inheritdoc/>
     public virtual void OnMouseDown(ref MouseDownEventRef e)
     {
+        Runtime.CurrentInstruments.Log(Scope.Input, LevelOfDetail.Normal,
+            $"MouseDown ({e.Position.X:F1}, {e.Position.Y:F1}) Button={e.Button}");
         ((IContent)this.RootView).OnMouseDown(ref e);
     }
 
     /// <inheritdoc/>
     public virtual void OnMouseMove(ref MouseMoveEventRef e)
     {
+        Runtime.CurrentInstruments.Log(Scope.Input, LevelOfDetail.Diagnostic,
+            $"MouseMove ({e.Position.X:F1}, {e.Position.Y:F1})");
         ((IContent)this.RootView).OnMouseMove(ref e);
     }
 
     /// <inheritdoc/>
     public virtual void OnMouseUp(ref MouseUpEventRef e)
     {
+        Runtime.CurrentInstruments.Log(Scope.Input, LevelOfDetail.Normal,
+            $"MouseUp ({e.Position.X:F1}, {e.Position.Y:F1}) Button={e.Button}");
         ((IContent)this.RootView).OnMouseUp(ref e);
     }
 

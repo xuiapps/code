@@ -1,4 +1,5 @@
 using Xui.Core.Actual;
+using Xui.Core.Debug;
 
 namespace Xui.Core.Abstract;
 
@@ -25,10 +26,14 @@ public abstract class Application
     /// or may return immediately if the platform bootstraps a runtime loop before instantiating the app delegate.
     /// </summary>
     /// <returns>The application’s exit code.</returns>
-    public int Run() =>
-        Runtime.Current
+    public int Run()
+    {
+        Runtime.CurrentInstruments.Log(Scope.Application, LevelOfDetail.Essential,
+            $"Application.Run {this.GetType().Name}");
+        return Runtime.Current
             .CreateRunloop(this)
             .Run();
+    }
 
     /// <summary>
     /// Called by the runtime after initialization.

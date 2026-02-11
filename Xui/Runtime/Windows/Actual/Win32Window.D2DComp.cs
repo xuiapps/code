@@ -1,5 +1,7 @@
 using System;
 using Xui.Core.Abstract.Events;
+using Xui.Core.Debug;
+using CoreRuntime = Xui.Core.Actual.Runtime;
 using Xui.Core.Math2D;
 using Xui.Runtime.Windows.Win32;
 using static Xui.Runtime.Windows.D2D1;
@@ -200,9 +202,15 @@ public partial class Win32Window
                 uint logicalW = (uint)Math.Max(1, rc.Right - rc.Left);
                 uint logicalH = (uint)Math.Max(1, rc.Bottom - rc.Top);
 
+                var dipW = logicalW / this.DpiScale;
+                var dipH = logicalH / this.DpiScale;
+
+                CoreRuntime.CurrentInstruments.Log(Scope.Rendering, LevelOfDetail.Diagnostic,
+                    $"D2DComp.Render client=({logicalW}, {logicalH}) dpi={this.DpiScale:F2} dip=({dipW:F1}, {dipH:F1})");
+
                 var frame = new FrameEventRef(this.LastNextEstimatedFrameTime, this.NextEstimatedFrameTime);
                 var render = new RenderEventRef(
-                    new Rect(0, 0, logicalW / this.DpiScale, logicalH / this.DpiScale),
+                    new Rect(0, 0, dipW, dipH),
                     frame);
 
                 this.D2D1DeviceContext.BeginDraw();

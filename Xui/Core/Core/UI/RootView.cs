@@ -1,6 +1,8 @@
 using Xui.Core.Abstract;
 using Xui.Core.Abstract.Events;
+using Xui.Core.Actual;
 using Xui.Core.Canvas;
+using Xui.Core.Debug;
 using Xui.Core.Math2D;
 using Xui.Core.UI.Input;
 
@@ -69,6 +71,11 @@ public class RootView : View, IContent
 
     void IContent.Update(ref RenderEventRef @event, IContext context)
     {
+        var instruments = Runtime.CurrentInstruments;
+        var rect = @event.Rect;
+        using var _ = instruments.Trace(Scope.Rendering, LevelOfDetail.Essential,
+            $"RootView.Update Rect({rect.X:F1}, {rect.Y:F1}, {rect.Width:F1}, {rect.Height:F1})");
+
         this.Update(new LayoutGuide()
         {
             Anchor = @event.Rect.TopLeft,
@@ -86,7 +93,10 @@ public class RootView : View, IContent
             XSize = LayoutGuide.SizeTo.Exact,
             YSize = LayoutGuide.SizeTo.Exact,
             RenderContext = context,
+            Instruments = instruments,
         });
+
+        instruments.DumpVisualTree(this, LevelOfDetail.Diagnostic);
     }
 
     protected override void OnChildRenderChanged(View child)
