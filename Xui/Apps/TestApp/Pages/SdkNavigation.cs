@@ -6,7 +6,7 @@ using Xui.Core.UI;
 
 namespace Xui.Apps.TestApp.Pages;
 
-public class SdkNavigation : ViewCollection
+public class SdkNavigation : View
 {
     private View? content;
 
@@ -17,19 +17,13 @@ public class SdkNavigation : ViewCollection
     private View? Content
     {
         get => this.content;
-        set
-        {
-            if (value == this.content) return;
-            if (this.content is not null) this.Remove(this.content);
-            if (value is not null) this.Add(value);
-            this.content = value;
-
-            if (Window.OpenWindows.Count > 0)
-            {
-                Window.OpenWindows[0].Invalidate();
-            }
-        }
+        set => this.SetProtectedChild(ref this.content, value);
     }
+
+    public override int Count => this.content is null ? 0 : 1;
+
+    public override View this[int index] =>
+        index == 0 && this.content is not null ? this.content : throw new IndexOutOfRangeException();
 
     public SdkNavigation()
     {

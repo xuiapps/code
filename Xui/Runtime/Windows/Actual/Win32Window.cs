@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Xui.Core.Abstract.Events;
+using Xui.Core.Debug;
+using CoreRuntime = Xui.Core.Actual.Runtime;
 using Xui.Core.Math2D;
 using Xui.Runtime.Windows.Win32;
 using static Xui.Core.Abstract.IWindow.IDesktopStyle;
@@ -221,6 +223,16 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
             }
             case WindowMessage.WM_SIZE:
             {
+                hWnd.GetClientRect(out var sizeRc);
+                var clientW = sizeRc.Right - sizeRc.Left;
+                var clientH = sizeRc.Bottom - sizeRc.Top;
+                var dipRect = this.ToDip(new Rect(0, 0, clientW, clientH));
+
+                this.Abstract.SafeArea = dipRect;
+
+                CoreRuntime.CurrentInstruments.Log(Scope.Rendering, LevelOfDetail.Essential,
+                    $"WM_SIZE client=({clientW}, {clientH}) dpi={this.dpiScale:F2} dip=({dipRect.Width:F1}, {dipRect.Height:F1})");
+
                 var res = this.Hwnd.DefWindowProc(uMsg, wParam, lParam);
                 ((D2DComp)this.Renderer).ResizeBuffers(hWnd);
                 this.invalid = true;
@@ -429,6 +441,8 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
 
     public void Show()
     {
+        CoreRuntime.CurrentInstruments.Log(Scope.Application, LevelOfDetail.Essential,
+            $"Win32Window.Show hwnd={this.Hwnd} dpiScale={this.dpiScale:F2}");
         this.Hwnd.ShowWindow();
         this.Hwnd.UpdateWindow();
 

@@ -1,4 +1,5 @@
 using Xui.Core.Canvas;
+using Xui.Core.Debug;
 using Xui.Core.Math2D;
 
 namespace Xui.Core.UI;
@@ -124,6 +125,8 @@ public partial class View
     /// <returns></returns>
     public virtual LayoutGuide Update(LayoutGuide guide)
     {
+        var instruments = guide.Instruments;
+
         if (guide.IsAnimate)
         {
             this.ResetAnimationFlags();
@@ -172,6 +175,9 @@ public partial class View
             );
 
             guide.DesiredSize = desiredBorderEdgeBoxSize + this.Margin;
+
+            instruments.Log(Scope.ViewMeasure, LevelOfDetail.Info,
+                $"Measure {this.GetType().Name} Available({guide.AvailableSize.Width:F1}, {guide.AvailableSize.Height:F1}) Margin({this.Margin.Left:F1}, {this.Margin.Top:F1}, {this.Margin.Right:F1}, {this.Margin.Bottom:F1}) -> Desired({guide.DesiredSize.Width:F1}, {guide.DesiredSize.Height:F1})");
         }
 
         if (guide.IsArrange)
@@ -202,15 +208,15 @@ public partial class View
             guide.ArrangedRect = new Rect(x, y, width, height) - this.Margin;
             this.Frame = guide.ArrangedRect;
 
+            instruments.Log(Scope.ViewArrange, LevelOfDetail.Info,
+                $"Arrange {this.GetType().Name} Anchor({guide.Anchor.X:F1}, {guide.Anchor.Y:F1}) Desired({guide.DesiredSize.Width:F1}, {guide.DesiredSize.Height:F1}) -> Frame({this.Frame.X:F1}, {this.Frame.Y:F1}, {this.Frame.Width:F1}, {this.Frame.Height:F1})");
+
             this.ValidateArrange();
             this.ArrangeCore(guide.ArrangedRect, guide.MeasureContext!);
         }
 
         if (guide.IsRender)
         {
-            // Emit render commands that would draw this view within guide.ArrangeRect
-            // The context is required within measure and arrange phases to measure text
-            // And to limit layout forks, it can be used to emit the display list commands.
             this.ValidateRender();
             this.RenderCore(guide.RenderContext!);
         }

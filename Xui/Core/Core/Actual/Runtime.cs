@@ -57,6 +57,29 @@ public static class Runtime
     /// </summary>
     public static IInstruments? Instruments { get; set; }
 
+    [ThreadStatic]
+    private static IInstrumentsSink? currentSink;
+
+    [ThreadStatic]
+    private static bool sinkInitialized;
+
+    /// <summary>
+    /// Gets the thread-local instrumentation accessor.
+    /// Lazily creates a sink from <see cref="Instruments"/> on first access per thread.
+    /// </summary>
+    public static InstrumentsAccessor CurrentInstruments
+    {
+        get
+        {
+            if (!sinkInitialized)
+            {
+                sinkInitialized = true;
+                currentSink = Instruments?.CreateSink();
+            }
+            return new InstrumentsAccessor(currentSink);
+        }
+    }
+
     /// <summary>
     /// Exception thrown when <see cref="Current"/> is accessed before it has been initialized.
     /// </summary>
