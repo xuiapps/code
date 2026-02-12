@@ -50,6 +50,9 @@ namespace Xui.Apps.TestApp.Examples
 
             protected override void RenderCore(IContext context)
             {
+                // TODO: We need some sort of "mount/unmount" and on mount to request the animation frame()...
+                this.RequestAnimationFrame();
+
                 // --- Animation timing
                 NFloat t = _elapsedSeconds;
                 NFloat beat = Heartbeat02(t, BeatsPerMinute); // 0..1 envelope with a double pulse

@@ -1,3 +1,6 @@
+using Xui.Core.Actual;
+using Xui.Core.Debug;
+
 namespace Xui.Core.UI;
 
 public partial class View
@@ -104,6 +107,8 @@ public partial class View
             return;
 
         this.Flags |= ViewFlags.Animated;
+        Runtime.CurrentInstruments.Log(Scope.ViewAnimation, LevelOfDetail.Info,
+            $"RequestAnimationFrame {this.GetType().Name}");
         this.Parent?.OnChildRequestedAnimationFrame(this);
     }
 
@@ -160,6 +165,8 @@ public partial class View
             return;
 
         this.Flags |= ViewFlags.RenderChanged;
+        Runtime.CurrentInstruments.Log(Scope.ViewState, LevelOfDetail.Info,
+            $"InvalidateRender {this.GetType().Name} Flags={this.Flags}");
         this.Parent?.OnChildRenderChanged(this);
     }
 
@@ -205,6 +212,11 @@ public partial class View
     /// </summary>
     public void ValidateRender()
     {
+        if ((this.Flags & (ViewFlags.RenderChanged | ViewFlags.DescendantRenderChanged)) != 0)
+        {
+            Runtime.CurrentInstruments.Log(Scope.ViewState, LevelOfDetail.Diagnostic,
+                $"ValidateRender {this.GetType().Name} clearing Flags={this.Flags & (ViewFlags.RenderChanged | ViewFlags.DescendantRenderChanged)}");
+        }
         this.Flags &= ~ViewFlags.RenderChanged;
         this.Flags &= ~ViewFlags.DescendantRenderChanged;
     }
@@ -254,9 +266,15 @@ public partial class View
     protected virtual void OnChildRenderChanged(View child)
     {
         if ((this.Flags & ViewFlags.DescendantRenderChanged) != 0)
+        {
+            Runtime.CurrentInstruments.Log(Scope.ViewState, LevelOfDetail.Info,
+                $"OnChildRenderChanged {this.GetType().Name} <- {child.GetType().Name} (propagation stopped, DescendantRenderChanged already set)");
             return;
+        }
 
         this.Flags |= ViewFlags.DescendantRenderChanged;
+        Runtime.CurrentInstruments.Log(Scope.ViewState, LevelOfDetail.Info,
+            $"OnChildRenderChanged {this.GetType().Name} <- {child.GetType().Name}");
         this.Parent?.OnChildRenderChanged(this);
     }
 
