@@ -18,10 +18,10 @@ public class TextBoxExample : Example
                 new TextBox { Id = "PasswordBox", Text = "", IsPassword = true, Margin = (4, 2) },
 
                 new Label { Text = "Number:", Margin = (4, 2) },
-                new TextBox { Id = "NumberBox", Text = "0", Margin = (4, 2) },
+                new TextBox { Id = "NumberBox", Text = "0", Margin = (4, 2), InputFilter = char.IsAsciiDigit },
 
                 new Label { Text = "Color (hex):", Margin = (4, 2) },
-                new TextBox { Id = "ColorBox", Text = "#FF0000", Margin = (4, 2) },
+                new TextBox { Id = "ColorBox", Text = "#FF0000", Margin = (4, 2), InputFilter = c => char.IsAsciiHexDigit(c) || c == '#' },
             ]
         };
     }

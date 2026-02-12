@@ -36,6 +36,12 @@ public class TextBox : View
     /// </summary>
     public bool IsPassword { get; set; }
 
+    /// <summary>
+    /// Optional filter that determines whether a character is accepted.
+    /// Return true to accept, false to reject.
+    /// </summary>
+    public Func<char, bool>? InputFilter { get; set; }
+
     public string[] FontFamily { get; set; } = ["Verdana"];
 
     public nfloat FontSize { get; set; } = 15;
@@ -76,6 +82,9 @@ public class TextBox : View
     public override void OnChar(ref KeyEventRef e)
     {
         if (char.IsControl(e.Character))
+            return;
+
+        if (this.InputFilter != null && !this.InputFilter(e.Character))
             return;
 
         this.textBuffer.Append(e.Character);
