@@ -92,4 +92,16 @@ public partial interface IWindow
     /// </summary>
     /// <param name="evRef">The hit test event containing pointer position and window bounds.</param>
     void WindowHitTest(ref WindowHitTestEventRef evRef);
+
+    /// <summary>
+    /// Invoked when a key is pressed.
+    /// </summary>
+    /// <param name="e">The keyboard event data.</param>
+    void OnKeyDown(ref KeyEventRef e);
+
+    /// <summary>
+    /// Invoked when a character is input (after keyboard translation).
+    /// </summary>
+    /// <param name="e">The keyboard event data with the translated character.</param>
+    void OnChar(ref KeyEventRef e);
 }

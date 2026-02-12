@@ -11,10 +11,24 @@ namespace Xui.Core.UI;
 public class RootView : View, IContent
 {
     private View? content;
+    private View? focusedView;
 
     public EventRouter EventRouter { get; }
 
     public Window Window { get; }
+
+    public View? FocusedView
+    {
+        get => this.focusedView;
+        set
+        {
+            if (this.focusedView == value)
+                return;
+
+            this.focusedView = value;
+            this.Window.Invalidate();
+        }
+    }
 
     public View? Content
     {
@@ -60,6 +74,23 @@ public class RootView : View, IContent
         this.EventRouter.Dispatch(ref e);
     }
 
+    void IContent.OnKeyDown(ref KeyEventRef e)
+    {
+        if (e.Key == VirtualKey.Tab)
+        {
+            this.MoveFocus(e.Shift ? -1 : 1);
+            e.Handled = true;
+            return;
+        }
+
+        this.focusedView?.OnKeyDown(ref e);
+    }
+
+    void IContent.OnChar(ref KeyEventRef e)
+    {
+        this.focusedView?.OnChar(ref e);
+    }
+
     void IContent.OnScrollWheel(ref ScrollWheelEventRef e)
     {
     }
@@ -97,6 +128,35 @@ public class RootView : View, IContent
         });
 
         instruments.DumpVisualTree(this, LevelOfDetail.Diagnostic);
+    }
+
+    private void MoveFocus(int direction)
+    {
+        var focusable = new List<View>();
+        CollectFocusable(this, focusable);
+
+        if (focusable.Count == 0)
+            return;
+
+        var currentIndex = this.focusedView != null ? focusable.IndexOf(this.focusedView) : -1;
+        var nextIndex = currentIndex + direction;
+
+        // Wrap around
+        if (nextIndex < 0)
+            nextIndex = focusable.Count - 1;
+        else if (nextIndex >= focusable.Count)
+            nextIndex = 0;
+
+        this.FocusedView = focusable[nextIndex];
+    }
+
+    private static void CollectFocusable(View view, List<View> result)
+    {
+        if (view.Focusable)
+            result.Add(view);
+
+        for (int i = 0; i < view.Count; i++)
+            CollectFocusable(view[i], result);
     }
 
     protected override void OnChildRenderChanged(View child)

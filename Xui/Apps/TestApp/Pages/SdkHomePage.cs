@@ -39,5 +39,10 @@ public class SdkHomePage : VerticalStack
             Margin = 3,
             Text = "Animated Heart"
         });
+        this.Add(new SdkExampleButton<TextBoxExample>() {
+            Id = "TextBox",
+            Margin = 3,
+            Text = "TextBox MVP"
+        });
     }
 }

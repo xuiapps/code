@@ -42,7 +42,7 @@ public class SdkNavigationTest
         using var app = new TestSinglePageApp(new Xui.Apps.BlankApp.App(), WindowSize);
         app.Snapshot("HomePage");
 
-        string[] pages = ["TextMetrics", "TextLayout", "NestedStacks", "ViewCollectionAlignment", "AnimatedHeart"];
+        string[] pages = ["TextMetrics", "TextLayout", "NestedStacks", "ViewCollectionAlignment", "AnimatedHeart", "TextBox"];
 
         foreach (var page in pages)
         {
