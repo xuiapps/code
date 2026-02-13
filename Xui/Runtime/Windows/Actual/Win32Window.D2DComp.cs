@@ -189,7 +189,8 @@ public partial class Win32Window
                 this.LastNextEstimatedFrameTime = this.NextEstimatedFrameTime;
                 this.NextEstimatedFrameTime = nextEstimatedFrameTime;
 
-                this.Win32Window.OnAnimationFrame(animationFrame);
+                // Instead here - we calculate it in the RunLoop and hint the window
+                // this.Win32Window.UpdateFrameTiming(animationFrame);
 
                 if (this.D2D1DeviceContext == null || this.Direct2DContext == null || this.SwapChain1 == null)
                 {

@@ -31,7 +31,7 @@ public class App : Xui.Core.Abstract.Application
         Xui.Core.Actual.Runtime.Current = Xui.Runtime.Browser.Actual.BrowserPlatform.Instance;
 #endif
 
-        // Xui.Core.Actual.Runtime.Instruments = Xui.Core.Debug.Instruments.File("instruments.log");
+        Xui.Core.Actual.Runtime.Instruments = Xui.Core.Debug.Instruments.File("instruments.log");
 
         return new App().Run();
     }
