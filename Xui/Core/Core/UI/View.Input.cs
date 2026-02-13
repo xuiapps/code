@@ -28,6 +28,16 @@ public partial class View
     }
 
     /// <summary>
+    /// Called when this view receives keyboard focus.
+    /// </summary>
+    protected internal virtual void OnFocus() { }
+
+    /// <summary>
+    /// Called when this view loses keyboard focus.
+    /// </summary>
+    protected internal virtual void OnBlur() { }
+
+    /// <summary>
     /// Gets whether this view can receive keyboard focus via Tab navigation.
     /// </summary>
     public virtual bool Focusable => false;

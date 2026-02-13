@@ -25,7 +25,12 @@ public class RootView : View, IContent
             if (this.focusedView == value)
                 return;
 
+            var previous = this.focusedView;
             this.focusedView = value;
+
+            previous?.OnBlur();
+            value?.OnFocus();
+
             this.Window.Invalidate();
         }
     }

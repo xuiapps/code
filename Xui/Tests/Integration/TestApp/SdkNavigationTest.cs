@@ -113,6 +113,8 @@ public class SdkNavigationTest
 
         // Navigate to AnimatedHeart
         var button = app.Window.RootView.FindViewById("AnimatedHeart");
+        app.Snapshot("Home");
+
         Assert.NotNull(button);
         app.MouseMove(button);
         app.MouseDown(button);
