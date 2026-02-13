@@ -132,31 +132,37 @@ public class RootView : View, IContent
 
     private void MoveFocus(int direction)
     {
-        var focusable = new List<View>();
-        CollectFocusable(this, focusable);
+        View? first = null, last = null, prev = null, next = null;
+        bool foundCurrent = false;
+        FindFocusNeighbors(this, this.focusedView, ref first, ref last, ref prev, ref next, ref foundCurrent);
 
-        if (focusable.Count == 0)
+        if (first == null)
             return;
 
-        var currentIndex = this.focusedView != null ? focusable.IndexOf(this.focusedView) : -1;
-        var nextIndex = currentIndex + direction;
-
-        // Wrap around
-        if (nextIndex < 0)
-            nextIndex = focusable.Count - 1;
-        else if (nextIndex >= focusable.Count)
-            nextIndex = 0;
-
-        this.FocusedView = focusable[nextIndex];
+        this.FocusedView = direction > 0
+            ? next ?? first   // forward: next, or wrap to first
+            : prev ?? last;   // backward: prev, or wrap to last
     }
 
-    private static void CollectFocusable(View view, List<View> result)
+    private static void FindFocusNeighbors(
+        View view, View? current,
+        ref View? first, ref View? last, ref View? prev, ref View? next, ref bool foundCurrent)
     {
         if (view.Focusable)
-            result.Add(view);
+        {
+            first ??= view;
+            last = view;
+
+            if (view == current)
+                foundCurrent = true;
+            else if (!foundCurrent)
+                prev = view;
+            else if (next == null)
+                next = view;
+        }
 
         for (int i = 0; i < view.Count; i++)
-            CollectFocusable(view[i], result);
+            FindFocusNeighbors(view[i], current, ref first, ref last, ref prev, ref next, ref foundCurrent);
     }
 
     protected override void OnChildRenderChanged(View child)
