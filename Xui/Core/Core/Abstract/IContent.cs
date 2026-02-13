@@ -20,9 +20,11 @@ public partial interface IContent
 
     void OnTouch(ref TouchEventRef e);
 
+    void OnAnimationFrame(ref FrameEventRef e);
+
+    void Update(ref RenderEventRef @event, IContext context);
+
     void OnKeyDown(ref KeyEventRef e);
 
     void OnChar(ref KeyEventRef e);
-
-    void Update(ref RenderEventRef @event, IContext context);
 }

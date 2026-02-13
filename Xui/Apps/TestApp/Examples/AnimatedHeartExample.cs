@@ -40,6 +40,11 @@ namespace Xui.Apps.TestApp.Examples
             /// <summary>Outline stroke width in device units.</summary>
             public NFloat StrokeWidth { get; set; } = 2.5f;
 
+            protected override void OnActivate()
+            {
+                this.RequestAnimationFrame();
+            }
+
             protected override void AnimateCore(TimeSpan previousTime, TimeSpan currentTime)
             {
                 _elapsedSeconds = (NFloat)currentTime.TotalSeconds;

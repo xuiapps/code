@@ -75,7 +75,7 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
         this.Abstract = @abstract;
         this.Title = "";
 
-        nint hbrBackground = GetSysColorBrush((int)WindowColor.COLOR_3DFACE);
+        nint hbrBackground = GetSysColorBrush((int)WindowColor.COLOR_WINDOW);
 
         WNDPROC wndProcDelegate = OnMessageStatic;
         GCHandle.Alloc(wndProcDelegate);
@@ -92,7 +92,7 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
             hInstance = 0,
             hIcon = 0,
             hCursor = 0,
-            hbrBackground = 0, // hbrBackground,
+            hbrBackground = hbrBackground,
             lpszMenuName = 0,
             lpszClassName = lpszClassNamePtr,
             hIconSm = 0
@@ -128,17 +128,20 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
             {
                 dwExStyle = (uint)ExtendedWindowStyles.WS_EX_NOREDIRECTIONBITMAP;
                 dwStyle = (uint)WindowStyles.WS_POPUP;
+                hbrBackground = 0;
             }
             else
             {
                 dwExStyle = 0;
                 dwStyle = (uint)WindowStyles.WS_TILEDWINDOW;
+                hbrBackground = GetSysColorBrush((int)WindowColor.COLOR_WINDOW);
             }
         }
         else
         {
             dwExStyle = 0;
             dwStyle = (uint)WindowStyles.WS_TILEDWINDOW;
+            hbrBackground = GetSysColorBrush((int)WindowColor.COLOR_WINDOW);
         }
 
         // This sets a property for the whole process.
@@ -487,6 +490,14 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
         {
             this.invalid = false;
             this.Renderer.Render();
+
+            CoreRuntime.CurrentInstruments.Log(Scope.ViewState, LevelOfDetail.Info,
+                $"Win32Window.Render completed, invalid={this.invalid}");
+        }
+        else
+        {
+            CoreRuntime.CurrentInstruments.Log(Scope.ViewState, LevelOfDetail.Diagnostic,
+                $"Win32Window.Render SKIPPED (invalid=false)");
         }
     }
 
@@ -496,12 +507,6 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
         this.Abstract.Render(ref render);
     }
 
-    internal void OnAnimationFrame(FrameEventRef animationFrame)
-    {
-        this.previous = animationFrame.Previous;
-        this.next = animationFrame.Next;
-        this.Abstract.OnAnimationFrame(ref animationFrame);
-    }
 
     private static void SetLevel(HWND hwnd, DesktopWindowLevel level)
     {

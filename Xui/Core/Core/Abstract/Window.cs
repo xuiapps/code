@@ -120,7 +120,12 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
     /// <summary>
     /// Requests a visual invalidation/redraw of this window.
     /// </summary>
-    public virtual void Invalidate() => this.Actual.Invalidate();
+    public virtual void Invalidate()
+    {
+        Runtime.CurrentInstruments.Log(Scope.ViewState, LevelOfDetail.Info,
+            $"Window.Invalidate");
+        this.Actual.Invalidate();
+    }
 
     /// <inheritdoc/>
     public virtual void OnMouseDown(ref MouseDownEventRef e)
@@ -172,6 +177,7 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
     /// <inheritdoc/>
     public virtual void OnAnimationFrame(ref FrameEventRef e)
     {
+        ((IContent)this.RootView).OnAnimationFrame(ref e);
     }
 
     /// <inheritdoc/>

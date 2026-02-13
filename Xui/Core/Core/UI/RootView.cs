@@ -33,20 +33,7 @@ public class RootView : View, IContent
     public View? Content
     {
         get => this.content;
-        set
-        {
-            if (this.content is not null)
-            {
-                this.content.Parent = null;
-                this.content = null;
-            }
-
-            this.content = value;
-            if (this.content is not null)
-            {
-                this.content.Parent = this;
-            }
-        }
+        set => this.SetProtectedChild(ref this.content, value);
     }
 
     public override int Count => this.Content is not null ? 1 : 0;
@@ -57,6 +44,7 @@ public class RootView : View, IContent
     {
         this.Window = window;
         this.EventRouter = new EventRouter(this);
+        ActivateSubtree(this);
     }
 
     void IContent.OnMouseDown(ref MouseDownEventRef e)
@@ -100,6 +88,14 @@ public class RootView : View, IContent
         this.EventRouter.Dispatch(ref e);
     }
 
+    void IContent.OnAnimationFrame(ref FrameEventRef e)
+    {
+        if ((this.Flags & (ViewFlags.Animated | ViewFlags.DescendantAnimated)) != 0)
+        {
+            this.Animate(e.Previous, e.Next);
+        }
+    }
+
     void IContent.Update(ref RenderEventRef @event, IContext context)
     {
         var instruments = Runtime.CurrentInstruments;
@@ -113,9 +109,8 @@ public class RootView : View, IContent
             PreviousTime = @event.Frame.Previous,
             CurrentTime = @event.Frame.Next,
             Pass =
-                LayoutGuide.LayoutPass.Animate |
-                LayoutGuide.LayoutPass.Arrange |
                 LayoutGuide.LayoutPass.Measure |
+                LayoutGuide.LayoutPass.Arrange |
                 LayoutGuide.LayoutPass.Render,
             AvailableSize = @event.Rect.Size,
             MeasureContext = context,
