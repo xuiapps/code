@@ -77,6 +77,13 @@ public partial class View
         /// They will probably return a new result for the same <see cref="Xui.Core.Math2D.Point"/>.
         /// </summary>
         DescendantHitTestChanged = 1 << 8,
+
+        /// <summary>
+        /// This view is active — it is part of a live visual tree and will receive
+        /// events, render, and animate. Set by <see cref="ActivateSubtree"/> and
+        /// cleared by <see cref="DeactivateSubtree"/>.
+        /// </summary>
+        Active = 1 << 9,
     }
 
     /// <summary>

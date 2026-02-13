@@ -40,6 +40,11 @@ namespace Xui.Apps.TestApp.Examples
             /// <summary>Outline stroke width in device units.</summary>
             public NFloat StrokeWidth { get; set; } = 2.5f;
 
+            protected override void OnActivate()
+            {
+                this.RequestAnimationFrame();
+            }
+
             protected override void AnimateCore(TimeSpan previousTime, TimeSpan currentTime)
             {
                 _elapsedSeconds = (NFloat)currentTime.TotalSeconds;
@@ -50,9 +55,6 @@ namespace Xui.Apps.TestApp.Examples
 
             protected override void RenderCore(IContext context)
             {
-                // TODO: We need some sort of "mount/unmount" and on mount to request the animation frame()...
-                this.RequestAnimationFrame();
-
                 // --- Animation timing
                 NFloat t = _elapsedSeconds;
                 NFloat beat = Heartbeat02(t, BeatsPerMinute); // 0..1 envelope with a double pulse

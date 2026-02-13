@@ -32,6 +32,9 @@ public partial class View
 
         child.Parent = this;
 
+        if ((this.Flags & ViewFlags.Active) != 0)
+            ActivateSubtree(child);
+
         // Attaching a child changes layout + visuals.
         this.InvalidateArrange();
         this.InvalidateRender();
@@ -47,6 +50,9 @@ public partial class View
 
         if (child.Parent != this)
             throw new InvalidOperationException("View is not a child of this parent.");
+
+        if ((child.Flags & ViewFlags.Active) != 0)
+            DeactivateSubtree(child);
 
         child.Parent = null;
 

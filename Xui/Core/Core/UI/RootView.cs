@@ -19,20 +19,7 @@ public class RootView : View, IContent
     public View? Content
     {
         get => this.content;
-        set
-        {
-            if (this.content is not null)
-            {
-                this.content.Parent = null;
-                this.content = null;
-            }
-
-            this.content = value;
-            if (this.content is not null)
-            {
-                this.content.Parent = this;
-            }
-        }
+        set => this.SetProtectedChild(ref this.content, value);
     }
 
     public override int Count => this.Content is not null ? 1 : 0;
@@ -43,6 +30,7 @@ public class RootView : View, IContent
     {
         this.Window = window;
         this.EventRouter = new EventRouter(this);
+        ActivateSubtree(this);
     }
 
     void IContent.OnMouseDown(ref MouseDownEventRef e)
