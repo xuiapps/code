@@ -6,7 +6,7 @@
     </linearGradient>
   </defs>
   <g transform="translate(300,100)">
-    <g>
+    <g transform="scale(1.13,1.13)">
       <path d="M 0 -20.25 C 40.5 -76.95, 97.2 -4.05, 0 76.95 C -97.2 -4.05, -40.5 -76.95, 0 -20.25 Z " fill="url(#grad1)" fill-rule="nonzero" />
       <path d="M 0 -20.25 C 40.5 -76.95, 97.2 -4.05, 0 76.95 C -97.2 -4.05, -40.5 -76.95, 0 -20.25 Z " fill="none" stroke="#FFFFFF" stroke-width="2.5" />
     </g>
@@ -14,7 +14,7 @@
   <rect x="0" y="0" width="600" height="24" fill="#FFFFFF" />
   <text x="0" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">&lt; Back</text>
   <text x="73.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">Animated Heart</text>
-  <g transform="translate(0 0)" opacity="0.9">
+  <g transform="translate(300 137.71142578125)" opacity="0.9">
     <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
   </g>
 </svg>

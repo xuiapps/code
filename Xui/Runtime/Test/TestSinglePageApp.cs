@@ -98,6 +98,27 @@ public class TestSinglePageApp : IDisposable
     public void MouseDown(View view, MouseButton button = MouseButton.Left) => MouseDown(view.Frame.Center, button);
     public void MouseUp(View view, MouseButton button = MouseButton.Left) => MouseUp(view.Frame.Center, button);
 
+    public void KeyDown(VirtualKey key, bool shift = false)
+    {
+        var e = new KeyEventRef { Key = key, Shift = shift };
+        this.Window.OnKeyDown(ref e);
+    }
+
+    public void Char(char character)
+    {
+        var e = new KeyEventRef { Character = character };
+        this.Window.OnChar(ref e);
+    }
+
+    /// <summary>
+    /// Simulates typing a string by sending a <see cref="Char"/> event for each character.
+    /// </summary>
+    public void Type(string text)
+    {
+        foreach (var ch in text)
+            Char(ch);
+    }
+
     // ── Ticks ────────────────────────────────────────────────────
 
     /// <summary>

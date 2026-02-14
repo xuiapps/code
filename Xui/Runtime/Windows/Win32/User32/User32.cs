@@ -68,6 +68,9 @@ public static partial class User32
     [LibraryImport(User32Lib)]
     public static partial nint SetCursor(nint hCursor);
 
+    [LibraryImport(User32Lib)]
+    public static partial short GetKeyState(int nVirtKey);
+
     /// <summary>https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-postthreadmessagew</summary>
     [LibraryImport(User32Lib, EntryPoint = "PostThreadMessageW", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]

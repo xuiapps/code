@@ -408,6 +408,31 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
                 this.OnScrollWheel(scrollWheelEventRef);
                 return 0;
 
+            case WindowMessage.WM_KEYDOWN:
+            case WindowMessage.WM_SYSKEYDOWN:
+            {
+                var key = (VirtualKey)(wParam.Value & 0xFFFF);
+                var isRepeat = (lParam.Value & (1 << 30)) != 0;
+                var shift = (User32.GetKeyState(0x10) & 0x8000) != 0;
+                var e = new KeyEventRef { Key = key, IsRepeat = isRepeat, Shift = shift };
+                this.Abstract.OnKeyDown(ref e);
+                if (e.Handled)
+                    return 0;
+                break;
+            }
+
+            case WindowMessage.WM_CHAR:
+            {
+                var character = (char)(wParam.Value & 0xFFFF);
+                var isRepeat = (lParam.Value & (1 << 30)) != 0;
+                var shift = (User32.GetKeyState(0x10) & 0x8000) != 0;
+                var e = new KeyEventRef { Character = character, IsRepeat = isRepeat, Shift = shift };
+                this.Abstract.OnChar(ref e);
+                if (e.Handled)
+                    return 0;
+                break;
+            }
+
             case WindowMessage.WM_SETCURSOR:
             {
                 // LOWORD(lParam) == hit-test code

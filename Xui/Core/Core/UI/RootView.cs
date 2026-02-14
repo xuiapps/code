@@ -11,10 +11,29 @@ namespace Xui.Core.UI;
 public class RootView : View, IContent
 {
     private View? content;
+    private View? focusedView;
 
     public EventRouter EventRouter { get; }
 
     public Window Window { get; }
+
+    public View? FocusedView
+    {
+        get => this.focusedView;
+        set
+        {
+            if (this.focusedView == value)
+                return;
+
+            var previous = this.focusedView;
+            this.focusedView = value;
+
+            previous?.OnBlur();
+            value?.OnFocus();
+
+            this.Window.Invalidate();
+        }
+    }
 
     public View? Content
     {
@@ -46,6 +65,23 @@ public class RootView : View, IContent
     void IContent.OnMouseUp(ref MouseUpEventRef e)
     {
         this.EventRouter.Dispatch(ref e);
+    }
+
+    void IContent.OnKeyDown(ref KeyEventRef e)
+    {
+        if (e.Key == VirtualKey.Tab)
+        {
+            this.MoveFocus(e.Shift ? -1 : 1);
+            e.Handled = true;
+            return;
+        }
+
+        this.focusedView?.OnKeyDown(ref e);
+    }
+
+    void IContent.OnChar(ref KeyEventRef e)
+    {
+        this.focusedView?.OnChar(ref e);
     }
 
     void IContent.OnScrollWheel(ref ScrollWheelEventRef e)
@@ -92,6 +128,41 @@ public class RootView : View, IContent
         });
 
         instruments.DumpVisualTree(this, LevelOfDetail.Diagnostic);
+    }
+
+    private void MoveFocus(int direction)
+    {
+        View? first = null, last = null, prev = null, next = null;
+        bool foundCurrent = false;
+        FindFocusNeighbors(this, this.focusedView, ref first, ref last, ref prev, ref next, ref foundCurrent);
+
+        if (first == null)
+            return;
+
+        this.FocusedView = direction > 0
+            ? next ?? first   // forward: next, or wrap to first
+            : prev ?? last;   // backward: prev, or wrap to last
+    }
+
+    private static void FindFocusNeighbors(
+        View view, View? current,
+        ref View? first, ref View? last, ref View? prev, ref View? next, ref bool foundCurrent)
+    {
+        if (view.Focusable)
+        {
+            first ??= view;
+            last = view;
+
+            if (view == current)
+                foundCurrent = true;
+            else if (!foundCurrent)
+                prev = view;
+            else if (next == null)
+                next = view;
+        }
+
+        for (int i = 0; i < view.Count; i++)
+            FindFocusNeighbors(view[i], current, ref first, ref last, ref prev, ref next, ref foundCurrent);
     }
 
     protected override void OnChildRenderChanged(View child)

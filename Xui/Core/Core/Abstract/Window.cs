@@ -163,6 +163,18 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
     }
 
     /// <inheritdoc/>
+    public virtual void OnKeyDown(ref KeyEventRef e)
+    {
+        ((IContent)this.RootView).OnKeyDown(ref e);
+    }
+
+    /// <inheritdoc/>
+    public virtual void OnChar(ref KeyEventRef e)
+    {
+        ((IContent)this.RootView).OnChar(ref e);
+    }
+
+    /// <inheritdoc/>
     public virtual void OnAnimationFrame(ref FrameEventRef e)
     {
         ((IContent)this.RootView).OnAnimationFrame(ref e);
