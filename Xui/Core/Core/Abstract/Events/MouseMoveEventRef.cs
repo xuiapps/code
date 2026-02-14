@@ -1,3 +1,4 @@
+using Xui.Core.Canvas;
 using Xui.Core.Math2D;
 
 namespace Xui.Core.Abstract.Events;
@@ -18,4 +19,10 @@ public ref struct MouseMoveEventRef
     /// The current position of the mouse pointer in logical window coordinates.
     /// </summary>
     public Point Position;
+
+    /// <summary>
+    /// Optional text measure context for hit-testing text positions.
+    /// May be null on platforms that do not provide one.
+    /// </summary>
+    public ITextMeasureContext? TextMeasure;
 }

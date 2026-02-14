@@ -154,34 +154,159 @@ public class TextBox : View
         this.RequestAnimationFrame();
     }
 
+    private uint anchor;
+    private bool isMouseSelecting;
+
     public override void OnPointerEvent(ref PointerEventRef e, EventPhase phase)
     {
-        if (phase == EventPhase.Bubble && e.Type == PointerEventType.Down)
+        if (phase != EventPhase.Bubble)
+            return;
+
+        if (e.Type == PointerEventType.Down)
         {
+            var wasFocused = this.IsFocused;
             this.Focus();
+
+            var cursorPos = HitTestCursor(e.State.Position, e.TextMeasure);
+            if (cursorPos.HasValue)
+            {
+                this.anchor = cursorPos.Value;
+                this.selection = new Interval<uint>.ClosedOpen(cursorPos.Value, cursorPos.Value);
+                this.isMouseSelecting = true;
+                this.CapturePointer(e.PointerId);
+            }
+            else if (!wasFocused && this.SelectAllOnFocus)
+            {
+                this.anchor = 0;
+                this.selection = new Interval<uint>.ClosedOpen(0, (uint)this.textBuffer.Length);
+            }
+
+            this.ResetCaretBlink();
+            this.InvalidateRender();
+        }
+        else if (e.Type == PointerEventType.Move && this.isMouseSelecting)
+        {
+            var cursorPos = HitTestCursor(e.State.Position, e.TextMeasure);
+            if (cursorPos.HasValue)
+            {
+                var pos = cursorPos.Value;
+                this.selection = this.anchor <= pos
+                    ? new Interval<uint>.ClosedOpen(this.anchor, pos)
+                    : new Interval<uint>.ClosedOpen(pos, this.anchor);
+                this.ResetCaretBlink();
+                this.InvalidateRender();
+            }
+        }
+        else if (e.Type == PointerEventType.Up)
+        {
+            if (this.isMouseSelecting)
+            {
+                this.isMouseSelecting = false;
+                this.ReleasePointer(e.PointerId);
+            }
         }
     }
 
     public override void OnKeyDown(ref KeyEventRef e)
     {
-        if (e.Key == VirtualKey.Back)
-        {
-            var sel = this.selection;
-            if (!sel.IsEmpty)
-            {
-                this.textBuffer.Remove((int)sel.Start, (int)(sel.End - sel.Start));
-                this.selection = new Interval<uint>.ClosedOpen(sel.Start, sel.Start);
-            }
-            else if (sel.Start > 0)
-            {
-                this.textBuffer.Remove((int)sel.Start - 1, 1);
-                this.selection = new Interval<uint>.ClosedOpen(sel.Start - 1, sel.Start - 1);
-            }
+        var sel = this.selection;
+        var len = (uint)this.textBuffer.Length;
 
-            this.ResetCaretBlink();
-            this.InvalidateRender();
-            this.InvalidateMeasure();
-            e.Handled = true;
+        switch (e.Key)
+        {
+            case VirtualKey.Back:
+                if (!sel.IsEmpty)
+                {
+                    this.textBuffer.Remove((int)sel.Start, (int)(sel.End - sel.Start));
+                    this.SetCursor(sel.Start);
+                }
+                else if (sel.Start > 0)
+                {
+                    this.textBuffer.Remove((int)sel.Start - 1, 1);
+                    this.SetCursor(sel.Start - 1);
+                }
+                this.ResetCaretBlink();
+                this.InvalidateRender();
+                this.InvalidateMeasure();
+                e.Handled = true;
+                break;
+
+            case VirtualKey.Delete:
+                if (!sel.IsEmpty)
+                {
+                    this.textBuffer.Remove((int)sel.Start, (int)(sel.End - sel.Start));
+                    this.SetCursor(sel.Start);
+                }
+                else if (sel.Start < len)
+                {
+                    this.textBuffer.Remove((int)sel.Start, 1);
+                    this.SetCursor(sel.Start);
+                }
+                this.ResetCaretBlink();
+                this.InvalidateRender();
+                this.InvalidateMeasure();
+                e.Handled = true;
+                break;
+
+            case VirtualKey.Left:
+                if (e.Shift)
+                {
+                    var cursor = GetCursor();
+                    if (cursor > 0)
+                        MoveCursor(cursor - 1);
+                }
+                else if (!sel.IsEmpty)
+                {
+                    SetCursor(sel.Start);
+                }
+                else if (sel.Start > 0)
+                {
+                    SetCursor(sel.Start - 1);
+                }
+                this.ResetCaretBlink();
+                this.InvalidateRender();
+                e.Handled = true;
+                break;
+
+            case VirtualKey.Right:
+                if (e.Shift)
+                {
+                    var cursor = GetCursor();
+                    if (cursor < len)
+                        MoveCursor(cursor + 1);
+                }
+                else if (!sel.IsEmpty)
+                {
+                    SetCursor(sel.End);
+                }
+                else if (sel.Start < len)
+                {
+                    SetCursor(sel.Start + 1);
+                }
+                this.ResetCaretBlink();
+                this.InvalidateRender();
+                e.Handled = true;
+                break;
+
+            case VirtualKey.Home:
+                if (e.Shift)
+                    MoveCursor(0);
+                else
+                    SetCursor(0);
+                this.ResetCaretBlink();
+                this.InvalidateRender();
+                e.Handled = true;
+                break;
+
+            case VirtualKey.End:
+                if (e.Shift)
+                    MoveCursor(len);
+                else
+                    SetCursor(len);
+                this.ResetCaretBlink();
+                this.InvalidateRender();
+                e.Handled = true;
+                break;
         }
     }
 
@@ -198,11 +323,68 @@ public class TextBox : View
             this.textBuffer.Remove((int)sel.Start, (int)(sel.End - sel.Start));
 
         this.textBuffer.Insert((int)sel.Start, e.Character);
-        this.selection = new Interval<uint>.ClosedOpen(sel.Start + 1, sel.Start + 1);
+        this.SetCursor(sel.Start + 1);
         this.ResetCaretBlink();
         this.InvalidateRender();
         this.InvalidateMeasure();
         e.Handled = true;
+    }
+
+    private void SetCursor(uint pos)
+    {
+        this.anchor = pos;
+        this.selection = new Interval<uint>.ClosedOpen(pos, pos);
+    }
+
+    private void MoveCursor(uint pos)
+    {
+        if (this.anchor <= pos)
+            this.selection = new Interval<uint>.ClosedOpen(this.anchor, pos);
+        else
+            this.selection = new Interval<uint>.ClosedOpen(pos, this.anchor);
+    }
+
+    private uint GetCursor()
+    {
+        if (this.selection.End == this.anchor)
+            return this.selection.Start;
+        return this.selection.End;
+    }
+
+    private uint? HitTestCursor(Point pointerPosition, ITextMeasureContext? textMeasure)
+    {
+        if (textMeasure == null)
+            return null;
+
+        var frame = this.Frame;
+        var displayText = this.GetDisplayText();
+        var textX = frame.X + TextPadding;
+        var clickX = pointerPosition.X - textX;
+
+        textMeasure.SetFont(this.GetFont());
+
+        var len = displayText.Length;
+        if (len == 0)
+            return 0;
+
+        var fullWidth = (nfloat)textMeasure.MeasureText(displayText).Size.Width;
+        if (clickX >= fullWidth)
+            return (uint)len;
+
+        if (clickX <= 0)
+            return 0;
+
+        nfloat prevWidth = 0;
+        for (int i = 1; i <= len; i++)
+        {
+            var width = (nfloat)textMeasure.MeasureText(displayText[..i]).Size.Width;
+            var midpoint = (prevWidth + width) / 2;
+            if (clickX < midpoint)
+                return (uint)(i - 1);
+            prevWidth = width;
+        }
+
+        return (uint)len;
     }
 
     private void ResetCaretBlink()

@@ -75,7 +75,8 @@ namespace Xui.Core.UI.Input
                 isPrimary: true,
                 state,
                 ReadOnlySpan<PointerState>.Empty,
-                ReadOnlySpan<PointerState>.Empty);
+                ReadOnlySpan<PointerState>.Empty,
+                e.TextMeasure);
 
             DispatchPointer(ref pe);
         }
@@ -102,7 +103,8 @@ namespace Xui.Core.UI.Input
                 isPrimary: true,
                 state,
                 ReadOnlySpan<PointerState>.Empty,
-                ReadOnlySpan<PointerState>.Empty);
+                ReadOnlySpan<PointerState>.Empty,
+                e.TextMeasure);
 
             DispatchPointer(ref pe);
         }
@@ -129,7 +131,8 @@ namespace Xui.Core.UI.Input
                 isPrimary: true,
                 state,
                 ReadOnlySpan<PointerState>.Empty,
-                ReadOnlySpan<PointerState>.Empty);
+                ReadOnlySpan<PointerState>.Empty,
+                e.TextMeasure);
 
             DispatchPointer(ref pe);
         }

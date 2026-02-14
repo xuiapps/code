@@ -1,3 +1,5 @@
+using Xui.Core.Canvas;
+
 namespace Xui.Core.UI.Input
 {
     /// <summary>
@@ -41,15 +43,14 @@ namespace Xui.Core.UI.Input
         public readonly ReadOnlySpan<PointerState> PredictedStates;
 
         /// <summary>
+        /// Optional text measure context for hit-testing text positions.
+        /// May be null on platforms that do not provide one.
+        /// </summary>
+        public readonly ITextMeasureContext? TextMeasure;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="PointerEventRef"/> struct.
         /// </summary>
-        /// <param name="type">The type of pointer event (Down, Move, Up, etc.).</param>
-        /// <param name="pointerId">The unique ID of the pointer.</param>
-        /// <param name="persistentDeviceId">The persistent ID of the physical device, if available.</param>
-        /// <param name="isPrimary">Indicates whether this pointer is the primary pointer.</param>
-        /// <param name="state">The current physical state of the pointer.</param>
-        /// <param name="coalescedStates">High-frequency samples coalesced since the last event.</param>
-        /// <param name="predictedStates">Future-predicted samples for smoothing or latency compensation.</param>
         public PointerEventRef(
             PointerEventType type,
             int pointerId,
@@ -57,7 +58,8 @@ namespace Xui.Core.UI.Input
             bool isPrimary,
             PointerState state,
             ReadOnlySpan<PointerState> coalescedStates,
-            ReadOnlySpan<PointerState> predictedStates)
+            ReadOnlySpan<PointerState> predictedStates,
+            ITextMeasureContext? textMeasure = null)
         {
             this.Type = type;
             PointerId = pointerId;
@@ -66,6 +68,7 @@ namespace Xui.Core.UI.Input
             State = state;
             CoalescedStates = coalescedStates;
             PredictedStates = predictedStates;
+            TextMeasure = textMeasure;
         }
     }
 }
