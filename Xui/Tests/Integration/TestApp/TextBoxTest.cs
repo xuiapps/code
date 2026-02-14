@@ -162,4 +162,59 @@ public class TextBoxTest
         app.KeyDown(VirtualKey.Tab, shift: true);
         app.Snapshot("ShiftTab.ColorBox");
     }
+
+    [Fact]
+    public void TextBox_KeyboardSelection()
+    {
+        using var app = NavigateToTextBox();
+
+        // Tab to focus the first TextBox (NameBox)
+        app.KeyDown(VirtualKey.Tab);
+
+        // Type "Hello World!"
+        app.Type("Hello World!");
+        app.Snapshot("Typed");
+
+        // Move caret left twice: cursor lands before "d!"
+        app.KeyDown(VirtualKey.Left);
+        app.KeyDown(VirtualKey.Left);
+        app.Snapshot("AfterLeftLeft");
+
+        // Shift+Left twice to select the two characters before the cursor ("l" and "r")
+        app.KeyDown(VirtualKey.Left, shift: true);
+        app.KeyDown(VirtualKey.Left, shift: true);
+        app.Snapshot("ShiftSelected");
+
+        // Type "yep" to replace the selection
+        app.Type("yep");
+        app.Snapshot("AfterReplace");
+    }
+
+    [Fact]
+    public void TextBox_MouseSelection()
+    {
+        using var app = NavigateToTextBox();
+
+        // Tab to focus NameBox and type some text
+        app.KeyDown(VirtualKey.Tab);
+        app.Type("Hello World!");
+        app.Render();
+
+        var nameBox = app.Window.RootView.FindViewById("NameBox");
+        Assert.NotNull(nameBox);
+
+        var origin = nameBox.Frame.TopLeft;
+        var start = new Point(origin.X + 20, origin.Y + 10);
+        var end = new Point(start.X + 20, start.Y);
+
+        // Mouse down at start position, drag to end position, release
+        app.MouseDown(start);
+        app.Snapshot("MouseDown");
+
+        app.MouseMove(end);
+        app.Snapshot("MouseDrag");
+
+        app.MouseUp(end);
+        app.Snapshot("MouseUp");
+    }
 }

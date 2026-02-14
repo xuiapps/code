@@ -1,3 +1,5 @@
+using Xui.Core.Canvas;
+
 namespace Xui.Runtime.Test.Actual;
 
 public class TestWindow : Xui.Core.Actual.IWindow
@@ -13,6 +15,8 @@ public class TestWindow : Xui.Core.Actual.IWindow
     public string Title { get; set; } = "";
 
     public bool RequireKeyboard { get; set; }
+
+    public ITextMeasureContext? TextMeasureContext { get; set; }
 
     public void Show()
     {
