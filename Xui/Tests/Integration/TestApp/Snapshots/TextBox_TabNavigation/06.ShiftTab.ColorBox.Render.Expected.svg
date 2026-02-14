@@ -14,8 +14,8 @@
   <text x="2" y="208.9" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">Color (hex):</text>
   <rect x="2" y="235.05" width="596" height="26.15" fill="#FFFFFF" />
   <rect x="2" y="235.05" width="596" height="26.15" fill="none" stroke="#0000FF" />
-  <text x="6" y="239.05" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">#FF0000</text>
-  <rect x="71.06" y="239.05" width="1" height="18.15" fill="#000000" />
+  <rect x="6" y="239.05" width="65.06" height="18.15" fill="#0000FF" />
+  <text x="6" y="239.05" fill="#FFFFFF" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">#FF0000</text>
   <rect x="0" y="0" width="600" height="24" fill="#FFFFFF" />
   <text x="0" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">&lt; Back</text>
   <text x="73.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">TextBox MVP</text>

@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using Xui.Core.Abstract.Events;
 using Xui.Core.Canvas;
+using Xui.Core.Math1D;
 using Xui.Core.Math2D;
 using Xui.Core.UI.Input;
 
@@ -9,15 +10,17 @@ namespace Xui.Core.UI;
 
 /// <summary>
 /// A minimal single-line text input view.
-/// Supports typing, backspace, focus/blur, and password masking.
+/// Supports typing, backspace, selection, focus/blur, and password masking.
 /// </summary>
 public class TextBox : View
 {
     private static readonly TimeSpan CaretBlinkInterval = TimeSpan.FromMilliseconds(530);
+    private static readonly nfloat TextPadding = 4;
 
     public override bool Focusable => true;
 
     private readonly StringBuilder textBuffer = new();
+    private Interval<uint>.ClosedOpen selection;
     private bool caretVisible;
     private TimeSpan caretToggleTime;
 
@@ -31,9 +34,20 @@ public class TextBox : View
         {
             this.textBuffer.Clear();
             this.textBuffer.Append(value);
+            this.selection = new Interval<uint>.ClosedOpen((uint)value.Length, (uint)value.Length);
             this.InvalidateRender();
             this.InvalidateMeasure();
         }
+    }
+
+    /// <summary>
+    /// Gets or sets the current selection range as a half-open interval [Start, End).
+    /// When empty (Start == End), represents the caret position.
+    /// </summary>
+    public Interval<uint>.ClosedOpen Selection
+    {
+        get => this.selection;
+        set => this.selection = value;
     }
 
     /// <summary>
@@ -42,10 +56,30 @@ public class TextBox : View
     public bool IsPassword { get; set; }
 
     /// <summary>
+    /// When true, all text is selected when the TextBox receives focus.
+    /// </summary>
+    public bool SelectAllOnFocus { get; set; } = true;
+
+    /// <summary>
     /// Optional filter that determines whether a character is accepted.
     /// Return true to accept, false to reject.
     /// </summary>
     public Func<char, bool>? InputFilter { get; set; }
+
+    /// <summary>
+    /// Gets or sets the text color.
+    /// </summary>
+    public Color Color { get; set; } = Colors.Black;
+
+    /// <summary>
+    /// Gets or sets the text color for selected text.
+    /// </summary>
+    public Color SelectedColor { get; set; } = Colors.White;
+
+    /// <summary>
+    /// Gets or sets the background color drawn behind selected text.
+    /// </summary>
+    public Color SelectionBackgroundColor { get; set; } = Colors.Blue;
 
     /// <summary>
     /// Gets or sets the font family used for rendering the text.
@@ -72,8 +106,6 @@ public class TextBox : View
     /// </summary>
     public FontStretch FontStretch { get; set; } = FontStretch.Normal;
 
-    private static readonly nfloat TextPadding = 4;
-
     private Font GetFont() => new Font
     {
         FontFamily = this.FontFamily,
@@ -88,6 +120,9 @@ public class TextBox : View
 
     protected internal override void OnFocus()
     {
+        if (this.SelectAllOnFocus)
+            this.selection = new Interval<uint>.ClosedOpen(0, (uint)this.textBuffer.Length);
+
         this.caretVisible = true;
         this.caretToggleTime = TimeSpan.Zero;
         this.RequestAnimationFrame();
@@ -129,9 +164,20 @@ public class TextBox : View
 
     public override void OnKeyDown(ref KeyEventRef e)
     {
-        if (e.Key == VirtualKey.Back && this.textBuffer.Length > 0)
+        if (e.Key == VirtualKey.Back)
         {
-            this.textBuffer.Remove(this.textBuffer.Length - 1, 1);
+            var sel = this.selection;
+            if (!sel.IsEmpty)
+            {
+                this.textBuffer.Remove((int)sel.Start, (int)(sel.End - sel.Start));
+                this.selection = new Interval<uint>.ClosedOpen(sel.Start, sel.Start);
+            }
+            else if (sel.Start > 0)
+            {
+                this.textBuffer.Remove((int)sel.Start - 1, 1);
+                this.selection = new Interval<uint>.ClosedOpen(sel.Start - 1, sel.Start - 1);
+            }
+
             this.ResetCaretBlink();
             this.InvalidateRender();
             this.InvalidateMeasure();
@@ -147,7 +193,12 @@ public class TextBox : View
         if (this.InputFilter != null && !this.InputFilter(e.Character))
             return;
 
-        this.textBuffer.Append(e.Character);
+        var sel = this.selection;
+        if (!sel.IsEmpty)
+            this.textBuffer.Remove((int)sel.Start, (int)(sel.End - sel.Start));
+
+        this.textBuffer.Insert((int)sel.Start, e.Character);
+        this.selection = new Interval<uint>.ClosedOpen(sel.Start + 1, sel.Start + 1);
         this.ResetCaretBlink();
         this.InvalidateRender();
         this.InvalidateMeasure();
@@ -166,7 +217,6 @@ public class TextBox : View
         var displayText = this.GetDisplayText();
         var textMetrics = context.MeasureText(displayText.Length > 0 ? displayText : "X");
         var height = textMetrics.Size.Height + TextPadding * 2;
-        // Use available width for the TextBox, but ensure a minimum
         var width = nfloat.Max(availableBorderEdgeSize.Width, 100);
         return new Size(width, height);
     }
@@ -185,20 +235,68 @@ public class TextBox : View
         context.SetStroke(focused ? (Color)Colors.Blue : (Color)Colors.Gray);
         context.StrokeRect(frame);
 
-        // Text
+        // Text & Selection
         context.SetFont(this.GetFont());
         context.TextBaseline = TextBaseline.Top;
         context.TextAlign = TextAlign.Left;
-        context.SetFill((Color)Colors.Black);
-        var displayText = this.GetDisplayText();
-        context.FillText(displayText, new Point(frame.X + TextPadding, frame.Y + TextPadding));
 
-        // Caret
-        if (focused && this.caretVisible)
+        var displayText = this.GetDisplayText();
+        var sel = this.selection;
+        var textX = frame.X + TextPadding;
+        var textY = frame.Y + TextPadding;
+
+        if (!sel.IsEmpty && focused)
         {
-            var metrics = context.MeasureText(displayText);
-            var caretX = frame.X + TextPadding + metrics.Size.Width;
-            context.SetFill((Color)Colors.Black);
+            var selStart = (int)sel.Start;
+            var selEnd = (int)sel.End;
+
+            var beforeSelWidth = selStart > 0
+                ? context.MeasureText(displayText[..selStart]).Size.Width
+                : (nfloat)0;
+            var toSelEndWidth = context.MeasureText(displayText[..selEnd]).Size.Width;
+
+            // Selection background
+            context.SetFill(this.SelectionBackgroundColor);
+            context.FillRect(new Rect(
+                textX + beforeSelWidth,
+                frame.Y + TextPadding,
+                toSelEndWidth - beforeSelWidth,
+                frame.Height - TextPadding * 2));
+
+            // Text before selection
+            if (selStart > 0)
+            {
+                context.SetFill(this.Color);
+                context.FillText(displayText[..selStart], new Point(textX, textY));
+            }
+
+            // Selected text
+            context.SetFill(this.SelectedColor);
+            context.FillText(displayText[selStart..selEnd], new Point(textX + beforeSelWidth, textY));
+
+            // Text after selection
+            if (selEnd < displayText.Length)
+            {
+                context.SetFill(this.Color);
+                context.FillText(displayText[selEnd..], new Point(textX + toSelEndWidth, textY));
+            }
+        }
+        else
+        {
+            // No selection — draw all text with normal color
+            context.SetFill(this.Color);
+            context.FillText(displayText, new Point(textX, textY));
+        }
+
+        // Caret (only when no selection active)
+        if (focused && this.caretVisible && sel.IsEmpty)
+        {
+            var cursorPos = (int)sel.Start;
+            var caretOffset = cursorPos > 0
+                ? context.MeasureText(displayText[..cursorPos]).Size.Width
+                : (nfloat)0;
+            var caretX = textX + caretOffset;
+            context.SetFill(this.Color);
             context.FillRect(new Rect(caretX, frame.Y + TextPadding, 1, frame.Height - TextPadding * 2));
         }
     }

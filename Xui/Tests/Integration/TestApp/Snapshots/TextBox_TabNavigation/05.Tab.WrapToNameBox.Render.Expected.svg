@@ -2,8 +2,8 @@
   <text x="2" y="28" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">Name:</text>
   <rect x="2" y="54.15" width="596" height="26.15" fill="#FFFFFF" />
   <rect x="2" y="54.15" width="596" height="26.15" fill="none" stroke="#0000FF" />
-  <text x="6" y="58.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">Tab1</text>
-  <rect x="37.79" y="58.15" width="1" height="18.15" fill="#000000" />
+  <rect x="6" y="58.15" width="31.79" height="18.15" fill="#0000FF" />
+  <text x="6" y="58.15" fill="#FFFFFF" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">Tab1</text>
   <text x="2" y="88.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">Password:</text>
   <rect x="2" y="114.45" width="596" height="26.15" fill="#FFFFFF" />
   <rect x="2" y="114.45" width="596" height="26.15" fill="none" stroke="#808080" />
