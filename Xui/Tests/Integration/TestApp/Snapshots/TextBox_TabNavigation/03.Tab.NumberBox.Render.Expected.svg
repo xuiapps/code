@@ -10,8 +10,8 @@
   <text x="2" y="148.6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">Number:</text>
   <rect x="2" y="174.75" width="596" height="26.15" fill="#FFFFFF" />
   <rect x="2" y="174.75" width="596" height="26.15" fill="none" stroke="#0000FF" />
-  <text x="6" y="178.75" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">0</text>
-  <rect x="15.46" y="178.75" width="1" height="18.15" fill="#000000" />
+  <rect x="6" y="178.75" width="9.46" height="18.15" fill="#0000FF" />
+  <text x="6" y="178.75" fill="#FFFFFF" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">0</text>
   <text x="2" y="208.9" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">Color (hex):</text>
   <rect x="2" y="235.05" width="596" height="26.15" fill="#FFFFFF" />
   <rect x="2" y="235.05" width="596" height="26.15" fill="none" stroke="#808080" />

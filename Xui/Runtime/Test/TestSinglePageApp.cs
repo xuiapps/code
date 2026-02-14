@@ -6,6 +6,7 @@ using Xui.Core.Abstract.Events;
 using Xui.Core.Math2D;
 using Xui.Core.UI;
 using Xui.Runtime.Software.Actual;
+using Xui.Runtime.Software.Font;
 using Xui.Runtime.Test.Actual;
 
 namespace Xui.Runtime.Test;
@@ -64,6 +65,11 @@ public class TestSinglePageApp : IDisposable
         this.snapshotsDir = Path.Combine(
             Path.GetDirectoryName(callerPath)!, "Snapshots", testName);
         Directory.CreateDirectory(this.snapshotsDir);
+
+        // Provide a software text measure context so pointer events can hit-test text positions.
+        var testWindow = this.platform.Windows[this.platform.Windows.Count - 1];
+        testWindow.TextMeasureContext = new SoftwareTextMeasureContext(
+            new Catalog(Xui.Core.Fonts.Inter.URIs));
     }
 
     // ── Input ────────────────────────────────────────────────────

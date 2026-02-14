@@ -1,13 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
   <text x="2" y="28" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">Name:</text>
   <rect x="2" y="54.15" width="596" height="26.15" fill="#FFFFFF" />
-  <rect x="2" y="54.15" width="596" height="26.15" fill="none" stroke="#808080" />
-  <text x="6" y="58.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">Alice</text>
+  <rect x="2" y="54.15" width="596" height="26.15" fill="none" stroke="#0000FF" />
+  <text x="6" y="58.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">Hello World!</text>
+  <rect x="25.89" y="58.15" width="1" height="18.15" fill="#000000" />
   <text x="2" y="88.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">Password:</text>
   <rect x="2" y="114.45" width="596" height="26.15" fill="#FFFFFF" />
-  <rect x="2" y="114.45" width="596" height="26.15" fill="none" stroke="#0000FF" />
-  <text x="6" y="118.45" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">••••</text>
-  <rect x="39.75" y="118.45" width="1" height="18.15" fill="#000000" />
+  <rect x="2" y="114.45" width="596" height="26.15" fill="none" stroke="#808080" />
   <text x="2" y="148.6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">Number:</text>
   <rect x="2" y="174.75" width="596" height="26.15" fill="#FFFFFF" />
   <rect x="2" y="174.75" width="596" height="26.15" fill="none" stroke="#808080" />
@@ -19,7 +18,7 @@
   <rect x="0" y="0" width="600" height="24" fill="#FFFFFF" />
   <text x="0" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">&lt; Back</text>
   <text x="73.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">TextBox MVP</text>
-  <g transform="translate(300 127.52294921875)" opacity="0.9">
-    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
+  <g transform="translate(22 64.1494140625)" opacity="0.9">
+    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="#FFCC00" stroke="black" stroke-width="0.7"/>
   </g>
 </svg>

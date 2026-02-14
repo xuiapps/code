@@ -2,8 +2,10 @@
   <text x="2" y="28" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">Name:</text>
   <rect x="2" y="54.15" width="596" height="26.15" fill="#FFFFFF" />
   <rect x="2" y="54.15" width="596" height="26.15" fill="none" stroke="#0000FF" />
-  <text x="6" y="58.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">Alice</text>
-  <rect x="40.93" y="58.15" width="1" height="18.15" fill="#000000" />
+  <rect x="69.38" y="58.15" width="9.51" height="18.15" fill="#0000FF" />
+  <text x="6" y="58.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">Hello Wo</text>
+  <text x="69.38" y="58.15" fill="#FFFFFF" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">rl</text>
+  <text x="78.9" y="58.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">d!</text>
   <text x="2" y="88.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">Password:</text>
   <rect x="2" y="114.45" width="596" height="26.15" fill="#FFFFFF" />
   <rect x="2" y="114.45" width="596" height="26.15" fill="none" stroke="#808080" />
@@ -18,7 +20,7 @@
   <rect x="0" y="0" width="600" height="24" fill="#FFFFFF" />
   <text x="0" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">&lt; Back</text>
   <text x="73.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">TextBox MVP</text>
-  <g transform="translate(300 67.22412109375)" opacity="0.9">
+  <g transform="translate(0 0)" opacity="0.9">
     <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
   </g>
 </svg>

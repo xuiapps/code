@@ -1,3 +1,5 @@
+using Xui.Core.Canvas;
+
 namespace Xui.Core.Actual;
 
 /// <summary>
@@ -32,4 +34,10 @@ public interface IWindow
     /// Platforms may use this to show or hide on-screen keyboards.
     /// </summary>
     bool RequireKeyboard { get; set; }
+
+    /// <summary>
+    /// Gets a lightweight text measure context for hit-testing text positions
+    /// during pointer events. Returns null on platforms that do not support it.
+    /// </summary>
+    ITextMeasureContext? TextMeasureContext => null;
 }

@@ -45,7 +45,7 @@ public partial class Win32Window
         protected DComp.Visual? DCompVisual { get; private set; }
 
         protected D2D1.RenderTarget? RenderTarget => this.D2D1DeviceContext;
-        protected DWrite.Factory? DWriteFactory { get; private set; }
+        internal DWrite.Factory? DWriteFactory { get; private set; }
         protected Direct2DContext? Direct2DContext { get; private set; }
 
         /// <summary>

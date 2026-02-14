@@ -1,3 +1,4 @@
+using Xui.Core.Canvas;
 using Xui.Core.Math2D;
 
 namespace Xui.Core.Abstract.Events;
@@ -23,4 +24,10 @@ public ref struct MouseDownEventRef
     /// The mouse button that was pressed.
     /// </summary>
     public MouseButton Button;
+
+    /// <summary>
+    /// Optional text measure context for hit-testing text positions.
+    /// May be null on platforms that do not provide one.
+    /// </summary>
+    public ITextMeasureContext? TextMeasure;
 }

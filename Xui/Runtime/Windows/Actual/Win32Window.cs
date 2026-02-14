@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Xui.Core.Abstract.Events;
+using Xui.Core.Canvas;
 using Xui.Core.Debug;
 using CoreRuntime = Xui.Core.Actual.Runtime;
 using Xui.Core.Math2D;
@@ -193,6 +194,21 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
     }
 
     public bool RequireKeyboard { get; set; }
+
+    private DWriteTextMeasureContext? textMeasureContext;
+
+    public ITextMeasureContext? TextMeasureContext
+    {
+        get
+        {
+            if (this.textMeasureContext == null && this.Renderer is D2DComp d2dComp && d2dComp.DWriteFactory is { } factory)
+            {
+                this.textMeasureContext = new DWriteTextMeasureContext(factory);
+            }
+
+            return this.textMeasureContext;
+        }
+    }
 
     public int OnMessage(HWND hWnd, WindowMessage uMsg, WPARAM wParam, LPARAM lParam)
     {

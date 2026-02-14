@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using Xui.Core.Abstract.Events;
 using Xui.Core.Actual;
+using Xui.Core.Canvas;
 using Xui.Core.Debug;
 using Xui.Core.Math2D;
 using Xui.Core.UI;
@@ -35,6 +36,12 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
 
     /// <inheritdoc/>
     public virtual Rect SafeArea { get; set; }
+
+    /// <summary>
+    /// Gets the text measure context for this window, used for hit-testing text
+    /// positions during pointer events. Null on platforms that do not provide one.
+    /// </summary>
+    public virtual ITextMeasureContext? TextMeasureContext => this.Actual.TextMeasureContext;
 
     public RootView RootView { get; }
 
@@ -132,6 +139,7 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
     {
         Runtime.CurrentInstruments.Log(Scope.Input, LevelOfDetail.Normal,
             $"MouseDown ({e.Position.X:F1}, {e.Position.Y:F1}) Button={e.Button}");
+        e.TextMeasure = this.TextMeasureContext;
         ((IContent)this.RootView).OnMouseDown(ref e);
     }
 
@@ -140,6 +148,7 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
     {
         Runtime.CurrentInstruments.Log(Scope.Input, LevelOfDetail.Diagnostic,
             $"MouseMove ({e.Position.X:F1}, {e.Position.Y:F1})");
+        e.TextMeasure = this.TextMeasureContext;
         ((IContent)this.RootView).OnMouseMove(ref e);
     }
 
@@ -148,6 +157,7 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard
     {
         Runtime.CurrentInstruments.Log(Scope.Input, LevelOfDetail.Normal,
             $"MouseUp ({e.Position.X:F1}, {e.Position.Y:F1}) Button={e.Button}");
+        e.TextMeasure = this.TextMeasureContext;
         ((IContent)this.RootView).OnMouseUp(ref e);
     }
 
