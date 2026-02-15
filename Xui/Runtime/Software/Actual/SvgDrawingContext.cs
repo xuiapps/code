@@ -575,7 +575,7 @@ public sealed class SvgDrawingContext : IContext, IDisposable
         if (font.FontStyle.IsItalic)
             bodyWriter.Write($" font-style=\"italic\"");
 
-        bodyWriter.Write(">");
+        bodyWriter.Write(" xml:space=\"preserve\">");
         bodyWriter.Write(System.Security.SecurityElement.Escape(text));
         bodyWriter.WriteLine("</text>");
     }
