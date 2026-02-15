@@ -136,20 +136,10 @@ public partial class Win32Window
             }
         }
 
-        public void ResizeBuffers(HWND hWnd)
+        public void ResizeBuffers(HWND hWnd, uint physicalW, uint physicalH)
         {
             if (this.SwapChain1 != null && this.D2D1DeviceContext != null)
             {
-                hWnd.GetClientRect(out var rc);
-
-                this.UpdateDPI(hWnd);
-
-                uint logicalW = (uint)Math.Max(1, rc.Right - rc.Left);
-                uint logicalH = (uint)Math.Max(1, rc.Bottom - rc.Top);
-
-                uint physicalW = (uint)Math.Max(1, logicalW * this.DpiScale);
-                uint physicalH = (uint)Math.Max(1, logicalH * this.DpiScale);
-
                 // Detach target before resizing
                 this.D2D1DeviceContext.SetTarget(null);
 
@@ -203,11 +193,12 @@ public partial class Win32Window
                 uint logicalW = (uint)Math.Max(1, rc.Right - rc.Left);
                 uint logicalH = (uint)Math.Max(1, rc.Bottom - rc.Top);
 
+                var topOffset = this.Win32Window.extendedFrameTopOffset;
                 var dipW = logicalW / this.DpiScale;
-                var dipH = logicalH / this.DpiScale;
+                var dipH = (logicalH - topOffset) / this.DpiScale;
 
                 CoreRuntime.CurrentInstruments.Log(Scope.Rendering, LevelOfDetail.Diagnostic,
-                    $"D2DComp.Render client=({logicalW}, {logicalH}) dpi={this.DpiScale:F2} dip=({dipW:F1}, {dipH:F1})");
+                    $"D2DComp.Render client=({logicalW}, {logicalH}) dpi={this.DpiScale:F2} dip=({dipW:F1}, {dipH:F1}) topOffset={topOffset}");
 
                 var frame = new FrameEventRef(this.LastNextEstimatedFrameTime, this.NextEstimatedFrameTime);
                 var render = new RenderEventRef(
@@ -226,7 +217,7 @@ public partial class Win32Window
                     _12 = 0,
                     _21 = 0,
                     _31 = 0,
-                    _32 = 0
+                    _32 = (float)topOffset
                 });
 
                 Win32Platform.DisplayContextStack.Push(this.Direct2DContext);
@@ -242,7 +233,9 @@ public partial class Win32Window
 
                 this.D2D1DeviceContext.EndDraw();
 
-                this.SwapChain1.Present(0, 0);
+                
+                this.SwapChain1.Present(0, Present.DoNotWait);
+                this.DCompDevice.Commit();
             }
         }
 

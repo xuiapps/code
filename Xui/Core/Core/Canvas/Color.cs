@@ -43,6 +43,22 @@ public struct Color
     }
 
     /// <summary>
+    /// Initializes a new <see cref="Color"/> from byte components in the range [0, 255],
+    /// which are normalized to [0, 1].
+    /// </summary>
+    /// <param name="red">Red component [0, 255]</param>
+    /// <param name="green">Green component [0, 255]</param>
+    /// <param name="blue">Blue component [0, 255]</param>
+    /// <param name="alpha">Alpha component [0, 255]</param>
+    public Color(byte red, byte green, byte blue, byte alpha)
+    {
+        this.Red   = red   / (nfloat)255;
+        this.Green = green / (nfloat)255;
+        this.Blue  = blue  / (nfloat)255;
+        this.Alpha = alpha / (nfloat)255;
+    }
+
+    /// <summary>
     /// Initializes a new <see cref="Color"/> from a packed 32-bit RGBA value.
     /// The value format is 0xRRGGBBAA, where each component is 8 bits.
     /// </summary>

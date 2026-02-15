@@ -70,6 +70,14 @@ public static partial class User32
             [return: MarshalAs(UnmanagedType.Bool)]
             public static partial bool ReleaseCapture();
 
+            [LibraryImport(User32Lib, EntryPoint = "GetWindowRect")]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            public static partial bool GetWindowRect(HWND hWnd, out RECT lpRect);
+
+            [LibraryImport(User32Lib)]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            public static partial bool IsZoomed(HWND hWnd);
+
             public nint value;
 
             public HWND(nint value)
@@ -90,6 +98,10 @@ public static partial class User32
             public void Invalidate() => InvalidateRect(this, 0, false);
 
             public bool ScreenToClient(ref POINT point) => HWND.ScreenToClient(this, ref point);
+
+            public bool GetWindowRect(out RECT rect) => GetWindowRect(this, out rect);
+
+            public bool IsMaximized => IsZoomed(this);
 
             public LRESULT DefWindowProc(WindowMessage uMsg, WPARAM wParam, LPARAM lParam) => DefWindowProc(this, uMsg, wParam, lParam);
 

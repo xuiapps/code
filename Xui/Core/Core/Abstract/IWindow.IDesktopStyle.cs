@@ -16,11 +16,9 @@ public partial interface IWindow
     public partial interface IDesktopStyle
     {
         /// <summary>
-        /// If <c>true</c>, the window will be created without a system title bar or border.
-        /// The entire surface will be treated as a client area, while still maintaining
-        /// standard desktop window behaviors (e.g., close/minimize buttons).
+        /// Controls the window backdrop and chrome style.
         /// </summary>
-        public bool Chromeless => false;
+        public WindowBackdrop Backdrop => WindowBackdrop.Default;
 
         /// <summary>
         /// Optional startup size hint for the window.
@@ -32,5 +30,19 @@ public partial interface IWindow
         /// Controls the window stacking level (Z-order) relative to other windows.
         /// </summary>
         public DesktopWindowLevel Level => DesktopWindowLevel.Normal;
+
+        /// <summary>
+        /// Controls whether the client area includes the title bar region.
+        /// </summary>
+        /// <remarks>
+        /// <b>Default</b>: System-managed non-client area (title bar + borders behave normally).<br/>
+        /// <b>Extended</b>: Extends the client area into the title bar region so the app can draw its own
+        /// title bar content/background while still allowing native window behaviors via hit testing.<br/><br/>
+        /// <b>Windows</b>: Uses <c>DwmExtendFrameIntoClientArea</c> (and relies on <c>WM_NCHITTEST</c> returning
+        /// <c>HTCAPTION</c> for draggable regions). This is the recommended way to hide title text/icon reliably,
+        /// especially with Mica/Acrylic backdrops.<br/>
+        /// <b>macOS</b>: Uses full-size content view / transparent title bar with title visibility hidden.
+        /// </remarks>
+        public WindowClientArea ClientArea => WindowClientArea.Default;
     }
 }

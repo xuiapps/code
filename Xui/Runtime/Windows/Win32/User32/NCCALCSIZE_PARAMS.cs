@@ -7,7 +7,6 @@ public static partial class User32
         public RECT r1;
         public RECT r2;
         public RECT r3;
-
-        // Incomplete ... PWINDOWPOS lppos;
+        public WINDOWPOS* lppos;
     }
 }

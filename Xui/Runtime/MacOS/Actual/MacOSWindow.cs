@@ -60,7 +60,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
 
         if (@abstract is Xui.Core.Abstract.IWindow.IDesktopStyle dws)
         {
-            if (dws.Chromeless)
+            if (dws.Backdrop == WindowBackdrop.Chromeless)
             {
                 mask =
                     NSWindowStyleMask.Titled |
@@ -110,7 +110,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
                 _                            => NSWindowLevel.Normal
             };
 
-            if (dws.Chromeless)
+            if (dws.Backdrop == WindowBackdrop.Chromeless)
             {
                 using var transparent = new NSColorRef(0, 0, 0, 0);
                 this.BackgroundColor = transparent;
@@ -340,7 +340,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
             if (e.Type == NSEventType.LeftMouseUp &&
                 e.ClickCount == 2 &&
                 eventRef.Area == WindowHitTestEventRef.WindowArea.Title &&
-                this.Abstract is Xui.Core.Abstract.IWindow.IDesktopStyle dws && dws.Chromeless)
+                this.Abstract is Xui.Core.Abstract.IWindow.IDesktopStyle dws && dws.Backdrop == WindowBackdrop.Chromeless)
             {
                 this.PerformZoom();
             }
@@ -384,7 +384,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
         Super super = new Super(this, NSWindow.Class);
         ObjC.objc_msgSendSuper(ref super, sel, e);
 
-        if (this.Abstract is Xui.Core.Abstract.IWindow.IDesktopStyle dwsc && dwsc.Chromeless)
+        if (this.Abstract is Xui.Core.Abstract.IWindow.IDesktopStyle dwsc && dwsc.Backdrop == WindowBackdrop.Chromeless)
         {
             // this.HideTitleButtons();
         }
