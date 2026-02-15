@@ -411,17 +411,25 @@ public class TextBox : View
             var selStart = (int)sel.Start;
             var selEnd = (int)sel.End;
 
-            var beforeSelWidth = selStart > 0
+            var leftFromSelectionWidth = selStart > 0
                 ? context.MeasureText(displayText[..selStart]).Size.Width
                 : (nfloat)0;
-            var toSelEndWidth = context.MeasureText(displayText[..selEnd]).Size.Width;
+            var selectionWidth = context.MeasureText(displayText[selStart..selEnd]).Size.Width;
+            var leftAndSelectionWidth = context.MeasureText(displayText[..selEnd]).Size.Width;
+
+            var startOfSelection = leftFromSelectionWidth - (leftFromSelectionWidth +selectionWidth - leftAndSelectionWidth);
+
+            var allWidth = context.MeasureText(displayText).Size.Width;
+            var rightOfSelectionWidth = selEnd < displayText.Length
+                ? context.MeasureText(displayText[selEnd..]).Size.Width
+                : (nfloat)0;
 
             // Selection background
             context.SetFill(this.SelectionBackgroundColor);
             context.FillRect(new Rect(
-                textX + beforeSelWidth,
+                textX + startOfSelection,
                 frame.Y + TextPadding,
-                toSelEndWidth - beforeSelWidth,
+                selectionWidth,
                 frame.Height - TextPadding * 2));
 
             // Text before selection
@@ -433,13 +441,13 @@ public class TextBox : View
 
             // Selected text
             context.SetFill(this.SelectedColor);
-            context.FillText(displayText[selStart..selEnd], new Point(textX + beforeSelWidth, textY));
+            context.FillText(displayText[selStart..selEnd], new Point(textX + startOfSelection, textY));
 
             // Text after selection
             if (selEnd < displayText.Length)
             {
                 context.SetFill(this.Color);
-                context.FillText(displayText[selEnd..], new Point(textX + toSelEndWidth, textY));
+                context.FillText(displayText[selEnd..], new Point(textX + (allWidth - rightOfSelectionWidth), textY));
             }
         }
         else
