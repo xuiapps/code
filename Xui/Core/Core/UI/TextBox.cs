@@ -363,28 +363,7 @@ public class TextBox : View
 
         textMeasure.SetFont(this.GetFont());
 
-        var len = displayText.Length;
-        if (len == 0)
-            return 0;
-
-        var fullWidth = (nfloat)textMeasure.MeasureText(displayText).Size.Width;
-        if (clickX >= fullWidth)
-            return (uint)len;
-
-        if (clickX <= 0)
-            return 0;
-
-        nfloat prevWidth = 0;
-        for (int i = 1; i <= len; i++)
-        {
-            var width = (nfloat)textMeasure.MeasureText(displayText[..i]).Size.Width;
-            var midpoint = (prevWidth + width) / 2;
-            if (clickX < midpoint)
-                return (uint)(i - 1);
-            prevWidth = width;
-        }
-
-        return (uint)len;
+        return (uint)textMeasure.HitTestTextPosition(displayText, clickX);
     }
 
     private void ResetCaretBlink()
