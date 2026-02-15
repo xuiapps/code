@@ -13,8 +13,8 @@
   </g>
   <rect x="0" y="0" width="600" height="24" fill="#FFFFFF" />
   <rect x="0" y="0" width="49.18" height="24" fill="#D3D3D3" />
-  <text x="0" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">&lt; Back</text>
-  <text x="73.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter">Animated Heart</text>
+  <text x="0" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+  <text x="73.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Animated Heart</text>
   <g transform="translate(24.591064453125 12)" opacity="0.9">
     <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
   </g>
