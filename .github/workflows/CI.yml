@@ -1,0 +1,28 @@
+name: Tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET 10
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Core Unit Tests
+      run: dotnet test Xui/Core/Core.Tests/Xui.Core.Tests.csproj --verbosity normal
+
+    - name: Component Tests
+      run: dotnet test Xui/Tests/Component/Xui.Tests.Component.csproj --verbosity normal
+
+    - name: Integration Tests
+      run: dotnet test Xui/Tests/Integration/Xui.Tests.Integration.csproj --verbosity normal
