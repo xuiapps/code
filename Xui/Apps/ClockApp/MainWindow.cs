@@ -29,7 +29,7 @@ public class MainWindow : Window, IWindow.IDesktopStyle
     private Rect runButtonRect;
     private bool running = false;
 
-    bool IWindow.IDesktopStyle.Chromeless => true;
+    IWindow.IDesktopStyle.WindowBackdrop IWindow.IDesktopStyle.Backdrop => IWindow.IDesktopStyle.WindowBackdrop.Chromeless;
 
     Core.Math2D.Size? IWindow.IDesktopStyle.StartupSize => new Core.Math2D.Size(200, 300);
 

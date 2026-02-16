@@ -53,6 +53,10 @@ public static partial class User32
     [LibraryImport(User32Lib)]
     public static partial nuint SetTimer(HWND hWnd, nuint nIDEvent, uint uElapse, nint lpTimerFunc);
 
+    /// <summary>https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendmessagew</summary>
+    [LibraryImport(User32Lib, EntryPoint = "SendMessageW")]
+    public static partial nint SendMessage(HWND hWnd, uint Msg, nuint wParam, nint lParam);
+
     [LibraryImport(User32Lib)]
     public static unsafe partial BOOL SetLayeredWindowAttributes(HWND hWnd, COLORREF crKey, byte bAlpha, LayeredWindowAttribute dwFlags);
 
@@ -84,4 +88,10 @@ public static partial class User32
         uint dwMilliseconds,
         uint dwWakeMask,
         uint dwFlags);
+
+    [LibraryImport(User32Lib)]
+    public static partial int GetSystemMetricsForDpi(SystemMetric nIndex, uint dpi);
+
+    [LibraryImport(User32Lib, EntryPoint = "GetSystemMetrics")]
+    public static partial int GetSystemMetrics(SystemMetric nIndex);
 }

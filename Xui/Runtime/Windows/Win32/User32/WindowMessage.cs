@@ -127,5 +127,8 @@ public static partial class User32
         WM_TIMER = 0x0113,
 
         WM_DPICHANGED = 0x02E0,
+
+        // Icon
+        WM_SETICON = 0x0080,
     }
 }

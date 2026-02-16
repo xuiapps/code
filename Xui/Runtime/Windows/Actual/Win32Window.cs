@@ -36,6 +36,12 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
 
     private bool trackingMouseLeave;
 
+    /// <summary>
+    /// Physical pixels hidden at the top of the client area when extended frame is active.
+    /// Normal: ~1px (DWM border). Maximized: frameY + pad (off-screen).
+    /// </summary>
+    private NFloat extendedFrameTopOffset;
+
     public nint CompositionFrameHandle
     {
         get
@@ -125,10 +131,16 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
                 height = (int)desktopStyle.StartupSize.Value.Height;
             }
 
-            if (desktopStyle.Chromeless)
+            if (desktopStyle.Backdrop == WindowBackdrop.Chromeless)
             {
                 dwExStyle = (uint)ExtendedWindowStyles.WS_EX_NOREDIRECTIONBITMAP;
                 dwStyle = (uint)WindowStyles.WS_POPUP;
+                hbrBackground = 0;
+            }
+            else if (desktopStyle.Backdrop == WindowBackdrop.Mica)
+            {
+                dwExStyle = (uint)ExtendedWindowStyles.WS_EX_NOREDIRECTIONBITMAP;
+                dwStyle = (uint)WindowStyles.WS_OVERLAPPEDWINDOW | (uint)WindowStyles.WS_VISIBLE | (uint)WindowStyles.WS_CAPTION;
                 hbrBackground = 0;
             }
             else
@@ -167,6 +179,18 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
         if (constructedInstanceOnStack == this)
         {
             constructedInstanceOnStack = null;
+        }
+
+        if (this.Abstract is Xui.Core.Abstract.IWindow.IDesktopStyle desktopStyle2)
+        {
+            if (desktopStyle2.Backdrop == WindowBackdrop.Mica)
+            {
+                int backdropType = Dwmapi.DWMSBT_MAINWINDOW;
+                Dwmapi.DwmSetWindowAttribute(this.Hwnd, Dwmapi.DWMWA_SYSTEMBACKDROP_TYPE, ref backdropType, sizeof(int));
+
+                var margins = new Dwmapi.MARGINS { Left = 0, Right = 0, Top = -1, Bottom = 0 };
+                Dwmapi.DwmExtendFrameIntoClientArea(this.Hwnd, ref margins);
+            }
         }
 
         HwndToWindow[this.Hwnd] = this;
@@ -216,6 +240,68 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
 
         switch (msg)
         {
+            case WindowMessage.WM_WINDOWPOSCHANGED:
+            {
+                this.UpdateExtendedFrameTopOffset();
+
+                var res = this.Hwnd.DefWindowProc(uMsg, wParam, lParam);
+                this.Hwnd.GetClientRect(out var rc);
+                uint clientW = (uint)(rc.Right - rc.Left);
+                uint clientH = (uint)(rc.Bottom - rc.Top);
+                if (clientW > 0 && clientH > 0)
+                {
+                    ((D2DComp)this.Renderer).ResizeBuffers(hWnd, clientW, clientH);
+                    this.invalid = true;
+                    this.Render();
+                    this.invalid = true;
+                    Dwmapi.DwmFlush();
+                }
+                return res;
+            }
+
+            case WindowMessage.WM_NCCALCSIZE:
+            {
+                if (this.Abstract is Xui.Core.Abstract.IWindow.IDesktopStyle desktopStyle && desktopStyle.ClientArea == WindowClientArea.Extended)
+                {
+                    this.Hwnd.DefWindowProc(uMsg, wParam, lParam);
+
+                    if (wParam.Value == 0)
+                    {
+                        unsafe
+                        {
+                            var rc = (RECT*)lParam.Value;
+
+                            uint dpi = this.Hwnd.DPI;
+                            int caption = GetSystemMetricsForDpi(SystemMetric.SM_CYCAPTION, dpi);
+                            int frameY  = GetSystemMetricsForDpi(SystemMetric.SM_CYSIZEFRAME, dpi);
+                            int pad     = GetSystemMetricsForDpi(SystemMetric.SM_CXPADDEDBORDER, dpi);
+
+                            rc->Top -= caption + frameY + pad;
+                        }
+
+                        return 0;
+                    }
+                    else
+                    {
+                        unsafe
+                        {
+                            var p = (NCCALCSIZE_PARAMS*)lParam.Value;
+
+                            uint dpi = this.Hwnd.DPI;
+                            int caption = GetSystemMetricsForDpi(SystemMetric.SM_CYCAPTION, dpi);
+                            int frameY  = GetSystemMetricsForDpi(SystemMetric.SM_CYSIZEFRAME, dpi);
+                            int pad     = GetSystemMetricsForDpi(SystemMetric.SM_CXPADDEDBORDER, dpi);
+
+                            p->r1.Top -= caption + frameY + pad;
+                        }
+
+                        return 0;
+                    }
+                }
+
+                break;
+            }
+
             case WindowMessage.WM_DPICHANGED:
             {
                 this.UpdateDpiScale();
@@ -235,9 +321,18 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
                 }
 
                 var res = this.Hwnd.DefWindowProc(uMsg, wParam, lParam);
-                ((D2DComp)this.Renderer).ResizeBuffers(hWnd);
-                this.invalid = true;
-                this.Render();
+
+                unsafe
+                {
+                    var p = (User32.RECT*)lParam.Value;
+
+                    // ((D2DComp)this.Renderer).ResizeBuffers(hWnd, (uint)(p->Right - p->Left), (uint)(p->Bottom - p->Top));
+                    // this.invalid = true;
+                    // this.Render();
+                    // this.invalid = true; // Fixe bug - wont render after startup
+                    // Dwmapi.DwmFlush();
+                }
+
                 return res;
             }
             case WindowMessage.WM_SIZE:
@@ -245,7 +340,7 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
                 hWnd.GetClientRect(out var sizeRc);
                 var clientW = sizeRc.Right - sizeRc.Left;
                 var clientH = sizeRc.Bottom - sizeRc.Top;
-                var dipRect = this.ToDip(new Rect(0, 0, clientW, clientH));
+                var dipRect = this.ToDip(new Rect(0, this.extendedFrameTopOffset, clientW, clientH - this.extendedFrameTopOffset));
 
                 this.Abstract.SafeArea = dipRect;
 
@@ -253,10 +348,13 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
                     $"WM_SIZE client=({clientW}, {clientH}) dpi={this.dpiScale:F2} dip=({dipRect.Width:F1}, {dipRect.Height:F1})");
 
                 var res = this.Hwnd.DefWindowProc(uMsg, wParam, lParam);
-                ((D2DComp)this.Renderer).ResizeBuffers(hWnd);
-                this.invalid = true;
-                this.Render();
-                this.invalid = true;
+
+                // ((D2DComp)this.Renderer).ResizeBuffers(hWnd, (uint)clientW, (uint)clientH);
+                // this.invalid = true;
+                // this.Render();
+                // this.invalid = true; // Fixe bug - wont render after startup
+                // Dwmapi.DwmFlush();
+
                 return res;
             }
 
@@ -273,16 +371,33 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
             }
 
             case WindowMessage.WM_CREATE:
+            {
                 this.UpdateDpiScale();
                 break;
+            }
 
             case WindowMessage.WM_DESTROY:
+            {
                 Win32Platform.Instance.RemoveWindow(this);
                 break;
+            }
 
             case WindowMessage.WM_NCHITTEST:
+            {
                 POINT win32ClientPoint = new POINT() { X = lParam.LoWord, Y = lParam.HiWord };
                 this.Hwnd.ScreenToClient(ref win32ClientPoint);
+
+                bool isExtendedFrame = this.Abstract is Xui.Core.Abstract.IWindow.IDesktopStyle desktopStyle
+                    && desktopStyle.ClientArea == WindowClientArea.Extended;
+
+                if (isExtendedFrame)
+                {
+                    // Let DWM handle the window buttons (minimize/maximize/close).
+                    if (Dwmapi.DwmDefWindowProc(hWnd, uMsg, wParam.Value, lParam.Value, out var dwmResult))
+                    {
+                        return (int)dwmResult;
+                    }
+                }
 
                 Point point = this.ToDip(new Point(win32ClientPoint.X, win32ClientPoint.Y));
 
@@ -290,6 +405,43 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
                 Rect rect = this.ToDip(new Rect(0, 0, rc.Right - rc.Left, rc.Bottom - rc.Top));
 
                 WindowHitTestEventRef eventRef = new WindowHitTestEventRef(point, rect);
+
+                // For extended client area, set the default frame hit areas
+                // (resize borders and caption) before the abstract window gets
+                // a chance to override them.
+                if (isExtendedFrame)
+                {
+                    uint dpi = this.Hwnd.DPI;
+                    int frameX  = GetSystemMetricsForDpi(SystemMetric.SM_CXSIZEFRAME, dpi);
+                    int frameY  = GetSystemMetricsForDpi(SystemMetric.SM_CYSIZEFRAME, dpi);
+                    int caption = GetSystemMetricsForDpi(SystemMetric.SM_CYCAPTION, dpi);
+                    int pad     = GetSystemMetricsForDpi(SystemMetric.SM_CXPADDEDBORDER, dpi);
+
+                    int x = win32ClientPoint.X;
+                    int y = win32ClientPoint.Y;
+                    int clientW = rc.Right - rc.Left;
+
+                    bool isTop    = y < frameY;
+                    bool isLeft   = x < frameX + pad;
+                    bool isRight  = x >= clientW - frameX - pad;
+
+                    if (isTop && isLeft)
+                        eventRef.Area = WindowHitTestEventRef.WindowArea.BorderTopLeft;
+                    else if (isTop && isRight)
+                        eventRef.Area = WindowHitTestEventRef.WindowArea.BorderTopRight;
+                    else if (isTop)
+                        eventRef.Area = WindowHitTestEventRef.WindowArea.BorderTop;
+                    else if (y < caption + frameY + pad)
+                    {
+                        if (isLeft)
+                            eventRef.Area = WindowHitTestEventRef.WindowArea.BorderLeft;
+                        else if (isRight)
+                            eventRef.Area = WindowHitTestEventRef.WindowArea.BorderRight;
+                        else
+                            eventRef.Area = WindowHitTestEventRef.WindowArea.Title;
+                    }
+                }
+
                 this.Abstract.WindowHitTest(ref eventRef);
 
                 var area = eventRef.Area;
@@ -315,6 +467,7 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
                 }
 
                 break;
+            }
 
             case WindowMessage.WM_MOUSEMOVE:
             {
@@ -555,13 +708,39 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
         r.Width * this.invDpiScale,
         r.Height * this.invDpiScale);
 
-    private Point GetMousePosDip(LPARAM lParam) =>
-        lParam.MousePosition * this.invDpiScale;
+    private Point GetMousePosDip(LPARAM lParam)
+    {
+        var pos = lParam.MousePosition * this.invDpiScale;
+        return new Point(pos.X, pos.Y - this.extendedFrameTopOffset * this.invDpiScale);
+    }
 
     private Rect GetClientRectDip(HWND hWnd)
     {
         hWnd.GetClientRect(out var rc);
-        return this.ToDip(new Rect(0, 0, rc.Right - rc.Left, rc.Bottom - rc.Top));
+        return this.ToDip(new Rect(0, this.extendedFrameTopOffset, rc.Right - rc.Left, rc.Bottom - rc.Top - this.extendedFrameTopOffset));
+    }
+
+    private void UpdateExtendedFrameTopOffset()
+    {
+        if (this.Abstract is Xui.Core.Abstract.IWindow.IDesktopStyle desktopStyle
+            && desktopStyle.ClientArea == WindowClientArea.Extended)
+        {
+            uint dpi = this.Hwnd.DPI;
+            if (this.Hwnd.IsMaximized)
+            {
+                int frameY = GetSystemMetricsForDpi(SystemMetric.SM_CYSIZEFRAME, dpi);
+                int pad    = GetSystemMetricsForDpi(SystemMetric.SM_CXPADDEDBORDER, dpi);
+                this.extendedFrameTopOffset = frameY + pad;
+            }
+            else
+            {
+                this.extendedFrameTopOffset = 1.0f * dpi / 96.0f;
+            }
+        }
+        else
+        {
+            this.extendedFrameTopOffset = 0;
+        }
     }
 
     private void RaiseMouseDown(MouseButton button, Point pos)

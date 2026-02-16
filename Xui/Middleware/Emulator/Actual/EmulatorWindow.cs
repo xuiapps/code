@@ -46,7 +46,7 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
     /// <summary>
     /// Gets whether the emulator should appear without OS window chrome.
     /// </summary>
-    bool Xui.Core.Abstract.IWindow.IDesktopStyle.Chromeless => true;
+    WindowBackdrop Xui.Core.Abstract.IWindow.IDesktopStyle.Backdrop => WindowBackdrop.Chromeless;
 
     /// <summary>
     /// Controls the window stacking level (Z-order) relative to other windows.

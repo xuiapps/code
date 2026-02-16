@@ -1,0 +1,87 @@
+<Project>
+
+  <PropertyGroup Condition="!($(TargetFramework.Contains('-'))) And '$(XuiDevEmulator)' == 'true' And $([MSBuild]::IsOSPlatform('OSX')) And !($(UsingMicrosoftNETSdkWebAssembly) == 'true')">
+    <DefineConstants>$(DefineConstants);EMULATOR;MACOS</DefineConstants>
+    <XuiEmulator>true</XuiEmulator>
+    <XuiMacOS>true</XuiMacOS>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="!($(TargetFramework.Contains('-'))) And '$(XuiDevEmulator)' == 'true' And $([MSBuild]::IsOSPlatform('Windows')) And !($(UsingMicrosoftNETSdkWebAssembly) == 'true')">
+    <DefineConstants>$(DefineConstants);EMULATOR;WINDOWS</DefineConstants>
+    <XuiEmulator>true</XuiEmulator>
+    <XuiWindows>true</XuiWindows>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="!($(TargetFramework.Contains('-'))) And !('$(XuiDevEmulator)' == 'true') And $([MSBuild]::IsOSPlatform('OSX')) And !($(UsingMicrosoftNETSdkWebAssembly) == 'true')">
+    <DefineConstants>$(DefineConstants);DESKTOP;MACOS</DefineConstants>
+    <XuiDesktop>true</XuiDesktop>
+    <XuiMacOS>true</XuiMacOS>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="!($(TargetFramework.Contains('-'))) And !('$(XuiDevEmulator)' == 'true') And $([MSBuild]::IsOSPlatform('Windows')) And !($(UsingMicrosoftNETSdkWebAssembly) == 'true')">
+    <DefineConstants>$(DefineConstants);DESKTOP;WINDOWS</DefineConstants>
+    <XuiDesktop>true</XuiDesktop>
+    <XuiWindows>true</XuiWindows>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' ">
+    <XuiIOS>true</XuiIOS>
+    <XuiMobile>true</XuiMobile>
+    <DefineConstants>$(DefineConstants);ANDROID;MOBILE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android' ">
+    <XuiAndroid>true</XuiAndroid>
+    <XuiMobile>true</XuiMobile>
+    <DefineConstants>$(DefineConstants);ANDROID;MOBILE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" ($(UsingMicrosoftNETSdkWebAssembly) == 'true') And ('$(XuiDevEmulator)' == 'true') ">
+    <XuiEmulator>true</XuiEmulator>
+    <XuiBrowser>true</XuiBrowser>
+    <DefineConstants>$(DefineConstants);BROWSER;EMULATOR</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" ($(UsingMicrosoftNETSdkWebAssembly) == 'true') And !('$(XuiDevEmulator)' == 'true') ">
+    <XuiBrowser>true</XuiBrowser>
+    <DefineConstants>$(DefineConstants);BROWSER;</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == '' And !($(UsingMicrosoftNETSdkWebAssembly) == 'true') ">
+    <Compile Remove="Platforms/**/*;Properties/**/*;wwwroot/**/*" />
+  </ItemGroup>
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == '' And ($(UsingMicrosoftNETSdkWebAssembly) == 'true') ">
+    <Compile Remove="Platforms/**/*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Add your PackageReferences here -->
+
+    <!-- Core -->
+    <ProjectReference Include="../../Core/Core/Xui.Core.csproj" />
+
+    <!-- Middleware -->
+    <ProjectReference
+        Condition=" $(XuiEmulator) == 'true' "
+        Include="../../Middleware/Emulator/Emulator.csproj" />
+
+    <!-- Runtimes -->
+    <ProjectReference
+        Condition=" $(XuiWindows) == 'true' "
+        Include="../../Runtime/Windows/Windows.csproj" />
+    <ProjectReference
+        Condition=" $(XuiMacOS) == 'true' "
+        Include="../../Runtime/MacOS/MacOS.csproj" />
+    <ProjectReference
+        Condition=" $(XuiWindows) == 'true' "
+        Include="../../Runtime/Windows/Windows.csproj" />
+    <ProjectReference
+        Condition=" $(XuiIOS) == 'true' "
+        Include="../../Runtime/IOS/IOS.csproj" />
+    <ProjectReference
+        Condition=" $(XuiAndroid) == 'true' "
+        Include="../../Runtime/Android/Android.csproj" />
+    <ProjectReference
+        Condition=" $(XuiBrowser) == 'true' "
+        Include="../../Runtime/Browser/Browser.csproj" />
+  </ItemGroup>
+</Project>
