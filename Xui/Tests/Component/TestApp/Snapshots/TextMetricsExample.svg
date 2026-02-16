@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
-  <text x="300" y="200" fill="#000000" text-anchor="middle" dominant-baseline="alphabetic" font-size="64" font-family="Inter">Hello World!</text>
+  <text x="300" y="200" fill="#000000" text-anchor="middle" dominant-baseline="alphabetic" font-size="64" font-family="Inter" xml:space="preserve">Hello World!</text>
   <path d="M 100 138 L 500 138 " fill="none" stroke="#0000FF" stroke-width="2" />
   <path d="M 100 200 L 500 200 " fill="none" stroke="#000000" stroke-width="2" />
   <path d="M 100 215.44 L 500 215.44 " fill="none" stroke="#008000" stroke-width="2" />
