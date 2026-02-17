@@ -1104,22 +1104,57 @@ public partial class Direct2DContext : IDisposable, IContext
 
         public void Arc(Point center, NFloat radius, NFloat startAngle, NFloat endAngle, Winding winding)
         {
-            Point startPoint = Point.Zero + new Vector(float.Cos((float)startAngle), float.Sin((float)startAngle)) * radius;
-            Point endPoint = Point.Zero + new Vector(float.Cos((float)endAngle), float.Sin((float)endAngle)) * radius;
+            var sweep = float.Abs((float)(endAngle - startAngle));
 
-            this.CreatePathOnDemand();
-            this.BeginFigureOnDemandOrLineTo(startPoint);
-
-            ArcSegment arcSegment = new()
+            // Full circle (or more): Direct2D can't draw an arc where start == end point,
+            // so split into two half-circle arcs.
+            if (sweep >= 2f * float.Pi)
             {
-                Point = new Vector(float.Cos((float)endAngle), float.Sin((float)endAngle)) * radius,
-                Size = new SizeF((float)radius),
-                RotationAngle = 0f,
-                SweepDirection = Map(winding),
-                ArcSize = float.Abs((float)endAngle - (float)startAngle) > float.Pi ? ArcSize.Large : ArcSize.Small
-            };
+                var midAngle = startAngle + NFloat.Pi;
+                Point startPoint = center + new Vector(float.Cos((float)startAngle), float.Sin((float)startAngle)) * radius;
+                Point midPoint = center + new Vector(float.Cos((float)midAngle), float.Sin((float)midAngle)) * radius;
 
-            this.GeometrySink.AddArc(arcSegment);
+                this.CreatePathOnDemand();
+                this.BeginFigureOnDemandOrLineTo(startPoint);
+
+                var sweepDir = Map(winding);
+                this.GeometrySink.AddArc(new ArcSegment
+                {
+                    Point = midPoint,
+                    Size = new SizeF((float)radius),
+                    RotationAngle = 0f,
+                    SweepDirection = sweepDir,
+                    ArcSize = ArcSize.Small
+                });
+                this.GeometrySink.AddArc(new ArcSegment
+                {
+                    Point = startPoint,
+                    Size = new SizeF((float)radius),
+                    RotationAngle = 0f,
+                    SweepDirection = sweepDir,
+                    ArcSize = ArcSize.Small
+                });
+                this.point = startPoint;
+                return;
+            }
+
+            {
+                Point startPoint = center + new Vector(float.Cos((float)startAngle), float.Sin((float)startAngle)) * radius;
+                Point endPoint = center + new Vector(float.Cos((float)endAngle), float.Sin((float)endAngle)) * radius;
+
+                this.CreatePathOnDemand();
+                this.BeginFigureOnDemandOrLineTo(startPoint);
+
+                this.GeometrySink.AddArc(new ArcSegment
+                {
+                    Point = endPoint,
+                    Size = new SizeF((float)radius),
+                    RotationAngle = 0f,
+                    SweepDirection = Map(winding),
+                    ArcSize = GetArcSize(startAngle, endAngle, winding)
+                });
+                this.point = endPoint;
+            }
         }
 
         private SweepDirection Map(Winding winding)
@@ -1132,6 +1167,15 @@ public partial class Direct2DContext : IDisposable, IContext
             {
                 return SweepDirection.CounterClockwise;
             }
+        }
+
+        private static ArcSize GetArcSize(NFloat startAngle, NFloat endAngle, Winding winding)
+        {
+            var diff = float.Abs((float)(endAngle - startAngle)) % (2f * float.Pi);
+            // For clockwise winding, the sweep is the angle diff directly.
+            // For counter-clockwise, the actual sweep is 2*PI - diff.
+            var sweep = winding == Winding.ClockWise ? diff : (2f * float.Pi - diff);
+            return sweep > float.Pi ? ArcSize.Large : ArcSize.Small;
         }
 
         public void ArcTo(Point cp1, Point cp2, NFloat radius)
