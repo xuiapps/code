@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Canvas Tests</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Inter, sans-serif; display: flex; height: 100vh; }
+        #sidebar {
+            width: 250px;
+            min-width: 250px;
+            overflow-y: auto;
+            background: white;
+        }
+        #sidebar button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 3px 6px;
+            margin: 3px;
+            border: none;
+            background: transparent;
+            font-family: Inter, sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        #sidebar button:hover { background: lightgray; }
+        #sidebar button:active { background: yellow; }
+        #sidebar button.selected { background: #dde; }
+        #canvas-area {
+            flex: 1;
+            background: #f0f0f0;
+            padding: 20px;
+        }
+        canvas {
+            background: white;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar"></div>
+    <div id="canvas-area">
+        <canvas id="canvas" width="300" height="300"></canvas>
+    </div>
+    <script>
+        const tests = {
+            FillRect(ctx) {
+                ctx.fillStyle = "red";
+                ctx.fillRect(10, 10, 100, 80);
+
+                ctx.fillStyle = "green";
+                ctx.fillRect(130, 10, 100, 80);
+
+                ctx.fillStyle = "blue";
+                ctx.fillRect(250, 10, 100, 80);
+
+                ctx.fillStyle = "orange";
+                ctx.fillRect(60, 50, 100, 80);
+
+                ctx.fillStyle = "black";
+                ctx.fillRect(10, 150, 20, 20);
+            },
+
+            QuadraticCurve(ctx) {
+                ctx.beginPath();
+                ctx.moveTo(30, 200);
+                ctx.quadraticCurveTo(150, 20, 270, 200);
+                ctx.strokeStyle = "blue";
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(30, 200);
+                ctx.lineTo(150, 20);
+                ctx.lineTo(270, 200);
+                ctx.strokeStyle = "lightgray";
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                ctx.fillStyle = "red";
+                ctx.beginPath();
+                ctx.arc(30, 200, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(270, 200, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = "green";
+                ctx.beginPath();
+                ctx.arc(150, 20, 4, 0, Math.PI * 2);
+                ctx.fill();
+            },
+
+            CubicCurve(ctx) {
+                ctx.beginPath();
+                ctx.moveTo(30, 200);
+                ctx.bezierCurveTo(50, 30, 250, 30, 270, 200);
+                ctx.strokeStyle = "red";
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(30, 200);
+                ctx.lineTo(50, 30);
+                ctx.moveTo(270, 200);
+                ctx.lineTo(250, 30);
+                ctx.strokeStyle = "lightgray";
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                ctx.fillStyle = "red";
+                ctx.beginPath();
+                ctx.arc(30, 200, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(270, 200, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = "green";
+                ctx.beginPath();
+                ctx.arc(50, 30, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(250, 30, 4, 0, Math.PI * 2);
+                ctx.fill();
+            },
+
+            HeartCurve(ctx) {
+                const cx = 150, cy = 140, s = 120;
+                const pTop = { x: cx, y: cy - 0.25 * s };
+                const pBottom = { x: cx, y: cy + 0.95 * s };
+                const rc1 = { x: cx + 0.50 * s, y: cy - 0.95 * s };
+                const rc2 = { x: cx + 1.20 * s, y: cy - 0.05 * s };
+                const lc1 = { x: cx - 1.20 * s, y: cy - 0.05 * s };
+                const lc2 = { x: cx - 0.50 * s, y: cy - 0.95 * s };
+
+                ctx.beginPath();
+                ctx.moveTo(pTop.x, pTop.y);
+                ctx.bezierCurveTo(rc1.x, rc1.y, rc2.x, rc2.y, pBottom.x, pBottom.y);
+                ctx.bezierCurveTo(lc1.x, lc1.y, lc2.x, lc2.y, pTop.x, pTop.y);
+                ctx.closePath();
+                ctx.fillStyle = "red";
+                ctx.fill();
+
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(pTop.x, pTop.y);
+                ctx.bezierCurveTo(rc1.x, rc1.y, rc2.x, rc2.y, pBottom.x, pBottom.y);
+                ctx.bezierCurveTo(lc1.x, lc1.y, lc2.x, lc2.y, pTop.x, pTop.y);
+                ctx.closePath();
+                ctx.stroke();
+            },
+
+            Arc(ctx) {
+                const pi = Math.PI;
+
+                ctx.beginPath();
+                ctx.arc(60, 60, 40, 0, pi * 2);
+                ctx.fillStyle = "blue";
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(170, 60, 40, 0, pi, false);
+                ctx.closePath();
+                ctx.fillStyle = "red";
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(60, 170, 40, 0, pi / 2, false);
+                ctx.strokeStyle = "green";
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(170, 170, 40, 0, pi / 2, true);
+                ctx.strokeStyle = "purple";
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.strokeStyle = "orange";
+                ctx.lineWidth = 2;
+                for (let i = 0; i < 4; i++) {
+                    ctx.beginPath();
+                    ctx.arc(240, 100, 20 + i * 12, pi * i / 4, pi * i / 4 + pi, false);
+                    ctx.stroke();
+                }
+            },
+
+            Ellipse(ctx) {
+                const pi = Math.PI;
+
+                ctx.beginPath();
+                ctx.ellipse(80, 60, 60, 30, 0, 0, pi * 2);
+                ctx.fillStyle = "blue";
+                ctx.fill();
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.ellipse(220, 60, 30, 50, 0, 0, pi * 2);
+                ctx.fillStyle = "green";
+                ctx.fill();
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.ellipse(80, 180, 60, 25, pi / 4, 0, pi * 2);
+                ctx.fillStyle = "orange";
+                ctx.fill();
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.ellipse(220, 180, 50, 30, 0, 0, pi);
+                ctx.closePath();
+                ctx.fillStyle = "red";
+                ctx.fill();
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.ellipse(150, 270, 20, 20, 0, 0, pi * 2);
+                ctx.fillStyle = "purple";
+                ctx.fill();
+            },
+
+            ArcTo(ctx) {
+                ctx.beginPath();
+                ctx.moveTo(20, 20);
+                ctx.arcTo(150, 20, 150, 100, 30);
+                ctx.lineTo(150, 100);
+                ctx.strokeStyle = "blue";
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(20, 20);
+                ctx.lineTo(150, 20);
+                ctx.lineTo(150, 100);
+                ctx.strokeStyle = "lightgray";
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(20, 140);
+                ctx.arcTo(100, 140, 100, 220, 10);
+                ctx.lineTo(100, 220);
+                ctx.strokeStyle = "red";
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(160, 140);
+                ctx.arcTo(280, 140, 280, 280, 60);
+                ctx.lineTo(280, 280);
+                ctx.strokeStyle = "green";
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(160, 140);
+                ctx.lineTo(280, 140);
+                ctx.lineTo(280, 280);
+                ctx.strokeStyle = "lightgray";
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            },
+
+            RoundRect(ctx) {
+                ctx.beginPath();
+                ctx.roundRect(10, 10, 120, 80, 15);
+                ctx.fillStyle = "blue";
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.roundRect(150, 10, 120, 80, 15);
+                ctx.strokeStyle = "red";
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.roundRect(10, 110, 120, 80, [30, 5, 5, 5]);
+                ctx.fillStyle = "green";
+                ctx.fill();
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.roundRect(150, 110, 120, 80, [25, 0, 25, 0]);
+                ctx.fillStyle = "orange";
+                ctx.fill();
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.roundRect(10, 220, 260, 50, 25);
+                ctx.fillStyle = "purple";
+                ctx.fill();
+            },
+
+            LineCapJoin(ctx) {
+                ctx.lineWidth = 15;
+                ctx.strokeStyle = "blue";
+
+                ctx.lineCap = "butt";
+                ctx.beginPath();
+                ctx.moveTo(30, 30);
+                ctx.lineTo(130, 30);
+                ctx.stroke();
+
+                ctx.lineCap = "round";
+                ctx.beginPath();
+                ctx.moveTo(30, 60);
+                ctx.lineTo(130, 60);
+                ctx.stroke();
+
+                ctx.lineCap = "square";
+                ctx.beginPath();
+                ctx.moveTo(30, 90);
+                ctx.lineTo(130, 90);
+                ctx.stroke();
+
+                ctx.strokeStyle = "lightgray";
+                ctx.lineWidth = 1;
+                ctx.lineCap = "butt";
+                ctx.beginPath();
+                ctx.moveTo(30, 15);
+                ctx.lineTo(30, 105);
+                ctx.moveTo(130, 15);
+                ctx.lineTo(130, 105);
+                ctx.stroke();
+
+                ctx.lineWidth = 10;
+                ctx.strokeStyle = "red";
+                ctx.lineJoin = "miter";
+                ctx.beginPath();
+                ctx.moveTo(20, 170);
+                ctx.lineTo(60, 130);
+                ctx.lineTo(100, 170);
+                ctx.stroke();
+
+                ctx.lineJoin = "round";
+                ctx.beginPath();
+                ctx.moveTo(110, 170);
+                ctx.lineTo(150, 130);
+                ctx.lineTo(190, 170);
+                ctx.stroke();
+
+                ctx.lineJoin = "bevel";
+                ctx.beginPath();
+                ctx.moveTo(200, 170);
+                ctx.lineTo(240, 130);
+                ctx.lineTo(280, 170);
+                ctx.stroke();
+
+                ctx.lineCap = "round";
+                ctx.lineJoin = "round";
+                const widths = [2, 5, 10, 20];
+                for (let i = 0; i < widths.length; i++) {
+                    ctx.lineWidth = widths[i];
+                    ctx.strokeStyle = `rgb(${50 + i * 50}, 100, 200)`;
+                    ctx.beginPath();
+                    ctx.moveTo(20, 210 + i * 22);
+                    ctx.lineTo(280, 210 + i * 22);
+                    ctx.stroke();
+                }
+            },
+
+            DashPattern(ctx) {
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 3;
+
+                ctx.setLineDash([10, 10]);
+                ctx.beginPath();
+                ctx.moveTo(20, 20);
+                ctx.lineTo(280, 20);
+                ctx.stroke();
+
+                ctx.setLineDash([20, 5]);
+                ctx.beginPath();
+                ctx.moveTo(20, 50);
+                ctx.lineTo(280, 50);
+                ctx.stroke();
+
+                ctx.lineCap = "round";
+                ctx.setLineDash([1, 10]);
+                ctx.beginPath();
+                ctx.moveTo(20, 80);
+                ctx.lineTo(280, 80);
+                ctx.stroke();
+
+                ctx.lineCap = "butt";
+                ctx.setLineDash([15, 5, 3, 5]);
+                ctx.beginPath();
+                ctx.moveTo(20, 110);
+                ctx.lineTo(280, 110);
+                ctx.stroke();
+
+                ctx.setLineDash([8, 4]);
+                ctx.strokeStyle = "blue";
+                ctx.lineWidth = 2;
+                ctx.strokeRect(20, 140, 120, 60);
+
+                ctx.strokeStyle = "red";
+                ctx.beginPath();
+                ctx.arc(220, 170, 30, 0, Math.PI * 2);
+                ctx.stroke();
+
+                ctx.strokeStyle = "green";
+                ctx.lineWidth = 3;
+                ctx.setLineDash([10, 10]);
+                for (let i = 0; i < 5; i++) {
+                    ctx.lineDashOffset = i * 4;
+                    ctx.beginPath();
+                    ctx.moveTo(20, 230 + i * 14);
+                    ctx.lineTo(280, 230 + i * 14);
+                    ctx.stroke();
+                }
+            },
+
+            FillRule(ctx) {
+                const pi = Math.PI;
+
+                ctx.fillStyle = "blue";
+                ctx.beginPath();
+                ctx.arc(80, 80, 60, 0, pi * 2);
+                ctx.arc(80, 80, 30, 0, pi * 2);
+                ctx.fill("nonzero");
+
+                ctx.fillStyle = "red";
+                ctx.beginPath();
+                ctx.arc(220, 80, 60, 0, pi * 2);
+                ctx.arc(220, 80, 30, 0, pi * 2);
+                ctx.fill("evenodd");
+
+                ctx.fillStyle = "green";
+                ctx.beginPath();
+                ctx.rect(20, 170, 100, 100);
+                ctx.rect(50, 200, 100, 100);
+                ctx.fill("nonzero");
+
+                ctx.fillStyle = "orange";
+                ctx.beginPath();
+                ctx.rect(180, 170, 100, 100);
+                ctx.rect(210, 200, 100, 100);
+                ctx.fill("evenodd");
+            },
+
+            PathContinuation(ctx) {
+                ctx.beginPath();
+                ctx.moveTo(20, 30);
+                ctx.lineTo(100, 30);
+                ctx.lineTo(100, 80);
+                ctx.strokeStyle = "blue";
+                ctx.lineWidth = 4;
+                ctx.stroke();
+
+                ctx.lineTo(20, 80);
+                ctx.closePath();
+                ctx.strokeStyle = "red";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(140, 20);
+                ctx.lineTo(280, 20);
+                ctx.lineTo(280, 90);
+                ctx.lineTo(140, 90);
+                ctx.closePath();
+                ctx.fillStyle = "lightblue";
+                ctx.fill();
+                ctx.strokeStyle = "darkblue";
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(20, 120);
+                ctx.lineTo(80, 120);
+                ctx.moveTo(20, 140);
+                ctx.lineTo(80, 140);
+                ctx.moveTo(20, 160);
+                ctx.lineTo(80, 160);
+                ctx.strokeStyle = "green";
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(20, 200);
+                ctx.lineTo(140, 200);
+                ctx.lineTo(140, 260);
+                ctx.strokeStyle = "orange";
+                ctx.lineWidth = 6;
+                ctx.stroke();
+
+                ctx.strokeStyle = "purple";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(180, 200);
+                ctx.lineTo(280, 200);
+                ctx.lineTo(280, 260);
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.lineTo(180, 260);
+                ctx.closePath();
+                ctx.fillStyle = "tomato";
+                ctx.fill();
+            },
+
+            Clip(ctx) {
+                const pi = Math.PI;
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(80, 80, 60, 0, pi * 2);
+                ctx.clip();
+                ctx.fillStyle = "red";
+                ctx.fillRect(20, 20, 60, 120);
+                ctx.fillStyle = "green";
+                ctx.fillRect(80, 20, 60, 120);
+                ctx.fillStyle = "blue";
+                ctx.fillRect(20, 60, 120, 40);
+                ctx.restore();
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(170, 20, 110, 110);
+                ctx.clip();
+                ctx.fillStyle = "orange";
+                ctx.beginPath();
+                ctx.arc(225, 75, 70, 0, pi * 2);
+                ctx.fill();
+                ctx.restore();
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(20, 170, 120, 120);
+                ctx.clip();
+                ctx.beginPath();
+                ctx.arc(80, 230, 50, 0, pi * 2);
+                ctx.clip();
+                ctx.fillStyle = "purple";
+                ctx.fillRect(0, 160, 200, 200);
+                ctx.restore();
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(220, 230, 50, 0, pi * 2);
+                ctx.clip();
+                ctx.strokeStyle = "darkred";
+                ctx.lineWidth = 4;
+                for (let i = 170; i < 290; i += 10) {
+                    ctx.beginPath();
+                    ctx.moveTo(i, 170);
+                    ctx.lineTo(i, 290);
+                    ctx.stroke();
+                }
+                ctx.restore();
+            },
+
+            Transform(ctx) {
+                const pi = Math.PI;
+
+                ctx.save();
+                ctx.translate(50, 50);
+                ctx.fillStyle = "blue";
+                ctx.fillRect(0, 0, 40, 40);
+                ctx.restore();
+
+                ctx.save();
+                ctx.translate(150, 50);
+                ctx.rotate(pi / 4);
+                ctx.fillStyle = "red";
+                ctx.fillRect(-20, -20, 40, 40);
+                ctx.restore();
+
+                ctx.save();
+                ctx.translate(250, 50);
+                ctx.scale(2, 0.5);
+                ctx.fillStyle = "green";
+                ctx.fillRect(-20, -20, 40, 40);
+                ctx.restore();
+
+                ctx.save();
+                ctx.translate(80, 170);
+                ctx.rotate(pi / 6);
+                ctx.scale(1.5, 0.8);
+                ctx.fillStyle = "orange";
+                ctx.fillRect(-25, -25, 50, 50);
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 2;
+                ctx.strokeRect(-25, -25, 50, 50);
+                ctx.restore();
+
+                ctx.save();
+                ctx.translate(220, 180);
+                for (let i = 0; i < 6; i++) {
+                    ctx.rotate(pi / 3);
+                    ctx.fillStyle = `rgba(${i * 40}, ${100 + i * 20}, 200, 0.7)`;
+                    ctx.fillRect(20, -5, 40, 10);
+                }
+                ctx.restore();
+
+                ctx.save();
+                ctx.translate(80, 270);
+                ctx.scale(3, 1);
+                ctx.strokeStyle = "purple";
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(0, 0, 15, 0, pi * 2);
+                ctx.stroke();
+                ctx.restore();
+            },
+
+            GlobalAlpha(ctx) {
+                ctx.fillStyle = "red";
+                ctx.fillRect(20, 20, 100, 100);
+                ctx.fillStyle = "blue";
+                ctx.fillRect(80, 20, 100, 100);
+
+                ctx.globalAlpha = 0.5;
+                ctx.fillStyle = "green";
+                ctx.beginPath();
+                ctx.arc(100, 70, 50, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = "black";
+                for (let i = 0; i < 10; i++) {
+                    ctx.globalAlpha = 1.0 - i * 0.1;
+                    ctx.fillRect(20 + i * 26, 150, 24, 40);
+                }
+
+                ctx.globalAlpha = 0.3;
+                ctx.strokeStyle = "red";
+                ctx.lineWidth = 8;
+                ctx.beginPath();
+                ctx.moveTo(20, 220);
+                ctx.lineTo(280, 220);
+                ctx.stroke();
+
+                ctx.globalAlpha = 0.6;
+                ctx.strokeStyle = "blue";
+                ctx.beginPath();
+                ctx.moveTo(20, 245);
+                ctx.lineTo(280, 245);
+                ctx.stroke();
+
+                ctx.globalAlpha = 1.0;
+                ctx.strokeStyle = "green";
+                ctx.beginPath();
+                ctx.moveTo(20, 270);
+                ctx.lineTo(280, 270);
+                ctx.stroke();
+            },
+        };
+
+        // Build sidebar
+        const sidebar = document.getElementById("sidebar");
+        const canvas = document.getElementById("canvas");
+        let selectedBtn = null;
+
+        function runTest(name) {
+            const ctx = canvas.getContext("2d");
+            ctx.save();
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.globalAlpha = 1.0;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.restore();
+
+            // Reset full state
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.globalAlpha = 1.0;
+            ctx.lineWidth = 1;
+            ctx.lineCap = "butt";
+            ctx.lineJoin = "miter";
+            ctx.setLineDash([]);
+            ctx.lineDashOffset = 0;
+            ctx.fillStyle = "black";
+            ctx.strokeStyle = "black";
+
+            tests[name](ctx);
+        }
+
+        for (const name of Object.keys(tests)) {
+            const btn = document.createElement("button");
+            btn.textContent = name;
+            btn.addEventListener("click", () => {
+                if (selectedBtn) selectedBtn.classList.remove("selected");
+                btn.classList.add("selected");
+                selectedBtn = btn;
+                runTest(name);
+            });
+            sidebar.appendChild(btn);
+        }
+
+        // Select first test by default
+        const firstName = Object.keys(tests)[0];
+        sidebar.firstChild.classList.add("selected");
+        selectedBtn = sidebar.firstChild;
+        runTest(firstName);
+    </script>
+</body>
+</html>
