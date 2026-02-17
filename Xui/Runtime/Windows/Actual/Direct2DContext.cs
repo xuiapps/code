@@ -1212,22 +1212,57 @@ public partial class Direct2DContext : IDisposable, IContext
         {
             var right = radiusX * new Vector(NFloat.Cos(rotation), NFloat.Sin(rotation));
             var bottom = radiusY * new Vector(-NFloat.Sin(rotation), NFloat.Cos(rotation));
+            var sweep = float.Abs((float)(endAngle - startAngle));
+            var rotDeg = float.RadiansToDegrees((float)rotation);
+            var sweepDir = Map(winding);
 
-            var startPoint = center + NFloat.Cos(startAngle) * right + NFloat.Sin(startAngle) * bottom;
-            var endPoint = center + NFloat.Cos(endAngle) * right + NFloat.Sin(endAngle) * bottom;
-
-            this.CreatePathOnDemand();
-            this.MoveTo(startPoint);
-            this.BeginFigureOnDemand();
-
-            this.GeometrySink.AddArc(new()
+            // Full ellipse: split into two half-ellipse arcs (same fix as Arc).
+            if (sweep >= 2f * float.Pi)
             {
-                Point = endPoint,
-                Size = new SizeF((float)radiusX, (float)radiusY),
-                RotationAngle = float.RadiansToDegrees((float)rotation),
-                SweepDirection = Map(winding),
-                ArcSize = ArcSize.Small
-            });
+                var midAngle = startAngle + NFloat.Pi;
+                var startPoint = center + NFloat.Cos(startAngle) * right + NFloat.Sin(startAngle) * bottom;
+                var midPoint = center + NFloat.Cos(midAngle) * right + NFloat.Sin(midAngle) * bottom;
+
+                this.CreatePathOnDemand();
+                this.BeginFigureOnDemandOrLineTo(startPoint);
+
+                this.GeometrySink.AddArc(new ArcSegment
+                {
+                    Point = midPoint,
+                    Size = new SizeF((float)radiusX, (float)radiusY),
+                    RotationAngle = rotDeg,
+                    SweepDirection = sweepDir,
+                    ArcSize = ArcSize.Small
+                });
+                this.GeometrySink.AddArc(new ArcSegment
+                {
+                    Point = startPoint,
+                    Size = new SizeF((float)radiusX, (float)radiusY),
+                    RotationAngle = rotDeg,
+                    SweepDirection = sweepDir,
+                    ArcSize = ArcSize.Small
+                });
+                this.point = startPoint;
+                return;
+            }
+
+            {
+                var startPoint = center + NFloat.Cos(startAngle) * right + NFloat.Sin(startAngle) * bottom;
+                var endPoint = center + NFloat.Cos(endAngle) * right + NFloat.Sin(endAngle) * bottom;
+
+                this.CreatePathOnDemand();
+                this.BeginFigureOnDemandOrLineTo(startPoint);
+
+                this.GeometrySink.AddArc(new ArcSegment
+                {
+                    Point = endPoint,
+                    Size = new SizeF((float)radiusX, (float)radiusY),
+                    RotationAngle = rotDeg,
+                    SweepDirection = sweepDir,
+                    ArcSize = GetArcSize(startAngle, endAngle, winding)
+                });
+                this.point = endPoint;
+            }
         }
 
         public void Rect(Rect rect)
