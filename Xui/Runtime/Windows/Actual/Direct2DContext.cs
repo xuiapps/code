@@ -259,7 +259,7 @@ public partial class Direct2DContext : IDisposable, IContext
         var path = this.Path.PrepareToUse();
         if (!path.IsNull)
         {
-            this.RenderTarget.DrawGeometry(path, this.stroke.Brush, this.lineWidth, this.StrokeStyle.StrokeStyle);
+            this.RenderTarget.DrawGeometry(path, this.stroke.Brush, this.lineWidth, this.StrokeStyle.GetStrokeStyle(this.lineWidth));
         }
         this.Path.ClearAfterUse();
     }
@@ -282,7 +282,7 @@ public partial class Direct2DContext : IDisposable, IContext
     }
 
     void IRectDrawingContext.StrokeRect(Rect rect) =>
-        this.RenderTarget.DrawRectangle(rect, this.stroke.Brush, this.lineWidth, this.StrokeStyle.StrokeStyle);
+        this.RenderTarget.DrawRectangle(rect, this.stroke.Brush, this.lineWidth, this.StrokeStyle.GetStrokeStyle(this.lineWidth));
 
     void IRectDrawingContext.FillRect(Rect rect) =>
         this.RenderTarget.FillRectangle(rect, this.fill.Brush);
@@ -889,6 +889,8 @@ public partial class Direct2DContext : IDisposable, IContext
 
         private bool strokeStyleValid = false;
 
+        private float lastLineWidth;
+
         private List<float> dashList;
 
         private LineCap lineCap;
@@ -907,7 +909,7 @@ public partial class Direct2DContext : IDisposable, IContext
             this.lineDashOffset = 0f;
         }
 
-        public StrokeStyle.Ptr StrokeStyle => this.UpdateStrokeStyle();
+        public StrokeStyle.Ptr GetStrokeStyle(float lineWidth) => this.UpdateStrokeStyle(lineWidth);
 
         public LineCap LineCap
         {
@@ -1006,10 +1008,19 @@ public partial class Direct2DContext : IDisposable, IContext
             this.strokeStyleValid = false;
         }
 
-        private StrokeStyle.Ptr UpdateStrokeStyle()
+        private StrokeStyle.Ptr UpdateStrokeStyle(float lineWidth)
         {
+            // D2D custom dash values are multiples of stroke width,
+            // but Canvas uses absolute pixel values. Rebuild when lineWidth changes.
+            if (this.strokeStyleValid && this.dashList.Count > 0 && this.lastLineWidth != lineWidth)
+            {
+                this.InvalidateStroke();
+            }
+
             if (!this.strokeStyleValid)
             {
+                this.lastLineWidth = lineWidth;
+
                 if (this.dashList.Count > 0 ||
                     this.lineCap != LineCap.Butt ||
                     this.lineJoin != Xui.Core.Canvas.LineJoin.Miter ||
@@ -1018,6 +1029,11 @@ public partial class Direct2DContext : IDisposable, IContext
                 {
                     // There are non-default values, build StrokeStyle
                     CapStyle capStyle = Map(this.lineCap);
+
+                    // D2D dash values are in multiples of stroke width.
+                    // Canvas dash values are in absolute pixels — normalize by dividing.
+                    float dashScale = lineWidth > 0 ? lineWidth : 1f;
+
                     StrokeStyleProperties strokeStyleProperties = new ()
                     {
                         StartCap = capStyle,
@@ -1026,9 +1042,17 @@ public partial class Direct2DContext : IDisposable, IContext
                         LineJoin = Map(this.lineJoin),
                         MiterLimit = this.miterLimit,
                         DashStyle = this.dashList.Count == 0 ? DashStyle.Solid : DashStyle.Custom,
-                        DashOffset = this.lineDashOffset
+                        DashOffset = this.lineDashOffset / dashScale
                     };
-                    this.strokeStyle = this.Factory.CreateStrokeStylePtr(strokeStyleProperties, CollectionsMarshal.AsSpan(this.dashList));
+
+                    // Normalize dash pattern from absolute pixels to stroke-width multiples
+                    Span<float> normalizedDashes = stackalloc float[this.dashList.Count];
+                    for (int i = 0; i < this.dashList.Count; i++)
+                    {
+                        normalizedDashes[i] = this.dashList[i] / dashScale;
+                    }
+
+                    this.strokeStyle = this.Factory.CreateStrokeStylePtr(strokeStyleProperties, normalizedDashes);
                 }
 
                 this.strokeStyleValid = true;
