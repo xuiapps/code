@@ -24,6 +24,10 @@ public partial class Direct2DContext : IDisposable, IContext
 
     private PathStruct Path;
 
+    private readonly Path2D path2d = new();
+
+    private readonly PathReplaySink pathReplaySink;
+
     private float lineWidth = 1f;
 
     private Stack<DrawingStateBlock.Ptr> drawingStateBlocks;
@@ -65,6 +69,7 @@ public partial class Direct2DContext : IDisposable, IContext
 
         this.StrokeStyle = new StrokeStyleStruct(this.D2D1Factory);
         this.Path = new PathStruct(this.D2D1Factory);
+        this.pathReplaySink = new PathReplaySink(this);
 
         this.drawingStateBlocks = new Stack<DrawingStateBlock.Ptr>();
         this.transforms = new Stack<AffineTransform>();
@@ -153,38 +158,39 @@ public partial class Direct2DContext : IDisposable, IContext
         this.fill.SetRadialGradient(radialGradient);
 
     void IPathBuilder.BeginPath() =>
-        this.Path.BeginPath();
+        this.path2d.BeginPath();
 
-    void IGlyphPathBuilder.MoveTo(Point to) => this.Path.MoveTo(to);
+    void IGlyphPathBuilder.MoveTo(Point to) => this.path2d.MoveTo(to);
 
-    void IGlyphPathBuilder.LineTo(Point to) => this.Path.LineTo(to);
+    void IGlyphPathBuilder.LineTo(Point to) => this.path2d.LineTo(to);
 
-    void IGlyphPathBuilder.ClosePath() => this.Path.ClosePath();
+    void IGlyphPathBuilder.ClosePath() => this.path2d.ClosePath();
 
-    void IGlyphPathBuilder.CurveTo(Point cp1, Point to) => this.Path.CurveTo(cp1, to);
+    void IGlyphPathBuilder.CurveTo(Point cp1, Point to) => this.path2d.CurveTo(cp1, to);
 
-    void IPathBuilder.CurveTo(Point cp1, Point cp2, Point to) => this.Path.CurveTo(cp1, cp2, to);
+    void IPathBuilder.CurveTo(Point cp1, Point cp2, Point to) => this.path2d.CurveTo(cp1, cp2, to);
 
     void IPathBuilder.Arc(Point center, NFloat radius, NFloat startAngle, NFloat endAngle, Winding winding) =>
-        this.Path.Arc(center, radius, startAngle, endAngle, winding);
+        this.path2d.Arc(center, radius, startAngle, endAngle, winding);
 
     void IPathBuilder.ArcTo(Point cp1, Point cp2, NFloat radius) =>
-        this.Path.ArcTo(cp1, cp2, radius);
+        this.path2d.ArcTo(cp1, cp2, radius);
 
     void IPathBuilder.Ellipse(Point center, NFloat radiusX, NFloat radiusY, NFloat rotation, NFloat startAngle, NFloat endAngle, Winding winding) =>
-        this.Path.Ellipse(center, radiusX, radiusY, rotation, startAngle, endAngle, winding);
+        this.path2d.Ellipse(center, radiusX, radiusY, rotation, startAngle, endAngle, winding);
 
     void IPathBuilder.Rect(Rect rect) =>
-        this.Path.Rect(rect);
+        this.path2d.Rect(rect);
 
     void IPathBuilder.RoundRect(Rect rect, NFloat radius) =>
-        this.Path.RoundRect(rect, radius);
+        this.path2d.RoundRect(rect, radius);
 
     void IPathBuilder.RoundRect(Rect rect, CornerRadius radius) =>
-        this.Path.RoundRect(rect, radius);
+        this.path2d.RoundRect(rect, radius);
 
     void IPathDrawing.Fill(FillRule rule)
     {
+        this.path2d.Visit(this.pathReplaySink);
         var path = this.Path.PrepareToUse();
         if (!path.IsNull)
         {
@@ -195,6 +201,7 @@ public partial class Direct2DContext : IDisposable, IContext
 
     void IPathDrawing.Stroke()
     {
+        this.path2d.Visit(this.pathReplaySink);
         var path = this.Path.PrepareToUse();
         if (!path.IsNull)
         {
@@ -207,6 +214,7 @@ public partial class Direct2DContext : IDisposable, IContext
     {
         unsafe
         {
+            this.path2d.Visit(this.pathReplaySink);
             var geometry = this.Path.PrepareToUse();
             if (!geometry.IsNull)
             {
@@ -961,6 +969,37 @@ public partial class Direct2DContext : IDisposable, IContext
                 default: return CapStyle.Flat;
             }
         }
+    }
+
+    /// <summary>
+    /// Adapter that replays Path2D commands into the Direct2D PathStruct geometry sink.
+    /// Allocated once and reused — forwards all IPathBuilder calls to the owner's PathStruct field.
+    /// </summary>
+    private class PathReplaySink : IPathBuilder
+    {
+        private readonly Direct2DContext owner;
+
+        public PathReplaySink(Direct2DContext owner) => this.owner = owner;
+
+        public void BeginPath() { /* no-op during replay */ }
+        public void MoveTo(Point to) => owner.Path.MoveTo(to);
+        public void LineTo(Point to) => owner.Path.LineTo(to);
+        public void ClosePath() => owner.Path.ClosePath();
+        public void CurveTo(Point cp1, Point to) => owner.Path.CurveTo(cp1, to);
+        public void CurveTo(Point cp1, Point cp2, Point to) => owner.Path.CurveTo(cp1, cp2, to);
+
+        public void Arc(Point center, NFloat radius, NFloat startAngle, NFloat endAngle, Winding winding) =>
+            owner.Path.Arc(center, radius, startAngle, endAngle, winding);
+
+        public void ArcTo(Point cp1, Point cp2, NFloat radius) =>
+            owner.Path.ArcTo(cp1, cp2, radius);
+
+        public void Ellipse(Point center, NFloat radiusX, NFloat radiusY, NFloat rotation, NFloat startAngle, NFloat endAngle, Winding winding) =>
+            owner.Path.Ellipse(center, radiusX, radiusY, rotation, startAngle, endAngle, winding);
+
+        public void Rect(Rect rect) => owner.Path.Rect(rect);
+        public void RoundRect(Rect rect, NFloat radius) => owner.Path.RoundRect(rect, radius);
+        public void RoundRect(Rect rect, CornerRadius radius) => owner.Path.RoundRect(rect, radius);
     }
 
     private struct PathStruct
