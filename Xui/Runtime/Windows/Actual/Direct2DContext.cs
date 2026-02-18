@@ -30,6 +30,7 @@ public partial class Direct2DContext : IDisposable, IContext
     private readonly PathReplaySink pathReplaySink;
 
     private float lineWidth = 1f;
+    private float globalAlpha = 1f;
 
     private Stack<DrawingStateBlock.Ptr> drawingStateBlocks;
     private Stack<AffineTransform> transforms;
@@ -58,6 +59,7 @@ public partial class Direct2DContext : IDisposable, IContext
         public PaintStyle StrokePaintStyle;
 
         // Pen
+        public float GlobalAlpha;
         public float LineWidth;
         public StrokeStyleStruct.StrokeSnapshot StrokeSnapshot;
 
@@ -91,7 +93,7 @@ public partial class Direct2DContext : IDisposable, IContext
         this.states = new Stack<State>();
     }
 
-    NFloat IPenContext.GlobalAlpha { set => throw new NotImplementedException(); }
+    NFloat IPenContext.GlobalAlpha { set => this.globalAlpha = (float)value; }
     LineCap IPenContext.LineCap { set => this.StrokeStyle.LineCap = value; }
     Xui.Core.Canvas.LineJoin IPenContext.LineJoin { set => this.StrokeStyle.LineJoin = value; }
     NFloat IPenContext.LineWidth { set => this.lineWidth = (float)value; }
@@ -118,6 +120,7 @@ public partial class Direct2DContext : IDisposable, IContext
                 StrokeBrush = this.stroke.Brush,
                 StrokePaintStyle = this.stroke.PaintStyle,
 
+                GlobalAlpha = this.globalAlpha,
                 LineWidth = this.lineWidth,
                 StrokeSnapshot = this.StrokeStyle.SaveSnapshot(),
 
@@ -177,6 +180,7 @@ public partial class Direct2DContext : IDisposable, IContext
             this.stroke.PaintStyle = state.StrokePaintStyle;
 
             // Restore pen
+            this.globalAlpha = state.GlobalAlpha;
             this.lineWidth = state.LineWidth;
             this.StrokeStyle.RestoreSnapshot(state.StrokeSnapshot);
 
@@ -241,6 +245,18 @@ public partial class Direct2DContext : IDisposable, IContext
     void IPathBuilder.RoundRect(Rect rect, CornerRadius radius) =>
         this.path2d.RoundRect(rect, radius);
 
+    private unsafe void ApplyBrushAlpha(Brush.Ptr brush)
+    {
+        if (!brush.IsNull && this.globalAlpha < 1f)
+            D2D1.Brush.SetOpacity(brush, this.globalAlpha);
+    }
+
+    private unsafe void ResetBrushAlpha(Brush.Ptr brush)
+    {
+        if (!brush.IsNull && this.globalAlpha < 1f)
+            D2D1.Brush.SetOpacity(brush, 1f);
+    }
+
     void IPathDrawing.Fill(FillRule rule)
     {
         this.path2d.Visit(this.pathReplaySink);
@@ -248,7 +264,9 @@ public partial class Direct2DContext : IDisposable, IContext
         var path = this.Path.PrepareToUse();
         if (!path.IsNull)
         {
+            this.ApplyBrushAlpha(this.fill.Brush);
             this.RenderTarget.FillGeometry(path, this.fill.Brush);
+            this.ResetBrushAlpha(this.fill.Brush);
         }
         this.Path.ClearAfterUse();
     }
@@ -259,7 +277,9 @@ public partial class Direct2DContext : IDisposable, IContext
         var path = this.Path.PrepareToUse();
         if (!path.IsNull)
         {
+            this.ApplyBrushAlpha(this.stroke.Brush);
             this.RenderTarget.DrawGeometry(path, this.stroke.Brush, this.lineWidth, this.StrokeStyle.GetStrokeStyle(this.lineWidth));
+            this.ResetBrushAlpha(this.stroke.Brush);
         }
         this.Path.ClearAfterUse();
     }
@@ -281,11 +301,19 @@ public partial class Direct2DContext : IDisposable, IContext
         }
     }
 
-    void IRectDrawingContext.StrokeRect(Rect rect) =>
+    void IRectDrawingContext.StrokeRect(Rect rect)
+    {
+        this.ApplyBrushAlpha(this.stroke.Brush);
         this.RenderTarget.DrawRectangle(rect, this.stroke.Brush, this.lineWidth, this.StrokeStyle.GetStrokeStyle(this.lineWidth));
+        this.ResetBrushAlpha(this.stroke.Brush);
+    }
 
-    void IRectDrawingContext.FillRect(Rect rect) =>
+    void IRectDrawingContext.FillRect(Rect rect)
+    {
+        this.ApplyBrushAlpha(this.fill.Brush);
         this.RenderTarget.FillRectangle(rect, this.fill.Brush);
+        this.ResetBrushAlpha(this.fill.Brush);
+    }
 
     void ITextDrawingContext.FillText(string text, Point pos)
     {
@@ -320,10 +348,12 @@ public partial class Direct2DContext : IDisposable, IContext
         var x = (float)pos.X + dx;
         var y = (float)pos.Y + dy;
 
+        this.ApplyBrushAlpha(this.fill.Brush);
         this.RenderTarget.DrawTextLayout(
             (x, y),
             layout,
             this.fill.Brush);
+        this.ResetBrushAlpha(this.fill.Brush);
 
         static float GetTextAlignOffsetX(TextAlign align, float width)
         {
@@ -406,10 +436,12 @@ public partial class Direct2DContext : IDisposable, IContext
         var x = (float)pos.X + dx;
         var y = (float)pos.Y + dy;
 
+        this.ApplyBrushAlpha(this.fill.Brush);
         this.RenderTarget.DrawTextLayout(
             (x, y),
             layout,
             this.fill.Brush);
+        this.ResetBrushAlpha(this.fill.Brush);
 
         static float GetTextAlignOffsetX(TextAlign align, float width)
         {
