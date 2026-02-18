@@ -192,6 +192,7 @@ public partial class Direct2DContext : IDisposable, IContext
     void IPathDrawing.Fill(FillRule rule)
     {
         this.path2d.Visit(this.pathReplaySink);
+        this.Path.SetFillMode(rule == FillRule.EvenOdd ? FillMode.Alternate : FillMode.Winding);
         var path = this.Path.PrepareToUse();
         if (!path.IsNull)
         {
@@ -1134,6 +1135,12 @@ public partial class Direct2DContext : IDisposable, IContext
             this.CloseFigureIfAny();
             if (!this.GeometrySink.IsNull) this.GeometrySink.Close();
             return this.PathGeometry;
+        }
+
+        public void SetFillMode(FillMode fillMode)
+        {
+            if (!this.GeometrySink.IsNull)
+                this.GeometrySink.SetFillMode(fillMode);
         }
 
         public void ClearAfterUse()
