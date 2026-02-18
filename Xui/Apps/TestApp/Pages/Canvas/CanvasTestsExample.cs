@@ -112,7 +112,9 @@ public class CanvasTestsExample : Example
                 this.Frame.Width - listWidth,
                 this.Frame.Height));
 
+            context.Save();
             base.RenderCore(context);
+            context.Restore();
         }
     }
 

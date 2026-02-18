@@ -48,10 +48,24 @@ public partial class Direct2DContext : IDisposable, IContext
     private struct State
     {
         public int Blocks;
-
         public int Layers;
+        public int Transforms;
 
-        public int Transforms { get; internal set; }
+        // Brushes (AddRef'd on save, released via Dispose on restore)
+        public Brush.Ptr FillBrush;
+        public PaintStyle FillPaintStyle;
+        public Brush.Ptr StrokeBrush;
+        public PaintStyle StrokePaintStyle;
+
+        // Pen
+        public float LineWidth;
+        public StrokeStyleStruct.StrokeSnapshot StrokeSnapshot;
+
+        // Text
+        public TextAlign TextAlign;
+        public TextBaseline TextBaseline;
+        public TextFormat.Ptr TextFormat;
+        public Core.Canvas.FontMetrics FontMetrics;
     }
 
     public Direct2DContext(RenderTarget renderTarget, D2D1.Factory3 d2d1Factory, DWrite.Factory dWriteFactory)
@@ -91,12 +105,33 @@ public partial class Direct2DContext : IDisposable, IContext
 
     void IStateContext.Save()
     {
-        this.states.Push(new State()
+        unsafe
         {
-            Blocks = this.drawingStateBlocks.Count,
-            Transforms = this.transforms.Count,
-            Layers = this.layersCount
-        });
+            this.states.Push(new State()
+            {
+                Blocks = this.drawingStateBlocks.Count,
+                Transforms = this.transforms.Count,
+                Layers = this.layersCount,
+
+                FillBrush = this.fill.Brush,
+                FillPaintStyle = this.fill.PaintStyle,
+                StrokeBrush = this.stroke.Brush,
+                StrokePaintStyle = this.stroke.PaintStyle,
+
+                LineWidth = this.lineWidth,
+                StrokeSnapshot = this.StrokeStyle.SaveSnapshot(),
+
+                TextAlign = this.TextAlign,
+                TextBaseline = this.TextBaseline,
+                TextFormat = this.textFormat,
+                FontMetrics = this.currentFontMetrics,
+            });
+
+            // AddRef COM objects so they survive Set* calls between Save/Restore.
+            if (!this.fill.Brush.IsNull) COM.Unknown.AddRef(this.fill.Brush);
+            if (!this.stroke.Brush.IsNull) COM.Unknown.AddRef(this.stroke.Brush);
+            if (!this.textFormat.IsNull) COM.Unknown.AddRef(this.textFormat);
+        }
 
         var block = this.D2D1Factory.CreateDrawingStateBlockPtr();
         this.RenderTarget.SaveDrawingState(block);
@@ -105,9 +140,6 @@ public partial class Direct2DContext : IDisposable, IContext
         Matrix3X2F transform;
         this.RenderTarget.GetTransform(out transform);
         this.transforms.Push(transform);
-
-        // TODO: Fill & Stroke Brush
-        // TODO: Pen properties
     }
 
     void IStateContext.Restore()
@@ -134,6 +166,26 @@ public partial class Direct2DContext : IDisposable, IContext
                 var transform = this.transforms.Pop();
                 this.RenderTarget.SetTransform(transform);
             }
+
+            // Restore brushes (saved copies already have AddRef'd references)
+            this.fill.Brush.Dispose();
+            this.fill.Brush = state.FillBrush;
+            this.fill.PaintStyle = state.FillPaintStyle;
+
+            this.stroke.Brush.Dispose();
+            this.stroke.Brush = state.StrokeBrush;
+            this.stroke.PaintStyle = state.StrokePaintStyle;
+
+            // Restore pen
+            this.lineWidth = state.LineWidth;
+            this.StrokeStyle.RestoreSnapshot(state.StrokeSnapshot);
+
+            // Restore text
+            this.TextAlign = state.TextAlign;
+            this.TextBaseline = state.TextBaseline;
+            this.textFormat.Dispose();
+            this.textFormat = state.TextFormat;
+            this.currentFontMetrics = state.FontMetrics;
         }
     }
 
@@ -912,6 +964,39 @@ public partial class Direct2DContext : IDisposable, IContext
             {
                 this.dashList.Add((float)f);
             }
+            this.InvalidateStroke();
+        }
+
+        public struct StrokeSnapshot
+        {
+            public LineCap LineCap;
+            public Xui.Core.Canvas.LineJoin LineJoin;
+            public float MiterLimit;
+            public float LineDashOffset;
+            public float[]? DashPattern;
+        }
+
+        public StrokeSnapshot SaveSnapshot()
+        {
+            return new StrokeSnapshot
+            {
+                LineCap = this.lineCap,
+                LineJoin = this.lineJoin,
+                MiterLimit = this.miterLimit,
+                LineDashOffset = this.lineDashOffset,
+                DashPattern = this.dashList.Count > 0 ? this.dashList.ToArray() : null
+            };
+        }
+
+        public void RestoreSnapshot(StrokeSnapshot snapshot)
+        {
+            this.lineCap = snapshot.LineCap;
+            this.lineJoin = snapshot.LineJoin;
+            this.miterLimit = snapshot.MiterLimit;
+            this.lineDashOffset = snapshot.LineDashOffset;
+            this.dashList.Clear();
+            if (snapshot.DashPattern != null)
+                this.dashList.AddRange(snapshot.DashPattern);
             this.InvalidateStroke();
         }
 
