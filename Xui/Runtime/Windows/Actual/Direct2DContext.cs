@@ -1298,19 +1298,29 @@ public partial class Direct2DContext : IDisposable, IContext
 
         public void ArcTo(Point cp1, Point cp2, NFloat radius)
         {
-            var from = this.point - cp1;
-            var to = cp2 - cp1;
-            var median = (from + to).Normalized;
+            var v1 = (this.point - cp1).Normalized;
+            var v2 = (cp2 - cp1).Normalized;
 
-            var a = Vector.Angle(to, median);
-            var mDist = radius / NFloat.Sin(a);
-            var sDist = NFloat.Sin(a) * mDist;
+            // Half-angle of the corner (always positive, 0..π)
+            var cross = Vector.Cross(v1, v2);
+            var dot = Vector.Dot(v1, v2);
+            var halfAngle = NFloat.Atan2(NFloat.Abs(cross), dot) / 2;
 
-            var center = cp1 + median * mDist;
-            var startPoint = cp1 + from.Normalized * sDist;
-            var endPoint = cp1 + to.Normalized * sDist;
+            // Degenerate: collinear points — just draw line to cp1
+            if (NFloat.Abs(cross) < 1e-6f)
+            {
+                this.CreatePathOnDemand();
+                this.BeginFigureOnDemandOrLineTo(this.point);
+                this.LineTo(cp1);
+                this.point = cp1;
+                return;
+            }
 
-            var cross = Vector.Cross(from, to);
+            // Distance from cp1 to tangent points along each arm
+            var tangentDist = radius / NFloat.Tan(halfAngle);
+
+            var startPoint = cp1 + v1 * tangentDist;
+            var endPoint = cp1 + v2 * tangentDist;
 
             this.CreatePathOnDemand();
             this.BeginFigureOnDemandOrLineTo(this.point);
@@ -1319,8 +1329,8 @@ public partial class Direct2DContext : IDisposable, IContext
             {
                 Point = endPoint,
                 Size = new SizeF((float)radius),
-                RotationAngle = 2f * (HalfPI - (float)a),
-                SweepDirection = cross <= 0 ? SweepDirection.Clockwise : SweepDirection.CounterClockwise,
+                RotationAngle = 0f,
+                SweepDirection = cross < 0 ? SweepDirection.Clockwise : SweepDirection.CounterClockwise,
                 ArcSize = ArcSize.Small
             });
             this.point = endPoint;

@@ -50,6 +50,7 @@ public class CanvasTestsExample : Example
             this.AddTest<ArcTest>("Arc");
             this.AddTest<EllipseTest>("Ellipse");
             this.AddTest<ArcToTest>("ArcTo");
+            this.AddTest<ArcToFlowerTest>("ArcToFlower");
             this.AddTest<RoundRectTest>("RoundRect");
             this.AddTest<LineCapJoinTest>("LineCapJoin");
             this.AddTest<DashPatternTest>("DashPattern");

@@ -275,6 +275,53 @@
                 ctx.stroke();
             },
 
+            ArcToFlower(ctx) {
+                const cx = 150, cy = 150;
+                const r = 5;
+                const pts = [
+                    [12, 0], [25, -10], [45, -22], [52, -3],
+                    [62, -18], [78, -8], [88, 0],
+                    [78, 12], [58, 22], [38, 18], [25, 8]
+                ];
+                const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c'];
+
+                for (let i = 0; i < 6; i++) {
+                    const angle = (i * Math.PI * 2) / 6;
+                    ctx.save();
+                    ctx.translate(cx, cy);
+                    ctx.rotate(angle);
+
+                    // Guide polygon
+                    ctx.beginPath();
+                    ctx.moveTo(pts[0][0], pts[0][1]);
+                    for (let j = 1; j < pts.length; j++)
+                        ctx.lineTo(pts[j][0], pts[j][1]);
+                    ctx.closePath();
+                    ctx.strokeStyle = 'lightgray';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+
+                    // ArcTo path
+                    ctx.beginPath();
+                    ctx.moveTo(pts[0][0], pts[0][1]);
+                    for (let j = 1; j < pts.length; j++) {
+                        const next = pts[(j + 1) % pts.length];
+                        ctx.arcTo(pts[j][0], pts[j][1], next[0], next[1], r);
+                    }
+                    ctx.closePath();
+
+                    ctx.globalAlpha = 0.2;
+                    ctx.fillStyle = colors[i];
+                    ctx.fill();
+                    ctx.globalAlpha = 1.0;
+                    ctx.strokeStyle = colors[i];
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+
+                    ctx.restore();
+                }
+            },
+
             RoundRect(ctx) {
                 ctx.beginPath();
                 ctx.roundRect(10, 10, 120, 80, 15);
