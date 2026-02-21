@@ -51,6 +51,13 @@ public partial class Direct2DContext
             this.CreatePathOnDemand();
             this.BeginFigureOnDemand();
 
+            // Degenerate: all three points coincide — control point adds nothing
+            if (IsSamePoint(this.point, cp1) && IsSamePoint(cp1, to))
+            {
+                this.point = to;
+                return;
+            }
+
             this.GeometrySink.AddQuadraticBezier(new QuadraticBezierSegment()
             {
                 Point1 = cp1,
@@ -64,6 +71,13 @@ public partial class Direct2DContext
         {
             this.CreatePathOnDemand();
             this.BeginFigureOnDemand();
+
+            // Degenerate: all four points coincide — both control points add nothing
+            if (IsSamePoint(this.point, cp1) && IsSamePoint(cp1, cp2) && IsSamePoint(cp2, to))
+            {
+                this.point = to;
+                return;
+            }
 
             this.GeometrySink.AddBezier(new BezierSegment()
             {
@@ -80,7 +94,8 @@ public partial class Direct2DContext
             this.CreatePathOnDemand();
             this.BeginFigureOnDemand();
 
-            this.GeometrySink.AddLine(to);
+            if (!IsSamePoint(this.point, to))
+                this.GeometrySink.AddLine(to);
 
             this.point = to;
         }
@@ -280,17 +295,34 @@ public partial class Direct2DContext
 
         private void AddArc(Xui.Core.Curves2D.Arc arc)
         {
+            // Degenerate: radius so small the arc is a single point — just line to it
+            if ((float)NFloat.Max(NFloat.Abs(arc.RadiusX), NFloat.Abs(arc.RadiusY)) <= RadiusEps)
+            {
+                this.CreatePathOnDemand();
+                this.BeginFigureOnDemand();
+                var pt = arc.Evaluate(0);
+                this.LineTo(pt);
+                return;
+            }
+
             var (ep1, ep2) = arc.ToEndpointArcs();
 
             this.CreatePathOnDemand();
             this.BeginFigureOnDemandOrLineTo(ep1.Start);
 
-            this.GeometrySink.AddArc(ToArcSegment(ep1));
+            // Only emit arc if start != end (degenerate arc would confuse D2D)
+            if (!IsSamePoint(ep1.Start, ep1.End))
+            {
+                this.GeometrySink.AddArc(ToArcSegment(ep1));
+            }
             this.point = ep1.End;
 
             if (ep2 != null)
             {
-                this.GeometrySink.AddArc(ToArcSegment(ep2.Value));
+                if (!IsSamePoint(ep2.Value.Start, ep2.Value.End))
+                {
+                    this.GeometrySink.AddArc(ToArcSegment(ep2.Value));
+                }
                 this.point = ep2.Value.End;
             }
         }
@@ -309,6 +341,16 @@ public partial class Direct2DContext
 
         public void Rect(Rect rect)
         {
+            float w = (float)rect.Width;
+            float h = (float)rect.Height;
+
+            // 0×0 → just a point
+            if (w * w <= PosEpsSq && h * h <= PosEpsSq)
+            {
+                this.MoveTo(rect.TopLeft);
+                return;
+            }
+
             this.CreatePathOnDemand();
             this.BeginFigureOnDemand();
             this.MoveTo(rect.TopLeft);
@@ -323,45 +365,45 @@ public partial class Direct2DContext
 
         public void RoundRect(Rect rect, CornerRadius radius)
         {
+            // All radii zero → degenerate to plain Rect
+            if ((float)radius.TopLeft <= RadiusEps && (float)radius.TopRight <= RadiusEps &&
+                (float)radius.BottomRight <= RadiusEps && (float)radius.BottomLeft <= RadiusEps)
+            {
+                this.Rect(rect);
+                return;
+            }
+
             this.CreatePathOnDemand();
             this.BeginFigureOnDemandOrLineTo(rect.TopLeft + (0, radius.TopLeft));
 
-            this.GeometrySink.AddArc(new()
-            {
-                Point = rect.TopLeft + (radius.TopLeft, 0),
-                Size = new SizeF((float)radius.TopLeft),
-                RotationAngle = HalfPI,
-                SweepDirection = SweepDirection.Clockwise,
-                ArcSize = ArcSize.Small
-            });
-            this.GeometrySink.AddLine(rect.TopRight + (-radius.TopRight, 0));
-            this.GeometrySink.AddArc(new()
-            {
-                Point = rect.TopRight + (0, radius.TopRight),
-                Size = new SizeF((float)radius.TopRight),
-                RotationAngle = HalfPI,
-                SweepDirection = SweepDirection.Clockwise,
-                ArcSize = ArcSize.Small
-            });
-            this.GeometrySink.AddLine(rect.BottomRight + (0, -radius.BottomRight));
-            this.GeometrySink.AddArc(new()
-            {
-                Point = rect.BottomRight + (-radius.BottomRight, 0),
-                Size = new SizeF((float)radius.BottomRight),
-                RotationAngle = HalfPI,
-                SweepDirection = SweepDirection.Clockwise,
-                ArcSize = ArcSize.Small
-            });
-            this.GeometrySink.AddLine(rect.BottomLeft + (radius.BottomLeft, 0));
-            this.GeometrySink.AddArc(new()
-            {
-                Point = rect.BottomLeft + (0, -radius.BottomLeft),
-                Size = new SizeF((float)radius.BottomLeft),
-                RotationAngle = HalfPI,
-                SweepDirection = SweepDirection.Clockwise,
-                ArcSize = ArcSize.Small
-            });
+            this.AddCornerArc(rect.TopLeft + (radius.TopLeft, 0), (float)radius.TopLeft);
+            this.LineTo(rect.TopRight + (-radius.TopRight, 0));
+            this.AddCornerArc(rect.TopRight + (0, radius.TopRight), (float)radius.TopRight);
+            this.LineTo(rect.BottomRight + (0, -radius.BottomRight));
+            this.AddCornerArc(rect.BottomRight + (-radius.BottomRight, 0), (float)radius.BottomRight);
+            this.LineTo(rect.BottomLeft + (radius.BottomLeft, 0));
+            this.AddCornerArc(rect.BottomLeft + (0, -radius.BottomLeft), (float)radius.BottomLeft);
             this.ClosePath();
+        }
+
+        // Adds a 90° clockwise corner arc to the sink, skipping if the radius is degenerate.
+        private void AddCornerArc(Point to, float radius)
+        {
+            if (radius <= RadiusEps || IsSamePoint(this.point, to))
+            {
+                this.point = to;
+                return;
+            }
+
+            this.GeometrySink.AddArc(new ArcSegment
+            {
+                Point = to,
+                Size = new SizeF(radius),
+                RotationAngle = HalfPI,
+                SweepDirection = SweepDirection.Clockwise,
+                ArcSize = ArcSize.Small
+            });
+            this.point = to;
         }
 
         private static bool IsSamePoint(Point a, Point b)
