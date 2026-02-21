@@ -20,7 +20,7 @@
   <rect x="0" y="0" width="600" height="24" fill="#FFFFFF" />
   <text x="0" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
   <text x="73.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">TextBox MVP</text>
-  <g transform="translate(0 0)" opacity="0.9">
+  <g transform="translate(300 161.86083984375)" opacity="0.9">
     <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
   </g>
 </svg>

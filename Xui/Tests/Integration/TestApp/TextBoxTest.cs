@@ -20,6 +20,11 @@ public class TextBoxTest
     {
         var app = new TestSinglePageApp(new Xui.Apps.BlankApp.App(), WindowSize, callerPath, testName);
 
+        // Render first so all home page buttons have valid Frames for hit-testing.
+        // Without this, all views have zero frames and the hit-test hits the last
+        // button in the list (reverse-order traversal) rather than the intended one.
+        app.Render();
+
         var button = app.Window.RootView.FindViewById("TextBox");
         app.MouseMove(button!);
         app.MouseDown(button!);
