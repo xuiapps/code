@@ -125,7 +125,7 @@ public partial class Win32Window
             if (this.D2D1DeviceContext == null && this.D2D1Device != null)
             {
                 this.D2D1DeviceContext = this.D2D1Device.CreateDeviceContext(DeviceContextOptions.None);
-                this.Direct2DContext = new Direct2DContext(D2D1DeviceContext, D2D1Factory3, DWriteFactory);
+                this.Direct2DContext = new Direct2DContext(D2D1DeviceContext, D2D1Factory3, DWriteFactory, this.DeviceAndSwapChain.D3D11Device);
             }
         }
 

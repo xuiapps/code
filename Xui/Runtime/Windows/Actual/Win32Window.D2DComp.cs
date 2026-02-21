@@ -124,7 +124,7 @@ public partial class Win32Window
                 this.RecreateSizeDependentTargets();
 
                 this.DWriteFactory = new DWrite.Factory();
-                this.Direct2DContext = new Direct2DContext(this.D2D1DeviceContext, D2D1Factory3, DWriteFactory);
+                this.Direct2DContext = new Direct2DContext(this.D2D1DeviceContext, D2D1Factory3, DWriteFactory, this.D3D11Device);
 
                 // DComposition
                 this.DCompDevice = DComp.Device.Create(this.DXGIDevice);

@@ -9,13 +9,17 @@ using static Xui.Runtime.Windows.DWrite;
 
 namespace Xui.Runtime.Windows.Actual;
 
-public partial class Direct2DContext : IDisposable, IContext
+public partial class Direct2DContext : IDisposable, IContext, IBitmapContext, IImageDrawingContext
 {
     private readonly RenderTarget RenderTarget;
 
     private readonly D2D1.Factory3 D2D1Factory;
 
     private readonly DWrite.Factory DWriteFactory;
+
+    private readonly D3D11.Device d3d11Device;
+
+    private readonly Dictionary<string, Win32Bitmap> bitmapCache = new();
 
     private PaintStruct stroke;
 
@@ -70,7 +74,7 @@ public partial class Direct2DContext : IDisposable, IContext
         public Core.Canvas.FontMetrics FontMetrics;
     }
 
-    public Direct2DContext(RenderTarget renderTarget, D2D1.Factory3 d2d1Factory, DWrite.Factory dWriteFactory)
+    public Direct2DContext(RenderTarget renderTarget, D2D1.Factory3 d2d1Factory, DWrite.Factory dWriteFactory, D3D11.Device d3d11Device)
     {
         this.RenderTarget = renderTarget;
         this.RenderTarget.AddRef();
@@ -80,6 +84,9 @@ public partial class Direct2DContext : IDisposable, IContext
 
         this.DWriteFactory = dWriteFactory;
         this.DWriteFactory.AddRef();
+
+        this.d3d11Device = d3d11Device;
+        this.d3d11Device.AddRef();
 
         this.stroke = new PaintStruct(this.RenderTarget, Colors.Black);
         this.fill = new PaintStruct(this.RenderTarget, Colors.White);
@@ -213,6 +220,12 @@ public partial class Direct2DContext : IDisposable, IContext
 
     void IPenContext.SetFill(RadialGradient radialGradient) =>
         this.fill.SetRadialGradient(radialGradient);
+
+    void IPenContext.SetFill(Core.Canvas.Bitmap bitmap)
+    {
+        if (bitmap is Win32Bitmap wb)
+            this.fill.SetBitmapBrush(wb, this.RenderTarget);
+    }
 
     void IPathBuilder.BeginPath() =>
         this.path2d.BeginPath();
@@ -772,6 +785,90 @@ public partial class Direct2DContext : IDisposable, IContext
         this.RenderTarget.SetTransform(m);
     }
 
+    unsafe Core.Canvas.Bitmap IBitmapContext.LoadBitmap(string uri)
+    {
+        if (this.bitmapCache.TryGetValue(uri, out var cached))
+            return cached;
+
+        // 1. Decode via WIC into 32bppPBGRA CPU memory
+        using var factory = WIC.CreateImagingFactory();
+        using var decoder = factory.CreateDecoderFromFilename(uri);
+        using var frame   = decoder.GetFrame(0);
+        using var conv    = factory.CreateFormatConverter();
+        conv.Initialize(frame, WIC.PixelFormats.Pbgra32);
+        conv.GetSize(out uint w, out uint h);
+
+        uint stride  = w * 4;
+        uint bufSize = stride * h;
+        byte* pixels = (byte*)NativeMemory.Alloc(bufSize);
+        try
+        {
+            conv.CopyPixels(stride, bufSize, pixels);
+
+            // 2. Upload to D3D11 Texture2D
+            var desc = new D3D11.Texture2DDesc
+            {
+                Width          = w,
+                Height         = h,
+                MipLevels      = 1,
+                ArraySize      = 1,
+                Format         = DXGI.Format.B8G8R8A8_UNORM,
+                SampleDesc     = new DXGI.SampleDesc { Count = 1, Quality = 0 },
+                Usage          = 0,  // D3D11_USAGE_DEFAULT
+                BindFlags      = (uint)D3D11.BindFlags.ShaderResource,
+                CPUAccessFlags = 0,
+                MiscFlags      = 0,
+            };
+            var sub = new D3D11.SubresourceData { pSysMem = pixels, SysMemPitch = stride };
+            var texture = this.d3d11Device.CreateTexture2D(desc, sub);
+
+            // 3. Query IDXGISurface from the texture, then wrap as D2D1 Bitmap1
+            void* surfacePtr = texture.QueryInterface(in DXGI.Surface.IID);
+            using var surface = new DXGI.Surface(surfacePtr);
+
+            var bitmapProps = new BitmapProperties1
+            {
+                PixelFormat = new PixelFormat
+                {
+                    AlphaMode = AlphaMode.Premultiplied,
+                    Format    = DXGI.Format.B8G8R8A8_UNORM,
+                },
+                BitmapOptions = BitmapOptions.None,
+            };
+            var d2dBitmap = ((DeviceContext)this.RenderTarget).CreateBitmapFromDxgiSurface(surface, bitmapProps);
+
+            var result = new Win32Bitmap(texture, d2dBitmap, w, h);
+            this.bitmapCache[uri] = result;
+            return result;
+        }
+        finally
+        {
+            NativeMemory.Free(pixels);
+        }
+    }
+
+    void IImageDrawingContext.DrawImage(Core.Canvas.Bitmap image, Rect dest)
+    {
+        if (image is not Win32Bitmap wb) return;
+        RectF d = dest;
+        this.RenderTarget.DrawBitmap(wb.D2D1Bitmap, d, 1f);
+    }
+
+    void IImageDrawingContext.DrawImage(Core.Canvas.Bitmap image, Rect dest, NFloat opacity)
+    {
+        if (image is not Win32Bitmap wb) return;
+        RectF d = dest;
+        this.RenderTarget.DrawBitmap(wb.D2D1Bitmap, d, (float)opacity);
+    }
+
+    void IImageDrawingContext.DrawImage(Core.Canvas.Bitmap image, Rect source, Rect dest, NFloat opacity)
+    {
+        if (image is not Win32Bitmap wb) return;
+        RectF s = source;
+        RectF d = dest;
+        this.RenderTarget.DrawBitmap(wb.D2D1Bitmap, d, (float)opacity, s);
+    }
+
     public void Dispose()
     {
         // If the RenderTarget dies, and we have to reacreate the Direct2DContext, we will really need to call these...
@@ -910,6 +1007,20 @@ public partial class Direct2DContext : IDisposable, IContext
 
             this.Brush = this.RenderTarget.CreateRadialGradientBrushPtr(radialGradientBrushProperties, brushProperties, gradientStops, Gamma.Gamma_2_2, ExtendMode.Clamp);
             this.PaintStyle = PaintStyle.LinearGradient;
+        }
+
+        public void SetBitmapBrush(Win32Bitmap bitmap, RenderTarget renderTarget)
+        {
+            this.Brush.Dispose();
+            // Wrap (Tile) in both axes + Linear interpolation — matches createPattern("repeat") semantics
+            var bbProps = new BitmapBrushProperties { ExtendModeX = 1, ExtendModeY = 1, InterpolationMode = 1 };
+            var brushProps = new BrushProperties
+            {
+                Opacity = 1f,
+                Transform = new() { _11 = 1f, _12 = 0f, _21 = 0f, _22 = 1f, _31 = 0f, _32 = 0f }
+            };
+            this.Brush = renderTarget.CreateBitmapBrushPtr(bitmap.D2D1Bitmap, bbProps, brushProps);
+            this.PaintStyle = PaintStyle.BitmapBrush;
         }
     }
 
