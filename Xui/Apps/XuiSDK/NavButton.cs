@@ -210,22 +210,30 @@ public class NavButton : View
 
     public override void OnPointerEvent(ref PointerEventRef e, EventPhase phase)
     {
+        // Enter/Leave are dispatched directly as Tunnel phase — handle before phase gate
+        switch (e.Type)
+        {
+            case PointerEventType.Enter:
+                isHovered = true;
+                if (hoverProgress < 0.01f)
+                    hoverProgress = (nfloat)0.1;
+                InvalidateRender();
+                RequestAnimationFrame();
+                return;
+
+            case PointerEventType.Leave:
+                isHovered = false;
+                isPressed = false;
+                InvalidateRender();
+                RequestAnimationFrame();
+                return;
+        }
+
         if (phase != EventPhase.Bubble)
             return;
 
         switch (e.Type)
         {
-            case PointerEventType.Enter:
-                isHovered = true;
-                RequestAnimationFrame();
-                break;
-
-            case PointerEventType.Leave:
-                isHovered = false;
-                isPressed = false;
-                RequestAnimationFrame();
-                break;
-
             case PointerEventType.Down:
                 isPressed = true;
                 InvalidateRender();
