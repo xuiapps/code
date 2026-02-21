@@ -785,8 +785,30 @@ public partial class Direct2DContext : IDisposable, IContext, IBitmapContext, II
         this.RenderTarget.SetTransform(m);
     }
 
-    unsafe Core.Canvas.Bitmap IBitmapContext.LoadBitmap(string uri)
+    Core.Canvas.Bitmap IBitmapContext.LoadBitmap(string uri)
     {
+        if (this.bitmapCache.TryGetValue(uri, out var cached))
+            return cached;
+
+        using var factory = WIC.CreateImagingFactory();
+        using var decoder = factory.CreateDecoderFromFilename(uri);
+        using var frame   = decoder.GetFrame(0);
+        using var conv    = factory.CreateFormatConverter();
+        conv.Initialize(frame, WIC.PixelFormats.Pbgra32);
+        conv.GetSize(out uint w, out uint h);
+
+        // Pass the Pbgra32-converted IWICBitmapSource — D2D1 uploads it directly to the GPU.
+        var d2dBitmap = ((DeviceContext)this.RenderTarget).CreateBitmapFromWicBitmap(conv);
+
+        var result = new Win32Bitmap(null, d2dBitmap, w, h);
+        this.bitmapCache[uri] = result;
+        return result;
+    }
+
+    unsafe Core.Canvas.Bitmap LoadBitmap__(string uri)
+    {
+        // TODO: This would load in a way the image is usable with Direct3D as well
+
         if (this.bitmapCache.TryGetValue(uri, out var cached))
             return cached;
 
