@@ -49,6 +49,8 @@ public class RootView : View, IContent
     {
         this.Window = window;
         this.EventRouter = new EventRouter(this);
+        var attachEvent = new AttachEventRef();
+        AttachSubtree(this, ref attachEvent);
         ActivateSubtree(this);
     }
 
