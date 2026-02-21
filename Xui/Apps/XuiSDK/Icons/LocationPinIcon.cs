@@ -11,6 +11,7 @@ public class LocationPinIcon : INavIcon
     public void Render(IContext context)
     {
         context.Save();
+        context.BeginPath();
         context.LineWidth = nfloat.Lerp(1.25f, 2.25f, Selected);
 
         var stroke = new Color(
@@ -50,7 +51,7 @@ public class LocationPinIcon : INavIcon
         context.ClosePath();
 
         context.SetFill(fill);
-        context.Fill();
+        context.Fill(FillRule.EvenOdd);
 
         context.Restore();
     }

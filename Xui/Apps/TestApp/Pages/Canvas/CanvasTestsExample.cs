@@ -48,6 +48,7 @@ public class CanvasTestsExample : Example
             this.AddTest<CubicCurveTest>("CubicCurve");
             this.AddTest<HeartCurveTest>("HeartCurve");
             this.AddTest<ArcTest>("Arc");
+            this.AddTest<ArcFlowerTest>("ArcFlower");
             this.AddTest<EllipseTest>("Ellipse");
             this.AddTest<ArcToTest>("ArcTo");
             this.AddTest<ArcToFlowerTest>("ArcToFlower");
@@ -58,6 +59,7 @@ public class CanvasTestsExample : Example
             this.AddTest<PathContinuationTest>("PathContinuation");
             this.AddTest<ClipTest>("Clip");
             this.AddTest<TransformTest>("Transform");
+            this.AddTest<StarTest>("Star");
             this.AddTest<GlobalAlphaTest>("GlobalAlpha");
 
             // Select first test by default

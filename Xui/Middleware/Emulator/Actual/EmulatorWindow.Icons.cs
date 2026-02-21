@@ -87,19 +87,19 @@ public partial class EmulatorWindow
 
             ctx.BeginPath();
             ctx.SetStroke(Colors.Black);
-            ctx.Arc((0, 0), 2.5f, NFloat.Pi * 1.75f, NFloat.Pi * 1.25f, Winding.ClockWise);
+            ctx.Arc((0, 0), 2.5f, NFloat.Pi * 1.75f, NFloat.Pi * 1.25f, Winding.CounterClockWise);
             ctx.LineWidth = 4f;
             ctx.Stroke();
 
             ctx.BeginPath();
             ctx.SetStroke(Colors.Black);
-            ctx.Arc((0, 0), 7.5f, NFloat.Pi * 1.75f, NFloat.Pi * 1.25f, Winding.ClockWise);
+            ctx.Arc((0, 0), 7.5f, NFloat.Pi * 1.75f, NFloat.Pi * 1.25f, Winding.CounterClockWise);
             ctx.LineWidth = 2f;
             ctx.Stroke();
 
             ctx.BeginPath();
             ctx.SetStroke(0x00000055);
-            ctx.Arc((0, 0), 11.5f, NFloat.Pi * 1.75f, NFloat.Pi * 1.25f, Winding.ClockWise);
+            ctx.Arc((0, 0), 11.5f, NFloat.Pi * 1.75f, NFloat.Pi * 1.25f, Winding.CounterClockWise);
             ctx.LineWidth = 2f;
             ctx.Stroke();
 

@@ -12,6 +12,7 @@ public class SpyGlassIcon : INavIcon
     {
         context.Save();
 
+        context.BeginPath();
         var stroke = new Color(
             nfloat.Lerp(Color.Red, SelectedColor.Red, Selected),
             nfloat.Lerp(Color.Green, SelectedColor.Green, Selected),

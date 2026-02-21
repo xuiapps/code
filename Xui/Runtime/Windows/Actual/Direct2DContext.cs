@@ -1147,6 +1147,13 @@ public partial class Direct2DContext : IDisposable, IContext
 
     private struct PathStruct
     {
+        // Position epsilon (DIPs). If you see occasional “almost equal” points, bump slightly (e.g. 1e-3f).
+        private const float PosEps = 1e-4f;
+        private const float PosEpsSq = PosEps * PosEps;
+
+        // Radius epsilon
+        private const float RadiusEps = 1e-4f;
+
         public static readonly float HalfPI = float.Pi / 2f;
 
         public readonly Factory3 Factory;
@@ -1298,41 +1305,107 @@ public partial class Direct2DContext : IDisposable, IContext
 
         public void ArcTo(Point cp1, Point cp2, NFloat radius)
         {
-            var v1 = (this.point - cp1).Normalized;
-            var v2 = (cp2 - cp1).Normalized;
+            this.CreatePathOnDemand();
+            this.BeginFigureOnDemand();
 
-            // Half-angle of the corner (always positive, 0..π)
-            var cross = Vector.Cross(v1, v2);
-            var dot = Vector.Dot(v1, v2);
-            var halfAngle = NFloat.Atan2(NFloat.Abs(cross), dot) / 2;
-
-            // Degenerate: collinear points — just draw line to cp1
-            if (NFloat.Abs(cross) < 1e-6f)
+            // Degenerate radius
+            if ((float)NFloat.Abs(radius) <= RadiusEps)
             {
-                this.CreatePathOnDemand();
-                this.BeginFigureOnDemandOrLineTo(this.point);
                 this.LineTo(cp1);
                 this.point = cp1;
                 return;
             }
 
-            // Distance from cp1 to tangent points along each arm
-            var tangentDist = radius / NFloat.Tan(halfAngle);
-
-            var startPoint = cp1 + v1 * tangentDist;
-            var endPoint = cp1 + v2 * tangentDist;
-
-            this.CreatePathOnDemand();
-            this.BeginFigureOnDemandOrLineTo(this.point);
-            this.LineTo(startPoint);
-            this.GeometrySink.AddArc(new ()
+            // Degenerate points
+            if (IsSamePoint(this.point, cp1) || IsSamePoint(cp1, cp2))
             {
-                Point = endPoint,
-                Size = new SizeF((float)radius),
-                RotationAngle = 0f,
-                SweepDirection = cross < 0 ? SweepDirection.Clockwise : SweepDirection.CounterClockwise,
-                ArcSize = ArcSize.Small
-            });
+                this.LineTo(cp1);
+                this.point = cp1;
+                return;
+            }
+
+            Vector arm1 = this.point - cp1; // cp1 -> current
+            Vector arm2 = cp2 - cp1;        // cp1 -> cp2
+
+            NFloat len1 = arm1.Length;
+            NFloat len2 = arm2.Length;
+
+            if ((float)len1 <= PosEps || (float)len2 <= PosEps)
+            {
+                this.LineTo(cp1);
+                this.point = cp1;
+                return;
+            }
+
+            Vector v1 = arm1 / len1;
+            Vector v2 = arm2 / len2;
+
+            NFloat cross = Vector.Cross(v1, v2);
+            NFloat dot = Vector.Dot(v1, v2);
+
+            // Collinear / nearly collinear => no arc
+            if (NFloat.Abs(cross) < 1e-6f)
+            {
+                this.LineTo(cp1);
+                this.point = cp1;
+                return;
+            }
+
+            // U-turn: dot ~ -1 => treat as line
+            if (dot < -0.9999f)
+            {
+                this.LineTo(cp1);
+                this.point = cp1;
+                return;
+            }
+
+            NFloat halfAngle = NFloat.Atan2(NFloat.Abs(cross), dot) / 2;
+            NFloat tanHalf = NFloat.Tan(halfAngle);
+
+            if (NFloat.Abs(tanHalf) < 1e-6f)
+            {
+                this.LineTo(cp1);
+                this.point = cp1;
+                return;
+            }
+
+            // *** KEY FIX: clamp radius to max feasible radius for this corner ***
+            NFloat maxRadius = NFloat.Min(len1, len2) * tanHalf;
+            if (radius > maxRadius) radius = maxRadius;
+
+            if ((float)NFloat.Abs(radius) <= RadiusEps)
+            {
+                this.LineTo(cp1);
+                this.point = cp1;
+                return;
+            }
+
+            NFloat tangentDist = radius / tanHalf;
+            if (NFloat.IsNaN(tangentDist) || NFloat.IsInfinity(tangentDist))
+            {
+                this.LineTo(cp1);
+                this.point = cp1;
+                return;
+            }
+
+            Point startPoint = cp1 + v1 * tangentDist;
+            Point endPoint = cp1 + v2 * tangentDist;
+
+            this.LineTo(startPoint);
+
+            // If endpoint is current, skip arc (degenerate)
+            if (!IsSamePoint(this.point, endPoint))
+            {
+                this.GeometrySink.AddArc(new ArcSegment
+                {
+                    Point = endPoint,
+                    Size = new SizeF((float)radius),
+                    RotationAngle = 0f,
+                    SweepDirection = cross < 0 ? SweepDirection.Clockwise : SweepDirection.CounterClockwise,
+                    ArcSize = ArcSize.Small
+                });
+            }
+
             this.point = endPoint;
         }
 
@@ -1426,6 +1499,13 @@ public partial class Direct2DContext : IDisposable, IContext
                 ArcSize = ArcSize.Small
             });
             this.ClosePath();
+        }
+
+        private static bool IsSamePoint(Point a, Point b)
+        {
+            float dx = (float)(a.X - b.X);
+            float dy = (float)(a.Y - b.Y);
+            return (dx * dx + dy * dy) <= PosEpsSq;
         }
     }
 }

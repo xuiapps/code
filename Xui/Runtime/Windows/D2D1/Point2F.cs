@@ -12,6 +12,7 @@ public static partial class D2D1
 
         public static implicit operator Point2F(Point point) => new() { X = (float)point.X, Y = (float)point.Y };
         public static implicit operator Point2F(Vector vector) => new() { X = (float)vector.X, Y = (float)vector.Y };
+        public static implicit operator Point(Point2F point) => new (point.X, point.Y);
 
         public static implicit operator Point2F(ValueTuple<float, float> tuple) => new () { X = tuple.Item1, Y = tuple.Item2 };
     }

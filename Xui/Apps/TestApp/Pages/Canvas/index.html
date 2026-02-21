@@ -191,6 +191,61 @@
                 }
             },
 
+            ArcFlower(ctx) {
+                const cx = 150, cy = 150;
+                const pi = Math.PI;
+                const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c'];
+
+                for (let i = 0; i < 6; i++) {
+                    const angle = (i * pi * 2) / 6;
+                    ctx.save();
+                    ctx.translate(cx, cy);
+                    ctx.rotate(angle);
+
+                    const pcx = 55, pcy = 0;
+
+                    // Arc 1: 90° sweep CW (false = CCW in canvas, true = CW)
+                    ctx.beginPath();
+                    ctx.arc(pcx, pcy, 12, pi * 1.75, pi * 1.25, true);
+                    ctx.strokeStyle = colors[i];
+                    ctx.lineWidth = 4;
+                    ctx.stroke();
+
+                    // Arc 2: 180° sweep CW
+                    ctx.beginPath();
+                    ctx.arc(pcx, pcy, 22, pi * 1.5, pi * 0.5, true);
+                    ctx.strokeStyle = colors[i];
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+
+                    // Arc 3: 270° sweep CCW
+                    ctx.beginPath();
+                    ctx.arc(pcx, pcy, 32, pi * 0.25, pi * 1.75, false);
+                    ctx.strokeStyle = colors[i];
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+
+                    // Arc 4: filled 90° pie wedge CCW
+                    ctx.beginPath();
+                    ctx.moveTo(pcx, pcy);
+                    ctx.arc(pcx, pcy, 10, pi * 1.5, pi * 2.0, false);
+                    ctx.closePath();
+                    ctx.globalAlpha = 0.3;
+                    ctx.fillStyle = colors[i];
+                    ctx.fill();
+                    ctx.globalAlpha = 1.0;
+
+                    // Guide: full circle
+                    ctx.beginPath();
+                    ctx.arc(pcx, pcy, 32, 0, pi * 2);
+                    ctx.strokeStyle = 'lightgray';
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+
+                    ctx.restore();
+                }
+            },
+
             Ellipse(ctx) {
                 const pi = Math.PI;
 
@@ -671,6 +726,33 @@
                 ctx.arc(0, 0, 15, 0, pi * 2);
                 ctx.stroke();
                 ctx.restore();
+            },
+
+            Star(ctx) {
+                const cx = 150, cy = 150;
+                const r1 = 6, r2 = 12;
+                const tenthPi = Math.PI * 2 / 10;
+
+                ctx.beginPath();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = "black";
+
+                for (let i = 0; i < 5; i++) {
+                    const phi = i * Math.PI * 2 / 5;
+                    const p0 = { x: cx + r1 * Math.sin(phi - tenthPi), y: cy - r1 * Math.cos(phi - tenthPi) };
+                    const p1 = { x: cx + r2 * Math.sin(phi),           y: cy - r2 * Math.cos(phi) };
+                    const p2 = { x: cx + r1 * Math.sin(phi + tenthPi), y: cy - r1 * Math.cos(phi + tenthPi) };
+                    const p3 = { x: cx + r2 * Math.sin(phi + tenthPi * 2), y: cy - r2 * Math.cos(phi + tenthPi * 2) };
+
+                    if (i === 0) {
+                        ctx.moveTo((p0.x + p1.x) / 2, (p0.y + p1.y) / 2);
+                    }
+
+                    ctx.arcTo(p1.x, p1.y, p2.x, p2.y, 2);
+                    ctx.arcTo(p2.x, p2.y, p3.x, p3.y, 2);
+                }
+                ctx.closePath();
+                ctx.stroke();
             },
 
             GlobalAlpha(ctx) {
