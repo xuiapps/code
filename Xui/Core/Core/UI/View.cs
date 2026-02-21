@@ -366,11 +366,15 @@ public partial class View
     /// </param>
     protected virtual void RenderCore(IContext context)
     {
+        this.ValidateRender();
+
         for (var i = 0; i < this.Count; i++)
         {
+            // Should we spend some resources on store/restore context to isolate child rendering?
+            // context.Save();
+            // context.BeginPath();
             this[i].Render(context);
+            // context.Restore();
         }
-
-        this.ValidateRender();
     }
 }

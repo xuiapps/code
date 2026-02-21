@@ -11,5 +11,11 @@ public static partial class D2D1
         public Brush(void* ptr) : base(ptr)
         {
         }
+
+        public static void SetOpacity(void* brush, float opacity)
+            => ((delegate* unmanaged<void*, float, void>)(*(*(void***)brush + 4)))(brush, opacity);
+
+        public static float GetOpacity(void* brush)
+            => ((delegate* unmanaged<void*, float>)(*(*(void***)brush + 5)))(brush);
     }
 }

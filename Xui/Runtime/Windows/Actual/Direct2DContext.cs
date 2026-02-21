@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Xui.Core.Canvas;
+using Xui.Core.Curves2D;
 using Xui.Core.Math2D;
 using static Xui.Runtime.Windows.D2D1;
 using static Xui.Runtime.Windows.DWrite;
@@ -24,7 +25,12 @@ public partial class Direct2DContext : IDisposable, IContext
 
     private PathStruct Path;
 
+    private readonly Path2D path2d = new();
+
+    private readonly PathReplaySink pathReplaySink;
+
     private float lineWidth = 1f;
+    private float globalAlpha = 1f;
 
     private Stack<DrawingStateBlock.Ptr> drawingStateBlocks;
     private Stack<AffineTransform> transforms;
@@ -43,10 +49,25 @@ public partial class Direct2DContext : IDisposable, IContext
     private struct State
     {
         public int Blocks;
-
         public int Layers;
+        public int Transforms;
 
-        public int Transforms { get; internal set; }
+        // Brushes (AddRef'd on save, released via Dispose on restore)
+        public Brush.Ptr FillBrush;
+        public PaintStyle FillPaintStyle;
+        public Brush.Ptr StrokeBrush;
+        public PaintStyle StrokePaintStyle;
+
+        // Pen
+        public float GlobalAlpha;
+        public float LineWidth;
+        public StrokeStyleStruct.StrokeSnapshot StrokeSnapshot;
+
+        // Text
+        public TextAlign TextAlign;
+        public TextBaseline TextBaseline;
+        public TextFormat.Ptr TextFormat;
+        public Core.Canvas.FontMetrics FontMetrics;
     }
 
     public Direct2DContext(RenderTarget renderTarget, D2D1.Factory3 d2d1Factory, DWrite.Factory dWriteFactory)
@@ -65,13 +86,14 @@ public partial class Direct2DContext : IDisposable, IContext
 
         this.StrokeStyle = new StrokeStyleStruct(this.D2D1Factory);
         this.Path = new PathStruct(this.D2D1Factory);
+        this.pathReplaySink = new PathReplaySink(this);
 
         this.drawingStateBlocks = new Stack<DrawingStateBlock.Ptr>();
         this.transforms = new Stack<AffineTransform>();
         this.states = new Stack<State>();
     }
 
-    NFloat IPenContext.GlobalAlpha { set => throw new NotImplementedException(); }
+    NFloat IPenContext.GlobalAlpha { set => this.globalAlpha = (float)value; }
     LineCap IPenContext.LineCap { set => this.StrokeStyle.LineCap = value; }
     Xui.Core.Canvas.LineJoin IPenContext.LineJoin { set => this.StrokeStyle.LineJoin = value; }
     NFloat IPenContext.LineWidth { set => this.lineWidth = (float)value; }
@@ -85,12 +107,34 @@ public partial class Direct2DContext : IDisposable, IContext
 
     void IStateContext.Save()
     {
-        this.states.Push(new State()
+        unsafe
         {
-            Blocks = this.drawingStateBlocks.Count,
-            Transforms = this.transforms.Count,
-            Layers = this.layersCount
-        });
+            this.states.Push(new State()
+            {
+                Blocks = this.drawingStateBlocks.Count,
+                Transforms = this.transforms.Count,
+                Layers = this.layersCount,
+
+                FillBrush = this.fill.Brush,
+                FillPaintStyle = this.fill.PaintStyle,
+                StrokeBrush = this.stroke.Brush,
+                StrokePaintStyle = this.stroke.PaintStyle,
+
+                GlobalAlpha = this.globalAlpha,
+                LineWidth = this.lineWidth,
+                StrokeSnapshot = this.StrokeStyle.SaveSnapshot(),
+
+                TextAlign = this.TextAlign,
+                TextBaseline = this.TextBaseline,
+                TextFormat = this.textFormat,
+                FontMetrics = this.currentFontMetrics,
+            });
+
+            // AddRef COM objects so they survive Set* calls between Save/Restore.
+            if (!this.fill.Brush.IsNull) COM.Unknown.AddRef(this.fill.Brush);
+            if (!this.stroke.Brush.IsNull) COM.Unknown.AddRef(this.stroke.Brush);
+            if (!this.textFormat.IsNull) COM.Unknown.AddRef(this.textFormat);
+        }
 
         var block = this.D2D1Factory.CreateDrawingStateBlockPtr();
         this.RenderTarget.SaveDrawingState(block);
@@ -99,9 +143,6 @@ public partial class Direct2DContext : IDisposable, IContext
         Matrix3X2F transform;
         this.RenderTarget.GetTransform(out transform);
         this.transforms.Push(transform);
-
-        // TODO: Fill & Stroke Brush
-        // TODO: Pen properties
     }
 
     void IStateContext.Restore()
@@ -128,6 +169,27 @@ public partial class Direct2DContext : IDisposable, IContext
                 var transform = this.transforms.Pop();
                 this.RenderTarget.SetTransform(transform);
             }
+
+            // Restore brushes (saved copies already have AddRef'd references)
+            this.fill.Brush.Dispose();
+            this.fill.Brush = state.FillBrush;
+            this.fill.PaintStyle = state.FillPaintStyle;
+
+            this.stroke.Brush.Dispose();
+            this.stroke.Brush = state.StrokeBrush;
+            this.stroke.PaintStyle = state.StrokePaintStyle;
+
+            // Restore pen
+            this.globalAlpha = state.GlobalAlpha;
+            this.lineWidth = state.LineWidth;
+            this.StrokeStyle.RestoreSnapshot(state.StrokeSnapshot);
+
+            // Restore text
+            this.TextAlign = state.TextAlign;
+            this.TextBaseline = state.TextBaseline;
+            this.textFormat.Dispose();
+            this.textFormat = state.TextFormat;
+            this.currentFontMetrics = state.FontMetrics;
         }
     }
 
@@ -153,52 +215,71 @@ public partial class Direct2DContext : IDisposable, IContext
         this.fill.SetRadialGradient(radialGradient);
 
     void IPathBuilder.BeginPath() =>
-        this.Path.BeginPath();
+        this.path2d.BeginPath();
 
-    void IGlyphPathBuilder.MoveTo(Point to) => this.Path.MoveTo(to);
+    void IGlyphPathBuilder.MoveTo(Point to) => this.path2d.MoveTo(to);
 
-    void IGlyphPathBuilder.LineTo(Point to) => this.Path.LineTo(to);
+    void IGlyphPathBuilder.LineTo(Point to) => this.path2d.LineTo(to);
 
-    void IGlyphPathBuilder.ClosePath() => this.Path.ClosePath();
+    void IGlyphPathBuilder.ClosePath() => this.path2d.ClosePath();
 
-    void IGlyphPathBuilder.CurveTo(Point cp1, Point to) => this.Path.CurveTo(cp1, to);
+    void IGlyphPathBuilder.CurveTo(Point cp1, Point to) => this.path2d.CurveTo(cp1, to);
 
-    void IPathBuilder.CurveTo(Point cp1, Point cp2, Point to) => this.Path.CurveTo(cp1, cp2, to);
+    void IPathBuilder.CurveTo(Point cp1, Point cp2, Point to) => this.path2d.CurveTo(cp1, cp2, to);
 
     void IPathBuilder.Arc(Point center, NFloat radius, NFloat startAngle, NFloat endAngle, Winding winding) =>
-        this.Path.Arc(center, radius, startAngle, endAngle, winding);
+        this.path2d.Arc(center, radius, startAngle, endAngle, winding);
 
     void IPathBuilder.ArcTo(Point cp1, Point cp2, NFloat radius) =>
-        this.Path.ArcTo(cp1, cp2, radius);
+        this.path2d.ArcTo(cp1, cp2, radius);
 
     void IPathBuilder.Ellipse(Point center, NFloat radiusX, NFloat radiusY, NFloat rotation, NFloat startAngle, NFloat endAngle, Winding winding) =>
-        this.Path.Ellipse(center, radiusX, radiusY, rotation, startAngle, endAngle, winding);
+        this.path2d.Ellipse(center, radiusX, radiusY, rotation, startAngle, endAngle, winding);
 
     void IPathBuilder.Rect(Rect rect) =>
-        this.Path.Rect(rect);
+        this.path2d.Rect(rect);
 
     void IPathBuilder.RoundRect(Rect rect, NFloat radius) =>
-        this.Path.RoundRect(rect, radius);
+        this.path2d.RoundRect(rect, radius);
 
     void IPathBuilder.RoundRect(Rect rect, CornerRadius radius) =>
-        this.Path.RoundRect(rect, radius);
+        this.path2d.RoundRect(rect, radius);
+
+    private unsafe void ApplyBrushAlpha(Brush.Ptr brush)
+    {
+        if (!brush.IsNull && this.globalAlpha < 1f)
+            D2D1.Brush.SetOpacity(brush, this.globalAlpha);
+    }
+
+    private unsafe void ResetBrushAlpha(Brush.Ptr brush)
+    {
+        if (!brush.IsNull && this.globalAlpha < 1f)
+            D2D1.Brush.SetOpacity(brush, 1f);
+    }
 
     void IPathDrawing.Fill(FillRule rule)
     {
+        this.path2d.Visit(this.pathReplaySink);
+        this.Path.SetFillMode(rule == FillRule.EvenOdd ? FillMode.Alternate : FillMode.Winding);
         var path = this.Path.PrepareToUse();
         if (!path.IsNull)
         {
+            this.ApplyBrushAlpha(this.fill.Brush);
             this.RenderTarget.FillGeometry(path, this.fill.Brush);
+            this.ResetBrushAlpha(this.fill.Brush);
         }
         this.Path.ClearAfterUse();
     }
 
     void IPathDrawing.Stroke()
     {
+        this.path2d.Visit(this.pathReplaySink);
         var path = this.Path.PrepareToUse();
         if (!path.IsNull)
         {
-            this.RenderTarget.DrawGeometry(path, this.stroke.Brush, this.lineWidth, this.StrokeStyle.StrokeStyle);
+            this.ApplyBrushAlpha(this.stroke.Brush);
+            this.RenderTarget.DrawGeometry(path, this.stroke.Brush, this.lineWidth, this.StrokeStyle.GetStrokeStyle(this.lineWidth));
+            this.ResetBrushAlpha(this.stroke.Brush);
         }
         this.Path.ClearAfterUse();
     }
@@ -207,6 +288,7 @@ public partial class Direct2DContext : IDisposable, IContext
     {
         unsafe
         {
+            this.path2d.Visit(this.pathReplaySink);
             var geometry = this.Path.PrepareToUse();
             if (!geometry.IsNull)
             {
@@ -219,11 +301,19 @@ public partial class Direct2DContext : IDisposable, IContext
         }
     }
 
-    void IRectDrawingContext.StrokeRect(Rect rect) =>
-        this.RenderTarget.DrawRectangle(rect, this.stroke.Brush, this.lineWidth, this.StrokeStyle.StrokeStyle);
+    void IRectDrawingContext.StrokeRect(Rect rect)
+    {
+        this.ApplyBrushAlpha(this.stroke.Brush);
+        this.RenderTarget.DrawRectangle(rect, this.stroke.Brush, this.lineWidth, this.StrokeStyle.GetStrokeStyle(this.lineWidth));
+        this.ResetBrushAlpha(this.stroke.Brush);
+    }
 
-    void IRectDrawingContext.FillRect(Rect rect) =>
+    void IRectDrawingContext.FillRect(Rect rect)
+    {
+        this.ApplyBrushAlpha(this.fill.Brush);
         this.RenderTarget.FillRectangle(rect, this.fill.Brush);
+        this.ResetBrushAlpha(this.fill.Brush);
+    }
 
     void ITextDrawingContext.FillText(string text, Point pos)
     {
@@ -258,10 +348,12 @@ public partial class Direct2DContext : IDisposable, IContext
         var x = (float)pos.X + dx;
         var y = (float)pos.Y + dy;
 
+        this.ApplyBrushAlpha(this.fill.Brush);
         this.RenderTarget.DrawTextLayout(
             (x, y),
             layout,
             this.fill.Brush);
+        this.ResetBrushAlpha(this.fill.Brush);
 
         static float GetTextAlignOffsetX(TextAlign align, float width)
         {
@@ -344,10 +436,12 @@ public partial class Direct2DContext : IDisposable, IContext
         var x = (float)pos.X + dx;
         var y = (float)pos.Y + dy;
 
+        this.ApplyBrushAlpha(this.fill.Brush);
         this.RenderTarget.DrawTextLayout(
             (x, y),
             layout,
             this.fill.Brush);
+        this.ResetBrushAlpha(this.fill.Brush);
 
         static float GetTextAlignOffsetX(TextAlign align, float width)
         {
@@ -827,6 +921,8 @@ public partial class Direct2DContext : IDisposable, IContext
 
         private bool strokeStyleValid = false;
 
+        private float lastLineWidth;
+
         private List<float> dashList;
 
         private LineCap lineCap;
@@ -845,7 +941,7 @@ public partial class Direct2DContext : IDisposable, IContext
             this.lineDashOffset = 0f;
         }
 
-        public StrokeStyle.Ptr StrokeStyle => this.UpdateStrokeStyle();
+        public StrokeStyle.Ptr GetStrokeStyle(float lineWidth) => this.UpdateStrokeStyle(lineWidth);
 
         public LineCap LineCap
         {
@@ -905,16 +1001,58 @@ public partial class Direct2DContext : IDisposable, IContext
             this.InvalidateStroke();
         }
 
+        public struct StrokeSnapshot
+        {
+            public LineCap LineCap;
+            public Xui.Core.Canvas.LineJoin LineJoin;
+            public float MiterLimit;
+            public float LineDashOffset;
+            public float[]? DashPattern;
+        }
+
+        public StrokeSnapshot SaveSnapshot()
+        {
+            return new StrokeSnapshot
+            {
+                LineCap = this.lineCap,
+                LineJoin = this.lineJoin,
+                MiterLimit = this.miterLimit,
+                LineDashOffset = this.lineDashOffset,
+                DashPattern = this.dashList.Count > 0 ? this.dashList.ToArray() : null
+            };
+        }
+
+        public void RestoreSnapshot(StrokeSnapshot snapshot)
+        {
+            this.lineCap = snapshot.LineCap;
+            this.lineJoin = snapshot.LineJoin;
+            this.miterLimit = snapshot.MiterLimit;
+            this.lineDashOffset = snapshot.LineDashOffset;
+            this.dashList.Clear();
+            if (snapshot.DashPattern != null)
+                this.dashList.AddRange(snapshot.DashPattern);
+            this.InvalidateStroke();
+        }
+
         private void InvalidateStroke()
         {
             this.strokeStyle.Dispose();
             this.strokeStyleValid = false;
         }
 
-        private StrokeStyle.Ptr UpdateStrokeStyle()
+        private StrokeStyle.Ptr UpdateStrokeStyle(float lineWidth)
         {
+            // D2D custom dash values are multiples of stroke width,
+            // but Canvas uses absolute pixel values. Rebuild when lineWidth changes.
+            if (this.strokeStyleValid && this.dashList.Count > 0 && this.lastLineWidth != lineWidth)
+            {
+                this.InvalidateStroke();
+            }
+
             if (!this.strokeStyleValid)
             {
+                this.lastLineWidth = lineWidth;
+
                 if (this.dashList.Count > 0 ||
                     this.lineCap != LineCap.Butt ||
                     this.lineJoin != Xui.Core.Canvas.LineJoin.Miter ||
@@ -923,6 +1061,11 @@ public partial class Direct2DContext : IDisposable, IContext
                 {
                     // There are non-default values, build StrokeStyle
                     CapStyle capStyle = Map(this.lineCap);
+
+                    // D2D dash values are in multiples of stroke width.
+                    // Canvas dash values are in absolute pixels — normalize by dividing.
+                    float dashScale = lineWidth > 0 ? lineWidth : 1f;
+
                     StrokeStyleProperties strokeStyleProperties = new ()
                     {
                         StartCap = capStyle,
@@ -931,9 +1074,17 @@ public partial class Direct2DContext : IDisposable, IContext
                         LineJoin = Map(this.lineJoin),
                         MiterLimit = this.miterLimit,
                         DashStyle = this.dashList.Count == 0 ? DashStyle.Solid : DashStyle.Custom,
-                        DashOffset = this.lineDashOffset
+                        DashOffset = this.lineDashOffset / dashScale
                     };
-                    this.strokeStyle = this.Factory.CreateStrokeStylePtr(strokeStyleProperties, CollectionsMarshal.AsSpan(this.dashList));
+
+                    // Normalize dash pattern from absolute pixels to stroke-width multiples
+                    Span<float> normalizedDashes = stackalloc float[this.dashList.Count];
+                    for (int i = 0; i < this.dashList.Count; i++)
+                    {
+                        normalizedDashes[i] = this.dashList[i] / dashScale;
+                    }
+
+                    this.strokeStyle = this.Factory.CreateStrokeStylePtr(strokeStyleProperties, normalizedDashes);
                 }
 
                 this.strokeStyleValid = true;
@@ -963,8 +1114,46 @@ public partial class Direct2DContext : IDisposable, IContext
         }
     }
 
+    /// <summary>
+    /// Adapter that replays Path2D commands into the Direct2D PathStruct geometry sink.
+    /// Allocated once and reused — forwards all IPathBuilder calls to the owner's PathStruct field.
+    /// </summary>
+    private class PathReplaySink : IPathBuilder
+    {
+        private readonly Direct2DContext owner;
+
+        public PathReplaySink(Direct2DContext owner) => this.owner = owner;
+
+        public void BeginPath() { /* no-op during replay */ }
+        public void MoveTo(Point to) => owner.Path.MoveTo(to);
+        public void LineTo(Point to) => owner.Path.LineTo(to);
+        public void ClosePath() => owner.Path.ClosePath();
+        public void CurveTo(Point cp1, Point to) => owner.Path.CurveTo(cp1, to);
+        public void CurveTo(Point cp1, Point cp2, Point to) => owner.Path.CurveTo(cp1, cp2, to);
+
+        public void Arc(Point center, NFloat radius, NFloat startAngle, NFloat endAngle, Winding winding) =>
+            owner.Path.Arc(center, radius, startAngle, endAngle, winding);
+
+        public void ArcTo(Point cp1, Point cp2, NFloat radius) =>
+            owner.Path.ArcTo(cp1, cp2, radius);
+
+        public void Ellipse(Point center, NFloat radiusX, NFloat radiusY, NFloat rotation, NFloat startAngle, NFloat endAngle, Winding winding) =>
+            owner.Path.Ellipse(center, radiusX, radiusY, rotation, startAngle, endAngle, winding);
+
+        public void Rect(Rect rect) => owner.Path.Rect(rect);
+        public void RoundRect(Rect rect, NFloat radius) => owner.Path.RoundRect(rect, radius);
+        public void RoundRect(Rect rect, CornerRadius radius) => owner.Path.RoundRect(rect, radius);
+    }
+
     private struct PathStruct
     {
+        // Position epsilon (DIPs). If you see occasional “almost equal” points, bump slightly (e.g. 1e-3f).
+        private const float PosEps = 1e-4f;
+        private const float PosEpsSq = PosEps * PosEps;
+
+        // Radius epsilon
+        private const float RadiusEps = 1e-4f;
+
         public static readonly float HalfPI = float.Pi / 2f;
 
         public readonly Factory3 Factory;
@@ -1096,6 +1285,12 @@ public partial class Direct2DContext : IDisposable, IContext
             return this.PathGeometry;
         }
 
+        public void SetFillMode(FillMode fillMode)
+        {
+            if (!this.GeometrySink.IsNull)
+                this.GeometrySink.SetFillMode(fillMode);
+        }
+
         public void ClearAfterUse()
         {
             this.GeometrySink.Dispose();
@@ -1104,86 +1299,149 @@ public partial class Direct2DContext : IDisposable, IContext
 
         public void Arc(Point center, NFloat radius, NFloat startAngle, NFloat endAngle, Winding winding)
         {
-            Point startPoint = Point.Zero + new Vector(float.Cos((float)startAngle), float.Sin((float)startAngle)) * radius;
-            Point endPoint = Point.Zero + new Vector(float.Cos((float)endAngle), float.Sin((float)endAngle)) * radius;
-
-            this.CreatePathOnDemand();
-            this.BeginFigureOnDemandOrLineTo(startPoint);
-
-            ArcSegment arcSegment = new()
-            {
-                Point = new Vector(float.Cos((float)endAngle), float.Sin((float)endAngle)) * radius,
-                Size = new SizeF((float)radius),
-                RotationAngle = 0f,
-                SweepDirection = Map(winding),
-                ArcSize = float.Abs((float)endAngle - (float)startAngle) > float.Pi ? ArcSize.Large : ArcSize.Small
-            };
-
-            this.GeometrySink.AddArc(arcSegment);
-        }
-
-        private SweepDirection Map(Winding winding)
-        {
-            if (winding == Winding.ClockWise)
-            {
-                return SweepDirection.Clockwise;
-            }
-            else
-            {
-                return SweepDirection.CounterClockwise;
-            }
+            var arc = new Xui.Core.Curves2D.Arc(center, radius, radius, 0, startAngle, endAngle, winding);
+            this.AddArc(arc);
         }
 
         public void ArcTo(Point cp1, Point cp2, NFloat radius)
         {
-            var from = this.point - cp1;
-            var to = cp2 - cp1;
-            var median = (from + to).Normalized;
-
-            var a = Vector.Angle(to, median);
-            var mDist = radius / NFloat.Sin(a);
-            var sDist = NFloat.Sin(a) * mDist;
-
-            var center = cp1 + median * mDist;
-            var startPoint = cp1 + from.Normalized * sDist;
-            var endPoint = cp1 + to.Normalized * sDist;
-
-            var cross = Vector.Cross(from, to);
-
             this.CreatePathOnDemand();
-            this.BeginFigureOnDemandOrLineTo(this.point);
-            this.LineTo(startPoint);
-            this.GeometrySink.AddArc(new ()
+            this.BeginFigureOnDemand();
+
+            // Degenerate radius
+            if ((float)NFloat.Abs(radius) <= RadiusEps)
             {
-                Point = endPoint,
-                Size = new SizeF((float)radius),
-                RotationAngle = 2f * (HalfPI - (float)a),
-                SweepDirection = cross <= 0 ? SweepDirection.Clockwise : SweepDirection.CounterClockwise,
-                ArcSize = ArcSize.Small
-            });
+                this.LineTo(cp1);
+                this.point = cp1;
+                return;
+            }
+
+            // Degenerate points
+            if (IsSamePoint(this.point, cp1) || IsSamePoint(cp1, cp2))
+            {
+                this.LineTo(cp1);
+                this.point = cp1;
+                return;
+            }
+
+            Vector arm1 = this.point - cp1; // cp1 -> current
+            Vector arm2 = cp2 - cp1;        // cp1 -> cp2
+
+            NFloat len1 = arm1.Length;
+            NFloat len2 = arm2.Length;
+
+            if ((float)len1 <= PosEps || (float)len2 <= PosEps)
+            {
+                this.LineTo(cp1);
+                this.point = cp1;
+                return;
+            }
+
+            Vector v1 = arm1 / len1;
+            Vector v2 = arm2 / len2;
+
+            NFloat cross = Vector.Cross(v1, v2);
+            NFloat dot = Vector.Dot(v1, v2);
+
+            // Collinear / nearly collinear => no arc
+            if (NFloat.Abs(cross) < 1e-6f)
+            {
+                this.LineTo(cp1);
+                this.point = cp1;
+                return;
+            }
+
+            // U-turn: dot ~ -1 => treat as line
+            if (dot < -0.9999f)
+            {
+                this.LineTo(cp1);
+                this.point = cp1;
+                return;
+            }
+
+            NFloat halfAngle = NFloat.Atan2(NFloat.Abs(cross), dot) / 2;
+            NFloat tanHalf = NFloat.Tan(halfAngle);
+
+            if (NFloat.Abs(tanHalf) < 1e-6f)
+            {
+                this.LineTo(cp1);
+                this.point = cp1;
+                return;
+            }
+
+            // *** KEY FIX: clamp radius to max feasible radius for this corner ***
+            NFloat maxRadius = NFloat.Min(len1, len2) * tanHalf;
+            if (radius > maxRadius) radius = maxRadius;
+
+            if ((float)NFloat.Abs(radius) <= RadiusEps)
+            {
+                this.LineTo(cp1);
+                this.point = cp1;
+                return;
+            }
+
+            NFloat tangentDist = radius / tanHalf;
+            if (NFloat.IsNaN(tangentDist) || NFloat.IsInfinity(tangentDist))
+            {
+                this.LineTo(cp1);
+                this.point = cp1;
+                return;
+            }
+
+            Point startPoint = cp1 + v1 * tangentDist;
+            Point endPoint = cp1 + v2 * tangentDist;
+
+            this.LineTo(startPoint);
+
+            // If endpoint is current, skip arc (degenerate)
+            if (!IsSamePoint(this.point, endPoint))
+            {
+                this.GeometrySink.AddArc(new ArcSegment
+                {
+                    Point = endPoint,
+                    Size = new SizeF((float)radius),
+                    RotationAngle = 0f,
+                    SweepDirection = cross < 0 ? SweepDirection.Clockwise : SweepDirection.CounterClockwise,
+                    ArcSize = ArcSize.Small
+                });
+            }
+
             this.point = endPoint;
         }
 
         public void Ellipse(Point center, NFloat radiusX, NFloat radiusY, NFloat rotation, NFloat startAngle, NFloat endAngle, Winding winding)
         {
-            var right = radiusX * new Vector(NFloat.Cos(rotation), NFloat.Sin(rotation));
-            var bottom = radiusY * new Vector(-NFloat.Sin(rotation), NFloat.Cos(rotation));
+            var arc = new Xui.Core.Curves2D.Arc(center, radiusX, radiusY, rotation, startAngle, endAngle, winding);
+            this.AddArc(arc);
+        }
 
-            var startPoint = center + NFloat.Cos(startAngle) * right + NFloat.Sin(startAngle) * bottom;
-            var endPoint = center + NFloat.Cos(endAngle) * right + NFloat.Sin(endAngle) * bottom;
+        private void AddArc(Xui.Core.Curves2D.Arc arc)
+        {
+            var (ep1, ep2) = arc.ToEndpointArcs();
 
             this.CreatePathOnDemand();
-            this.MoveTo(startPoint);
-            this.BeginFigureOnDemand();
+            this.BeginFigureOnDemandOrLineTo(ep1.Start);
 
-            this.GeometrySink.AddArc(new()
+            this.GeometrySink.AddArc(ToArcSegment(ep1));
+            this.point = ep1.End;
+
+            if (ep2 != null)
             {
-                Point = endPoint,
-                Size = new SizeF((float)radiusX, (float)radiusY),
-                RotationAngle = float.RadiansToDegrees((float)rotation),
-                SweepDirection = Map(winding),
-                ArcSize = ArcSize.Small
-            });
+                this.GeometrySink.AddArc(ToArcSegment(ep2.Value));
+                this.point = ep2.Value.End;
+            }
+        }
+
+        private static ArcSegment ToArcSegment(ArcEndpoint ep)
+        {
+            return new ArcSegment
+            {
+                Point = ep.End,
+                Size = new SizeF((float)ep.RadiusX, (float)ep.RadiusY),
+                RotationAngle = float.RadiansToDegrees((float)ep.Rotation),
+                SweepDirection = ep.Winding == Winding.ClockWise ? SweepDirection.Clockwise : SweepDirection.CounterClockwise,
+                ArcSize = ep.LargeArc ? ArcSize.Large : ArcSize.Small
+            };
         }
 
         public void Rect(Rect rect)
@@ -1241,6 +1499,13 @@ public partial class Direct2DContext : IDisposable, IContext
                 ArcSize = ArcSize.Small
             });
             this.ClosePath();
+        }
+
+        private static bool IsSamePoint(Point a, Point b)
+        {
+            float dx = (float)(a.X - b.X);
+            float dy = (float)(a.Y - b.Y);
+            return (dx * dx + dy * dy) <= PosEpsSq;
         }
     }
 }

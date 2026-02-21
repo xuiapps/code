@@ -15,6 +15,7 @@ public class LocationPin
     public void Render(IContext context)
     {
         context.Save();
+        context.BeginPath();
         context.LineWidth = NFloat.Lerp(1.25f, 2.25f, this.Selected);
 
         var stroke = new Xui.Core.Canvas.Color(
@@ -54,7 +55,7 @@ public class LocationPin
         context.ClosePath();
 
         context.SetFill(fill);
-        context.Fill();
+        context.Fill(FillRule.EvenOdd);
 
         context.Restore();
 

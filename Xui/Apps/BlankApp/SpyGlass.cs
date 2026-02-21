@@ -11,6 +11,7 @@ public class SpyGlass
     public void Render(IContext context)
     {
         context.Save();
+        context.BeginPath();
         context.LineWidth = 2f;
 
         context.Ellipse((-2.5f, -2.5f), 6, 6, 0, 0, NFloat.Pi * 2, Winding.ClockWise);

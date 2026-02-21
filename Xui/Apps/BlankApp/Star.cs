@@ -12,6 +12,7 @@ public class Star
     public void Render(IContext context)
     {
         context.Save();
+        context.BeginPath();
         context.LineWidth = 2f;
         context.SetStroke(Xui.Core.Canvas.Colors.Black);
 
@@ -36,21 +37,7 @@ public class Star
             context.ArcTo(p2, p3, 2f);
         }
         context.ClosePath();
-
         context.Stroke();
-
-
-        // context.Ellipse((-2.5f, -2.5f), 6, 6, 0, 0, NFloat.Pi * 2, Winding.ClockWise);
-        // context.SetStroke(Colors.Black);
-        // context.Stroke();
-
-        // context.LineWidth = 3f;
-        // context.LineCap = LineCap.Round;
-        // context.BeginPath();
-        // context.MoveTo((4.5f, 4.5f));
-        // context.LineTo((8, 8));
-        // context.SetStroke(Colors.Black);
-        // context.Stroke();
 
         context.Restore();
     }

@@ -11,6 +11,8 @@ public class WalletIcon : INavIcon
     public void Render(IContext context)
     {
         context.Save();
+
+        context.BeginPath();
         context.LineWidth = nfloat.Lerp(1.25f, 2.25f, Selected);
 
         var stroke = new Color(
@@ -40,9 +42,6 @@ public class WalletIcon : INavIcon
         context.LineTo((-seven, oneBottom));
         context.ClosePath();
 
-        context.Rect((nfloat.Lerp(-5, -7, Selected), nfloat.Lerp(2, 1, Selected), nfloat.Lerp(4, 8, Selected), nfloat.Lerp(0, 4, Selected)));
-        context.ClosePath();
-
         context.SetStroke(stroke);
         context.Stroke();
 
@@ -50,13 +49,6 @@ public class WalletIcon : INavIcon
         context.ArcTo((-seven, -five), (seven, -five), 2);
         context.ArcTo((seven, -five), (seven, oneTop), 2);
         context.LineTo((seven, oneTop));
-        context.ClosePath();
-
-        context.MoveTo((-seven, oneBottom));
-        context.LineTo((seven, oneBottom));
-        context.ArcTo((seven, five), (-seven, five), 2);
-        context.ArcTo((-seven, five), (-seven, oneBottom), 2);
-        context.LineTo((-seven, oneBottom));
         context.ClosePath();
 
         context.Rect((nfloat.Lerp(-5, -7, Selected), nfloat.Lerp(2, 1, Selected), nfloat.Lerp(4, 8, Selected), nfloat.Lerp(0, 4, Selected)));

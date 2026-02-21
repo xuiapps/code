@@ -74,6 +74,11 @@ public struct Vector
     public nfloat Magnitude => nfloat.Sqrt(this.X * this.X + this.Y * this.Y);
 
     /// <summary>
+    /// Returns the magnitude (length) of the vector.
+    /// </summary>
+    public nfloat Length => nfloat.Sqrt(this.X * this.X + this.Y * this.Y);
+
+    /// <summary>
     /// Returns the squared magnitude (length squared) of the vector.
     /// This avoids the square root computation used in <see cref="Magnitude"/>.
     /// </summary>

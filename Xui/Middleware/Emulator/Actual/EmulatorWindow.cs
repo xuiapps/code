@@ -241,6 +241,7 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
                 ctx.SetFill(0x66888888);
                 ctx.Fill();
 
+                ctx.BeginPath();
                 ctx.Ellipse(this.leftMouseButtonTouch.Value, 15f, 15f, 0, 0, NFloat.Pi * 2, Winding.ClockWise);
                 ctx.LineWidth = 3f;
                 ctx.SetStroke(0x88AAAAAA);
@@ -389,6 +390,12 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
             }
         }
     }
+
+    public void OnKeyDown(ref KeyEventRef e) =>
+        this.Abstract?.OnKeyDown(ref e);
+
+    public void OnChar(ref KeyEventRef e) =>
+        this.Abstract?.OnChar(ref e);
 
     #endregion
 }
