@@ -14,6 +14,11 @@ public partial class Direct2DContext
         private const float PosEps = 1e-8f;
         private const float PosEpsSq = PosEps * PosEps;
 
+        // Minimum dimension used when clamping a degenerate (zero) rect side.
+        // Must be > PosEps so the four corners are not collapsed by IsSamePoint,
+        // but small enough to be invisible (<< 1 DIP).
+        private const float MinRectDim = 1e-4f;
+
         // Radius epsilon
         private const float RadiusEps = 1e-8f;
 
@@ -350,6 +355,10 @@ public partial class Direct2DContext
                 this.MoveTo(rect.TopLeft);
                 return;
             }
+
+            // Clamp degenerate dimensions to a sub-pixel epsilon so D2D gets a valid closed shape
+            if (h * h <= MinRectDim) rect = new Rect(rect.X, rect.Y, rect.Width, MinRectDim);
+            if (w * w <= MinRectDim) rect = new Rect(rect.X, rect.Y, MinRectDim, rect.Height);
 
             this.CreatePathOnDemand();
             this.BeginFigureOnDemand();
