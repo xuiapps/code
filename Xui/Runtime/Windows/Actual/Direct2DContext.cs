@@ -785,49 +785,32 @@ public partial class Direct2DContext : IDisposable, IContext, IBitmapContext, II
         this.RenderTarget.SetTransform(m);
     }
 
-    Core.Canvas.Bitmap IBitmapContext.LoadBitmap(string uri)
+    unsafe Core.Canvas.Bitmap IBitmapContext.LoadBitmap(string uri)
     {
         if (this.bitmapCache.TryGetValue(uri, out var cached))
             return cached;
 
+        // TODO: This probably needs to move in the window,
+        // images will be used in 3D as well
+        // factories are very expensive to create,
+        // construct them once on startup
         using var factory = WIC.CreateImagingFactory();
         using var decoder = factory.CreateDecoderFromFilename(uri);
         using var frame   = decoder.GetFrame(0);
         using var conv    = factory.CreateFormatConverter();
-        conv.Initialize(frame, WIC.PixelFormats.Pbgra32);
-        conv.GetSize(out uint w, out uint h);
 
-        // Pass the Pbgra32-converted IWICBitmapSource — D2D1 uploads it directly to the GPU.
-        var d2dBitmap = ((DeviceContext)this.RenderTarget).CreateBitmapFromWicBitmap(conv);
-
-        var result = new Win32Bitmap(null, d2dBitmap, w, h);
-        this.bitmapCache[uri] = result;
-        return result;
-    }
-
-    unsafe Core.Canvas.Bitmap LoadBitmap__(string uri)
-    {
-        // TODO: This would load in a way the image is usable with Direct3D as well
-
-        if (this.bitmapCache.TryGetValue(uri, out var cached))
-            return cached;
-
-        // 1. Decode via WIC into 32bppPBGRA CPU memory
-        using var factory = WIC.CreateImagingFactory();
-        using var decoder = factory.CreateDecoderFromFilename(uri);
-        using var frame   = decoder.GetFrame(0);
-        using var conv    = factory.CreateFormatConverter();
+        // Premultiplied bytes
         conv.Initialize(frame, WIC.PixelFormats.Pbgra32);
         conv.GetSize(out uint w, out uint h);
 
         uint stride  = w * 4;
         uint bufSize = stride * h;
+
         byte* pixels = (byte*)NativeMemory.Alloc(bufSize);
         try
         {
             conv.CopyPixels(stride, bufSize, pixels);
 
-            // 2. Upload to D3D11 Texture2D
             var desc = new D3D11.Texture2DDesc
             {
                 Width          = w,
@@ -836,15 +819,21 @@ public partial class Direct2DContext : IDisposable, IContext, IBitmapContext, II
                 ArraySize      = 1,
                 Format         = DXGI.Format.B8G8R8A8_UNORM,
                 SampleDesc     = new DXGI.SampleDesc { Count = 1, Quality = 0 },
-                Usage          = 0,  // D3D11_USAGE_DEFAULT
+                Usage          = 0, // D3D11_USAGE_DEFAULT
+                // BindFlags      = (uint)(D3D11.BindFlags.ShaderResource | D3D11.BindFlags.RenderTarget),
                 BindFlags      = (uint)D3D11.BindFlags.ShaderResource,
                 CPUAccessFlags = 0,
                 MiscFlags      = 0,
             };
-            var sub = new D3D11.SubresourceData { pSysMem = pixels, SysMemPitch = stride };
+
+            var sub = new D3D11.SubresourceData
+            {
+                pSysMem     = pixels,
+                SysMemPitch = stride,
+            };
+
             var texture = this.d3d11Device.CreateTexture2D(desc, sub);
 
-            // 3. Query IDXGISurface from the texture, then wrap as D2D1 Bitmap1
             void* surfacePtr = texture.QueryInterface(in DXGI.Surface.IID);
             using var surface = new DXGI.Surface(surfacePtr);
 
@@ -852,11 +841,14 @@ public partial class Direct2DContext : IDisposable, IContext, IBitmapContext, II
             {
                 PixelFormat = new PixelFormat
                 {
-                    AlphaMode = AlphaMode.Premultiplied,
                     Format    = DXGI.Format.B8G8R8A8_UNORM,
+                    AlphaMode = AlphaMode.Premultiplied,
                 },
                 BitmapOptions = BitmapOptions.None,
+                DpiX = 96.0f,
+                DpiY = 96.0f,
             };
+
             var d2dBitmap = ((DeviceContext)this.RenderTarget).CreateBitmapFromDxgiSurface(surface, bitmapProps);
 
             var result = new Win32Bitmap(texture, d2dBitmap, w, h);
@@ -868,6 +860,27 @@ public partial class Direct2DContext : IDisposable, IContext, IBitmapContext, II
             NativeMemory.Free(pixels);
         }
     }
+
+    // Simpler version that doesn't create direct 3d texture
+    // Core.Canvas.Bitmap IBitmapContext.LoadBitmap(string uri)
+    // {
+    //     if (this.bitmapCache.TryGetValue(uri, out var cached))
+    //         return cached;
+
+    //     using var factory = WIC.CreateImagingFactory();
+    //     using var decoder = factory.CreateDecoderFromFilename(uri);
+    //     using var frame   = decoder.GetFrame(0);
+    //     using var conv    = factory.CreateFormatConverter();
+    //     conv.Initialize(frame, WIC.PixelFormats.Pbgra32);
+    //     conv.GetSize(out uint w, out uint h);
+
+    //     // Pass the Pbgra32-converted IWICBitmapSource — D2D1 uploads it directly to the GPU.
+    //     var d2dBitmap = ((DeviceContext)this.RenderTarget).CreateBitmapFromWicBitmap(conv);
+
+    //     var result = new Win32Bitmap(null, d2dBitmap, w, h);
+    //     this.bitmapCache[uri] = result;
+    //     return result;
+    // }
 
     void IImageDrawingContext.DrawImage(Core.Canvas.Bitmap image, Rect dest)
     {
