@@ -10,6 +10,7 @@
     <AssemblyName>Xui.Runtime.Browser</AssemblyName>
     
     <IsTrimmable>false</IsTrimmable>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>

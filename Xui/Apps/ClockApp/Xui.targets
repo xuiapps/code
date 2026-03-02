@@ -62,7 +62,7 @@
     <!-- Middleware -->
     <ProjectReference
         Condition=" $(XuiEmulator) == 'true' "
-        Include="../../Middleware/Emulator/Emulator.csproj" />
+        Include="../../Middleware/Emulator/Xui.Middleware.Emulator.csproj" />
 
     <!-- Runtimes -->
     <ProjectReference

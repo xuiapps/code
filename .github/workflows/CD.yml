@@ -27,35 +27,8 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Pack Xui.Core
-        run: dotnet pack Xui/Core/Core/Xui.Core.csproj -c Release -o packages
-
-      - name: Pack Xui.Core.DI
-        run: dotnet pack Xui/Core/Core.DI/Xui.Core.DI.csproj -c Release -o packages
-
-      - name: Pack Xui.Core.Fonts
-        run: dotnet pack Xui/Core/Fonts/Xui.Core.Fonts.csproj -c Release -o packages
-
-      - name: Pack Xui.Runtime.Software
-        run: dotnet pack Xui/Runtime/Software/Xui.Runtime.Software.csproj -c Release -o packages
-
-      - name: Pack Xui.Runtime.Windows
-        run: dotnet pack Xui/Runtime/Windows/Windows.csproj -c Release -o packages
-
-      - name: Pack Xui.Runtime.MacOS
-        run: dotnet pack Xui/Runtime/MacOS/MacOS.csproj -c Release -o packages
-
-      - name: Pack Xui.Runtime.Browser
-        run: dotnet pack Xui/Runtime/Browser/Browser.csproj -c Release -o packages
-
-      - name: Pack Xui.Runtime.IOS
-        run: dotnet pack Xui/Runtime/IOS/IOS.csproj -c Release -o packages
-
-      - name: Pack Xui.Middleware.Emulator
-        run: dotnet pack Xui/Middleware/Emulator/Emulator.csproj -c Release -o packages
-
-      - name: Pack Xui.Templates
-        run: dotnet pack Xui/Templates/Xui.Templates.csproj -c Release -o packages
+      - name: Pack
+        run: dotnet pack Xui.Pack.slnf -c Release
 
       - name: Get branch name
         id: branch

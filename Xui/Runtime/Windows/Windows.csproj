@@ -10,6 +10,7 @@
     <AssemblyName>Xui.Runtime.Windows</AssemblyName>
   
     <IsTrimmable>false</IsTrimmable>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
