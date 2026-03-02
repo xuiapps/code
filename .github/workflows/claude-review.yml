@@ -10,10 +10,16 @@ on:
 
 jobs:
   review:
+    # Security:
+    # - pull_request: only auto-review PRs opened from within this repo (not forks),
+    #   preventing compute abuse from external contributors.
+    # - issue_comment / pull_request_review_comment: only respond to @claude from
+    #   trusted roles (owner, member, collaborator) to prevent secret theft via
+    #   issue_comment, which always runs with full repo secrets regardless of fork.
     if: |
-      github.event_name == 'pull_request' ||
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude'))
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) ||
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude') && contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude') && contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association))
     runs-on: ubuntu-latest
     permissions:
       contents: read
