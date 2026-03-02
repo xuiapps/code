@@ -1,0 +1,18 @@
+{
+  "solution": {
+    "path": "Xui.sln",
+    "projects": [
+      "Xui\\Core\\Core\\Xui.Core.csproj",
+      "Xui\\Core\\Core.DI\\Xui.Core.DI.csproj",
+      "Xui\\Core\\Fonts\\Xui.Core.Fonts.csproj",
+      "Xui\\Runtime\\Software\\Xui.Runtime.Software.csproj",
+      "Xui\\Runtime\\Windows\\Windows.csproj",
+      "Xui\\Runtime\\MacOS\\MacOS.csproj",
+      "Xui\\Runtime\\Browser\\Browser.csproj",
+      "Xui\\Runtime\\IOS\\IOS.csproj",
+      "Xui\\Middleware\\Emulator\\Xui.Middleware.Emulator.csproj",
+      "Xui\\Utils\\Templates\\Xui.Templates.csproj",
+      "Xui\\Utils\\MCP\\Xui.MCP.csproj"
+    ]
+  }
+}
