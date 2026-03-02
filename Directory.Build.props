@@ -7,6 +7,10 @@
 
   <PropertyGroup>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <!-- Only projects that explicitly set <IsPackable>true</IsPackable> are packed. -->
+    <IsPackable>false</IsPackable>
+    <!-- All packages land in a single repo-root folder regardless of where dotnet pack is invoked. -->
+    <PackageOutputPath>$(MSBuildThisFileDirectory)packages\</PackageOutputPath>
   </PropertyGroup>
 
   <PropertyGroup>

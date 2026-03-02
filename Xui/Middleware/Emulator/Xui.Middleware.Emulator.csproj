@@ -6,6 +6,7 @@
     <LangVersion>13</LangVersion>
     <RootNamespace>Xui.Middleware.Emulator</RootNamespace>
     <AssemblyName>Xui.Middleware.Emulator</AssemblyName>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
