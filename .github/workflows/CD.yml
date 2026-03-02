@@ -28,7 +28,7 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Pack
-        run: dotnet pack Xui.sln -c Release
+        run: dotnet pack Xui.Pack.slnf -c Release
 
       - name: Get branch name
         id: branch
