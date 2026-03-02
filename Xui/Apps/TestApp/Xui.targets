@@ -67,6 +67,9 @@
     <ProjectReference Include="../../Core/Core/Xui.Core.csproj" />
     <ProjectReference Include="../../Core/Core.DI/Xui.Core.DI.csproj" />
 
+    <!-- SDK -->
+    <ProjectReference Include="../../SDK/UI/Xui.SDK.UI.csproj" />
+
     <!-- Middleware -->
     <ProjectReference
         Condition=" $(XuiEmulator) == 'true' "

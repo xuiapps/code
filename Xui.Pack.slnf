@@ -12,7 +12,8 @@
       "Xui\\Runtime\\IOS\\IOS.csproj",
       "Xui\\Middleware\\Emulator\\Xui.Middleware.Emulator.csproj",
       "Xui\\Utils\\Templates\\Xui.Templates.csproj",
-      "Xui\\Utils\\MCP\\Xui.MCP.csproj"
+      "Xui\\Utils\\MCP\\Xui.MCP.csproj",
+      "Xui\\SDK\\UI\\Xui.SDK.UI.csproj"
     ]
   }
 }
