@@ -1,5 +1,7 @@
 using Xui.Apps.TestApp.Examples;
 using Xui.Apps.TestApp.Pages.Canvas;
+using Xui.Apps.TestApp.Pages.Input;
+using Xui.Apps.TestApp.Pages.Layers;
 using Xui.Core.UI;
 using static Xui.Core.Canvas.FontWeight;
 
@@ -49,6 +51,16 @@ public class SdkHomePage : VerticalStack
             Id = "CanvasTests",
             Margin = 3,
             Text = "Canvas Tests"
+        });
+        this.Add(new SdkExampleButton<LayersExample>() {
+            Id = "Layers",
+            Margin = 3,
+            Text = "Layers"
+        });
+        this.Add(new SdkExampleButton<InputExample>() {
+            Id = "InputWidgets",
+            Margin = 3,
+            Text = "Input Widgets"
         });
     }
 }

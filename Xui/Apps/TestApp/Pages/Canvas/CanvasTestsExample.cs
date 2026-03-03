@@ -1,5 +1,5 @@
 using System.Runtime.InteropServices;
-using Xui.Apps.TestApp.Pages.Canvas.Tests;
+using Xui.Apps.TestApp.Examples.Canvas;
 using Xui.Core.Canvas;
 using Xui.Core.Math2D;
 using Xui.Core.UI;
