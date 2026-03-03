@@ -52,8 +52,20 @@ public struct TextInputLayer : ILeaf
 
     // --- Layout ---
 
-    /// <summary>Horizontal padding in pixels on each side of the text.</summary>
+    /// <summary>
+    /// Horizontal and vertical padding in pixels.
+    /// Ignored when <see cref="TextAlign"/> is <see cref="Canvas.TextAlign.Center"/>
+    /// (centering uses the full frame rect).
+    /// </summary>
     public nfloat Padding;
+
+    /// <summary>
+    /// Horizontal alignment of the text within the frame.
+    /// Use <see cref="Canvas.TextAlign.Left"/> (default) for a standard left-aligned
+    /// text box; use <see cref="Canvas.TextAlign.Center"/> for display labels that
+    /// need the text centered both horizontally and vertically (e.g. number spinners).
+    /// </summary>
+    public TextAlign TextAlign;
 
     private Font GetFont() => new Font
     {
@@ -78,9 +90,21 @@ public struct TextInputLayer : ILeaf
             context.SetFont(GetFont());
             var displayText = GetDisplayText();
             var metrics = context.MeasureText(displayText.Length > 0 ? displayText : "X");
-            var height = metrics.Size.Height + Padding * 2;
-            // Fill available width; enforce a minimum of 100 px so an empty TextBox is usable
-            var width = guide.AvailableSize.Width > 100 ? guide.AvailableSize.Width : (nfloat)100;
+
+            nfloat height, width;
+            if (TextAlign == TextAlign.Center)
+            {
+                // Centered mode: fill available space, no padding added to height.
+                height = metrics.Size.Height;
+                width = guide.AvailableSize.Width;
+            }
+            else
+            {
+                height = metrics.Size.Height + Padding * 2;
+                // Fill available width; enforce a minimum of 100 px so an empty TextBox is usable.
+                width = guide.AvailableSize.Width > 100 ? guide.AvailableSize.Width : (nfloat)100;
+            }
+
             guide.DesiredSize = new Size(width, height);
         }
 
@@ -95,8 +119,29 @@ public struct TextInputLayer : ILeaf
 
             var displayText = GetDisplayText();
             var sel = Selection;
-            var textX = frame.X + Padding;
-            var textY = frame.Y + Padding;
+
+            // Measure the full text width upfront — needed for centering and selection.
+            var allWidth = context.MeasureText(displayText).Size.Width;
+            var textMetrics = context.MeasureText(displayText.Length > 0 ? displayText : "X");
+
+            nfloat textX, textY;
+            if (TextAlign == TextAlign.Center)
+            {
+                textX = frame.X + (frame.Width - allWidth) / 2;
+                textY = frame.Y + (frame.Height - textMetrics.Size.Height) / 2;
+            }
+            else
+            {
+                textX = frame.X + Padding;
+                textY = frame.Y + Padding;
+            }
+
+            nfloat selTop = TextAlign == TextAlign.Center
+                ? frame.Y + 2
+                : frame.Y + Padding;
+            nfloat selHeight = TextAlign == TextAlign.Center
+                ? frame.Height - 4
+                : frame.Height - Padding * 2;
 
             if (!sel.IsEmpty && IsFocused)
             {
@@ -105,25 +150,17 @@ public struct TextInputLayer : ILeaf
 
                 // Measure widths needed to position the selection highlight.
                 // The formula accounts for sub-pixel kerning: selStartX = leftAndSelWidth - selWidth.
-                var leftWidth = selStart > 0
-                    ? context.MeasureText(displayText[..selStart]).Size.Width
-                    : (nfloat)0;
                 var selWidth = context.MeasureText(displayText[selStart..selEnd]).Size.Width;
                 var leftAndSelWidth = context.MeasureText(displayText[..selEnd]).Size.Width;
                 var selStartX = leftAndSelWidth - selWidth;
 
-                var allWidth = context.MeasureText(displayText).Size.Width;
                 var rightWidth = selEnd < displayText.Length
                     ? context.MeasureText(displayText[selEnd..]).Size.Width
                     : (nfloat)0;
 
                 // Selection background
                 context.SetFill(SelectionBackgroundColor);
-                context.FillRect(new Rect(
-                    textX + selStartX,
-                    frame.Y + Padding,
-                    selWidth,
-                    frame.Height - Padding * 2));
+                context.FillRect(new Rect(textX + selStartX, selTop, selWidth, selHeight));
 
                 // Text before selection
                 if (selStart > 0)
@@ -157,7 +194,7 @@ public struct TextInputLayer : ILeaf
                     ? context.MeasureText(displayText[..cursorPos]).Size.Width
                     : (nfloat)0;
                 context.SetFill(TextColor);
-                context.FillRect(new Rect(textX + caretOffset, frame.Y + Padding, 1, frame.Height - Padding * 2));
+                context.FillRect(new Rect(textX + caretOffset, selTop, 1, selHeight));
             }
         }
 

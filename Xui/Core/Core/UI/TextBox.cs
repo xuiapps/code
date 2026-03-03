@@ -15,16 +15,11 @@ namespace Xui.Core.UI;
 /// <see cref="TextInputLayer"/> layer pair.
 /// Supports typing, backspace, selection, focus/blur, and password masking.
 /// </summary>
-public class TextBox : LayerView<TextBoxLayer>
+public class TextBox : FocusedLayerView<TextBoxLayer>
 {
-    private static readonly TimeSpan CaretBlinkInterval = TimeSpan.FromMilliseconds(530);
-
-    public override bool Focusable => true;
-
     private readonly StringBuilder textBuffer = new();
     private uint anchor;
     private bool isMouseSelecting;
-    private TimeSpan caretToggleTime;
 
     public TextBox()
     {
@@ -150,6 +145,8 @@ public class TextBox : LayerView<TextBoxLayer>
 
     // --- Focus / Blur ---
 
+    protected override ref bool GetCaretRef() => ref Layer.Child.CaretVisible;
+
     protected internal override void OnFocus()
     {
         if (SelectAllOnFocus)
@@ -160,8 +157,7 @@ public class TextBox : LayerView<TextBoxLayer>
 
         Layer.IsFocused = true;
         Layer.Child.IsFocused = true;
-        Layer.Child.CaretVisible = true;
-        caretToggleTime = TimeSpan.Zero;
+        ResetCaretBlink();
         RequestAnimationFrame();
     }
 
@@ -171,27 +167,6 @@ public class TextBox : LayerView<TextBoxLayer>
         Layer.Child.IsFocused = false;
         Layer.Child.CaretVisible = false;
         InvalidateRender();
-    }
-
-    // --- Animation (caret blink) ---
-
-    protected override void AnimateCore(TimeSpan previousTime, TimeSpan currentTime)
-    {
-        if (!IsFocused)
-            return;
-
-        if (caretToggleTime == TimeSpan.Zero)
-            caretToggleTime = currentTime + CaretBlinkInterval;
-
-        if (currentTime >= caretToggleTime)
-        {
-            Layer.Child.CaretVisible = !Layer.Child.CaretVisible;
-            caretToggleTime = currentTime + CaretBlinkInterval;
-            InvalidateRender();
-        }
-
-        RequestAnimationFrame();
-        base.AnimateCore(previousTime, currentTime);
     }
 
     // --- Pointer ---
@@ -409,9 +384,5 @@ public class TextBox : LayerView<TextBoxLayer>
         return (uint)textMeasure.HitTestTextPosition(displayText, clickX);
     }
 
-    private void ResetCaretBlink()
-    {
-        Layer.Child.CaretVisible = true;
-        caretToggleTime = TimeSpan.Zero;
-    }
 }
+

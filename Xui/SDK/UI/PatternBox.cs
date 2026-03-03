@@ -17,12 +17,9 @@ namespace Xui.SDK.UI;
 /// The active slot shows a blinking caret (when empty) or a blinking selection rect
 /// (when filled, styled like TextBox selection).
 /// </summary>
-public class PatternBox : LayerView<PatternInputLayer>
+public class PatternBox : FocusedLayerView<PatternInputLayer>
 {
-    private static readonly TimeSpan CaretBlinkInterval = TimeSpan.FromMilliseconds(530);
-
     private readonly int _slotCount;
-    private TimeSpan _caretToggleTime;
 
     public PatternBox(string pattern)
     {
@@ -67,14 +64,13 @@ public class PatternBox : LayerView<PatternInputLayer>
         }
     }
 
-    public override bool Focusable => true;
+    protected override ref bool GetCaretRef() => ref Layer.CaretVisible;
 
     // --- Focus / Blur ---
 
     protected override void OnFocus()
     {
         Layer.IsFocused = true;
-        // Place cursor at first empty slot (or last slot if all filled)
         Layer.CursorSlot = FirstEmptySlot();
         ResetCaretBlink();
         RequestAnimationFrame();
@@ -86,27 +82,6 @@ public class PatternBox : LayerView<PatternInputLayer>
         Layer.IsFocused = false;
         Layer.CaretVisible = false;
         InvalidateRender();
-    }
-
-    // --- Animation (caret blink) ---
-
-    protected override void AnimateCore(TimeSpan previousTime, TimeSpan currentTime)
-    {
-        if (!IsFocused)
-            return;
-
-        if (_caretToggleTime == TimeSpan.Zero)
-            _caretToggleTime = currentTime + CaretBlinkInterval;
-
-        if (currentTime >= _caretToggleTime)
-        {
-            Layer.CaretVisible = !Layer.CaretVisible;
-            _caretToggleTime = currentTime + CaretBlinkInterval;
-            InvalidateRender();
-        }
-
-        RequestAnimationFrame();
-        base.AnimateCore(previousTime, currentTime);
     }
 
     // --- Pointer ---
@@ -194,12 +169,6 @@ public class PatternBox : LayerView<PatternInputLayer>
         if (Layer.Value is null) return 0;
         for (int i = 0; i < _slotCount; i++)
             if (Layer.Value[i] == '\0') return i;
-        return _slotCount - 1; // all filled — stay on last
-    }
-
-    private void ResetCaretBlink()
-    {
-        Layer.CaretVisible = true;
-        _caretToggleTime = TimeSpan.Zero;
+        return _slotCount - 1;
     }
 }

@@ -18,17 +18,14 @@ namespace Xui.SDK.UI;
 /// (via <see cref="decimal.TryParse"/>); a blinking caret sits at the right end of
 /// the displayed text while editing. Overflow values show a mask (e.g. <c>$#,###.##</c>).
 /// </summary>
-public class CurrencyBox : LayerView<CurrencyBoxLayer>
+public class CurrencyBox : FocusedLayerView<CurrencyBoxLayer>
 {
-    private static readonly TimeSpan CaretBlinkInterval = TimeSpan.FromMilliseconds(530);
-
     private nfloat BorderThickness = 1;
 
     private decimal _value;
     private string _editBuffer = string.Empty;
     private bool _isEditing;
     private bool _selectAll;
-    private TimeSpan _caretToggleTime;
 
     public CurrencyBox()
     {
@@ -85,7 +82,7 @@ public class CurrencyBox : LayerView<CurrencyBoxLayer>
         set { Layer.Child.Format = value; InvalidateRender(); }
     }
 
-    public override bool Focusable => true;
+    protected override ref bool GetCaretRef() => ref Layer.Child.CaretVisible;
 
     // --- Focus / Blur ---
 
@@ -114,27 +111,6 @@ public class CurrencyBox : LayerView<CurrencyBoxLayer>
         InvalidateRender();
     }
 
-    // --- Animation (caret blink) ---
-
-    protected override void AnimateCore(TimeSpan previousTime, TimeSpan currentTime)
-    {
-        if (!IsFocused)
-            return;
-
-        if (_caretToggleTime == TimeSpan.Zero)
-            _caretToggleTime = currentTime + CaretBlinkInterval;
-
-        if (currentTime >= _caretToggleTime)
-        {
-            Layer.Child.CaretVisible = !Layer.Child.CaretVisible;
-            _caretToggleTime = currentTime + CaretBlinkInterval;
-            InvalidateRender();
-        }
-
-        RequestAnimationFrame();
-        base.AnimateCore(previousTime, currentTime);
-    }
-
     // --- Pointer ---
 
     public override void OnPointerEvent(ref PointerEventRef e, EventPhase phase)
@@ -155,7 +131,6 @@ public class CurrencyBox : LayerView<CurrencyBoxLayer>
             case VirtualKey.Back:
                 if (_selectAll)
                 {
-                    // Select-all + backspace: clear everything
                     _selectAll = false;
                     Layer.Child.SelectAll = false;
                     _editBuffer = string.Empty;
@@ -184,7 +159,6 @@ public class CurrencyBox : LayerView<CurrencyBoxLayer>
         {
             if (_selectAll)
             {
-                // First character after select-all replaces everything
                 _selectAll = false;
                 Layer.Child.SelectAll = false;
                 _editBuffer = string.Empty;
@@ -216,11 +190,5 @@ public class CurrencyBox : LayerView<CurrencyBoxLayer>
         Layer.Child.Value = _value;
         _editBuffer = string.Empty;
         InvalidateRender();
-    }
-
-    private void ResetCaretBlink()
-    {
-        Layer.Child.CaretVisible = true;
-        _caretToggleTime = TimeSpan.Zero;
     }
 }

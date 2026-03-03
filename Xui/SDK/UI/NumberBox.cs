@@ -1,23 +1,24 @@
 using Xui.Core.Abstract.Events;
 using Xui.Core.Canvas;
+using Xui.Core.Math1D;
 using Xui.Core.Math2D;
 using Xui.Core.UI;
 using Xui.Core.UI.Input;
 using Xui.Core.UI.Layers;
 using Xui.SDK.UI.Layers;
 
-// Layout: DockLeft pins − on the left; DockRight pins + on the right; NumberCenterLayer fills center.
+// Layout: FocusBorderLayer wraps [ − | TextInputLayer | + ]
 using NumberInner = Xui.Core.UI.Layers.DockLeft<
     Xui.SDK.UI.Layers.StepButton,
     Xui.Core.UI.Layers.DockRight<
-        Xui.SDK.UI.Layers.NumberCenterLayer,
+        Xui.Core.UI.Layers.TextInputLayer,
         Xui.SDK.UI.Layers.StepButton>>;
 
 using NumberBoxLayer = Xui.Core.UI.Layers.FocusBorderLayer<
     Xui.Core.UI.Layers.DockLeft<
         Xui.SDK.UI.Layers.StepButton,
         Xui.Core.UI.Layers.DockRight<
-            Xui.SDK.UI.Layers.NumberCenterLayer,
+            Xui.Core.UI.Layers.TextInputLayer,
             Xui.SDK.UI.Layers.StepButton>>>;
 
 namespace Xui.SDK.UI;
@@ -27,10 +28,8 @@ namespace Xui.SDK.UI;
 /// Supports pointer clicks on the step buttons and keyboard arrow / digit input.
 /// Clicking or tabbing into the center value area selects all; typing replaces the value.
 /// </summary>
-public class NumberBox : LayerView<NumberBoxLayer>
+public class NumberBox : FocusedLayerView<NumberBoxLayer>
 {
-    private static readonly TimeSpan CaretBlinkInterval = TimeSpan.FromMilliseconds(530);
-
     private nfloat ButtonWidth = 32;
     private nfloat BorderThickness = 1;
 
@@ -39,7 +38,9 @@ public class NumberBox : LayerView<NumberBoxLayer>
     private bool _isEditing;
     private bool _selectAll;
     private int _pressedButton = -1; // 0 = decrement, 1 = increment
-    private TimeSpan _caretToggleTime;
+
+    // Shorthand ref to the center text layer to avoid deep paths throughout.
+    private ref TextInputLayer Center => ref Layer.Child.Right.Left;
 
     public NumberBox()
     {
@@ -64,16 +65,17 @@ public class NumberBox : LayerView<NumberBoxLayer>
                     TextColor = Colors.Black,
                     DisabledTextColor = Colors.Gray,
                 },
-                Right = new DockRight<NumberCenterLayer, StepButton>
+                Right = new DockRight<TextInputLayer, StepButton>
                 {
-                    Left = new NumberCenterLayer
+                    Left = new TextInputLayer
                     {
                         Text = "0",
+                        TextAlign = TextAlign.Center,
                         FontFamily = ["Verdana"],
                         FontSize = 14,
                         TextColor = Colors.Black,
+                        SelectedColor = Colors.White,
                         SelectionBackgroundColor = Colors.Blue,
-                        SelectedTextColor = Colors.White,
                     },
                     Right = new StepButton
                     {
@@ -114,18 +116,18 @@ public class NumberBox : LayerView<NumberBoxLayer>
     public double Step { get; set; } = 1.0;
     public string Format { get; set; } = "G";
 
-    public override bool Focusable => true;
+    protected override ref bool GetCaretRef() => ref Center.CaretVisible;
 
     // --- Focus / Blur ---
 
     protected override void OnFocus()
     {
         Layer.IsFocused = true;
-        Layer.Child.Right.Left.IsFocused = true;
+        Center.IsFocused = true;
         _isEditing = true;
         _selectAll = true;
         _editBuffer = _value.ToString(Format);
-        Layer.Child.Right.Left.SelectAll = true;
+        SelectAll();
         ResetCaretBlink();
         RequestAnimationFrame();
         InvalidateRender();
@@ -134,34 +136,13 @@ public class NumberBox : LayerView<NumberBoxLayer>
     protected override void OnBlur()
     {
         Layer.IsFocused = false;
-        Layer.Child.Right.Left.IsFocused = false;
-        Layer.Child.Right.Left.CaretVisible = false;
-        Layer.Child.Right.Left.SelectAll = false;
+        Center.IsFocused = false;
+        Center.CaretVisible = false;
+        Center.Selection = default;
         _isEditing = false;
         _selectAll = false;
         CommitEdit();
         InvalidateRender();
-    }
-
-    // --- Animation (caret blink) ---
-
-    protected override void AnimateCore(TimeSpan previousTime, TimeSpan currentTime)
-    {
-        if (!IsFocused)
-            return;
-
-        if (_caretToggleTime == TimeSpan.Zero)
-            _caretToggleTime = currentTime + CaretBlinkInterval;
-
-        if (currentTime >= _caretToggleTime)
-        {
-            Layer.Child.Right.Left.CaretVisible = !Layer.Child.Right.Left.CaretVisible;
-            _caretToggleTime = currentTime + CaretBlinkInterval;
-            InvalidateRender();
-        }
-
-        RequestAnimationFrame();
-        base.AnimateCore(previousTime, currentTime);
     }
 
     // --- Pointer ---
@@ -218,7 +199,6 @@ public class NumberBox : LayerView<NumberBoxLayer>
                 if (_selectAll)
                 {
                     _selectAll = false;
-                    Layer.Child.Right.Left.SelectAll = false;
                     _editBuffer = string.Empty;
                     SyncLabelFromEdit();
                 }
@@ -240,7 +220,6 @@ public class NumberBox : LayerView<NumberBoxLayer>
             if (_selectAll)
             {
                 _selectAll = false;
-                Layer.Child.Right.Left.SelectAll = false;
                 _editBuffer = string.Empty;
             }
             _editBuffer += e.Character;
@@ -252,24 +231,39 @@ public class NumberBox : LayerView<NumberBoxLayer>
 
     // --- Helpers ---
 
+    private void SelectAll()
+    {
+        var len = (uint)(Center.Text?.Length ?? 0);
+        Center.Selection = new Interval<uint>.ClosedOpen(0, len);
+    }
+
+    private void SetCaretAtEnd()
+    {
+        var len = (uint)(Center.Text?.Length ?? 0);
+        Center.Selection = new Interval<uint>.ClosedOpen(len, len);
+    }
+
     private void ApplyStep(double delta)
     {
         Value = Math.Clamp(_value + delta, Min, Max);
         _editBuffer = _value.ToString(Format);
         SyncLabel();
         _selectAll = true;
-        Layer.Child.Right.Left.SelectAll = true;
+        SelectAll();
         ResetCaretBlink();
     }
 
     private void SyncLabel()
     {
-        Layer.Child.Right.Left.Text = _value.ToString(Format);
+        Center.Text = _value.ToString(Format);
+        if (_selectAll) SelectAll();
+        else SetCaretAtEnd();
     }
 
     private void SyncLabelFromEdit()
     {
-        Layer.Child.Right.Left.Text = _editBuffer;
+        Center.Text = _editBuffer;
+        SetCaretAtEnd();
         InvalidateRender();
     }
 
@@ -277,7 +271,7 @@ public class NumberBox : LayerView<NumberBoxLayer>
     {
         if (double.TryParse(_editBuffer, out var parsed))
             _value = Math.Clamp(parsed, Min, Max);
-        SyncLabel();
+        Center.Text = _value.ToString(Format);
         UpdateStepButtonStates();
     }
 
@@ -301,11 +295,5 @@ public class NumberBox : LayerView<NumberBoxLayer>
         if (px >= left && px < left + ButtonWidth) return 0;
         if (px >= right - ButtonWidth && px < right) return 1;
         return -1;
-    }
-
-    private void ResetCaretBlink()
-    {
-        Layer.Child.Right.Left.CaretVisible = true;
-        _caretToggleTime = TimeSpan.Zero;
     }
 }
