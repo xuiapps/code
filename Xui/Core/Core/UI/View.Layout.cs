@@ -28,37 +28,45 @@ public partial class View
         return guide;
     }
 
-    // ── Public convenience entry points ────────────────────────────────────────
+    // Public convenience entry points
 
     /// <summary>
     /// Advances animation state for this view and all descendants for the current frame.
     /// </summary>
-    public void Animate(TimeSpan previousTime, TimeSpan currentTime) =>
-        this.Update(new LayoutGuide
+    public void Animate(TimeSpan previousTime, TimeSpan currentTime)
+    {
+        var guide = new LayoutGuide
         {
             Pass = LayoutGuide.LayoutPass.Animate,
             PreviousTime = previousTime,
             CurrentTime = currentTime,
-        });
+        };
+        this.AnimateShell(ref guide);
+    }
 
     /// <summary>
     /// Measures the view and returns the desired margin-box size.
     /// </summary>
-    public Size Measure(Size availableSize, IMeasureContext context) =>
-        this.Update(new LayoutGuide
+    public Size Measure(Size availableSize, IMeasureContext context)
+    {
+        var guide = new LayoutGuide
         {
             Pass = LayoutGuide.LayoutPass.Measure,
             AvailableSize = availableSize,
             XSize = LayoutGuide.SizeTo.AtMost,
             YSize = LayoutGuide.SizeTo.AtMost,
             MeasureContext = context,
-        }).DesiredSize;
+        };
+        this.MeasureShell(ref guide);
+        return guide.DesiredSize;
+    }
 
     /// <summary>
     /// Arranges the view within <paramref name="rect"/>, finalising its position and size.
     /// </summary>
-    public Rect Arrange(Rect rect, IMeasureContext context, Size? desiredSize = null) =>
-        this.Update(new LayoutGuide
+    public Rect Arrange(Rect rect, IMeasureContext context, Size? desiredSize = null)
+    {
+        var guide = new LayoutGuide
         {
             Pass = LayoutGuide.LayoutPass.Arrange,
             AvailableSize = rect.Size,
@@ -68,20 +76,26 @@ public partial class View
             YSize = LayoutGuide.SizeTo.Exact,
             MeasureContext = context,
             Anchor = rect.TopLeft,
-        }).ArrangedRect;
+        };
+        this.ArrangeShell(ref guide);
+        return guide.ArrangedRect;
+    }
 
     /// <summary>
     /// Renders the view. Must be called after layout is complete.
     /// </summary>
-    public void Render(IContext context) =>
-        this.Update(new LayoutGuide
+    public void Render(IContext context)
+    {
+        var guide = new LayoutGuide
         {
             Pass = LayoutGuide.LayoutPass.Render,
             MeasureContext = context,
             RenderContext = context,
-        });
+        };
+        this.RenderShell(ref guide);
+    }
 
-    // ── Shell methods — bookkeeping wrappers, call the Core virtuals ───────────
+    // Shell methods - bookkeeping wrappers, call the Core virtuals
 
     /// <summary>
     /// Resets animation flags then calls <see cref="AnimateCore"/>,
@@ -183,7 +197,7 @@ public partial class View
         this.RenderCore(guide.RenderContext!);
     }
 
-    // ── Core virtuals — override points for subclasses ────────────────────────
+    // Core virtuals - override points for subclasses
 
     /// <summary>
     /// Per-frame animation hook. Mutate time-based state and call
