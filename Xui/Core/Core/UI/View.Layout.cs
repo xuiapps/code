@@ -9,46 +9,23 @@ public partial class View
     /// <summary>
     /// Drives one or more layout passes for this view.
     /// <para>
-    /// When all four passes are requested (<see cref="LayoutGuide.IsLuminarFlow"/>), control is handed
-    /// to <see cref="UpdateCore"/> so a view can process the full pipeline in a single DFS walk.
-    /// Otherwise each requested pass is dispatched individually to its shell method.
-    /// </para>
-    /// <para>
-    /// A container that cannot do a single-pass walk (a FORK — e.g. a centred stack that must
-    /// know the total height before it can position any child) should call the public convenience
-    /// methods <see cref="Animate"/>, <see cref="Measure"/>, <see cref="Arrange"/>,
-    /// <see cref="Render"/> separately and let this dispatcher route each one.
+    /// The default implementation dispatches each requested pass to its shell method in order.
+    /// Views that can handle all four passes in a single DFS traversal (LuminarFlow) should
+    /// override this method and check <see cref="LayoutGuide.IsLuminarFlow"/> to do so.
+    /// A fork — a container that must measure all children before it can position any of them —
+    /// cannot do a single-pass walk and should leave this method as-is, calling the public
+    /// convenience methods <see cref="Animate"/>, <see cref="Measure"/>, <see cref="Arrange"/>,
+    /// <see cref="Render"/> separately from its parent.
     /// </para>
     /// </summary>
     public virtual LayoutGuide Update(LayoutGuide guide)
     {
-        if (guide.IsLuminarFlow)
-        {
-            this.UpdateCore(ref guide);
-        }
-        else
-        {
-            if (guide.IsAnimate) this.AnimateShell(ref guide);
-            if (guide.IsMeasure) this.MeasureShell(ref guide);
-            if (guide.IsArrange) this.ArrangeShell(ref guide);
-            if (guide.IsRender)  this.RenderShell(ref guide);
-        }
+        if (guide.IsAnimate) this.AnimateShell(ref guide);
+        if (guide.IsMeasure) this.MeasureShell(ref guide);
+        if (guide.IsArrange) this.ArrangeShell(ref guide);
+        if (guide.IsRender)  this.RenderShell(ref guide);
 
         return guide;
-    }
-
-    /// <summary>
-    /// Single-pass DFS implementation for views that can process all four passes in one tree walk.
-    /// The default implementation calls the four shell methods in sequence, which is equivalent
-    /// to four separate passes. Override this in containers whose children can be fully
-    /// measured, arranged, and rendered without backtracking (no FORK).
-    /// </summary>
-    protected virtual void UpdateCore(ref LayoutGuide guide)
-    {
-        this.AnimateShell(ref guide);
-        this.MeasureShell(ref guide);
-        this.ArrangeShell(ref guide);
-        this.RenderShell(ref guide);
     }
 
     // ── Public convenience entry points ────────────────────────────────────────
