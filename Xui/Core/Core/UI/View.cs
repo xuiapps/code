@@ -248,18 +248,6 @@ public partial class View
             });
 
     /// <summary>
-    /// Per-frame animation hook for this view. Override in controls that animate.
-    /// Use <paramref name="previousTime"/> and <paramref name="currentTime"/> to compute delta/time,
-    /// mutate animated properties, and if visuals changed, call <see cref="InvalidateRender"/>.
-    /// If the animation should continue, call <see cref="RequestAnimationFrame"/> to request the next tick.
-    /// </summary>
-    /// <param name="previousTime">The previous frame's monotonic UI time.</param>
-    /// <param name="currentTime">The current/anticipated frame's monotonic UI time.</param>
-    protected virtual void AnimateCore(TimeSpan previousTime, TimeSpan currentTime)
-    {
-    }
-
-    /// <summary>
     /// Measures the view using the specified available size, returning the desired size
     /// calculated during the layout pass.
     /// </summary>
@@ -314,6 +302,18 @@ public partial class View
         );
 
     /// <summary>
+    /// Per-frame animation hook for this view. Override in controls that animate.
+    /// Use <paramref name="previousTime"/> and <paramref name="currentTime"/> to compute delta/time,
+    /// mutate animated properties, and if visuals changed, call <see cref="InvalidateRender"/>.
+    /// If the animation should continue, call <see cref="RequestAnimationFrame"/> to request the next tick.
+    /// </summary>
+    /// <param name="previousTime">The previous frame's monotonic UI time.</param>
+    /// <param name="currentTime">The current/anticipated frame's monotonic UI time.</param>
+    protected virtual void AnimateCore(TimeSpan previousTime, TimeSpan currentTime)
+    {
+    }
+
+    /// <summary>
     /// Determines the minimum size that this view's border edge box requires,
     /// given the maximum available size. Margin is not part of this size.
     /// </summary>
@@ -366,8 +366,6 @@ public partial class View
     /// </param>
     protected virtual void RenderCore(IContext context)
     {
-        this.ValidateRender();
-
         for (var i = 0; i < this.Count; i++)
         {
             // Should we spend some resources on store/restore context to isolate child rendering?
