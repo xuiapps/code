@@ -80,6 +80,12 @@ public struct TextInputLayer : ILayer<View>
     /// <summary>Background color drawn behind selected text.</summary>
     public Color SelectionBackgroundColor { get; set; }
 
+    /// <summary>Corner radius of the selection highlight rectangle. Zero by default.</summary>
+    public CornerRadius SelectionCornerRadius { get; set; }
+
+    /// <summary>Inset applied to the arranged rect before text layout and hit-testing.</summary>
+    public Frame Padding { get; set; }
+
     // ── Font properties ──────────────────────────────────────────────────
 
     public string[]? FontFamily { get; set; }
@@ -106,13 +112,13 @@ public struct TextInputLayer : ILayer<View>
         var displayText = GetDisplayText();
         var textMetrics = context.MeasureText(displayText.Length > 0 ? displayText : "X");
         var width = nfloat.Max(availableSize.Width, 100);
-        return new Size(width, textMetrics.Size.Height);
+        return new Size(width, textMetrics.Size.Height + Padding.TotalHeight);
     }
 
     /// <inheritdoc/>
     public void Arrange(View view, Rect rect, IMeasureContext context)
     {
-        contentRect = rect;
+        contentRect = rect - Padding;
     }
 
     /// <inheritdoc/>
@@ -147,8 +153,11 @@ public struct TextInputLayer : ILayer<View>
                 ? context.MeasureText(displayText[selEnd..]).Size.Width
                 : (nfloat)0;
 
+            var selRect = new Rect(textX + selX, frame.Y, selWidth, frame.Height);
+            context.BeginPath();
+            context.RoundRect(selRect, SelectionCornerRadius);
             context.SetFill(SelectionBackgroundColor);
-            context.FillRect(new Rect(textX + selX, frame.Y, selWidth, frame.Height));
+            context.Fill();
 
             if (selStart > 0)
             {
@@ -208,6 +217,12 @@ public struct TextInputLayer : ILayer<View>
 
         if (e.Type == PointerEventType.Down)
         {
+            var p = e.State.Position;
+            bool inContent = p.X >= contentRect.X && p.X < contentRect.X + contentRect.Width
+                          && p.Y >= contentRect.Y && p.Y < contentRect.Y + contentRect.Height;
+            if (!inContent)
+                return;
+
             var wasFocused = view.IsFocused;
             view.Focus();
 

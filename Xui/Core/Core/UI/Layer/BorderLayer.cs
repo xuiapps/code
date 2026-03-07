@@ -68,6 +68,8 @@ public struct BorderLayer<TChild> : ILayer<View>
             }
         }
 
+        Child.Render(view, context);
+
         if (!BorderColor.IsTransparent && !BorderThickness.IsZero)
         {
             if (BorderThickness.IsUniform)
@@ -89,8 +91,6 @@ public struct BorderLayer<TChild> : ILayer<View>
                 }
             }
         }
-
-        Child.Render(view, context);
     }
 
     /// <inheritdoc/>
