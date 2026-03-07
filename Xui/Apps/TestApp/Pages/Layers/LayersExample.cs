@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using Xui.Apps.TestApp.Pages.Layers.Tests;
+
 using Xui.Core.Canvas;
 using Xui.Core.Math2D;
 using Xui.Core.UI;
@@ -43,6 +44,7 @@ public class LayersExample : Example
             AddProtectedChild(list);
 
             AddTest<BorderLayerTest>("BorderLayer");
+            AddTest<TextBoxLayerTest>("TextBox (layered)");
 
             Preview = new BorderLayerTest();
         }
