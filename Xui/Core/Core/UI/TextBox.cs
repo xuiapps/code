@@ -8,12 +8,12 @@ namespace Xui.Core.UI;
 
 /// <summary>
 /// A single-line text input view implemented as
-/// <c>LayerView&lt;FocusBorderLayer&lt;TextInputLayer&gt;&gt;</c>.
+/// <c>LayerView&lt;View, FocusBorderLayer&lt;View, TextInputLayer&gt;&gt;</c>.
 /// All text editing state, selection, caret blinking, and hit-testing live in
 /// <see cref="TextInputLayer"/>; focus-aware border drawing lives in
-/// <see cref="FocusBorderLayer{TChild}"/>.
+/// <see cref="FocusBorderLayer{TView,TChild}"/>.
 /// </summary>
-public class TextBox : LayerView<FocusBorderLayer<TextInputLayer>>
+public class TextBox : LayerView<View, FocusBorderLayer<View, TextInputLayer>>
 {
     public override bool Focusable => true;
 

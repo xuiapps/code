@@ -10,9 +10,11 @@ namespace Xui.Core.UI.Layer;
 /// a child layer. Rendering logic is identical to <see cref="Xui.Core.UI.Border"/> but
 /// expressed as a composable struct with no heap allocation.
 /// </summary>
+/// <typeparam name="TView">The host type. Must implement <see cref="ILayerHost"/>.</typeparam>
 /// <typeparam name="TChild">The inner layer that receives the inset rectangle.</typeparam>
-public struct BorderLayer<TChild> : ILayer<View>
-    where TChild : struct, ILayer<View>
+public struct BorderLayer<TView, TChild> : ILayer<TView>
+    where TView : ILayerHost
+    where TChild : struct, ILayer<TView>
 {
     /// <summary>The inner layer rendered inside the border and padding.</summary>
     public TChild Child;
@@ -35,18 +37,18 @@ public struct BorderLayer<TChild> : ILayer<View>
     private readonly Frame Inset => BorderThickness + Padding;
 
     /// <inheritdoc/>
-    public Size Measure(View view, Size availableSize, IMeasureContext context)
+    public Size Measure(TView view, Size availableSize, IMeasureContext context)
     {
         Size childSize = Child.Measure(view, Size.Max(Size.Empty, availableSize - Inset), context);
         return childSize + Inset;
     }
 
     /// <inheritdoc/>
-    public void Arrange(View view, Rect rect, IMeasureContext context)
+    public void Arrange(TView view, Rect rect, IMeasureContext context)
         => Child.Arrange(view, rect - Padding - BorderThickness, context);
 
     /// <inheritdoc/>
-    public void Render(View view, IContext context)
+    public void Render(TView view, IContext context)
     {
         Rect frame = view.Frame;
 
@@ -94,7 +96,7 @@ public struct BorderLayer<TChild> : ILayer<View>
     }
 
     /// <inheritdoc/>
-    public void Update(View view, ref LayoutGuide guide)
+    public void Update(TView view, ref LayoutGuide guide)
     {
         if (guide.IsAnimate) Animate(view, guide.PreviousTime, guide.CurrentTime);
         if (guide.IsMeasure) guide.DesiredSize = Measure(view, guide.AvailableSize, guide.MeasureContext!);
@@ -103,24 +105,24 @@ public struct BorderLayer<TChild> : ILayer<View>
     }
 
     /// <inheritdoc/>
-    public void Animate(View view, TimeSpan previousTime, TimeSpan currentTime)
+    public void Animate(TView view, TimeSpan previousTime, TimeSpan currentTime)
         => Child.Animate(view, previousTime, currentTime);
 
     /// <inheritdoc/>
-    public void OnPointerEvent(View view, ref PointerEventRef e, EventPhase phase)
+    public void OnPointerEvent(TView view, ref PointerEventRef e, EventPhase phase)
         => Child.OnPointerEvent(view, ref e, phase);
 
     /// <inheritdoc/>
-    public void OnKeyDown(View view, ref KeyEventRef e)
+    public void OnKeyDown(TView view, ref KeyEventRef e)
         => Child.OnKeyDown(view, ref e);
 
     /// <inheritdoc/>
-    public void OnChar(View view, ref KeyEventRef e)
+    public void OnChar(TView view, ref KeyEventRef e)
         => Child.OnChar(view, ref e);
 
     /// <inheritdoc/>
-    public void OnFocus(View view) => Child.OnFocus(view);
+    public void OnFocus(TView view) => Child.OnFocus(view);
 
     /// <inheritdoc/>
-    public void OnBlur(View view) => Child.OnBlur(view);
+    public void OnBlur(TView view) => Child.OnBlur(view);
 }

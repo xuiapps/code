@@ -10,7 +10,7 @@ namespace Xui.Core.UI;
 /// <see cref="ContentLayer"/>. The child view lives in <c>Layer.Child.Child</c> and is
 /// managed via the standard <see cref="View.SetProtectedChild{T}"/> lifecycle.
 /// </summary>
-public class Border : LayerView<BorderLayer<ContentLayer>>
+public class Border : LayerView<View, BorderLayer<View, ContentLayer>>
 {
     /// <summary>Gets or sets the content view displayed inside the border.</summary>
     public View? Content

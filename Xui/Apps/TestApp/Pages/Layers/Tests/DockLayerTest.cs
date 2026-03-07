@@ -10,7 +10,7 @@ using static Xui.Core.Canvas.Colors;
 namespace Xui.Apps.TestApp.Pages.Layers.Tests;
 
 /// <summary>
-/// Demonstrates <see cref="DockLayer"/> composing <see cref="ButtonLayer"/> with
+/// Demonstrates <see cref="DockLayer"/> composing <see cref="ButtonLayer{THost,TAction}"/> with
 /// <see cref="TextInputLayer"/> for three common input patterns.
 /// </summary>
 public class DockLayerTest : View
@@ -96,7 +96,7 @@ public class DockLayerTest : View
     // ── Widget 1: text input with a clear "×" button that appears when text is non-empty ──
 
     private class ClearableInput
-        : LayerView<FocusBorderLayer<DockLayer.Dock2<View, TextInputLayer, ButtonLayer>>>
+        : LayerView<ClearableInput, FocusBorderLayer<ClearableInput, DockLayer.Dock2<ClearableInput, TextInputLayer, ButtonLayer<ClearableInput, ClearableInput.ClearAction>>>>
     {
         public override bool Focusable => true;
 
@@ -126,25 +126,25 @@ public class DockLayerTest : View
             inp.SelectAllOnFocus         = true;
 
             // Clear button (hidden until text is present)
-            Layer.Border.Child.Child2.Child = new ButtonLayer
+            Layer.Border.Child.Child2.Child = new ButtonLayer<ClearableInput, ClearAction>
             {
-                Label         = "×",
-                Margin        = 2,
-                CornerRadius  = new CornerRadius(5),
-                NormalColor   = new Color(0xE0, 0xE0, 0xE0, 0xFF),
-                HoverColor    = new Color(0xC8, 0xC8, 0xC8, 0xFF),
-                PressedColor  = new Color(0xA8, 0xA8, 0xA8, 0xFF),
-                LabelColor    = new Color(0x44, 0x44, 0x44, 0xFF),
-                FontSize      = 14,
-                Visible       = false,
-                RequestRedraw = InvalidateRender,
-                OnClick       = () =>
-                {
-                    Layer.Border.Child.Child1.Child.Text     = "";
-                    Layer.Border.Child.Child2.Child.Visible  = false;
-                    InvalidateMeasure();
-                },
+                Label        = "×",
+                Margin       = 2,
+                CornerRadius = new CornerRadius(5),
+                NormalColor  = new Color(0xE0, 0xE0, 0xE0, 0xFF),
+                HoverColor   = new Color(0xC8, 0xC8, 0xC8, 0xFF),
+                PressedColor = new Color(0xA8, 0xA8, 0xA8, 0xFF),
+                LabelColor   = new Color(0x44, 0x44, 0x44, 0xFF),
+                FontSize     = 14,
+                Visible      = false,
             };
+        }
+
+        internal void Clear()
+        {
+            Layer.Border.Child.Child1.Child.Text    = "";
+            Layer.Border.Child.Child2.Child.Visible = false;
+            InvalidateMeasure();
         }
 
         public override void OnChar(ref KeyEventRef e)
@@ -161,7 +161,7 @@ public class DockLayerTest : View
 
         private void SyncClearButton()
         {
-            bool hasText   = Layer.Border.Child.Child1.Child.Text.Length > 0;
+            bool hasText    = Layer.Border.Child.Child1.Child.Text.Length > 0;
             bool wasVisible = Layer.Border.Child.Child2.Child.Visible;
             if (hasText != wasVisible)
             {
@@ -169,12 +169,17 @@ public class DockLayerTest : View
                 InvalidateMeasure();
             }
         }
+
+        internal struct ClearAction : IButtonAction<ClearableInput>
+        {
+            public void Execute(ClearableInput host) => host.Clear();
+        }
     }
 
     // ── Widget 2: combobox-style with a right-aligned dropdown arrow ──
 
     private class ComboInput
-        : LayerView<FocusBorderLayer<DockLayer.Dock2<View, TextInputLayer, ButtonLayer>>>
+        : LayerView<ComboInput, FocusBorderLayer<ComboInput, DockLayer.Dock2<ComboInput, TextInputLayer, ButtonLayer<ComboInput, ComboInput.DropdownAction>>>>
     {
         public override bool Focusable => true;
 
@@ -204,27 +209,30 @@ public class DockLayerTest : View
             inp.SelectAllOnFocus         = true;
 
             // Dropdown arrow button — no margin, right corners rounded to match border
-            Layer.Border.Child.Child2.Child = new ButtonLayer
+            Layer.Border.Child.Child2.Child = new ButtonLayer<ComboInput, DropdownAction>
             {
-                Label         = "▾",
-                Margin        = 0,
-                CornerRadius  = new CornerRadius(0, 4, 4, 0),
-                NormalColor   = new Color(0xF0, 0xF0, 0xF0, 0xFF),
-                HoverColor    = new Color(0xD8, 0xD8, 0xD8, 0xFF),
-                PressedColor  = new Color(0xC0, 0xC0, 0xC0, 0xFF),
-                LabelColor    = new Color(0x44, 0x44, 0x44, 0xFF),
-                FontSize      = 12,
-                Visible       = true,
-                RequestRedraw = InvalidateRender,
-                OnClick       = () => { /* open dropdown */ },
+                Label        = "▾",
+                Margin       = 0,
+                CornerRadius = new CornerRadius(0, 4, 4, 0),
+                NormalColor  = new Color(0xF0, 0xF0, 0xF0, 0xFF),
+                HoverColor   = new Color(0xD8, 0xD8, 0xD8, 0xFF),
+                PressedColor = new Color(0xC0, 0xC0, 0xC0, 0xFF),
+                LabelColor   = new Color(0x44, 0x44, 0x44, 0xFF),
+                FontSize     = 12,
+                Visible      = true,
             };
+        }
+
+        internal struct DropdownAction : IButtonAction<ComboInput>
+        {
+            public void Execute(ComboInput host) { /* open dropdown */ }
         }
     }
 
     // ── Widget 3: numeric stepper — "−" | text | "+" ──
 
     private class NumericInput
-        : LayerView<FocusBorderLayer<DockLayer.Dock3<View, ButtonLayer, TextInputLayer, ButtonLayer>>>
+        : LayerView<NumericInput, FocusBorderLayer<NumericInput, DockLayer.Dock3<NumericInput, ButtonLayer<NumericInput, NumericInput.DecrementAction>, TextInputLayer, ButtonLayer<NumericInput, NumericInput.IncrementAction>>>>
     {
         public override bool Focusable => true;
 
@@ -244,24 +252,17 @@ public class DockLayerTest : View
             Layer.Border.Child.Child3.Align = DockLayer.Align.Right;
 
             // "−" button (left)
-            Layer.Border.Child.Child1.Child = new ButtonLayer
+            Layer.Border.Child.Child1.Child = new ButtonLayer<NumericInput, DecrementAction>
             {
-                Label         = "−",
-                Margin        = 0,
-                CornerRadius  = new CornerRadius(4, 0, 0, 4),
-                NormalColor   = new Color(0xF0, 0xF0, 0xF0, 0xFF),
-                HoverColor    = new Color(0xD8, 0xD8, 0xD8, 0xFF),
-                PressedColor  = new Color(0xC0, 0xC0, 0xC0, 0xFF),
-                LabelColor    = new Color(0x22, 0x22, 0x22, 0xFF),
-                FontSize      = 16,
-                Visible       = true,
-                RequestRedraw = InvalidateRender,
-                OnClick       = () =>
-                {
-                    var t = Layer.Border.Child.Child2.Child.Text;
-                    if (int.TryParse(t, out int v)) Layer.Border.Child.Child2.Child.Text = (v - 1).ToString();
-                    InvalidateRender();
-                },
+                Label        = "−",
+                Margin       = 0,
+                CornerRadius = new CornerRadius(4, 0, 0, 4),
+                NormalColor  = new Color(0xF0, 0xF0, 0xF0, 0xFF),
+                HoverColor   = new Color(0xD8, 0xD8, 0xD8, 0xFF),
+                PressedColor = new Color(0xC0, 0xC0, 0xC0, 0xFF),
+                LabelColor   = new Color(0x22, 0x22, 0x22, 0xFF),
+                FontSize     = 16,
+                Visible      = true,
             };
 
             // Text layer (center, stretch)
@@ -277,25 +278,36 @@ public class DockLayerTest : View
             inp.Text                     = "0";
 
             // "+" button (right)
-            Layer.Border.Child.Child3.Child = new ButtonLayer
+            Layer.Border.Child.Child3.Child = new ButtonLayer<NumericInput, IncrementAction>
             {
-                Label         = "+",
-                Margin        = 0,
-                CornerRadius  = new CornerRadius(0, 4, 4, 0),
-                NormalColor   = new Color(0xF0, 0xF0, 0xF0, 0xFF),
-                HoverColor    = new Color(0xD8, 0xD8, 0xD8, 0xFF),
-                PressedColor  = new Color(0xC0, 0xC0, 0xC0, 0xFF),
-                LabelColor    = new Color(0x22, 0x22, 0x22, 0xFF),
-                FontSize      = 16,
-                Visible       = true,
-                RequestRedraw = InvalidateRender,
-                OnClick       = () =>
-                {
-                    var t = Layer.Border.Child.Child2.Child.Text;
-                    if (int.TryParse(t, out int v)) Layer.Border.Child.Child2.Child.Text = (v + 1).ToString();
-                    InvalidateRender();
-                },
+                Label        = "+",
+                Margin       = 0,
+                CornerRadius = new CornerRadius(0, 4, 4, 0),
+                NormalColor  = new Color(0xF0, 0xF0, 0xF0, 0xFF),
+                HoverColor   = new Color(0xD8, 0xD8, 0xD8, 0xFF),
+                PressedColor = new Color(0xC0, 0xC0, 0xC0, 0xFF),
+                LabelColor   = new Color(0x22, 0x22, 0x22, 0xFF),
+                FontSize     = 16,
+                Visible      = true,
             };
+        }
+
+        internal void Step(int delta)
+        {
+            ref var inp = ref Layer.Border.Child.Child2.Child;
+            if (int.TryParse(inp.Text, out int v))
+                inp.Text = (v + delta).ToString();
+            InvalidateRender();
+        }
+
+        internal struct DecrementAction : IButtonAction<NumericInput>
+        {
+            public void Execute(NumericInput host) => host.Step(-1);
+        }
+
+        internal struct IncrementAction : IButtonAction<NumericInput>
+        {
+            public void Execute(NumericInput host) => host.Step(+1);
         }
     }
 }

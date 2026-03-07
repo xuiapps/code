@@ -23,7 +23,7 @@ public static class DockLayer
 
     /// <summary>Two-slot dock layout.</summary>
     public struct Dock2<TView, T1, T2> : ILayer<TView>
-        where TView : View
+        where TView : ILayerHost
         where T1 : struct, ILayer<TView>
         where T2 : struct, ILayer<TView>
     {
@@ -81,7 +81,7 @@ public static class DockLayer
 
     /// <summary>Three-slot dock layout. Typical usage: Left button | Stretch content | Right button.</summary>
     public struct Dock3<TView, T1, T2, T3> : ILayer<TView>
-        where TView : View
+        where TView : ILayerHost
         where T1 : struct, ILayer<TView>
         where T2 : struct, ILayer<TView>
         where T3 : struct, ILayer<TView>
@@ -146,7 +146,7 @@ public static class DockLayer
 
     /// <summary>Four-slot dock layout.</summary>
     public struct Dock4<TView, T1, T2, T3, T4> : ILayer<TView>
-        where TView : View
+        where TView : ILayerHost
         where T1 : struct, ILayer<TView>
         where T2 : struct, ILayer<TView>
         where T3 : struct, ILayer<TView>

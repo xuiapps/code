@@ -13,8 +13,12 @@ namespace Xui.Apps.TestApp.Pages.Layers.Tests;
 /// margin, corner radius, and hover/pressed visual states.
 /// When <see cref="Visible"/> is false, <see cref="Measure"/> returns zero width
 /// so the docked slot collapses.
+/// <typeparam name="THost">The host view type. Receives typed access in <typeparamref name="TAction"/>.</typeparam>
+/// <typeparam name="TAction">Zero-allocation click handler struct.</typeparam>
 /// </summary>
-public struct ButtonLayer : ILayer<View>
+public struct ButtonLayer<THost, TAction> : ILayer<THost>
+    where THost  : ILayerHost
+    where TAction : struct, IButtonAction<THost>
 {
     /// <summary>Label text drawn centered in the button.</summary>
     public string? Label;
@@ -34,27 +38,19 @@ public struct ButtonLayer : ILayer<View>
 
     /// <summary>
     /// When false, <see cref="Measure"/> returns zero width so the dock slot collapses.
-    /// Set to true and call <see cref="View.InvalidateMeasure"/> to make the button appear.
     /// </summary>
     public bool Visible;
 
-    /// <summary>Invoked when the button is tapped/clicked.</summary>
-    public Action? OnClick;
-
-    /// <summary>
-    /// Wire to the owning view's <c>InvalidateRender</c> from the LayerView subclass constructor.
-    /// Required because <c>View.InvalidateRender</c> is protected internal and not callable
-    /// from an external-assembly layer struct.
-    /// </summary>
-    public Action? RequestRedraw;
+    /// <summary>Zero-allocation click handler. Embed state here if needed.</summary>
+    public TAction Action;
 
     private bool hover;
     private bool pressed;
     private Rect frame;
 
-    // ── ILayer<View> ─────────────────────────────────────────────────────
+    // ── ILayer<THost> ────────────────────────────────────────────────────
 
-    public void Update(View view, ref LayoutGuide guide)
+    public void Update(THost view, ref LayoutGuide guide)
     {
         if (guide.IsAnimate) Animate(view, guide.PreviousTime, guide.CurrentTime);
         if (guide.IsMeasure) guide.DesiredSize = Measure(view, guide.AvailableSize, guide.MeasureContext!);
@@ -62,7 +58,7 @@ public struct ButtonLayer : ILayer<View>
         if (guide.IsRender)  Render(view, guide.RenderContext!);
     }
 
-    public Size Measure(View view, Size available, IMeasureContext ctx)
+    public Size Measure(THost view, Size available, IMeasureContext ctx)
     {
         if (!Visible) return new Size(0, available.Height);
         NFloat side = NFloat.IsFinite(available.Height) ? available.Height
@@ -70,12 +66,12 @@ public struct ButtonLayer : ILayer<View>
         return new Size(side, side);
     }
 
-    public void Arrange(View view, Rect rect, IMeasureContext ctx)
+    public void Arrange(THost view, Rect rect, IMeasureContext ctx)
     {
         frame = rect;
     }
 
-    public void Render(View view, IContext ctx)
+    public void Render(THost view, IContext ctx)
     {
         if (!Visible) return;
 
@@ -113,56 +109,56 @@ public struct ButtonLayer : ILayer<View>
         }
     }
 
-    public void Animate(View view, TimeSpan p, TimeSpan c) { }
+    public void Animate(THost view, TimeSpan p, TimeSpan c) { }
 
-    public void OnPointerEvent(View view, ref PointerEventRef e, EventPhase phase)
+    public void OnPointerEvent(THost view, ref PointerEventRef e, EventPhase phase)
     {
         if (!Visible || phase != EventPhase.Bubble)
             return;
 
-        var btn     = BtnRect();
-        var pos     = e.State.Position;
-        bool inBtn  = pos.X >= btn.X && pos.X < btn.X + btn.Width
-                   && pos.Y >= btn.Y && pos.Y < btn.Y + btn.Height;
+        var btn    = BtnRect();
+        var pos    = e.State.Position;
+        bool inBtn = pos.X >= btn.X && pos.X < btn.X + btn.Width
+                  && pos.Y >= btn.Y && pos.Y < btn.Y + btn.Height;
 
         switch (e.Type)
         {
             case PointerEventType.Enter:
                 hover = inBtn;
-                RequestRedraw?.Invoke();
+                view.InvalidateRender();
                 break;
 
             case PointerEventType.Leave:
                 hover   = false;
                 pressed = false;
-                RequestRedraw?.Invoke();
+                view.InvalidateRender();
                 break;
 
             case PointerEventType.Move:
                 bool was = hover;
                 hover = inBtn;
-                if (hover != was) RequestRedraw?.Invoke();
+                if (hover != was) view.InvalidateRender();
                 break;
 
             case PointerEventType.Down when inBtn:
                 pressed = true;
                 view.CapturePointer(e.PointerId);
-                RequestRedraw?.Invoke();
+                view.InvalidateRender();
                 break;
 
             case PointerEventType.Up when pressed:
                 pressed = false;
                 view.ReleasePointer(e.PointerId);
-                if (inBtn) OnClick?.Invoke();
-                RequestRedraw?.Invoke();
+                if (inBtn) Action.Execute(view);
+                view.InvalidateRender();
                 break;
         }
     }
 
-    public void OnKeyDown(View view, ref KeyEventRef e) { }
-    public void OnChar(View view, ref KeyEventRef e)    { }
-    public void OnFocus(View view)                      { }
-    public void OnBlur(View view)                       { }
+    public void OnKeyDown(THost view, ref KeyEventRef e) { }
+    public void OnChar(THost view, ref KeyEventRef e)    { }
+    public void OnFocus(THost view)                      { }
+    public void OnBlur(THost view)                       { }
 
     private Rect BtnRect() => new Rect(
         frame.X + Margin,

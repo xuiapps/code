@@ -8,8 +8,8 @@ using static Xui.Core.Canvas.Colors;
 namespace Xui.Apps.TestApp.Pages.Layers.Tests;
 
 /// <summary>
-/// Demonstrates <see cref="BorderLayer{TChild}"/> used directly inside a
-/// <see cref="LayerView{TLayer}"/>. Each box is a <c>LayerView&lt;BorderLayer&lt;ContentLayer&gt;&gt;</c>
+/// Demonstrates <see cref="BorderLayer{TView,TChild}"/> used directly inside a
+/// <see cref="LayerView{TView,TLayer}"/>. Each box is a <c>LayerView&lt;View, BorderLayer&lt;View, ContentLayer&gt;&gt;</c>
 /// with no child view — the layer handles all decoration.
 /// </summary>
 public class BorderLayerTest : View
@@ -84,9 +84,9 @@ public class BorderLayerTest : View
     }
 
     // BoxView
-    // A LayerView<BorderLayer<ContentLayer>> with no child view.
+    // A LayerView<View, BorderLayer<View, ContentLayer>> with no child view.
     // The layer handles all decoration; the view contributes nothing beyond size.
-    private class BoxView : LayerView<BorderLayer<ContentLayer>>
+    private class BoxView : LayerView<View, BorderLayer<View, ContentLayer>>
     {
         public Color BackgroundColor
         {

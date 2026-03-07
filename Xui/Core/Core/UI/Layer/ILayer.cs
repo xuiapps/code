@@ -12,11 +12,12 @@ namespace Xui.Core.UI.Layer;
 /// the layer carries its own state and logic.
 /// </summary>
 /// <typeparam name="TView">
-/// The view type that hosts this layer. Almost always <see cref="View"/>.
-/// Use a more derived type only when the layer needs access to view-specific APIs.
+/// The host type for this layer. Must implement <see cref="ILayerHost"/>.
+/// Almost always <see cref="View"/>; use a more derived type only when the layer
+/// needs access to host-specific APIs beyond the <see cref="ILayerHost"/> contract.
 /// </typeparam>
-public interface ILayer<TView>
-    where TView : View
+public interface ILayer<in TView>
+    where TView : ILayerHost
 {
     /// <summary>
     /// Drives one or more layout passes. Mirrors <see cref="View.Update"/>.
