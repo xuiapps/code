@@ -366,7 +366,7 @@ public struct TextInputLayer : ILayer<View>
 
     private Font GetFont() => new Font
     {
-        FontFamily = FontFamily ?? ["Verdana"],
+        FontFamily = FontFamily ?? ["Inter"],
         FontSize   = FontSize > 0 ? FontSize : 15,
         FontWeight = FontWeight,
         FontStretch = FontStretch,

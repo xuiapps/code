@@ -84,7 +84,7 @@ public class TextBox : LayerView<FocusBorderLayer<TextInputLayer>>
 
     public string[] FontFamily
     {
-        get => Layer.Border.Child.FontFamily ?? ["Verdana"];
+        get => Layer.Border.Child.FontFamily ?? ["Inter"];
         set => Layer.Border.Child.FontFamily = value;
     }
 
