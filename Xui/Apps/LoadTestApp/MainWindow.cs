@@ -105,8 +105,8 @@ public class MainWindow : Window
 
         this.previousFrameMemory = memNow;
         this.hasPreviousFrameMemory = true;
-
-        using var ctx = Xui.Core.Actual.Runtime.DrawingContext!;
+        
+        using var ctx = this.Runtime.DrawingContext;
 
         // Clear background
         ctx.SetFill(Colors.Black);
