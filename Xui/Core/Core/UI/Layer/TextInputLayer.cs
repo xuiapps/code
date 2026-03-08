@@ -384,7 +384,7 @@ public struct TextInputLayer : ILayer<View>
         FontFamily  = FontFamily ?? ["Inter"],
         FontSize    = FontSize > 0 ? FontSize : 15,
         FontWeight  = FontWeight.Value > 0 ? FontWeight : FontWeight.Normal,
-        FontStretch = FontStretch,
+        FontStretch = FontStretch.Value > 0 ? FontStretch : FontStretch.Normal,
         FontStyle   = FontStyle,
     };
 

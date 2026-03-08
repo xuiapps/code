@@ -123,6 +123,8 @@ public class DockLayerTest : View
             inp.FontFamily               = ["Inter"];
             inp.FontSize                 = 15;
             inp.FontWeight               = FontWeight.Normal;
+            inp.FontStretch              = FontStretch.Normal;
+            inp.FontStyle                = FontStyle.Normal;
             inp.SelectAllOnFocus         = true;
 
             // Clear button (hidden until text is present)
@@ -206,6 +208,8 @@ public class DockLayerTest : View
             inp.FontFamily               = ["Inter"];
             inp.FontSize                 = 15;
             inp.FontWeight               = FontWeight.Normal;
+            inp.FontStretch              = FontStretch.Normal;
+            inp.FontStyle                = FontStyle.Normal;
             inp.SelectAllOnFocus         = true;
 
             // Dropdown arrow button — no margin, right corners rounded to match border
@@ -274,6 +278,8 @@ public class DockLayerTest : View
             inp.FontFamily               = ["Inter"];
             inp.FontSize                 = 15;
             inp.FontWeight               = FontWeight.Normal;
+            inp.FontStretch              = FontStretch.Normal;
+            inp.FontStyle                = FontStyle.Normal;
             inp.SelectAllOnFocus         = true;
             inp.Text                     = "0";
 
