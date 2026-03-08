@@ -142,6 +142,7 @@ public struct ButtonLayer<THost, TAction> : ILayer<THost>
 
             case PointerEventType.Down when inBtn:
                 pressed = true;
+                view.Focus();
                 view.CapturePointer(e.PointerId);
                 view.InvalidateRender();
                 break;
