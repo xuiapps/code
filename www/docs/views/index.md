@@ -18,6 +18,7 @@ The class is split across several partial files, each covering one concern:
 | [Input](input.md) | Pointer, scroll wheel, keyboard events |
 | [Focus](focus.md) | `Focusable`, `IsFocused`, `Focus()`, `Blur()` |
 | [DI](di.md) | `IServiceProvider`, `GetService`, parent-chain resolution |
+| [Layers](layers.md) | `ILayer` structs — zero-allocation composable building blocks for input widgets |
 
 ## Properties
 
