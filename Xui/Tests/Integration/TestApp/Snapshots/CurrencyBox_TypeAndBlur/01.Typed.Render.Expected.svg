@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
+  <rect x="180" y="24" width="420" height="376" fill="#F0F0F0" />
+  <text x="3" y="27" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Number Input</text>
+  <text x="3" y="51.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Pattern Input</text>
+  <text x="3" y="75.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Currency Input</text>
+  <text x="184" y="28" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">USD (default $):</text>
+  <rect x="185" y="55.15" width="410" height="8" fill="#FFFFFF" />
+  <rect x="184.5" y="54.65" width="411" height="9" fill="none" stroke="#0000FF" />
+  <text x="189" y="59.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">$9,999.99</text>
+  <rect x="189" y="59.15" width="1" height="0" fill="#000000" />
+  <text x="184" y="72.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">EUR (suffix):</text>
+  <rect x="185" y="99.3" width="410" height="8" fill="#FFFFFF" />
+  <rect x="184.5" y="98.8" width="411" height="9" fill="none" stroke="#808080" />
+  <text x="189" y="103.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">9,999.99 €</text>
+  <text x="184" y="116.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Large value (overflow hint):</text>
+  <rect x="185" y="143.45" width="410" height="8" fill="#FFFFFF" />
+  <rect x="184.5" y="142.95" width="411" height="9" fill="none" stroke="#808080" />
+  <text x="189" y="147.45" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">$1,000,000,000.00</text>
+  <text x="184" y="160.45" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Zero:</text>
+  <rect x="185" y="187.6" width="410" height="8" fill="#FFFFFF" />
+  <rect x="184.5" y="187.1" width="411" height="9" fill="none" stroke="#808080" />
+  <text x="189" y="191.6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">$0.00</text>
+  <rect x="0" y="0" width="600" height="24" fill="#FFFFFF" />
+  <text x="0" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+  <text x="73.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Input Widgets</text>
+  <g transform="translate(390 59.1494140625)" opacity="0.9">
+    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
+  </g>
+</svg>
