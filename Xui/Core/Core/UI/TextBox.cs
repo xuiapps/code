@@ -32,6 +32,8 @@ public class TextBox : LayerView<View, FocusBorderLayer<View, TextInputLayer>>
         Layer.Border.Child.FontFamily               = ["Inter"];
         Layer.Border.Child.FontSize                 = 15;
         Layer.Border.Child.FontWeight               = FontWeight.Normal;
+        Layer.Border.Child.FontStretch              = FontStretch.Normal;
+        Layer.Border.Child.FontStyle                = FontStyle.Normal;
     }
 
     public string Text
