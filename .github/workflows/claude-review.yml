@@ -35,7 +35,8 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          prompt: |
+          show_full_output: true
+          direct_prompt: |
             Review this pull request for the Xui cross-platform UI framework (C# / .NET).
             Focus on:
             - Correctness of layer struct mutation (fields vs properties, ref semantics)
