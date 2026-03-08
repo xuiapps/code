@@ -381,11 +381,11 @@ public struct TextInputLayer : ILayer<View>
 
     private Font GetFont() => new Font
     {
-        FontFamily = FontFamily ?? ["Inter"],
-        FontSize   = FontSize > 0 ? FontSize : 15,
-        FontWeight = FontWeight,
+        FontFamily  = FontFamily ?? ["Inter"],
+        FontSize    = FontSize > 0 ? FontSize : 15,
+        FontWeight  = FontWeight.Value > 0 ? FontWeight : FontWeight.Normal,
         FontStretch = FontStretch,
-        FontStyle  = FontStyle,
+        FontStyle   = FontStyle,
     };
 
     private string GetDisplayText() =>
