@@ -11,7 +11,7 @@ using Xui.Core.Canvas;
 
 namespace Xui.Runtime.MacOS.Actual;
 
-public class MacOSDrawingContext : IContext
+public partial class MacOSDrawingContext : IContext
 {
     private nint cgContextRef;
 
@@ -92,25 +92,28 @@ public class MacOSDrawingContext : IContext
     }
 
     void IPathBuilder.Arc(Point center, NFloat radius, NFloat startAngle, NFloat endAngle, Winding winding) =>
-        CGContextRef.CGContextAddArc(this.cgContextRef, center.X, center.Y, radius, startAngle, endAngle, (int)winding);
+        path2d.Arc(center, radius, startAngle, endAngle, winding);
 
     void IPathBuilder.ArcTo(Point cp1, Point cp2, NFloat radius) =>
-        CGContextRef.CGContextAddArcToPoint(this.cgContextRef, cp1.X, cp1.Y, cp2.X, cp2.Y, radius);
+        path2d.ArcTo(cp1, cp2, radius);
 
     void IPathBuilder.BeginPath() =>
-        CGContextRef.CGContextBeginPath(this.cgContextRef);
+        path2d.BeginPath();
 
-    void IPathClipping.Clip() =>
+    void IPathClipping.Clip()
+    {
+        ReplayPath();
         CGContextRef.CGContextClip(this.cgContextRef);
+    }
 
     void IGlyphPathBuilder.ClosePath() =>
-        CGContextRef.CGContextClosePath(this.cgContextRef);
+        path2d.ClosePath();
 
     void IGlyphPathBuilder.CurveTo(Point cp1, Point to) =>
-        CGContextRef.CGContextAddQuadCurveToPoint(this.cgContextRef, cp1.X, cp1.Y, to.X, to.Y);
+        path2d.CurveTo(cp1, to);
 
     void IPathBuilder.CurveTo(Point cp1, Point cp2, Point to) =>
-        CGContextRef.CGContextAddCurveToPoint(this.cgContextRef, cp1.X, cp1.Y, cp2.X, cp2.Y, to.X, to.Y);
+        path2d.CurveTo(cp1, cp2, to);
 
     void IDisposable.Dispose()
     {
@@ -127,18 +130,13 @@ public class MacOSDrawingContext : IContext
         textMeasure.Dispose();
     }
 
-    void IPathBuilder.Ellipse(Point center, NFloat radiusX, NFloat radiusY, NFloat rotation, NFloat startAngle, NFloat endAngle, Winding winding)
-    {
-        CGContextRef.CGContextSaveGState(this.cgContextRef);
-        CGContextRef.CGContextTranslateCTM(this.cgContextRef, center.X, center.Y);
-        CGContextRef.CGContextRotateCTM(this.cgContextRef, rotation);
-        CGContextRef.CGContextScaleCTM(this.cgContextRef, radiusX, radiusY);
-        CGContextRef.CGContextAddArc(this.cgContextRef, 0, 0, 1, endAngle, startAngle, (int)winding);
-        CGContextRef.CGContextRestoreGState(this.cgContextRef);
-    }
+    void IPathBuilder.Ellipse(Point center, NFloat radiusX, NFloat radiusY, NFloat rotation, NFloat startAngle, NFloat endAngle, Winding winding) =>
+        path2d.Ellipse(center, radiusX, radiusY, rotation, startAngle, endAngle, winding);
 
     void IPathDrawing.Fill(FillRule fillRule)
     {
+        ReplayPath();
+
         if (this.fill.style == PaintStyle.SolidColor)
         {
             if (fillRule == FillRule.EvenOdd)
@@ -242,13 +240,13 @@ public class MacOSDrawingContext : IContext
     }
 
     void IGlyphPathBuilder.LineTo(Point to) =>
-        CGContextRef.CGContextAddLineToPoint(this.cgContextRef, to.X, to.Y);
+        path2d.LineTo(to);
 
     void IGlyphPathBuilder.MoveTo(Point to) =>
-        CGContextRef.CGContextMoveToPoint(this.cgContextRef, to.X, to.Y);
+        path2d.MoveTo(to);
 
     void IPathBuilder.Rect(Rect rect) =>
-        CGContextRef.CGContextAddRect(this.cgContextRef, rect);
+        path2d.Rect(rect);
 
     void ITransformContext.Rotate(NFloat angle)
     {
@@ -256,57 +254,11 @@ public class MacOSDrawingContext : IContext
         CGContextRef.CGContextRotateCTM(this.cgContextRef, angle);
     }
 
-    void IPathBuilder.RoundRect(Rect rect, NFloat radius)
-    {
-        using var cgPathRef = CGPathRef.CreateWithRoundedRect(rect, radius);
-        CGContextRef.CGContextAddPath(this.cgContextRef, cgPathRef);
-    }
+    void IPathBuilder.RoundRect(Rect rect, NFloat radius) =>
+        path2d.RoundRect(rect, radius);
 
-    void IPathBuilder.RoundRect(Rect rect, CornerRadius radius)
-    {
-        var context = (IContext)this;
-
-        // TODO: Clap radius to available space in rect
-
-        if (radius.TopLeft == 0)
-        {
-            context.MoveTo(rect.TopLeft);
-        }
-        else
-        {
-            context.MoveTo(new (rect.X, rect.Y + radius.TopLeft));
-            context.ArcTo(rect.TopLeft, rect.TopRight, radius.TopLeft);
-        }
-
-        if (radius.TopRight == 0)
-        {
-            context.LineTo(rect.TopRight);
-        }
-        else
-        {
-            context.ArcTo(rect.TopRight, rect.BottomRight, radius.TopRight);
-        }
-
-        if (radius.BottomRight == 0)
-        {
-            context.LineTo(rect.BottomRight);
-        }
-        else
-        {
-            context.ArcTo(rect.BottomRight, rect.BottomLeft, radius.BottomRight);
-        }
-
-        if (radius.BottomLeft == 0)
-        {
-            context.LineTo(rect.BottomLeft);
-        }
-        else
-        {
-            context.ArcTo(rect.BottomLeft, rect.TopLeft, radius.BottomLeft);
-        }
-
-        context.ClosePath();
-    }
+    void IPathBuilder.RoundRect(Rect rect, CornerRadius radius) =>
+        path2d.RoundRect(rect, radius);
 
     void ITransformContext.Scale(Vector vector)
     {
@@ -349,6 +301,8 @@ public class MacOSDrawingContext : IContext
 
     void IPathDrawing.Stroke()
     {
+        ReplayPath();
+
         if (this.stroke.style == PaintStyle.SolidColor)
         {
             CGContextRef.CGContextStrokePath(this.cgContextRef);
