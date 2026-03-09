@@ -434,7 +434,7 @@ public class MacOSDrawingContext : IContext
                 offset.Y -= this.TextBaseline switch
                 {
                     TextBaseline.Top         => 0f, // Top already matches
-                    TextBaseline.Middle      => -ascent * 0.5f + descent * 0.5f,
+                    TextBaseline.Middle      => ascent * 0.5f + descent * 0.5f,
                     TextBaseline.Alphabetic  => ascent,
                     TextBaseline.Hanging     => ascent - ctFont.CapHeight, // Cap height below top
                     TextBaseline.Ideographic => ascent - ctFont.XHeight * 1.25f,
