@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Xui.Core.Abstract.Events;
+using Xui.Core.Canvas;
 using Xui.Core.Math2D;
 using static Xui.Core.Abstract.IWindow.IDesktopStyle;
 using static Xui.Runtime.MacOS.AppKit;
@@ -50,6 +51,18 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
 
     // Keyboard modifier tracking (for FlagsChanged)
     private nuint _lastModifierFlags;
+
+    // Text measurement context (used for hit-testing cursor position on mouse click)
+    private MacOSTextMeasureContext? _textMeasureContext;
+
+    public ITextMeasureContext? TextMeasureContext =>
+        _textMeasureContext ??= new MacOSTextMeasureContext();
+
+    public object? GetService(Type serviceType)
+    {
+        if (serviceType == typeof(ITextMeasureContext)) return TextMeasureContext;
+        return null;
+    }
 
     public static nint InitWithAbstract(Xui.Core.Abstract.IWindow @abstract)
     {
