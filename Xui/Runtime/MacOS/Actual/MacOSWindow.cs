@@ -53,6 +53,9 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
     // Keyboard modifier tracking (for FlagsChanged)
     private nuint _lastModifierFlags;
 
+    // The root view — always the flipped drawing view, regardless of content view hierarchy.
+    private MacOSWindowRootView rootView = null!;
+
     // Text measurement context (used for hit-testing cursor position on mouse click)
     private MacOSTextMeasureContext? _textMeasureContext;
 
@@ -124,7 +127,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
 
     public MacOSWindow(Xui.Core.Abstract.IWindow @abstract) : base(InitWithAbstract(@abstract))
     {
-        var rootView = new MacOSWindowRootView(this);
+        rootView = new MacOSWindowRootView(this);
 
         this.Abstract = @abstract;
         this.Title = "";
@@ -272,7 +275,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
             type == NSEventType.OtherMouseDragged)
         {
             var rect = this.Rect;
-            var position = this.ContentView!.ConvertPointFromView(e.LocationInWindow, null);
+            var position = rootView.ConvertPointFromView(e.LocationInWindow, null);
 
             WindowHitTestEventRef eventRef = new()
             {
@@ -351,7 +354,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
         else if (type == NSEventType.LeftMouseDown || type == NSEventType.RightMouseDown || type == NSEventType.OtherMouseDown)
         {
             var rect = this.Rect;
-            var position = this.ContentView!.ConvertPointFromView(e.LocationInWindow, null);
+            var position = rootView.ConvertPointFromView(e.LocationInWindow, null);
 
             WindowHitTestEventRef eventRef = new()
             {
@@ -418,7 +421,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
             this.StyleMask |= NSWindowStyleMask.Resizable;
 
             var rect = this.Rect;
-            var position = this.ContentView!.ConvertPointFromView(e.LocationInWindow, null);
+            var position = rootView.ConvertPointFromView(e.LocationInWindow, null);
 
             WindowHitTestEventRef eventRef = new()
             {
@@ -533,11 +536,11 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
         this.Abstract.OnAnimationFrame(ref animationFrame);
     }
 
-    public void Invalidate() => this.ContentView!.NeedsDisplay = true;
+    public void Invalidate() => rootView.NeedsDisplay = true;
 
     internal void Render(NSRect rect)
     {
-        var contentFrame = this.ContentView!.Frame;
+        var contentFrame = rootView.Frame;
         var area = new Rect(0, 0, contentFrame.Size.width, contentFrame.Size.height);
         this.Abstract.DisplayArea = area;
         this.Abstract.SafeArea = area;
