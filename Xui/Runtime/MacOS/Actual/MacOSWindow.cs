@@ -437,6 +437,11 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
 
     internal void Render(NSRect rect)
     {
+        var contentFrame = this.ContentView!.Frame;
+        var area = new Rect(0, 0, contentFrame.Size.width, contentFrame.Size.height);
+        this.Abstract.DisplayArea = area;
+        this.Abstract.SafeArea = area;
+
         FrameEventRef frame = new(this.previousFrameTime, this.nextFrameTime);
         RenderEventRef render = new(rect, frame);
 
