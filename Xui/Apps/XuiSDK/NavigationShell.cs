@@ -1,5 +1,6 @@
 using Xui.Core.Animation;
 using Xui.Core.Canvas;
+using Xui.Core.DI;
 using Xui.Core.Math2D;
 using Xui.Core.UI;
 using Xui.Apps.XuiSDK.Icons;
@@ -200,7 +201,8 @@ public class NavigationShell : ViewCollection
         // Xui logo in header (64x64 scaled to 24x24)
         nfloat logoSize = 24;
         nfloat logoScale = logoSize / 64;
-        nfloat logoX = rect.X + 12;
+        var deviceInfo = this.GetService<IDeviceInfo>();
+        nfloat logoX = rect.X + (deviceInfo?.Platform == DevicePlatform.MacOS ? 90 : 12);
         nfloat logoY = rect.Y + (HeaderHeight - logoSize) / 2;
         context.Save();
         context.Translate((logoX, logoY));

@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Xui.Core.Abstract.Events;
 using Xui.Core.Canvas;
+using Xui.Core.DI;
 using Xui.Core.Math2D;
 using static Xui.Core.Abstract.IWindow.IDesktopStyle;
 using static Xui.Runtime.MacOS.AppKit;
@@ -68,6 +69,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
     {
         if (serviceType == typeof(ITextMeasureContext)) return TextMeasureContext;
         if (serviceType == typeof(IImage)) return ImageFactory.CreateImage();
+        if (serviceType == typeof(IDeviceInfo)) return MacOSDeviceInfo.Instance;
         return null;
     }
 
@@ -93,6 +95,15 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
                     NSWindowStyleMask.FullSizeContentView |
                     NSWindowStyleMask.Borderless;
             }
+            else if (dws.Backdrop is WindowBackdrop.Mica or WindowBackdrop.Acrylic)
+            {
+                mask =
+                    NSWindowStyleMask.Titled |
+                    NSWindowStyleMask.Closable |
+                    NSWindowStyleMask.Miniaturizable |
+                    NSWindowStyleMask.Resizable |
+                    NSWindowStyleMask.FullSizeContentView;
+            }
 
             if (dws.StartupSize.HasValue)
             {
@@ -113,7 +124,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
 
     public MacOSWindow(Xui.Core.Abstract.IWindow @abstract) : base(InitWithAbstract(@abstract))
     {
-        this.ContentView = new MacOSWindowRootView(this);
+        var rootView = new MacOSWindowRootView(this);
 
         this.Abstract = @abstract;
         this.Title = "";
@@ -148,7 +159,38 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
                     Visible = true
                 };
                 this.ToolbarStyle = NSWindowToolbarStyle.Unified;
+                this.ContentView = rootView;
             }
+            else if (dws.Backdrop is WindowBackdrop.Mica or WindowBackdrop.Acrylic)
+            {
+                var vev = new NSVisualEffectView
+                {
+                    Material = NSVisualEffectMaterial.UnderWindowBackground,
+                    BlendingMode = NSVisualEffectBlendingMode.BehindWindow,
+                    State = NSVisualEffectState.Active
+                };
+                rootView.AutoresizingMask =
+                    NSAutoresizingMaskOptions.WidthSizable |
+                    NSAutoresizingMaskOptions.HeightSizable;
+                vev.AddSubview(rootView);
+                this.ContentView = vev;
+                this.TitleVisibility = NSWindowTitleVisibility.Hidden;
+                this.TitlebarAppearsTransparent = true;
+                this.Toolbar = new NSToolbar
+                {
+                    ShowsBaselineSeparator = false,
+                    Visible = true
+                };
+                this.ToolbarStyle = NSWindowToolbarStyle.Unified;
+            }
+            else
+            {
+                this.ContentView = rootView;
+            }
+        }
+        else
+        {
+            this.ContentView = rootView;
         }
 
         this.displayLink = CADisplayLink.DisplayLink(this, AnimationFrameSel);

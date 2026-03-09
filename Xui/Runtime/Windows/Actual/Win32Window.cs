@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using Xui.Core.Abstract.Events;
 using Xui.Core.Canvas;
 using Xui.Core.Debug;
+using Xui.Core.DI;
 using CoreRuntime = Xui.Core.Actual.Runtime;
 using Xui.Core.Math2D;
 using Xui.Runtime.Windows.Win32;
@@ -231,6 +232,7 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
     {
         if (serviceType == typeof(IImage)) return this.Renderer.ImageFactory?.CreateImage();
         if (serviceType == typeof(ITextMeasureContext)) return this.TextMeasureContext;
+        if (serviceType == typeof(IDeviceInfo)) return Win32DeviceInfo.Instance;
         return null;
     }
 
