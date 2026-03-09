@@ -36,19 +36,19 @@ internal sealed class MacOSTextMeasureContext : ITextMeasureContext
         using var line = CTLineRef.Create(attrString);
 
         Rect glyphBounds = line.GetBounds(CTLineRef.BoundsOptions.UseGlyphPathBounds);
-        Rect opticalBounds = line.GetBounds(CTLineRef.BoundsOptions.UseOpticalBounds);
+        NFloat typographicWidth = line.GetWidth();
 
         NFloat alignOffset = this.TextAlign switch
         {
-            TextAlign.Center => opticalBounds.Width * 0.5f,
-            TextAlign.Right  => opticalBounds.Width,
+            TextAlign.Center => typographicWidth * 0.5f,
+            TextAlign.Right  => typographicWidth,
             _ => 0f
         };
 
         var lineMetrics = new LineMetrics(
-            width: opticalBounds.Width,
+            width: typographicWidth,
             left: alignOffset,
-            right: opticalBounds.Width - alignOffset,
+            right: typographicWidth - alignOffset,
             ascent: glyphBounds.Height + glyphBounds.Y,
             descent: -glyphBounds.Y
         );
