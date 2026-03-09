@@ -1,4 +1,6 @@
+using Xui.Core.Math2D;
 using Xui.Runtime.MacOS;
+using static Xui.Runtime.MacOS.Foundation;
 using static Xui.Runtime.MacOS.ObjC;
 
 namespace Xui.Runtime.MacOS.Actual;
@@ -12,6 +14,7 @@ public class MacOSWindowDelegate : NSObject
             .AddMethod("windowShouldClose:", WindowShouldClose)
             .AddMethod("windowWillEnterFullScreen:", WindowWillEnterFullScreen)
             .AddMethod("windowDidExitFullScreen:", WindowDidExitFullScreen)
+            .AddMethod("windowDidResize:", WindowDidResize)
             .Register();
 
     protected static bool WindowShouldClose(nint self, nint sel, nint window) =>
@@ -26,6 +29,18 @@ public class MacOSWindowDelegate : NSObject
 
     protected static void WindowDidExitFullScreen(nint self, nint sel, nint notification)
     {
+    }
+
+    protected static void WindowDidResize(nint self, nint sel, nint notification) =>
+        Marshalling.Get<MacOSWindowDelegate>(self).WindowDidResize();
+
+    private void WindowDidResize()
+    {
+        var contentFrame = this.window.ContentView!.Frame;
+        var area = new Rect(0, 0, contentFrame.Size.width, contentFrame.Size.height);
+        this.window.Abstract.DisplayArea = area;
+        this.window.Abstract.SafeArea = area;
+        this.window.Invalidate();
     }
 
     protected readonly MacOSWindow window;

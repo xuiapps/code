@@ -124,6 +124,12 @@ public static partial class CoreGraphics
         public static partial void CGContextSetTextDrawingMode(nint cgContextRef, CGTextDrawingMode mode);
 
         [LibraryImport(CoreGraphicsLib)]
+        public static partial void CGContextDrawImage(nint cgContextRef, CGRect rect, nint image);
+
+        [LibraryImport(CoreGraphicsLib)]
+        public static partial CGRect CGContextGetClipBoundingBox(nint cgContextRef);
+
+        [LibraryImport(CoreGraphicsLib)]
         public static partial nint UIGraphicsGetCurrentContext();
 
         public readonly nint Self;
@@ -240,6 +246,27 @@ public static partial class CoreGraphics
 
         public void ConcatCTM(CGAffineTransform transform) =>
             CGContextConcatCTM(this, transform);
+
+        /// <summary>
+        /// Draws <paramref name="image"/> into <paramref name="rect"/> in the current CGContext
+        /// coordinate space. In a flipped view the image will appear upside-down unless the
+        /// caller flips the CTM beforehand (see <see cref="DrawImageFlipped"/>).
+        /// </summary>
+        public void DrawImage(CGRect rect, nint image) =>
+            CGContextDrawImage(this, rect, image);
+
+        /// <summary>
+        /// Draws <paramref name="image"/> into <paramref name="rect"/>, correcting the upside-down
+        /// rendering that occurs in a Y-down (isFlipped) view by temporarily flipping the CTM.
+        /// </summary>
+        public void DrawImageFlipped(CGRect rect, nint image)
+        {
+            CGContextSaveGState(this);
+            CGContextTranslateCTM(this, rect.Origin.X, rect.Origin.Y + rect.Size.Height);
+            CGContextScaleCTM(this, 1, -1);
+            CGContextDrawImage(this, new CGRect(0, 0, rect.Size.Width, rect.Size.Height), image);
+            CGContextRestoreGState(this);
+        }
 
         public void RotateCTM(NFloat angle) =>
             CGContextRotateCTM(this, angle);

@@ -11,7 +11,7 @@ using Xui.Core.Canvas;
 
 namespace Xui.Runtime.MacOS.Actual;
 
-public class MacOSDrawingContext : IContext
+public partial class MacOSDrawingContext : IContext
 {
     private nint cgContextRef;
 
@@ -19,7 +19,7 @@ public class MacOSDrawingContext : IContext
 
     private Paint stroke;
 
-    private nint nsFont;
+    internal readonly MacOSTextMeasureContext textMeasure = new();
 
     private AffineTransform? baseTransform;
 
@@ -48,7 +48,7 @@ public class MacOSDrawingContext : IContext
 
     public NFloat LineDashOffset { get; set; }
 
-    public TextAlign TextAlign { get; set; }
+    public TextAlign TextAlign { get => textMeasure.TextAlign; set => textMeasure.TextAlign = value; }
 
     public TextBaseline TextBaseline { get; set; }
 
@@ -92,25 +92,28 @@ public class MacOSDrawingContext : IContext
     }
 
     void IPathBuilder.Arc(Point center, NFloat radius, NFloat startAngle, NFloat endAngle, Winding winding) =>
-        CGContextRef.CGContextAddArc(this.cgContextRef, center.X, center.Y, radius, startAngle, endAngle, (int)winding);
+        path2d.Arc(center, radius, startAngle, endAngle, winding);
 
     void IPathBuilder.ArcTo(Point cp1, Point cp2, NFloat radius) =>
-        CGContextRef.CGContextAddArcToPoint(this.cgContextRef, cp1.X, cp1.Y, cp2.X, cp2.Y, radius);
+        path2d.ArcTo(cp1, cp2, radius);
 
     void IPathBuilder.BeginPath() =>
-        CGContextRef.CGContextBeginPath(this.cgContextRef);
+        path2d.BeginPath();
 
-    void IPathClipping.Clip() =>
+    void IPathClipping.Clip()
+    {
+        ReplayPath();
         CGContextRef.CGContextClip(this.cgContextRef);
+    }
 
     void IGlyphPathBuilder.ClosePath() =>
-        CGContextRef.CGContextClosePath(this.cgContextRef);
+        path2d.ClosePath();
 
     void IGlyphPathBuilder.CurveTo(Point cp1, Point to) =>
-        CGContextRef.CGContextAddQuadCurveToPoint(this.cgContextRef, cp1.X, cp1.Y, to.X, to.Y);
+        path2d.CurveTo(cp1, to);
 
     void IPathBuilder.CurveTo(Point cp1, Point cp2, Point to) =>
-        CGContextRef.CGContextAddCurveToPoint(this.cgContextRef, cp1.X, cp1.Y, cp2.X, cp2.Y, to.X, to.Y);
+        path2d.CurveTo(cp1, cp2, to);
 
     void IDisposable.Dispose()
     {
@@ -124,25 +127,16 @@ public class MacOSDrawingContext : IContext
 
         this.baseTransform = null;
 
-        if (this.nsFont != 0)
-        {
-            CoreFoundation.CFRelease(this.nsFont);
-            this.nsFont = 0;
-        }
+        textMeasure.Dispose();
     }
 
-    void IPathBuilder.Ellipse(Point center, NFloat radiusX, NFloat radiusY, NFloat rotation, NFloat startAngle, NFloat endAngle, Winding winding)
-    {
-        CGContextRef.CGContextSaveGState(this.cgContextRef);
-        CGContextRef.CGContextTranslateCTM(this.cgContextRef, center.X, center.Y);
-        CGContextRef.CGContextRotateCTM(this.cgContextRef, rotation);
-        CGContextRef.CGContextScaleCTM(this.cgContextRef, radiusX, radiusY);
-        CGContextRef.CGContextAddArc(this.cgContextRef, 0, 0, 1, endAngle, startAngle, (int)winding);
-        CGContextRef.CGContextRestoreGState(this.cgContextRef);
-    }
+    void IPathBuilder.Ellipse(Point center, NFloat radiusX, NFloat radiusY, NFloat rotation, NFloat startAngle, NFloat endAngle, Winding winding) =>
+        path2d.Ellipse(center, radiusX, radiusY, rotation, startAngle, endAngle, winding);
 
     void IPathDrawing.Fill(FillRule fillRule)
     {
+        ReplayPath();
+
         if (this.fill.style == PaintStyle.SolidColor)
         {
             if (fillRule == FillRule.EvenOdd)
@@ -171,6 +165,16 @@ public class MacOSDrawingContext : IContext
                 this.fill.cgGradientRef,
                 this.fill.startPoint,
                 this.fill.endPoint);
+            CGContextRef.CGContextRestoreGState(this.cgContextRef);
+        }
+        else if (this.fill.style == PaintStyle.BitmapBrush)
+        {
+            CGContextRef.CGContextSaveGState(this.cgContextRef);
+            if (fillRule == FillRule.EvenOdd)
+                CGContextRef.CGContextEOClip(this.cgContextRef);
+            else
+                CGContextRef.CGContextClip(this.cgContextRef);
+            TileImagePattern(this.fill);
             CGContextRef.CGContextRestoreGState(this.cgContextRef);
         }
         else
@@ -226,16 +230,23 @@ public class MacOSDrawingContext : IContext
                 this.stroke.endRadius);
             CGContextRef.CGContextRestoreGState(this.cgContextRef);
         }
+        else if (this.fill.style == PaintStyle.BitmapBrush)
+        {
+            CGContextRef.CGContextSaveGState(this.cgContextRef);
+            CGContextRef.CGContextClipToRect(this.cgContextRef, rect);
+            TileImagePattern(this.fill);
+            CGContextRef.CGContextRestoreGState(this.cgContextRef);
+        }
     }
 
     void IGlyphPathBuilder.LineTo(Point to) =>
-        CGContextRef.CGContextAddLineToPoint(this.cgContextRef, to.X, to.Y);
+        path2d.LineTo(to);
 
     void IGlyphPathBuilder.MoveTo(Point to) =>
-        CGContextRef.CGContextMoveToPoint(this.cgContextRef, to.X, to.Y);
+        path2d.MoveTo(to);
 
     void IPathBuilder.Rect(Rect rect) =>
-        CGContextRef.CGContextAddRect(this.cgContextRef, rect);
+        path2d.Rect(rect);
 
     void ITransformContext.Rotate(NFloat angle)
     {
@@ -243,57 +254,11 @@ public class MacOSDrawingContext : IContext
         CGContextRef.CGContextRotateCTM(this.cgContextRef, angle);
     }
 
-    void IPathBuilder.RoundRect(Rect rect, NFloat radius)
-    {
-        using var cgPathRef = CGPathRef.CreateWithRoundedRect(rect, radius);
-        CGContextRef.CGContextAddPath(this.cgContextRef, cgPathRef);
-    }
+    void IPathBuilder.RoundRect(Rect rect, NFloat radius) =>
+        path2d.RoundRect(rect, radius);
 
-    void IPathBuilder.RoundRect(Rect rect, CornerRadius radius)
-    {
-        var context = (IContext)this;
-
-        // TODO: Clap radius to available space in rect
-
-        if (radius.TopLeft == 0)
-        {
-            context.MoveTo(rect.TopLeft);
-        }
-        else
-        {
-            context.MoveTo(new (rect.X, rect.Y + radius.TopLeft));
-            context.ArcTo(rect.TopLeft, rect.TopRight, radius.TopLeft);
-        }
-
-        if (radius.TopRight == 0)
-        {
-            context.LineTo(rect.TopRight);
-        }
-        else
-        {
-            context.ArcTo(rect.TopRight, rect.BottomRight, radius.TopRight);
-        }
-
-        if (radius.BottomRight == 0)
-        {
-            context.LineTo(rect.BottomRight);
-        }
-        else
-        {
-            context.ArcTo(rect.BottomRight, rect.BottomLeft, radius.BottomRight);
-        }
-
-        if (radius.BottomLeft == 0)
-        {
-            context.LineTo(rect.BottomLeft);
-        }
-        else
-        {
-            context.ArcTo(rect.BottomLeft, rect.TopLeft, radius.BottomLeft);
-        }
-
-        context.ClosePath();
-    }
+    void IPathBuilder.RoundRect(Rect rect, CornerRadius radius) =>
+        path2d.RoundRect(rect, radius);
 
     void ITransformContext.Scale(Vector vector)
     {
@@ -336,6 +301,8 @@ public class MacOSDrawingContext : IContext
 
     void IPathDrawing.Stroke()
     {
+        ReplayPath();
+
         if (this.stroke.style == PaintStyle.SolidColor)
         {
             CGContextRef.CGContextStrokePath(this.cgContextRef);
@@ -364,6 +331,14 @@ public class MacOSDrawingContext : IContext
                 this.stroke.startRadius,
                 this.stroke.endPoint,
                 this.stroke.endRadius);
+            CGContextRef.CGContextRestoreGState(this.cgContextRef);
+        }
+        else if (this.stroke.style == PaintStyle.BitmapBrush)
+        {
+            CGContextRef.CGContextSaveGState(this.cgContextRef);
+            CGContextRef.CGContextReplacePathWithStrokedPath(this.cgContextRef);
+            CGContextRef.CGContextClip(this.cgContextRef);
+            TileImagePattern(this.stroke);
             CGContextRef.CGContextRestoreGState(this.cgContextRef);
         }
     }
@@ -400,9 +375,9 @@ public class MacOSDrawingContext : IContext
         using var foreground = new NSColorRef(this.fill.color);
         attributes.SetValue(NSAttributedString.Key.ForegroundColor, foreground);
 
-        if (this.nsFont != 0)
+        if (textMeasure.nsFont != 0)
         {
-            attributes.SetValue(NSAttributedString.Key.Font, this.nsFont);
+            attributes.SetValue(NSAttributedString.Key.Font, textMeasure.nsFont);
         }
 
         // === Horizontal alignment ===
@@ -426,9 +401,9 @@ public class MacOSDrawingContext : IContext
         // === Vertical alignment ===
         if (this.TextBaseline != TextBaseline.Top)
         {
-            if (this.nsFont != 0)
+            if (textMeasure.nsFont != 0)
             {
-                var ctFont = new CTFontRef(this.nsFont);
+                var ctFont = new CTFontRef(textMeasure.nsFont);
 
                 var ascent = ctFont.Ascent;
                 var descent = ctFont.Descent;
@@ -438,7 +413,7 @@ public class MacOSDrawingContext : IContext
                 offset.Y -= this.TextBaseline switch
                 {
                     TextBaseline.Top         => 0f, // Top already matches
-                    TextBaseline.Middle      => -ascent * 0.5f + descent * 0.5f,
+                    TextBaseline.Middle      => ascent * 0.5f + descent * 0.5f,
                     TextBaseline.Alphabetic  => ascent,
                     TextBaseline.Hanging     => ascent - ctFont.CapHeight, // Cap height below top
                     TextBaseline.Ideographic => ascent - ctFont.XHeight * 1.25f,
@@ -452,150 +427,9 @@ public class MacOSDrawingContext : IContext
         NSString.objc_msgSend(nsStringRef, NSString.DrawAtPointWithAttributesSel, pos + offset, attributes);
     }
 
-    TextMetrics ITextMeasureContext.MeasureText(string text)
-    {
-        using var nsStringRef = new CFStringRef(text);
-        using var attributes = new CFMutableDictionaryRef();
-        using var foreground = new NSColorRef(this.fill.color);
+    TextMetrics ITextMeasureContext.MeasureText(string text) => textMeasure.MeasureText(text);
 
-        attributes.SetValue(NSAttributedString.Key.ForegroundColor, foreground);
-        if (this.nsFont != 0)
-            attributes.SetValue(NSAttributedString.Key.Font, this.nsFont);
-
-        using var attrString = new NSAttributedStringRef(nsStringRef, attributes);
-        using var line = CTLineRef.Create(attrString);
-
-        // === Extract Line Metrics (accurate width, left/right bounds, ascent/descent) ===
-        Rect glyphBounds = line.GetBounds(CoreText.CTLineRef.BoundsOptions.UseGlyphPathBounds);
-        Rect opticalBounds = line.GetBounds(CoreText.CTLineRef.BoundsOptions.UseOpticalBounds);
-
-        NFloat alignOffset = this.TextAlign switch
-        {
-            TextAlign.Center => opticalBounds.Width * 0.5f,
-            TextAlign.Right  => opticalBounds.Width,
-            _ => 0f
-        };
-
-        var lineMetrics = new LineMetrics(
-            width: opticalBounds.Width,
-            left: alignOffset,
-            right: opticalBounds.Width - alignOffset,
-            ascent: glyphBounds.Height + glyphBounds.Y,
-            descent: -glyphBounds.Y
-        );
-
-        // === Extract Font Metrics ===
-        FontMetrics font;
-        if (this.nsFont != 0)
-        {
-            var ct = new CTFontRef(this.nsFont);
-
-            var ascent = ct.Ascent;
-            var descent = ct.Descent;
-
-            // Too complicated, reads font tables, accurate but...
-            // font = ct.FontMetrics;
-
-            font = new FontMetrics(
-                fontAscent: ascent,
-                fontDescent: descent,
-                emAscent: ascent,
-                emDescent: descent,
-                alphabeticBaseline: 0,
-                hangingBaseline: -ascent,
-                ideographicBaseline: descent
-            );
-        }
-        else
-        {
-            font = default;
-        }
-
-        return new TextMetrics(lineMetrics, font);
-    }
-
-    void ITextMeasureContext.SetFont(Font font)
-    {
-        if (this.nsFont != 0)
-        {
-            CoreFoundation.CFRelease(this.nsFont);
-            this.nsFont = 0;
-        }
-
-        try
-        {
-            using var attributes = new CFMutableDictionaryRef();
-
-            if (font.FontFamily.Length >= 1)
-            {
-                using var fontFamilyNameRef = new CFStringRef(font.FontFamily[0]);
-                attributes.SetValue(CTFontDescriptor.FontAttributes.FamilyName, fontFamilyNameRef);
-
-                if (font.FontFamily.Length > 1)
-                {
-                    using var nsCascadingFontArray = new CFMutableArrayRef();
-                    foreach(var f in font.FontFamily)
-                    {
-                        using var desc = new CTFontDescriptorRef(f);
-                        nsCascadingFontArray.Add(desc);
-                    }
-                    // TODO: Here the dictionary does not retain the array and the array is disposed...
-                    attributes.SetValue(CTFontDescriptor.FontAttributes.CascadeList, nsCascadingFontArray);
-                }
-            }
-
-            using var fontSizeRef = new CFNumberRef(font.FontSize);
-            attributes.SetValue(CTFontDescriptor.FontAttributes.Size, fontSizeRef);
-
-            using var fontTraits = new CFMutableDictionaryRef();
-
-            // 400 is regular, 700 is bold set through symbolic traits
-            if (font.FontWeight != 400 && font.FontWeight != 700)
-            {
-                NFloat webWeightToCTWeight = MapWebWeightToCTWeight(font.FontWeight);
-                using var fontWeight = new CFNumberRef(webWeightToCTWeight);
-                fontTraits.SetValue(CTFontDescriptor.FontTrait.Weight, fontWeight);
-            }
-
-            if (font.FontStyle.IsItalic || font.FontWeight == 700)
-            {
-                int symTrait = 0;
-                if (font.FontStyle.IsItalic)
-                {
-                    symTrait |= (int)CTFontDescriptor.SymbolicTrait.Italic;
-                }
-
-                if (font.FontWeight == 700)
-                {
-                    symTrait |= (int)CTFontDescriptor.SymbolicTrait.Bold;
-                }
-
-                using var symTraitRef = new CFNumberRef(symTrait);
-                fontTraits.SetValue(CTFontDescriptor.FontTrait.Symbolic, symTraitRef);
-            }
-
-            if (font.FontStyle.IsOblique)
-            {
-                var slant = new CFNumberRef(NFloat.Clamp(font.FontStyle.ObliqueAngle / 90f, -1f, 1f));
-                fontTraits.SetValue(CTFontDescriptor.FontTrait.Slant, slant);
-            }
-
-            // fontTraits.SetValue(CTFontDescriptor.FontTrait.Width, /* oblique */);
-
-            attributes.SetValue(CTFontDescriptor.FontAttributes.Traits, fontTraits);
-
-            using var descriptor = CTFontDescriptorRef.WithAttributes(attributes);
-            nint options = 0;
-
-            // Important - do not dispose, no "using", we will keep it manually
-            var ctFont = new CTFontRef(descriptor, options);
-            this.nsFont = ctFont;
-        }
-        catch(Exception e)
-        {
-            Debug.WriteLine(e);
-        }
-    }
+    void ITextMeasureContext.SetFont(Font font) => textMeasure.SetFont(font);
 
     private struct Paint
     {
@@ -606,6 +440,11 @@ public class MacOSDrawingContext : IContext
         public Point endPoint;
         public NFloat startRadius;
         public NFloat endRadius;
+        // BitmapBrush — borrowed reference, NOT owned (MacOSImageResource owns the CGImageRef)
+        public nint cgImage;
+        public uint imgWidth;
+        public uint imgHeight;
+        public PatternRepeat patternRepeat;
 
         public void Set(Color color)
         {
@@ -631,6 +470,17 @@ public class MacOSDrawingContext : IContext
             this.endRadius = radialGradient.EndRadius;
         }
 
+        public void Set(ImagePattern pattern)
+        {
+            if (pattern.Image is not MacOSImage img || img.Resource == null || img.Resource.CGImage == 0)
+                return;
+            this.Reset(PaintStyle.BitmapBrush);
+            this.cgImage      = img.Resource.CGImage;
+            this.imgWidth     = img.Resource.Width;
+            this.imgHeight    = img.Resource.Height;
+            this.patternRepeat = pattern.Repetition;
+        }
+
         public void Reset(PaintStyle style = PaintStyle.SolidColor)
         {
             if (this.cgGradientRef != 0)
@@ -638,38 +488,9 @@ public class MacOSDrawingContext : IContext
                 CGGradientRef.CGGradientRelease(cgGradientRef);
                 this.cgGradientRef = 0;
             }
+            this.cgImage = 0; // borrowed — do not release
             this.style = style;
         }
-    }
-
-    /// <summary>
-    /// <code>
-    /// NSFontWeightUltraLight: -0.800000 - 100 Thin (Hairline)
-    /// NSFontWeightThin: -0.600000       - 200 Extra Light (Ultra Light)
-    /// NSFontWeightLight: -0.400000      - 300 Light
-    /// NSFontWeightRegular: 0.000000     - 400 Normal (Regular)
-    /// NSFontWeightMedium: 0.230000      - 500 Medium
-    /// NSFontWeightSemibold: 0.300000    - 600 Semi Bold (Demi Bold)
-    /// NSFontWeightBold: 0.400000        - 700 Bold
-    ///                                   - 800 Extra Bold (Ultra Bold)
-    /// NSFontWeightHeavy: 0.560000       - 900 Black (Heavy)
-    ///                                   - 950 Extra Black (Ultra Black)
-    /// </code>
-    /// </summary>
-    /// <param name="webWeight"></param>
-    /// <returns></returns>
-    private NFloat MapWebWeightToCTWeight(NFloat webWeight)
-    {
-        if (webWeight == 400) return 0;
-        webWeight = NFloat.Clamp(webWeight, 1, 1000);
-        if (webWeight < 100f) return NFloat.Lerp(-1, -0.8f, (webWeight - 1f) / 100f);
-        if (webWeight <= 300f) return NFloat.Lerp(-0.8f, -0.4f, (webWeight - 100f) / 200f);
-        if (webWeight <= 400f) return NFloat.Lerp(-0.4f, 0f, (webWeight - 300f) / 100f);
-        if (webWeight <= 500f) return NFloat.Lerp(0f, 0.23f, (webWeight - 400f) / 100f);
-        if (webWeight <= 600f) return NFloat.Lerp(0.23f, 0.3f, (webWeight - 500f) / 100f);
-        if (webWeight <= 700f) return NFloat.Lerp(0.3f, 0.4f, (webWeight - 600f) / 100f);
-        if (webWeight <= 900f) return NFloat.Lerp(0.4f, 0.56f, (webWeight - 700f) / 200f);
-        return NFloat.Lerp(0.56f, 1f, (webWeight - 900f) / 100f);
     }
 
     public void SetLineDash(ReadOnlySpan<NFloat> segments)
@@ -682,10 +503,70 @@ public class MacOSDrawingContext : IContext
         throw new NotImplementedException();
     }
 
-    void IPenContext.SetFill(ImagePattern pattern) => throw new NotImplementedException();
-    void IPenContext.SetStroke(ImagePattern pattern) => throw new NotImplementedException();
+    void IPenContext.SetFill(ImagePattern pattern) => this.fill.Set(pattern);
+    void IPenContext.SetStroke(ImagePattern pattern) => this.stroke.Set(pattern);
 
-    void IImageDrawingContext.DrawImage(IImage image, Rect dest) => throw new NotImplementedException();
-    void IImageDrawingContext.DrawImage(IImage image, Rect dest, NFloat opacity) => throw new NotImplementedException();
-    void IImageDrawingContext.DrawImage(IImage image, Rect source, Rect dest, NFloat opacity) => throw new NotImplementedException();
+    void IImageDrawingContext.DrawImage(IImage image, Rect dest)
+    {
+        if (image is not MacOSImage img || img.Resource == null || img.Resource.CGImage == 0)
+            return;
+        DrawCGImageFlipped(img.Resource.CGImage, dest, 1f);
+    }
+
+    void IImageDrawingContext.DrawImage(IImage image, Rect dest, NFloat opacity)
+    {
+        if (image is not MacOSImage img || img.Resource == null || img.Resource.CGImage == 0)
+            return;
+        DrawCGImageFlipped(img.Resource.CGImage, dest, opacity);
+    }
+
+    void IImageDrawingContext.DrawImage(IImage image, Rect source, Rect dest, NFloat opacity)
+    {
+        if (image is not MacOSImage img || img.Resource == null || img.Resource.CGImage == 0)
+            return;
+        // Crop to source rect (in image pixel coordinates) then draw cropped image.
+        using var cropped = CGImageRef.CreateWithImageInRect(img.Resource.CGImage, source);
+        DrawCGImageFlipped(cropped, dest, opacity);
+    }
+
+    /// <summary>
+    /// Tiles <paramref name="paint"/>'s CGImage across the current clip bounding box.
+    /// Must be called inside a Save/clip/Restore block so the clip is already applied.
+    /// </summary>
+    private void TileImagePattern(in Paint paint)
+    {
+        if (paint.cgImage == 0 || paint.imgWidth == 0 || paint.imgHeight == 0)
+            return;
+
+        CGRect clip = CGContextRef.CGContextGetClipBoundingBox(this.cgContextRef);
+        NFloat imgW = (NFloat)paint.imgWidth;
+        NFloat imgH = (NFloat)paint.imgHeight;
+        bool tileX = paint.patternRepeat is PatternRepeat.Repeat or PatternRepeat.RepeatX;
+        bool tileY = paint.patternRepeat is PatternRepeat.Repeat or PatternRepeat.RepeatY;
+
+        // Anchor tiles to (0,0) in the current user-space — mirrors browser createPattern behaviour.
+        // For each axis: snap the loop start back to the first tile-grid multiple that still covers
+        // the clip edge, then run forward until the clip is fully covered (or just one tile if not tiling).
+        NFloat startX = tileX ? NFloat.Floor(clip.Origin.X / imgW) * imgW : 0f;
+        NFloat startY = tileY ? NFloat.Floor(clip.Origin.Y / imgH) * imgH : 0f;
+        NFloat xEnd   = tileX ? clip.Origin.X + clip.Size.Width  : imgW;
+        NFloat yEnd   = tileY ? clip.Origin.Y + clip.Size.Height : imgH;
+
+        for (NFloat ty = startY; ty < yEnd; ty += imgH)
+            for (NFloat tx = startX; tx < xEnd; tx += imgW)
+                DrawCGImageFlipped(paint.cgImage, new Rect(tx, ty, imgW, imgH), 1f);
+    }
+
+    private void DrawCGImageFlipped(nint cgImage, Rect dest, NFloat opacity)
+    {
+        CGContextRef.CGContextSaveGState(this.cgContextRef);
+        if (opacity != 1f)
+            CGContextRef.CGContextSetAlpha(this.cgContextRef, opacity);
+        // CGContextDrawImage places the image bottom-up in a Y-down flipped view.
+        // Correct by translating to the bottom edge of dest and scaling Y by -1.
+        CGContextRef.CGContextTranslateCTM(this.cgContextRef, dest.X, dest.Y + dest.Height);
+        CGContextRef.CGContextScaleCTM(this.cgContextRef, 1, -1);
+        CGContextRef.CGContextDrawImage(this.cgContextRef, new CGRect(0, 0, dest.Width, dest.Height), cgImage);
+        CGContextRef.CGContextRestoreGState(this.cgContextRef);
+    }
 }
