@@ -58,9 +58,16 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
     public ITextMeasureContext? TextMeasureContext =>
         _textMeasureContext ??= new MacOSTextMeasureContext();
 
+    // Image pipeline (decodes via ImageIO, caches CGImageRef by URI)
+    private MacOSImageFactory? _imageFactory;
+
+    private MacOSImageFactory ImageFactory =>
+        _imageFactory ??= new MacOSImageFactory();
+
     public object? GetService(Type serviceType)
     {
         if (serviceType == typeof(ITextMeasureContext)) return TextMeasureContext;
+        if (serviceType == typeof(IImage)) return ImageFactory.CreateImage();
         return null;
     }
 

@@ -169,6 +169,16 @@ public class MacOSDrawingContext : IContext
                 this.fill.endPoint);
             CGContextRef.CGContextRestoreGState(this.cgContextRef);
         }
+        else if (this.fill.style == PaintStyle.BitmapBrush)
+        {
+            CGContextRef.CGContextSaveGState(this.cgContextRef);
+            if (fillRule == FillRule.EvenOdd)
+                CGContextRef.CGContextEOClip(this.cgContextRef);
+            else
+                CGContextRef.CGContextClip(this.cgContextRef);
+            TileImagePattern(this.fill);
+            CGContextRef.CGContextRestoreGState(this.cgContextRef);
+        }
         else
         {
             CGContextRef.CGContextSaveGState(this.cgContextRef);
@@ -220,6 +230,13 @@ public class MacOSDrawingContext : IContext
                 this.stroke.startRadius,
                 this.stroke.endPoint,
                 this.stroke.endRadius);
+            CGContextRef.CGContextRestoreGState(this.cgContextRef);
+        }
+        else if (this.fill.style == PaintStyle.BitmapBrush)
+        {
+            CGContextRef.CGContextSaveGState(this.cgContextRef);
+            CGContextRef.CGContextClipToRect(this.cgContextRef, rect);
+            TileImagePattern(this.fill);
             CGContextRef.CGContextRestoreGState(this.cgContextRef);
         }
     }
@@ -362,6 +379,14 @@ public class MacOSDrawingContext : IContext
                 this.stroke.endRadius);
             CGContextRef.CGContextRestoreGState(this.cgContextRef);
         }
+        else if (this.stroke.style == PaintStyle.BitmapBrush)
+        {
+            CGContextRef.CGContextSaveGState(this.cgContextRef);
+            CGContextRef.CGContextReplacePathWithStrokedPath(this.cgContextRef);
+            CGContextRef.CGContextClip(this.cgContextRef);
+            TileImagePattern(this.stroke);
+            CGContextRef.CGContextRestoreGState(this.cgContextRef);
+        }
     }
 
     void IRectDrawingContext.StrokeRect(Rect rect)
@@ -461,6 +486,11 @@ public class MacOSDrawingContext : IContext
         public Point endPoint;
         public NFloat startRadius;
         public NFloat endRadius;
+        // BitmapBrush — borrowed reference, NOT owned (MacOSImageResource owns the CGImageRef)
+        public nint cgImage;
+        public uint imgWidth;
+        public uint imgHeight;
+        public PatternRepeat patternRepeat;
 
         public void Set(Color color)
         {
@@ -486,6 +516,17 @@ public class MacOSDrawingContext : IContext
             this.endRadius = radialGradient.EndRadius;
         }
 
+        public void Set(ImagePattern pattern)
+        {
+            if (pattern.Image is not MacOSImage img || img.Resource == null || img.Resource.CGImage == 0)
+                return;
+            this.Reset(PaintStyle.BitmapBrush);
+            this.cgImage      = img.Resource.CGImage;
+            this.imgWidth     = img.Resource.Width;
+            this.imgHeight    = img.Resource.Height;
+            this.patternRepeat = pattern.Repetition;
+        }
+
         public void Reset(PaintStyle style = PaintStyle.SolidColor)
         {
             if (this.cgGradientRef != 0)
@@ -493,6 +534,7 @@ public class MacOSDrawingContext : IContext
                 CGGradientRef.CGGradientRelease(cgGradientRef);
                 this.cgGradientRef = 0;
             }
+            this.cgImage = 0; // borrowed — do not release
             this.style = style;
         }
     }
@@ -507,10 +549,70 @@ public class MacOSDrawingContext : IContext
         throw new NotImplementedException();
     }
 
-    void IPenContext.SetFill(ImagePattern pattern) => throw new NotImplementedException();
-    void IPenContext.SetStroke(ImagePattern pattern) => throw new NotImplementedException();
+    void IPenContext.SetFill(ImagePattern pattern) => this.fill.Set(pattern);
+    void IPenContext.SetStroke(ImagePattern pattern) => this.stroke.Set(pattern);
 
-    void IImageDrawingContext.DrawImage(IImage image, Rect dest) => throw new NotImplementedException();
-    void IImageDrawingContext.DrawImage(IImage image, Rect dest, NFloat opacity) => throw new NotImplementedException();
-    void IImageDrawingContext.DrawImage(IImage image, Rect source, Rect dest, NFloat opacity) => throw new NotImplementedException();
+    void IImageDrawingContext.DrawImage(IImage image, Rect dest)
+    {
+        if (image is not MacOSImage img || img.Resource == null || img.Resource.CGImage == 0)
+            return;
+        DrawCGImageFlipped(img.Resource.CGImage, dest, 1f);
+    }
+
+    void IImageDrawingContext.DrawImage(IImage image, Rect dest, NFloat opacity)
+    {
+        if (image is not MacOSImage img || img.Resource == null || img.Resource.CGImage == 0)
+            return;
+        DrawCGImageFlipped(img.Resource.CGImage, dest, opacity);
+    }
+
+    void IImageDrawingContext.DrawImage(IImage image, Rect source, Rect dest, NFloat opacity)
+    {
+        if (image is not MacOSImage img || img.Resource == null || img.Resource.CGImage == 0)
+            return;
+        // Crop to source rect (in image pixel coordinates) then draw cropped image.
+        using var cropped = CGImageRef.CreateWithImageInRect(img.Resource.CGImage, source);
+        DrawCGImageFlipped(cropped, dest, opacity);
+    }
+
+    /// <summary>
+    /// Tiles <paramref name="paint"/>'s CGImage across the current clip bounding box.
+    /// Must be called inside a Save/clip/Restore block so the clip is already applied.
+    /// </summary>
+    private void TileImagePattern(in Paint paint)
+    {
+        if (paint.cgImage == 0 || paint.imgWidth == 0 || paint.imgHeight == 0)
+            return;
+
+        CGRect clip = CGContextRef.CGContextGetClipBoundingBox(this.cgContextRef);
+        NFloat imgW = (NFloat)paint.imgWidth;
+        NFloat imgH = (NFloat)paint.imgHeight;
+        bool tileX = paint.patternRepeat is PatternRepeat.Repeat or PatternRepeat.RepeatX;
+        bool tileY = paint.patternRepeat is PatternRepeat.Repeat or PatternRepeat.RepeatY;
+
+        // Anchor tiles to (0,0) in the current user-space — mirrors browser createPattern behaviour.
+        // For each axis: snap the loop start back to the first tile-grid multiple that still covers
+        // the clip edge, then run forward until the clip is fully covered (or just one tile if not tiling).
+        NFloat startX = tileX ? NFloat.Floor(clip.Origin.X / imgW) * imgW : 0f;
+        NFloat startY = tileY ? NFloat.Floor(clip.Origin.Y / imgH) * imgH : 0f;
+        NFloat xEnd   = tileX ? clip.Origin.X + clip.Size.Width  : imgW;
+        NFloat yEnd   = tileY ? clip.Origin.Y + clip.Size.Height : imgH;
+
+        for (NFloat ty = startY; ty < yEnd; ty += imgH)
+            for (NFloat tx = startX; tx < xEnd; tx += imgW)
+                DrawCGImageFlipped(paint.cgImage, new Rect(tx, ty, imgW, imgH), 1f);
+    }
+
+    private void DrawCGImageFlipped(nint cgImage, Rect dest, NFloat opacity)
+    {
+        CGContextRef.CGContextSaveGState(this.cgContextRef);
+        if (opacity != 1f)
+            CGContextRef.CGContextSetAlpha(this.cgContextRef, opacity);
+        // CGContextDrawImage places the image bottom-up in a Y-down flipped view.
+        // Correct by translating to the bottom edge of dest and scaling Y by -1.
+        CGContextRef.CGContextTranslateCTM(this.cgContextRef, dest.X, dest.Y + dest.Height);
+        CGContextRef.CGContextScaleCTM(this.cgContextRef, 1, -1);
+        CGContextRef.CGContextDrawImage(this.cgContextRef, new CGRect(0, 0, dest.Width, dest.Height), cgImage);
+        CGContextRef.CGContextRestoreGState(this.cgContextRef);
+    }
 }
