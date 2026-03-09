@@ -31,6 +31,10 @@ public static partial class AppKit
 
         private static readonly Sel ClickCountSel = new Sel("clickCount");
 
+        private static readonly Sel ModifierFlagsSel = new Sel("modifierFlags");
+
+        private static readonly Sel IsARepeatSel = new Sel("isARepeat");
+
         public readonly nint Self;
 
         public NSEventRef(nint self)
@@ -61,6 +65,12 @@ public static partial class AppKit
         public string? Characters => CFStringRef.Marshal(objc_msgSend_retIntPtr(this, CharactersSel));
 
         public float Pressure => objc_msgSend_retFloat(this, PressureSel);
+
+        /// <summary>NSEvent.modifierFlags — bit mask of active modifier keys.</summary>
+        public nuint ModifierFlags => objc_msgSend_retNUInt(this, ModifierFlagsSel);
+
+        /// <summary>NSEvent.isARepeat — true when the key is held down.</summary>
+        public bool IsARepeat => objc_msgSend_retBool(this, IsARepeatSel);
 
         [LibraryImport(ObjC.LibObjCLib, EntryPoint = "objc_msgSend")]
         private static partial NSPoint objc_msgSend_NSPointRet(nint obj, nint sel);

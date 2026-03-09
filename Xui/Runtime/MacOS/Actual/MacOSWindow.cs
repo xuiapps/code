@@ -48,6 +48,9 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
     private Point _resizeStartPoint;
     private NSRect _resizeStartFrame;
 
+    // Keyboard modifier tracking (for FlagsChanged)
+    private nuint _lastModifierFlags;
+
     public static nint InitWithAbstract(Xui.Core.Abstract.IWindow @abstract)
     {
         NSWindowStyleMask mask =
@@ -168,11 +171,37 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
             };
             this.Abstract.WindowHitTest(ref eventRef);
         }
-        else if (type == NSEventType.KeyDown || type == NSEventType.KeyUp)
+        else if (type == NSEventType.KeyDown)
         {
-            ushort keyCode = e.KeyCode;
-            string? characters = e.Characters;
-            // Debug.WriteLine("XuiWindow sendEvent " + type + " " + keyCode + " " + characters);
+            VirtualKey key = MacOSKeyMap.ToVirtualKey(e.KeyCode);
+            bool shift = (e.ModifierFlags & MacOSKeyMap.ShiftFlag) != 0;
+            bool isRepeat = e.IsARepeat;
+
+            var keyEvent = new KeyEventRef { Key = key, Shift = shift, IsRepeat = isRepeat };
+            this.Abstract.OnKeyDown(ref keyEvent);
+
+            // Dispatch printable characters via OnChar (>= space, excludes control chars)
+            var characters = e.Characters;
+            if (characters is { Length: > 0 } && characters[0] >= ' ')
+            {
+                var charEvent = new KeyEventRef { Character = characters[0], Shift = shift, IsRepeat = isRepeat };
+                this.Abstract.OnChar(ref charEvent);
+            }
+        }
+        else if (type == NSEventType.KeyUp)
+        {
+            // No OnKeyUp in the abstract interface; super is still called below.
+        }
+        else if (type == NSEventType.FlagsChanged)
+        {
+            var flags = e.ModifierFlags;
+            var diff = flags ^ _lastModifierFlags;
+            _lastModifierFlags = flags;
+
+            // Dispatch OnKeyDown for each modifier that just became pressed.
+            DispatchModifierIfPressed(diff, flags, MacOSKeyMap.ShiftFlag,   VirtualKey.Shift);
+            DispatchModifierIfPressed(diff, flags, MacOSKeyMap.ControlFlag, VirtualKey.Control);
+            DispatchModifierIfPressed(diff, flags, MacOSKeyMap.OptionFlag,  VirtualKey.Alt);
         }
         else if (
             type == NSEventType.MouseMoved ||
@@ -387,6 +416,15 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
         if (this.Abstract is Xui.Core.Abstract.IWindow.IDesktopStyle dwsc && dwsc.Backdrop == WindowBackdrop.Chromeless)
         {
             // this.HideTitleButtons();
+        }
+    }
+
+    private void DispatchModifierIfPressed(nuint diff, nuint current, nuint flag, VirtualKey key)
+    {
+        if ((diff & flag) != 0 && (current & flag) != 0)
+        {
+            var e = new KeyEventRef { Key = key };
+            this.Abstract.OnKeyDown(ref e);
         }
     }
 
