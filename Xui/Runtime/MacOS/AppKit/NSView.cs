@@ -50,6 +50,22 @@ public static partial class AppKit
         public static readonly Sel LayerSel = new Sel("layer");
         public static readonly Sel SetLayerSel = new Sel("setLayer:");
 
+        private static readonly Sel SuperviewSel = new Sel("superview");
+        private static readonly Sel SetHiddenSel = new Sel("setHidden:");
+        private static readonly Sel SetFrameOriginSel = new Sel("setFrameOrigin:");
+
+        /// <summary>Returns the parent view of a native view we don't own.</summary>
+        public static nint GetSuperview(nint viewPtr) => objc_msgSend_retIntPtr(viewPtr, SuperviewSel);
+
+        /// <summary>Gets the frame of a native view we don't own.</summary>
+        public static NSRect GetFrame(nint viewPtr) => objc_msgSend_NSRectRet(viewPtr, FrameSel);
+
+        /// <summary>Sets the frame of a native view we don't own.</summary>
+        public static void SetFrame(nint viewPtr, NSRect rect) => Foundation.objc_msgSend(viewPtr, SetFrameSel, rect);
+
+        /// <summary>Sets the hidden flag of a native view we don't own.</summary>
+        public static void SetHidden(nint viewPtr, bool hidden) => ObjC.objc_msgSend(viewPtr, SetHiddenSel, hidden);
+
         public NSView(nint id) : base(id)
         {
         }
@@ -61,7 +77,7 @@ public static partial class AppKit
         public NSRect Frame
         {
             get => objc_msgSend_NSRectRet(this, FrameSel);
-            set => objc_msgSend(this, SetFrameSel, value);
+            set => Foundation.objc_msgSend(this, SetFrameSel, value);
         }
 
         public bool AutoresizesSubviews
@@ -111,7 +127,7 @@ public static partial class AppKit
 
         public NSSize SizeThatFits(NSSize size) => objc_msgSend_NSSizeRet(this, SizeThatFitsSel, size);
 
-        public void SetNeedsDisplayInRect(NSRect rect) => objc_msgSend(this, SetNeedsDisplayInRectSel, rect);
+        public void SetNeedsDisplayInRect(NSRect rect) => Foundation.objc_msgSend(this, SetNeedsDisplayInRectSel, rect);
 
         public NSPoint ConvertPointFromView(NSPoint point, NSView? view) => objc_msgSend_NSPointRet(this, ConvertPointFromViewSel, point, view == null ? 0 : view);
 

@@ -88,7 +88,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
 
         if (@abstract is Xui.Core.Abstract.IWindow.IDesktopStyle dws)
         {
-            if (dws.Backdrop == WindowBackdrop.Chromeless)
+            if (dws.Backdrop is WindowBackdrop.Mica or WindowBackdrop.Acrylic or WindowBackdrop.Chromeless)
             {
                 mask =
                     NSWindowStyleMask.Titled |
@@ -97,15 +97,6 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
                     NSWindowStyleMask.Resizable |
                     NSWindowStyleMask.FullSizeContentView |
                     NSWindowStyleMask.Borderless;
-            }
-            else if (dws.Backdrop is WindowBackdrop.Mica or WindowBackdrop.Acrylic)
-            {
-                mask =
-                    NSWindowStyleMask.Titled |
-                    NSWindowStyleMask.Closable |
-                    NSWindowStyleMask.Miniaturizable |
-                    NSWindowStyleMask.Resizable |
-                    NSWindowStyleMask.FullSizeContentView;
             }
 
             if (dws.StartupSize.HasValue)
@@ -166,6 +157,9 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
             }
             else if (dws.Backdrop is WindowBackdrop.Mica or WindowBackdrop.Acrylic)
             {
+                using var transparent = new NSColorRef(0, 0, 0, 0);
+                this.BackgroundColor = transparent;
+
                 var vev = new NSVisualEffectView
                 {
                     Material = NSVisualEffectMaterial.UnderWindowBackground,
@@ -208,7 +202,11 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
         set => this.Title = value;
     }
 
-    void Xui.Core.Actual.IWindow.Show() => this.MakeKeyAndOrderFront();
+    void Xui.Core.Actual.IWindow.Show()
+    {
+        this.MakeKeyAndOrderFront();
+        this.PositionSystemButtons();
+    }
 
     protected void SendEvent(nint sel, NSEventRef e)
     {
