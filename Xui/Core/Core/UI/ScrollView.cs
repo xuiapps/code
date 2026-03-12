@@ -60,7 +60,7 @@ public class ScrollView : View
     /// <summary>
     /// Gets or sets which axis (or axes) this scroll view responds to.
     /// </summary>
-    public ScrollDirection Direction { get; set; } = ScrollDirection.Vertical;
+    public new ScrollDirection Direction { get; set; } = ScrollDirection.Vertical;
 
     private static readonly nfloat ScrollThreshold = 8f; // pts before gesture is recognized as scroll
 

@@ -6,9 +6,9 @@ using Xui.Core.UI.Input;
 namespace Xui.Core.UI.Layer;
 
 /// <summary>
-/// A <see cref="BorderLayer{TChild}"/> variant that switches border color when the host
+/// A <see cref="BorderLayer{TView, TChild}"/> variant that switches border color when the host
 /// view has keyboard focus. All layout and rendering is delegated to an inner
-/// <see cref="BorderLayer{TChild}"/>; only <see cref="Render"/> swaps the color, and
+/// <see cref="BorderLayer{TView, TChild}"/>; only <see cref="Render"/> swaps the color, and
 /// <see cref="OnFocus"/> / <see cref="OnBlur"/> request a repaint.
 /// </summary>
 public struct FocusBorderLayer<TView, TChild> : ILayer<TView>
@@ -23,35 +23,35 @@ public struct FocusBorderLayer<TView, TChild> : ILayer<TView>
 
     // ── Forwarding properties ────────────────────────────────────────────
 
-    /// <inheritdoc cref="BorderLayer{TChild}.BorderThickness"/>
+    /// <inheritdoc cref="BorderLayer{TView, TChild}.BorderThickness"/>
     public Frame BorderThickness
     {
         get => Border.BorderThickness;
         set => Border.BorderThickness = value;
     }
 
-    /// <inheritdoc cref="BorderLayer{TChild}.CornerRadius"/>
+    /// <inheritdoc cref="BorderLayer{TView, TChild}.CornerRadius"/>
     public CornerRadius CornerRadius
     {
         get => Border.CornerRadius;
         set => Border.CornerRadius = value;
     }
 
-    /// <inheritdoc cref="BorderLayer{TChild}.BackgroundColor"/>
+    /// <inheritdoc cref="BorderLayer{TView, TChild}.BackgroundColor"/>
     public Color BackgroundColor
     {
         get => Border.BackgroundColor;
         set => Border.BackgroundColor = value;
     }
 
-    /// <inheritdoc cref="BorderLayer{TChild}.BorderColor"/>
+    /// <inheritdoc cref="BorderLayer{TView, TChild}.BorderColor"/>
     public Color BorderColor
     {
         get => Border.BorderColor;
         set => Border.BorderColor = value;
     }
 
-    /// <inheritdoc cref="BorderLayer{TChild}.Padding"/>
+    /// <inheritdoc cref="BorderLayer{TView, TChild}.Padding"/>
     public Frame Padding
     {
         get => Border.Padding;

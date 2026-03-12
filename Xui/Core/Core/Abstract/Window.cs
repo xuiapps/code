@@ -37,7 +37,7 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard, IService
     private bool platformClosed;
 
     /// <summary>
-    /// When <c>true</c> (the default), closing the window calls <see cref="Dispose"/>.
+    /// When <c>true</c> (the default), closing the window calls <see cref="Dispose()"/>.
     /// Set to <c>false</c> for windows that survive being closed and reopened.
     /// </summary>
     public bool DestroyOnClose { get; set; } = true;
@@ -80,7 +80,7 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard, IService
     /// Initializes a new instance of the <see cref="Window"/> class.
     /// This creates the backing platform window.
     /// </summary>
-    /// <param name="windowServices">
+    /// <param name="context">
     /// An optional scoped <see cref="IServiceProvider"/> for this window.
     /// If it implements <see cref="IDisposable"/>, it will be disposed when the window closes.
     /// </param>
