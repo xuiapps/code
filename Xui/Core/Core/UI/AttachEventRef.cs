@@ -5,6 +5,7 @@ namespace Xui.Core.UI;
 /// </summary>
 public ref struct AttachEventRef
 {
+    /// <summary>Initializes a new <see cref="AttachEventRef"/>.</summary>
     public AttachEventRef()
     {
     }

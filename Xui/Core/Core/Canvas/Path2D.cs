@@ -3,39 +3,50 @@ using Xui.Core.Math2D;
 
 namespace Xui.Core.Canvas;
 
+/// <summary>
+/// A serialized path that stores drawing commands in a compact byte buffer and replays them
+/// into any <see cref="IPathBuilder"/>. Use <see cref="Visit"/> to replay recorded commands.
+/// </summary>
 public class Path2D : IPathBuilder
 {
     private byte[] _data;
     private int _length;
 
+    /// <summary>Initializes a new <see cref="Path2D"/> with the specified initial byte-buffer capacity.</summary>
+    /// <param name="initialCapacity">Initial buffer size in bytes. Grows automatically as needed.</param>
     public Path2D(int initialCapacity = 256)
     {
         _data = new byte[initialCapacity];
         _length = 0;
     }
 
+    /// <summary>Clears all recorded path commands, resetting the path to empty.</summary>
     public void BeginPath()
     {
         _length = 0;
     }
 
+    /// <inheritdoc/>
     public void MoveTo(Point to)
     {
         WriteCommand(PathCommandType.MoveTo);
         WritePoint(to);
     }
 
+    /// <inheritdoc/>
     public void LineTo(Point to)
     {
         WriteCommand(PathCommandType.LineTo);
         WritePoint(to);
     }
 
+    /// <inheritdoc/>
     public void ClosePath()
     {
         WriteCommand(PathCommandType.ClosePath);
     }
 
+    /// <inheritdoc/>
     public void CurveTo(Point cp1, Point to)
     {
         WriteCommand(PathCommandType.QuadraticCurveTo);
@@ -43,6 +54,7 @@ public class Path2D : IPathBuilder
         WritePoint(to);
     }
 
+    /// <inheritdoc/>
     public void CurveTo(Point cp1, Point cp2, Point to)
     {
         WriteCommand(PathCommandType.CubicCurveTo);
@@ -51,6 +63,7 @@ public class Path2D : IPathBuilder
         WritePoint(to);
     }
 
+    /// <inheritdoc/>
     public void Arc(Point center, nfloat radius, nfloat startAngle, nfloat endAngle, Winding winding = Winding.ClockWise)
     {
         WriteCommand(PathCommandType.Arc);
@@ -61,6 +74,7 @@ public class Path2D : IPathBuilder
         WriteByte((byte)winding);
     }
 
+    /// <inheritdoc/>
     public void ArcTo(Point cp1, Point cp2, nfloat radius)
     {
         WriteCommand(PathCommandType.ArcTo);
@@ -69,6 +83,7 @@ public class Path2D : IPathBuilder
         WriteNFloat(radius);
     }
 
+    /// <inheritdoc/>
     public void Ellipse(Point center, nfloat radiusX, nfloat radiusY, nfloat rotation, nfloat startAngle, nfloat endAngle, Winding winding = Winding.ClockWise)
     {
         WriteCommand(PathCommandType.Ellipse);
@@ -81,12 +96,14 @@ public class Path2D : IPathBuilder
         WriteByte((byte)winding);
     }
 
+    /// <inheritdoc/>
     public void Rect(Rect rect)
     {
         WriteCommand(PathCommandType.Rect);
         WriteRect(rect);
     }
 
+    /// <inheritdoc/>
     public void RoundRect(Rect rect, nfloat radius)
     {
         WriteCommand(PathCommandType.RoundRectUniform);
@@ -94,6 +111,7 @@ public class Path2D : IPathBuilder
         WriteNFloat(radius);
     }
 
+    /// <inheritdoc/>
     public void RoundRect(Rect rect, CornerRadius radius)
     {
         WriteCommand(PathCommandType.RoundRectCorners);
@@ -165,6 +183,8 @@ public class Path2D : IPathBuilder
         RoundRectCorners
     }
 
+    /// <summary>Replays all recorded path commands into the given <see cref="IPathBuilder"/>.</summary>
+    /// <param name="sink">The path builder to receive the commands.</param>
     public void Visit(IPathBuilder sink)
     {
         int pos = 0;

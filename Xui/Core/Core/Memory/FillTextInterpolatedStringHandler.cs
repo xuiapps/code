@@ -5,6 +5,10 @@ using System.Runtime.InteropServices;
 
 namespace Xui.Core.Memory;
 
+/// <summary>
+/// Low-allocation interpolated string handler for building text in a stack-first inline buffer,
+/// spilling to a rented array only when the text exceeds 256 characters.
+/// </summary>
 [InterpolatedStringHandler]
 public ref struct FillTextInterpolatedStringHandler
 {
@@ -13,6 +17,9 @@ public ref struct FillTextInterpolatedStringHandler
     private char[]? rented;
     private int pos;
 
+    /// <summary>Initializes the handler and allocates or rents a buffer of the appropriate size.</summary>
+    /// <param name="literalLength">Total character count of all literal string segments.</param>
+    /// <param name="formattedCount">Number of interpolated holes in the string.</param>
     public FillTextInterpolatedStringHandler(int literalLength, int formattedCount)
     {
         int initialCapacity = literalLength + formattedCount * 16;
@@ -31,6 +38,7 @@ public ref struct FillTextInterpolatedStringHandler
         }
     }
 
+    /// <summary>Appends a literal string segment to the buffer.</summary>
     public void AppendLiteral(string s)
     {
         if (s.Length > buffer.Length - pos)
@@ -44,6 +52,7 @@ public ref struct FillTextInterpolatedStringHandler
 
     // Zero-alloc path for "any span-formattable" value types and structs.
     // This is the important one: no boxing, no interface-cast allocations.
+    /// <summary>Appends a span-formattable value using its default format.</summary>
     public void AppendFormatted<T>(T value) where T : ISpanFormattable
     {
         int charsWritten;
@@ -55,6 +64,7 @@ public ref struct FillTextInterpolatedStringHandler
         pos += charsWritten;
     }
 
+    /// <summary>Appends a span-formattable value using the specified format string.</summary>
     public void AppendFormatted<T>(T value, ReadOnlySpan<char> format) where T : ISpanFormattable
     {
         int charsWritten;
@@ -66,6 +76,7 @@ public ref struct FillTextInterpolatedStringHandler
         pos += charsWritten;
     }
 
+    /// <summary>Appends a span-formattable value with the specified alignment width.</summary>
     public void AppendFormatted<T>(T value, int alignment) where T : ISpanFormattable
     {
         int start = pos;
@@ -73,6 +84,7 @@ public ref struct FillTextInterpolatedStringHandler
         ApplyAlignment(start, alignment);
     }
 
+    /// <summary>Appends a span-formattable value with the specified format and alignment width.</summary>
     public void AppendFormatted<T>(T value, int alignment, ReadOnlySpan<char> format) where T : ISpanFormattable
     {
         int start = pos;
@@ -81,6 +93,7 @@ public ref struct FillTextInterpolatedStringHandler
     }
 
     // Common fast-paths the compiler will pick for these interpolations.
+    /// <summary>Appends a <see cref="ReadOnlySpan{T}"/> of characters directly.</summary>
     public void AppendFormatted(ReadOnlySpan<char> value)
     {
         if (value.Length > buffer.Length - pos)
@@ -92,16 +105,20 @@ public ref struct FillTextInterpolatedStringHandler
         pos += value.Length;
     }
 
+    /// <summary>Appends a string value.</summary>
     public void AppendFormatted(string? value) =>
         AppendLiteral(value ?? "");
 
     // Explicitly "allocating fallback" for non-span-formattable objects.
     // Keeping it explicit avoids accidental boxing allocations in a generic method.
+    /// <summary>Appends any object by calling <c>ToString()</c>.</summary>
     public void AppendFormatted(object? value) =>
         AppendLiteral(value?.ToString() ?? "");
 
+    /// <summary>Returns the currently accumulated characters as a read-only span.</summary>
     public readonly ReadOnlySpan<char> AsSpan() => buffer[..pos];
 
+    /// <summary>Returns any rented array buffer back to the pool.</summary>
     public void Dispose()
     {
         if (rented != null)

@@ -10,6 +10,11 @@
 
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <WarnOnMissingXmlDoc>true</WarnOnMissingXmlDoc>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <WarningsAsErrors>CS1591</WarningsAsErrors>
   </PropertyGroup>
 
 </Project>

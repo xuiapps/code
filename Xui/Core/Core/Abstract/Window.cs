@@ -21,6 +21,7 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard, IService
 {
     private static IList<Window> openWindows = new List<Window>();
 
+    /// <summary>The service provider for this window.</summary>
     public IServiceProvider Context { get; }
 
     /// <inheritdoc/>
@@ -29,6 +30,7 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard, IService
     public virtual object? GetService(Type serviceType) =>
         this.Context.GetService(serviceType) ?? this.Actual.GetService(serviceType);
 
+    /// <summary>A list of disposables disposed when the window closes.</summary>
     public List<IDisposable> DisposeQueue { get; } = [];
 
     private bool disposed;
@@ -40,6 +42,7 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard, IService
     /// </summary>
     public bool DestroyOnClose { get; set; } = true;
 
+    /// <summary>The platform runtime used by this window.</summary>
     public IRuntime Runtime { get; }
 
     /// <summary>
@@ -67,8 +70,10 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard, IService
     /// </summary>
     public virtual ITextMeasureContext? TextMeasureContext => this.Actual.TextMeasureContext;
 
+    /// <summary>The root view that hosts the window's content hierarchy.</summary>
     public RootView RootView { get; }
 
+    /// <summary>Sets the root content view of this window.</summary>
     public View Content { init => this.RootView.Content = value; }
 
     /// <summary>

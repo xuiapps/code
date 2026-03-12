@@ -8,5 +8,7 @@ namespace Xui.Core.UI.Layer;
 public interface IButtonAction<in THost>
     where THost : ILayerHost
 {
+    /// <summary>Executes the button action on the given host view.</summary>
+    /// <param name="host">The host view that owns the button.</param>
     void Execute(THost host);
 }

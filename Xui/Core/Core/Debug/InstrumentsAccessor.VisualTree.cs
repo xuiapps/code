@@ -2,8 +2,13 @@ using Xui.Core.UI;
 
 namespace Xui.Core.Debug;
 
+/// <summary>Extension methods on <see cref="InstrumentsAccessor"/> for visual tree diagnostics.</summary>
 public static class InstrumentsAccessorExtensions
 {
+    /// <summary>Logs the full visual tree rooted at <paramref name="root"/> at the given level of detail.</summary>
+    /// <param name="instruments">The accessor to log through.</param>
+    /// <param name="root">The root view to dump.</param>
+    /// <param name="lod">The level of detail threshold.</param>
     public static void DumpVisualTree(this InstrumentsAccessor instruments, View root, LevelOfDetail lod = LevelOfDetail.Info)
     {
         if (instruments.Sink == null || !instruments.Sink.IsEnabled(Scope.ViewLifecycle, lod))

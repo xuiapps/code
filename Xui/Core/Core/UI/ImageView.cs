@@ -34,6 +34,7 @@ public class ImageView : View
         }
     }
 
+    /// <inheritdoc/>
     protected override void OnActivate()
     {
         image = this.GetService<IImage>();
@@ -45,11 +46,13 @@ public class ImageView : View
         }
     }
 
+    /// <inheritdoc/>
     protected override void OnDeactivate()
     {
         image = null;
     }
 
+    /// <inheritdoc/>
     protected override Size MeasureCore(Size availableBorderEdgeSize, IMeasureContext context)
     {
         if (image == null)
@@ -68,6 +71,7 @@ public class ImageView : View
         return new Size(intrinsic.Width * scale, intrinsic.Height * scale);
     }
 
+    /// <inheritdoc/>
     protected override void RenderCore(IContext context)
     {
         if (image != null && image.Size != Size.Empty)

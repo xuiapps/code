@@ -38,6 +38,7 @@ public readonly struct TextMetrics
         height: Font.FontBoundingBoxAscent + Font.FontBoundingBoxDescent
     );
 
+    /// <summary>The measured size of the text.</summary>
     public Size Size => new Size(this.Line.Width, this.Font.Height);
 
     /// <summary>

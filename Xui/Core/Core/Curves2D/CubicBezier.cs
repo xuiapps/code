@@ -52,6 +52,10 @@ public readonly struct CubicBezier : ICurve
             t
         );
 
+    /// <summary>
+    /// Returns a quadratic Bézier that approximates this cubic by averaging the endpoint tangents.
+    /// Suitable as a fast approximation when subdivision is not required.
+    /// </summary>
     public QuadraticBezier QuadraticApproximation
     {
         get
@@ -272,6 +276,10 @@ public readonly struct CubicBezier : ICurve
         return ClosestTRecursive(this, target, 0, 1, precision);
     }
 
+    /// <summary>
+    /// Splits this curve at the Y-derivative roots, returning up to three Y-monotonic segments
+    /// packed into a <see cref="MonotonicCubicBezier"/>.
+    /// </summary>
     public MonotonicCubicBezier SplitIntoYMonotonicCurves()
     {
         // Compute the derivative coefficients (for Y)
@@ -466,11 +474,19 @@ public readonly struct CubicBezier : ICurve
         }
     }
 
+    /// <summary>
+    /// A node in the adaptive subdivision linked list used by <see cref="ToQuadratics"/>.
+    /// Each node holds a cubic segment, its quadratic approximation, and a flatness error measure.
+    /// </summary>
     public struct SubcurveNode
     {
+        /// <summary>The cubic Bézier segment represented by this node.</summary>
         public CubicBezier Segment;
+        /// <summary>The quadratic Bézier approximation of <see cref="Segment"/>.</summary>
         public QuadraticBezier QuadraticBezierApproximation;
+        /// <summary>The maximum perpendicular deviation of the approximation from the original cubic.</summary>
         public nfloat Precision;
+        /// <summary>Index of the next node in the linked chain; 0 indicates this is the last node.</summary>
         public ushort NextIndex;
 
         /// <summary>
