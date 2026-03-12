@@ -3,16 +3,23 @@ using Xui.Core.Abstract.Events;
 
 namespace Xui.Core.UI.Input
 {
+    /// <summary>
+    /// Routes pointer, mouse, scroll, and touch events through the view tree,
+    /// performing hit testing, pointer capture, and enter/leave tracking.
+    /// </summary>
     public class EventRouter
     {
         private readonly View _rootView;
         private readonly Dictionary<int, PointerTracking> _pointerTracking = new();
 
+        /// <summary>Initializes a new <see cref="EventRouter"/> rooted at the given view.</summary>
+        /// <param name="rootView">The root of the view tree to route events through.</param>
         public EventRouter(View rootView)
         {
             _rootView = rootView;
         }
 
+        /// <summary>Dispatches a touch event, translating each touch point into a pointer event.</summary>
         public void Dispatch(ref TouchEventRef touchEvent)
         {
             foreach (var touch in touchEvent.Touches)
@@ -53,6 +60,7 @@ namespace Xui.Core.UI.Input
             }
         }
 
+        /// <summary>Dispatches a mouse button down event as a pointer down event.</summary>
         public void Dispatch(ref MouseDownEventRef e)
         {
             var state = new PointerState(
@@ -81,6 +89,7 @@ namespace Xui.Core.UI.Input
             DispatchPointer(ref pe);
         }
 
+        /// <summary>Dispatches a mouse button up event as a pointer up event.</summary>
         public void Dispatch(ref MouseUpEventRef e)
         {
             var state = new PointerState(
@@ -109,6 +118,7 @@ namespace Xui.Core.UI.Input
             DispatchPointer(ref pe);
         }
 
+        /// <summary>Dispatches a mouse move event as a pointer move event.</summary>
         public void Dispatch(ref MouseMoveEventRef e)
         {
             var state = new PointerState(
@@ -249,6 +259,9 @@ namespace Xui.Core.UI.Input
             _pointerTracking[e.PointerId] = tracking;
         }
 
+        /// <summary>Captures all subsequent pointer events for the given pointer ID to <paramref name="view"/>.</summary>
+        /// <param name="view">The view that will exclusively receive events for this pointer.</param>
+        /// <param name="pointerId">The pointer identifier to capture.</param>
         public void CapturePointer(View view, int pointerId)
         {
             if (_pointerTracking.TryGetValue(pointerId, out var tracking))
@@ -264,6 +277,9 @@ namespace Xui.Core.UI.Input
             }
         }
 
+        /// <summary>Releases pointer capture previously set by <see cref="CapturePointer"/>.</summary>
+        /// <param name="view">The view that currently holds the capture.</param>
+        /// <param name="pointerId">The pointer identifier to release.</param>
         public void ReleasePointer(View view, int pointerId)
         {
             if (_pointerTracking.TryGetValue(pointerId, out var tracking) && tracking.Captured == view)

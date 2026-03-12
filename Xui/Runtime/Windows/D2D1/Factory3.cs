@@ -17,7 +17,7 @@ public static partial class D2D1
         {
         }
 
-        public D2D1.Device2 CreateDevice(DXGI.Device device)
+        public new D2D1.Device2 CreateDevice(DXGI.Device device)
         {
             void* ppv;
             Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, void*, void**, int>)(this[31]))(this, device, &ppv));

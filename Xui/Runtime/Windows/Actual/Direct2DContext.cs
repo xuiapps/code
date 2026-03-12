@@ -39,12 +39,7 @@ public partial class Direct2DContext : IContext
 
     private TextFormat.Ptr textFormat;
 
-    private float currentFontSizeDip;
     private Core.Canvas.FontMetrics currentFontMetrics;
-    private string? currentFontFamilyName;
-    private DWrite.FontWeight currentFontWeight;
-    private DWrite.FontStyle currentFontStyle;
-    private DWrite.FontStretch currentFontStretch;
 
     private struct State
     {

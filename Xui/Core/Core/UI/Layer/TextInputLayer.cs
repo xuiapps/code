@@ -88,10 +88,15 @@ public struct TextInputLayer : ILayer<View>
 
     // ── Font properties ──────────────────────────────────────────────────
 
+    /// <summary>Gets or sets the font family name.</summary>
     public string[]? FontFamily { get; set; }
+    /// <summary>Gets or sets the font size in points.</summary>
     public nfloat FontSize { get; set; }
+    /// <summary>Gets or sets the font style.</summary>
     public FontStyle FontStyle { get; set; }
+    /// <summary>Gets or sets the font weight.</summary>
     public FontWeight FontWeight { get; set; }
+    /// <summary>Gets or sets the font stretch.</summary>
     public FontStretch FontStretch { get; set; }
 
     // ── ILayer<View> ─────────────────────────────────────────────────────

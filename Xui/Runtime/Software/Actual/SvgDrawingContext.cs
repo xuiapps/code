@@ -38,7 +38,6 @@ public sealed class SvgDrawingContext : IContext, IDisposable
     private Color? currentStrokeColor = Colors.Black;
     private string? currentStrokeGradientId;
 
-    private FillRule currentFillRule = FillRule.NonZero;
     private bool hasOpenPath = false;
 
     private Point currentPoint = (0, 0);

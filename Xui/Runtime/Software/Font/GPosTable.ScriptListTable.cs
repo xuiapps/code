@@ -50,8 +50,8 @@ public sealed partial class GPosTable
 
         public bool TryGetValue(string key, out ScriptTable value)
         {
-            if (_scripts.TryGetValue(key, out value)) return true;
-            if (_scripts.TryGetValue("DFLT", out value)) return true;
+            if (_scripts.TryGetValue(key, out value!)) return true;
+            if (_scripts.TryGetValue("DFLT", out value!)) return true;
             value = null!;
             return false;
         }
@@ -107,7 +107,7 @@ public sealed partial class GPosTable
 
         public bool TryGetValue(string key, out LangSysTable value)
         {
-            if (_languages.TryGetValue(key, out value)) return true;
+            if (_languages.TryGetValue(key, out value!)) return true;
             if (_default != null)
             {
                 value = _default;

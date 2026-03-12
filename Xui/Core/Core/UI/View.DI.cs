@@ -6,6 +6,10 @@ namespace Xui.Core.UI;
 /// </summary>
 public partial class View : IServiceProvider, Layer.ILayerHost
 {
+    /// <summary>
+    /// Resolves a service of the given type by walking up the parent chain.
+    /// Returns <c>null</c> if no ancestor provides the service.
+    /// </summary>
     public virtual object? GetService(Type serviceType) =>
         this.Parent?.GetService(serviceType);
 }

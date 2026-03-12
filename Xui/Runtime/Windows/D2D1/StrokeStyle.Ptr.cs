@@ -6,7 +6,7 @@ public static partial class D2D1
 {
     public unsafe partial class StrokeStyle : Resource
     {
-        public struct Ptr : IDisposable
+        public new struct Ptr : IDisposable
         {
             private void* ptr;
 

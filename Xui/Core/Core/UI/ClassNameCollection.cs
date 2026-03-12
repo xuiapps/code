@@ -95,18 +95,21 @@ public struct ClassNameCollection : IEnumerable<string>
         return false;
     }
 
+    /// <summary>Adds a class name to the collection and returns the updated collection.</summary>
     public static ClassNameCollection operator +(ClassNameCollection collection, string className)
     {
         collection.Add(className);
         return collection;
     }
 
+    /// <summary>Removes a class name from the collection and returns the updated collection.</summary>
     public static ClassNameCollection operator -(ClassNameCollection collection, string className)
     {
         collection.Remove(className);
         return collection;
     }
 
+    /// <summary>Returns an enumerator that iterates over all class names in the collection.</summary>
     public readonly IEnumerator<string> GetEnumerator()
     {
         if (this.overflow is not null)

@@ -52,13 +52,15 @@ public class ScrollView : View
     private nfloat? pendingFlingVelocityX;
 
     // Scrollbar appearance
+    /// <summary>Width of the scrollbar track in points.</summary>
     public nfloat ScrollbarWidth { get; set; } = 3f;
+    /// <summary>Inset from the end of the scroll axis reserved for the scrollbar.</summary>
     public nfloat ScrollbarEndInset { get; set; } = 4f;
 
     /// <summary>
     /// Gets or sets which axis (or axes) this scroll view responds to.
     /// </summary>
-    public ScrollDirection Direction { get; set; } = ScrollDirection.Vertical;
+    public new ScrollDirection Direction { get; set; } = ScrollDirection.Vertical;
 
     private static readonly nfloat ScrollThreshold = 8f; // pts before gesture is recognized as scroll
 
@@ -71,11 +73,14 @@ public class ScrollView : View
         set => SetProtectedChild(ref content, value);
     }
 
+    /// <summary>Number of child views.</summary>
     public override int Count => content is not null ? 1 : 0;
 
+    /// <summary>Gets the child view at the given index.</summary>
     public override View this[int index] => index == 0 && content is not null
         ? content : throw new IndexOutOfRangeException();
 
+    /// <inheritdoc/>
     protected override void OnActivate()
     {
         if (this.TryFindParent<RootView>(out var root))
@@ -86,6 +91,7 @@ public class ScrollView : View
         }
     }
 
+    /// <inheritdoc/>
     protected override Size MeasureCore(Size available, IMeasureContext context)
     {
         contentWidth = 0;
@@ -109,6 +115,7 @@ public class ScrollView : View
         return (w, h);
     }
 
+    /// <inheritdoc/>
     protected override void ArrangeCore(Rect rect, IMeasureContext context)
     {
         viewportHeight = rect.Height;
@@ -131,6 +138,7 @@ public class ScrollView : View
     private nfloat MaxScrollOffsetY => nfloat.Max(0, contentHeight - viewportHeight);
     private nfloat MaxScrollOffsetX => nfloat.Max(0, contentWidth - viewportWidth);
 
+    /// <inheritdoc/>
     public override bool HitTest(Point point)
     {
         if (!this.Frame.Contains(point)) return false;
@@ -140,6 +148,7 @@ public class ScrollView : View
         return true; // ScrollView always captures input within its bounds
     }
 
+    /// <inheritdoc/>
     protected override void RenderCore(IContext context)
     {
         context.Save();
@@ -192,6 +201,7 @@ public class ScrollView : View
         context.Fill(FillRule.NonZero);
     }
 
+    /// <inheritdoc/>
     public override void OnPointerEvent(ref PointerEventRef e, EventPhase phase)
     {
         if (phase != EventPhase.Bubble) return;
@@ -295,6 +305,7 @@ public class ScrollView : View
         }
     }
 
+    /// <inheritdoc/>
     public override void OnScrollWheel(ref ScrollWheelEventRef e)
     {
         if (e.Handled) return;
@@ -323,6 +334,7 @@ public class ScrollView : View
         InvalidateRender();
     }
 
+    /// <inheritdoc/>
     protected override void AnimateCore(TimeSpan previous, TimeSpan current)
     {
         if (pendingFlingVelocityY.HasValue)

@@ -15,8 +15,10 @@ namespace Xui.Core.UI;
 /// </summary>
 public class TextBox : LayerView<View, FocusBorderLayer<View, TextInputLayer>>
 {
+    /// <summary>Gets whether this view can receive keyboard focus. Always <c>true</c> for <see cref="TextBox"/>.</summary>
     public override bool Focusable => true;
 
+    /// <summary>Initializes a new <see cref="TextBox"/> with default styling.</summary>
     public TextBox()
     {
         Layer.BackgroundColor         = Colors.White;
@@ -36,78 +38,91 @@ public class TextBox : LayerView<View, FocusBorderLayer<View, TextInputLayer>>
         Layer.Border.Child.FontStyle                = FontStyle.Normal;
     }
 
+    /// <summary>Gets or sets the text content of this input.</summary>
     public string Text
     {
         get => Layer.Border.Child.Text;
         set => Layer.Border.Child.Text = value;
     }
 
+    /// <summary>Gets or sets the current text selection range.</summary>
     public Interval<uint>.ClosedOpen Selection
     {
         get => Layer.Border.Child.Selection;
         set => Layer.Border.Child.Selection = value;
     }
 
+    /// <summary>Gets or sets whether input is masked as a password.</summary>
     public bool IsPassword
     {
         get => Layer.Border.Child.IsPassword;
         set => Layer.Border.Child.IsPassword = value;
     }
 
+    /// <summary>Gets or sets whether all text is selected when the view receives focus.</summary>
     public bool SelectAllOnFocus
     {
         get => Layer.Border.Child.SelectAllOnFocus;
         set => Layer.Border.Child.SelectAllOnFocus = value;
     }
 
+    /// <summary>Gets or sets the character filter predicate for input validation.</summary>
     public Func<char, bool>? InputFilter
     {
         get => Layer.Border.Child.InputFilter;
         set => Layer.Border.Child.InputFilter = value;
     }
 
+    /// <summary>Gets or sets the text color.</summary>
     public Color Color
     {
         get => Layer.Border.Child.Color;
         set => Layer.Border.Child.Color = value;
     }
 
+    /// <summary>Gets or sets the color of selected text.</summary>
     public Color SelectedColor
     {
         get => Layer.Border.Child.SelectedColor;
         set => Layer.Border.Child.SelectedColor = value;
     }
 
+    /// <summary>Gets or sets the background color of the selection.</summary>
     public Color SelectionBackgroundColor
     {
         get => Layer.Border.Child.SelectionBackgroundColor;
         set => Layer.Border.Child.SelectionBackgroundColor = value;
     }
 
+    /// <summary>Gets or sets the font family name.</summary>
     public string[] FontFamily
     {
         get => Layer.Border.Child.FontFamily ?? ["Inter"];
         set => Layer.Border.Child.FontFamily = value;
     }
 
+    /// <summary>Gets or sets the font size.</summary>
     public nfloat FontSize
     {
         get => Layer.Border.Child.FontSize;
         set => Layer.Border.Child.FontSize = value;
     }
 
+    /// <summary>Gets or sets the font style.</summary>
     public FontStyle FontStyle
     {
         get => Layer.Border.Child.FontStyle;
         set => Layer.Border.Child.FontStyle = value;
     }
 
+    /// <summary>Gets or sets the font weight.</summary>
     public FontWeight FontWeight
     {
         get => Layer.Border.Child.FontWeight;
         set => Layer.Border.Child.FontWeight = value;
     }
 
+    /// <summary>Gets or sets the font stretch.</summary>
     public FontStretch FontStretch
     {
         get => Layer.Border.Child.FontStretch;

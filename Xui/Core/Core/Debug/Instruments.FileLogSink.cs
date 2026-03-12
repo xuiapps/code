@@ -4,6 +4,8 @@ namespace Xui.Core.Debug;
 
 public static partial class Instruments
 {
+    /// <summary>Returns an instrumentation sink that writes to a file at the given path.</summary>
+    /// <param name="path">The path of the log file to write to.</param>
     public static IInstruments File(string path) => new FileLogInstruments(path);
 
     private class FileLogInstruments : IInstruments

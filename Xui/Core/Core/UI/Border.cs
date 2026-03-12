@@ -6,7 +6,7 @@ namespace Xui.Core.UI;
 
 /// <summary>
 /// A view that draws a background, border, and padding around a single child content view.
-/// All rendering is owned by <see cref="BorderLayer{TChild}"/> composed with
+/// All rendering is owned by <see cref="BorderLayer{TView, TChild}"/> composed with
 /// <see cref="ContentLayer"/>. The child view lives in <c>Layer.Child.Child</c> and is
 /// managed via the standard <see cref="View.SetProtectedChild{T}"/> lifecycle.
 /// </summary>

@@ -22,9 +22,6 @@ public class Win32RunLoop : Xui.Core.Actual.IRunLoop, Xui.Core.Actual.IDispatche
     private DXGI.Device? dxgiDevice;
     private DComp.Device? dCompDevice;
 
-    // Timing state (app lifetime)
-    private TimeSpan lastCurrent;
-
     public Win32RunLoop(Xui.Core.Abstract.Application application)
     {
         this.synchronizationContext = new Win32SynchronizationContext(this);

@@ -8,16 +8,22 @@ using Xui.Core.UI.Input;
 
 namespace Xui.Core.UI;
 
+/// <summary>
+/// The root container view that bridges a <see cref="Window"/> with its UI content hierarchy.
+/// </summary>
 public class RootView : View, IContent, IFocus
 {
     private View? content;
     private View? focusedView;
     private Point lastMousePosition;
 
+    /// <summary>The input event router for this view tree.</summary>
     public EventRouter EventRouter { get; }
 
+    /// <summary>The window that owns this root view.</summary>
     public Window Window { get; }
 
+    /// <summary>The currently focused view within this tree, or null if none.</summary>
     public View? FocusedView
     {
         get => this.focusedView;
@@ -36,16 +42,21 @@ public class RootView : View, IContent, IFocus
         }
     }
 
+    /// <summary>Gets or sets the single content view hosted by this root view.</summary>
     public View? Content
     {
         get => this.content;
         set => this.SetProtectedChild(ref this.content, value);
     }
 
+    /// <summary>The number of child views (always 1 when Content is set, else 0).</summary>
     public override int Count => this.Content is not null ? 1 : 0;
 
+    /// <summary>Gets the child view at the given index.</summary>
     public override View this[int index] => index == 0 && this.Content is not null ? this.Content : throw new IndexOutOfRangeException();
 
+    /// <summary>Initializes a new RootView for the given window.</summary>
+    /// <param name="window">The window that owns this root view.</param>
     public RootView(Window window)
     {
         this.Window = window;
@@ -181,6 +192,7 @@ public class RootView : View, IContent, IFocus
         return this.Window.GetService(serviceType);
     }
 
+    /// <summary>Called when a child view signals that its rendered state has changed.</summary>
     protected override void OnChildRenderChanged(View child)
     {
         base.OnChildRenderChanged(child);
