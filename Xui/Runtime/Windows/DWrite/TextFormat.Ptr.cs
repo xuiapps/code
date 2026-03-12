@@ -6,7 +6,7 @@ public static partial class DWrite
 {
     public unsafe partial class TextFormat : COM.Unknown
     {
-        public struct Ptr : IDisposable
+        public new struct Ptr : IDisposable
         {
             private void* ptr;
 

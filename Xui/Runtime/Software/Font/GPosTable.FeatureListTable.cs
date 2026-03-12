@@ -43,7 +43,7 @@ public sealed partial class GPosTable
         public int Count => _features.Count;
 
         public bool ContainsKey(string key) => _features.ContainsKey(key);
-        public bool TryGetValue(string key, out FeatureTable value) => _features.TryGetValue(key, out value);
+        public bool TryGetValue(string key, out FeatureTable value) => _features.TryGetValue(key, out value!);
         public IEnumerator<KeyValuePair<string, FeatureTable>> GetEnumerator() => _features.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => _features.GetEnumerator();
     }
