@@ -28,9 +28,6 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
 
     public bool NeedsFrame => this.invalid;
 
-    private TimeSpan previous;
-    private TimeSpan next;
-
     private NFloat dpiScale = 1.0f;
 
     private NFloat invDpiScale = 1.0f;

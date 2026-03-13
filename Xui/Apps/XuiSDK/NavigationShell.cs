@@ -122,6 +122,8 @@ public class NavigationShell : ViewCollection
 
     protected override void AnimateCore(TimeSpan previousTime, TimeSpan currentTime)
     {
+        base.AnimateCore(previousTime, currentTime);
+
         if (!indicatorAnimating)
             return;
 

@@ -7,5 +7,6 @@ namespace Xui.Core.Debug;
 /// </summary>
 public interface IInstruments
 {
+    /// <summary>Creates a new per-run-loop sink for receiving instrumentation events.</summary>
     IInstrumentsSink CreateSink();
 }

@@ -13,13 +13,16 @@ namespace Xui.Core.Abstract;
 /// </summary>
 public abstract class Application : IServiceProvider
 {
+    /// <summary>The service provider for this application.</summary>
     public IServiceProvider Context { get; }
 
     /// <inheritdoc/>
     public virtual object? GetService(Type serviceType) => Context.GetService(serviceType);
 
+    /// <summary>The platform runtime used by this application.</summary>
     public IRuntime Runtime { get; }
 
+    /// <summary>A list of disposables that are disposed when the application exits.</summary>
     public List<IDisposable> DisposeQueue { get; } = [];
 
     /// <summary>
@@ -31,14 +34,14 @@ public abstract class Application : IServiceProvider
         this.Runtime = (IRuntime)this.Context.GetService(typeof(IRuntime))!;
     }
 
+    private IRunLoop? runLoop;
+
     /// <summary>
     /// Starts the main application loop by delegating to the platform-specific run loop.
     /// This method may block until the application exits,
     /// or may return immediately if the platform bootstraps a runtime loop before instantiating the app delegate.
     /// </summary>
     /// <returns>The application’s exit code.</returns>
-    private IRunLoop? runLoop;
-
     public virtual int Run()
     {
         // this.Runtime.CurrentInstruments.Log(Scope.Application, LevelOfDetail.Essential,

@@ -29,6 +29,7 @@ public class HorizontalUniformStack : ViewCollection
     /// <param name="availableBorderEdgeSize">
     /// The space available for layout, excluding padding and borders.
     /// </param>
+    /// <param name="context">The measure context used for child measurement.</param>
     /// <returns>
     /// The desired size of this container based on its layout strategy.
     /// </returns>

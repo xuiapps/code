@@ -4,6 +4,10 @@ using Xui.Core.Set;
 
 namespace Xui.Core.Math1D;
 
+/// <summary>
+/// Provides interval types (<see cref="Closed"/> and <see cref="ClosedOpen"/>) over a comparable element type,
+/// each modeled as a set with membership, containment, and intersection operations.
+/// </summary>
 public partial class Interval<T> where T : IComparable<T>, IEquatable<T>
 {
     /// <summary>

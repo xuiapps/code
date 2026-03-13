@@ -11,13 +11,23 @@ namespace Xui.Core.UI.Layer;
 /// </summary>
 public static class DockLayer
 {
-    /// <summary>How a slot consumes available space.</summary>
-    public enum Align { Left, Stretch, Right }
+    /// <summary>Determines how docked children are aligned on the cross axis.</summary>
+    public enum Align
+    {
+        /// <summary>Align to the left edge.</summary>
+        Left,
+        /// <summary>Stretch to fill the available cross-axis space.</summary>
+        Stretch,
+        /// <summary>Align to the right edge.</summary>
+        Right
+    }
 
-    /// <summary>Pairs a layer with an <see cref="Align"/> value.</summary>
+    /// <summary>Wraps a dockable child with its alignment setting.</summary>
     public struct Docked<T> where T : struct
     {
+        /// <summary>The cross-axis alignment for the docked child.</summary>
         public Align Align;
+        /// <summary>The docked child layer.</summary>
         public T Child;
     }
 
@@ -27,11 +37,14 @@ public static class DockLayer
         where T1 : struct, ILayer<TView>
         where T2 : struct, ILayer<TView>
     {
+        /// <summary>The first docked child.</summary>
         public Docked<T1> Child1;
+        /// <summary>The second docked child.</summary>
         public Docked<T2> Child2;
 
         private Size s1, s2;
 
+        /// <inheritdoc/>
         public void Update(TView view, ref LayoutGuide guide)
         {
             if (guide.IsAnimate) Animate(view, guide.PreviousTime, guide.CurrentTime);
@@ -40,6 +53,7 @@ public static class DockLayer
             if (guide.IsRender)  Render(view, guide.RenderContext!);
         }
 
+        /// <inheritdoc/>
         public Size Measure(TView view, Size available, IMeasureContext ctx)
         {
             nfloat fixedW = 0, maxH = 0;
@@ -55,6 +69,7 @@ public static class DockLayer
             return new Size(hasStretch ? available.Width : fixedW, maxH);
         }
 
+        /// <inheritdoc/>
         public void Arrange(TView view, Rect rect, IMeasureContext ctx)
         {
             nfloat lx = rect.X, rx = rect.X + rect.Width;
@@ -70,12 +85,19 @@ public static class DockLayer
             if (Child2.Align == Align.Stretch) Child2.Child.Arrange(view, s, ctx);
         }
 
+        /// <inheritdoc/>
         public void Render(TView view, IContext ctx)                                      { Child1.Child.Render(view, ctx); Child2.Child.Render(view, ctx); }
+        /// <inheritdoc/>
         public void Animate(TView view, TimeSpan p, TimeSpan c)                          { Child1.Child.Animate(view, p, c); Child2.Child.Animate(view, p, c); }
+        /// <inheritdoc/>
         public void OnPointerEvent(TView view, ref PointerEventRef e, EventPhase phase)  { Child1.Child.OnPointerEvent(view, ref e, phase); Child2.Child.OnPointerEvent(view, ref e, phase); }
+        /// <inheritdoc/>
         public void OnKeyDown(TView view, ref KeyEventRef e)                             { Child1.Child.OnKeyDown(view, ref e); Child2.Child.OnKeyDown(view, ref e); }
+        /// <inheritdoc/>
         public void OnChar(TView view, ref KeyEventRef e)                                { Child1.Child.OnChar(view, ref e); Child2.Child.OnChar(view, ref e); }
+        /// <inheritdoc/>
         public void OnFocus(TView view)                                                  { Child1.Child.OnFocus(view); Child2.Child.OnFocus(view); }
+        /// <inheritdoc/>
         public void OnBlur(TView view)                                                   { Child1.Child.OnBlur(view); Child2.Child.OnBlur(view); }
     }
 
@@ -86,12 +108,16 @@ public static class DockLayer
         where T2 : struct, ILayer<TView>
         where T3 : struct, ILayer<TView>
     {
+        /// <summary>The first docked child.</summary>
         public Docked<T1> Child1;
+        /// <summary>The second docked child.</summary>
         public Docked<T2> Child2;
+        /// <summary>The third docked child.</summary>
         public Docked<T3> Child3;
 
         private Size s1, s2, s3;
 
+        /// <inheritdoc/>
         public void Update(TView view, ref LayoutGuide guide)
         {
             if (guide.IsAnimate) Animate(view, guide.PreviousTime, guide.CurrentTime);
@@ -100,6 +126,7 @@ public static class DockLayer
             if (guide.IsRender)  Render(view, guide.RenderContext!);
         }
 
+        /// <inheritdoc/>
         public Size Measure(TView view, Size available, IMeasureContext ctx)
         {
             nfloat fixedW = 0, maxH = 0;
@@ -117,6 +144,7 @@ public static class DockLayer
             return new Size(hasStretch ? available.Width : fixedW, maxH);
         }
 
+        /// <inheritdoc/>
         public void Arrange(TView view, Rect rect, IMeasureContext ctx)
         {
             nfloat lx = rect.X, rx = rect.X + rect.Width;
@@ -135,12 +163,19 @@ public static class DockLayer
             if (Child3.Align == Align.Stretch) Child3.Child.Arrange(view, s, ctx);
         }
 
+        /// <inheritdoc/>
         public void Render(TView view, IContext ctx)                                      { Child1.Child.Render(view, ctx); Child2.Child.Render(view, ctx); Child3.Child.Render(view, ctx); }
+        /// <inheritdoc/>
         public void Animate(TView view, TimeSpan p, TimeSpan c)                          { Child1.Child.Animate(view, p, c); Child2.Child.Animate(view, p, c); Child3.Child.Animate(view, p, c); }
+        /// <inheritdoc/>
         public void OnPointerEvent(TView view, ref PointerEventRef e, EventPhase phase)  { Child1.Child.OnPointerEvent(view, ref e, phase); Child2.Child.OnPointerEvent(view, ref e, phase); Child3.Child.OnPointerEvent(view, ref e, phase); }
+        /// <inheritdoc/>
         public void OnKeyDown(TView view, ref KeyEventRef e)                             { Child1.Child.OnKeyDown(view, ref e); Child2.Child.OnKeyDown(view, ref e); Child3.Child.OnKeyDown(view, ref e); }
+        /// <inheritdoc/>
         public void OnChar(TView view, ref KeyEventRef e)                                { Child1.Child.OnChar(view, ref e); Child2.Child.OnChar(view, ref e); Child3.Child.OnChar(view, ref e); }
+        /// <inheritdoc/>
         public void OnFocus(TView view)                                                  { Child1.Child.OnFocus(view); Child2.Child.OnFocus(view); Child3.Child.OnFocus(view); }
+        /// <inheritdoc/>
         public void OnBlur(TView view)                                                   { Child1.Child.OnBlur(view); Child2.Child.OnBlur(view); Child3.Child.OnBlur(view); }
     }
 
@@ -152,13 +187,18 @@ public static class DockLayer
         where T3 : struct, ILayer<TView>
         where T4 : struct, ILayer<TView>
     {
+        /// <summary>The first docked child.</summary>
         public Docked<T1> Child1;
+        /// <summary>The second docked child.</summary>
         public Docked<T2> Child2;
+        /// <summary>The third docked child.</summary>
         public Docked<T3> Child3;
+        /// <summary>The fourth docked child.</summary>
         public Docked<T4> Child4;
 
         private Size s1, s2, s3, s4;
 
+        /// <inheritdoc/>
         public void Update(TView view, ref LayoutGuide guide)
         {
             if (guide.IsAnimate) Animate(view, guide.PreviousTime, guide.CurrentTime);
@@ -167,6 +207,7 @@ public static class DockLayer
             if (guide.IsRender)  Render(view, guide.RenderContext!);
         }
 
+        /// <inheritdoc/>
         public Size Measure(TView view, Size available, IMeasureContext ctx)
         {
             nfloat fixedW = 0, maxH = 0;
@@ -187,6 +228,7 @@ public static class DockLayer
             return new Size(hasStretch ? available.Width : fixedW, maxH);
         }
 
+        /// <inheritdoc/>
         public void Arrange(TView view, Rect rect, IMeasureContext ctx)
         {
             nfloat lx = rect.X, rx = rect.X + rect.Width;
@@ -208,12 +250,19 @@ public static class DockLayer
             if (Child4.Align == Align.Stretch) Child4.Child.Arrange(view, s, ctx);
         }
 
+        /// <inheritdoc/>
         public void Render(TView view, IContext ctx)                                      { Child1.Child.Render(view, ctx); Child2.Child.Render(view, ctx); Child3.Child.Render(view, ctx); Child4.Child.Render(view, ctx); }
+        /// <inheritdoc/>
         public void Animate(TView view, TimeSpan p, TimeSpan c)                          { Child1.Child.Animate(view, p, c); Child2.Child.Animate(view, p, c); Child3.Child.Animate(view, p, c); Child4.Child.Animate(view, p, c); }
+        /// <inheritdoc/>
         public void OnPointerEvent(TView view, ref PointerEventRef e, EventPhase phase)  { Child1.Child.OnPointerEvent(view, ref e, phase); Child2.Child.OnPointerEvent(view, ref e, phase); Child3.Child.OnPointerEvent(view, ref e, phase); Child4.Child.OnPointerEvent(view, ref e, phase); }
+        /// <inheritdoc/>
         public void OnKeyDown(TView view, ref KeyEventRef e)                             { Child1.Child.OnKeyDown(view, ref e); Child2.Child.OnKeyDown(view, ref e); Child3.Child.OnKeyDown(view, ref e); Child4.Child.OnKeyDown(view, ref e); }
+        /// <inheritdoc/>
         public void OnChar(TView view, ref KeyEventRef e)                                { Child1.Child.OnChar(view, ref e); Child2.Child.OnChar(view, ref e); Child3.Child.OnChar(view, ref e); Child4.Child.OnChar(view, ref e); }
+        /// <inheritdoc/>
         public void OnFocus(TView view)                                                  { Child1.Child.OnFocus(view); Child2.Child.OnFocus(view); Child3.Child.OnFocus(view); Child4.Child.OnFocus(view); }
+        /// <inheritdoc/>
         public void OnBlur(TView view)                                                   { Child1.Child.OnBlur(view); Child2.Child.OnBlur(view); Child3.Child.OnBlur(view); Child4.Child.OnBlur(view); }
     }
 }

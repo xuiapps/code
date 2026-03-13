@@ -5,6 +5,7 @@ namespace Xui.Core.UI;
 /// </summary>
 public ref struct DetachEventRef
 {
+    /// <summary>Initializes a new <see cref="DetachEventRef"/>.</summary>
     public DetachEventRef()
     {
     }
