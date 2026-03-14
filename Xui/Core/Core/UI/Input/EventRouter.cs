@@ -11,6 +11,7 @@ namespace Xui.Core.UI.Input
     {
         private readonly View _rootView;
         private readonly Dictionary<int, PointerTracking> _pointerTracking = new();
+        private readonly List<View> _route = new List<View>(64);
 
         /// <summary>Initializes a new <see cref="EventRouter"/> rooted at the given view.</summary>
         /// <param name="rootView">The root of the view tree to route events through.</param>
@@ -245,13 +246,13 @@ namespace Xui.Core.UI.Input
                 return;
 
             // Route event to target
-            var route = BuildRoute(targetView);
+            BuildRoute(targetView);
 
-            for (int i = 0; i < route.Count; i++)
-                route[i].OnPointerEvent(ref e, EventPhase.Tunnel);
+            for (int i = _route.Count - 1; i >= 0; i--)
+                _route[i].OnPointerEvent(ref e, EventPhase.Tunnel);
 
-            for (int i = route.Count - 1; i >= 0; i--)
-                route[i].OnPointerEvent(ref e, EventPhase.Bubble);
+            for (int i = 0; i < _route.Count; i++)
+                _route[i].OnPointerEvent(ref e, EventPhase.Bubble);
 
             tracking = _pointerTracking[e.PointerId];
             tracking.LastPosition = e.State.Position;
@@ -328,12 +329,11 @@ namespace Xui.Core.UI.Input
             return view.HitTest(position) ? view : null;
         }
 
-        private List<View> BuildRoute(View target)
+        private void BuildRoute(View target)
         {
-            var route = new List<View>();
+            _route.Clear();
             for (var current = target; current != null; current = current.Parent)
-                route.Insert(0, current);
-            return route;
+                _route.Add(current);
         }
 
         private struct PointerTracking

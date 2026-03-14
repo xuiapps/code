@@ -28,6 +28,7 @@ public class MainWindow : Window, IWindow.IDesktopStyle
     private MouseLocation mouseLocation = MouseLocation.Elsewhere;
     private Rect runButtonRect;
     private bool running = false;
+    private long lastHeap = 0;
 
     public MainWindow(IServiceProvider context) : base(context) { }
 
@@ -76,8 +77,7 @@ public class MainWindow : Window, IWindow.IDesktopStyle
 
     public override void Render(ref RenderEventRef renderEventRef)
     {
-        // Console.WriteLine("Render");
-        using var ctx = Xui.Core.Actual.Runtime.DrawingContext!;
+        using var ctx = (this.GetService(typeof(IContext)) as IContext) ?? this.Runtime.DrawingContext;
 
         var rect = renderEventRef.Rect;
         var insetRect = rect - 2.5;
@@ -260,6 +260,14 @@ public class MainWindow : Window, IWindow.IDesktopStyle
         if (running)
         {
             this.Invalidate();
+        }
+
+        long heap = GC.GetTotalMemory(false);
+        if (heap != this.lastHeap)
+        {
+            Console.Write($"Heap:");
+            Console.WriteLine(heap);
+            this.lastHeap = heap;
         }
     }
 
