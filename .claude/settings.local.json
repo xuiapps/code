@@ -21,7 +21,8 @@
       "Read(//Users/cankov/git/xuiapps/code/**)",
       "Bash(done)",
       "Bash(grep -r \"public class\\\\|public struct\\\\|public interface\\\\|public enum\" /Users/cankov/git/xuiapps/code/Xui/Core/Core/UI --include=\"*.cs\" ! -path \"*/bin/*\" ! -path \"*/obj/*\")",
-      "Bash(grep -r \"public class\\\\|public struct\\\\|public interface\\\\|public enum\" /Users/cankov/git/xuiapps/code/Xui/Core/Core/Canvas --include=\"*.cs\" ! -path \"*/bin/*\" ! -path \"*/obj/*\")"
+      "Bash(grep -r \"public class\\\\|public struct\\\\|public interface\\\\|public enum\" /Users/cankov/git/xuiapps/code/Xui/Core/Core/Canvas --include=\"*.cs\" ! -path \"*/bin/*\" ! -path \"*/obj/*\")",
+      "Bash(git log:*)"
     ]
   }
 }

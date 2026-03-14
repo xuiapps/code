@@ -183,7 +183,7 @@ public class MainWindow : Window, IWindow.IDesktopStyle
             if (i == 12 || i == 3 || i == 6 || i == 9)
             {
                 // Draw numbers at 12, 3, 6, 9
-                ctx.FillText(i.ToString(), new Point(markerX, markerY));
+                ctx.FillText($"{i}", new Point(markerX, markerY));
             }
             else
             {
