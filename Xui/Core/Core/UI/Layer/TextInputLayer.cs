@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Text;
 using Xui.Core.Abstract.Events;
 using Xui.Core.Canvas;
@@ -114,10 +115,22 @@ public struct TextInputLayer : ILayer<View>
     public Size Measure(View view, Size availableSize, IMeasureContext context)
     {
         context.SetFont(GetFont());
-        var displayText = GetDisplayText();
-        var textMetrics = context.MeasureText(displayText.Length > 0 ? displayText : "X");
-        var width = nfloat.Max(availableSize.Width, 100);
-        return new Size(width, textMetrics.Size.Height + Padding.TotalHeight);
+        var len = TextBuffer.Length;
+        char[]? pooled = null;
+        Span<char> buf = len <= MaxStackBufferSize
+            ? stackalloc char[MaxStackBufferSize]
+            : (pooled = ArrayPool<char>.Shared.Rent(len));
+        try
+        {
+            var displayText = FillDisplayBuffer(buf, len);
+            var textMetrics = context.MeasureText(displayText.Length > 0 ? displayText : "X".AsSpan());
+            var width = nfloat.Max(availableSize.Width, 100);
+            return new Size(width, textMetrics.Size.Height + Padding.TotalHeight);
+        }
+        finally
+        {
+            if (pooled != null) ArrayPool<char>.Shared.Return(pooled);
+        }
     }
 
     /// <inheritdoc/>
@@ -136,62 +149,74 @@ public struct TextInputLayer : ILayer<View>
         context.TextBaseline = TextBaseline.Top;
         context.TextAlign = TextAlign.Left;
 
-        var displayText = GetDisplayText();
-        var sel = selection;
-        var textX = frame.X;
-        var textY = frame.Y;
-
-        if (!sel.IsEmpty && focused)
+        var len = TextBuffer.Length;
+        char[]? pooled = null;
+        Span<char> buf = len <= MaxStackBufferSize
+            ? stackalloc char[MaxStackBufferSize]
+            : (pooled = ArrayPool<char>.Shared.Rent(len));
+        try
         {
-            var selStart = (int)sel.Start;
-            var selEnd = (int)sel.End;
+            var displayText = FillDisplayBuffer(buf, len);
+            var sel = selection;
+            var textX = frame.X;
+            var textY = frame.Y;
 
-            var leftWidth = selStart > 0
-                ? context.MeasureText(displayText[..selStart]).Size.Width
-                : (nfloat)0;
-            var selWidth = context.MeasureText(displayText[selStart..selEnd]).Size.Width;
-            var leftAndSelWidth = context.MeasureText(displayText[..selEnd]).Size.Width;
-            var selX = leftAndSelWidth - selWidth;
+            if (!sel.IsEmpty && focused)
+            {
+                var selStart = (int)sel.Start;
+                var selEnd = (int)sel.End;
 
-            var allWidth = context.MeasureText(displayText).Size.Width;
-            var rightWidth = selEnd < displayText.Length
-                ? context.MeasureText(displayText[selEnd..]).Size.Width
-                : (nfloat)0;
+                var leftWidth = selStart > 0
+                    ? context.MeasureText(displayText[..selStart]).Size.Width
+                    : (nfloat)0;
+                var selWidth = context.MeasureText(displayText[selStart..selEnd]).Size.Width;
+                var leftAndSelWidth = context.MeasureText(displayText[..selEnd]).Size.Width;
+                var selX = leftAndSelWidth - selWidth;
 
-            var selRect = new Rect(textX + selX, frame.Y, selWidth, frame.Height);
-            context.BeginPath();
-            context.RoundRect(selRect, SelectionCornerRadius);
-            context.SetFill(SelectionBackgroundColor);
-            context.Fill();
+                var allWidth = context.MeasureText(displayText).Size.Width;
+                var rightWidth = selEnd < displayText.Length
+                    ? context.MeasureText(displayText[selEnd..]).Size.Width
+                    : (nfloat)0;
 
-            if (selStart > 0)
+                var selRect = new Rect(textX + selX, frame.Y, selWidth, frame.Height);
+                context.BeginPath();
+                context.RoundRect(selRect, SelectionCornerRadius);
+                context.SetFill(SelectionBackgroundColor);
+                context.Fill();
+
+                if (selStart > 0)
+                {
+                    context.SetFill(Color);
+                    context.FillText(displayText[..selStart], new Point(textX, textY));
+                }
+
+                context.SetFill(SelectedColor);
+                context.FillText(displayText[selStart..selEnd], new Point(textX + selX, textY));
+
+                if (selEnd < displayText.Length)
+                {
+                    context.SetFill(Color);
+                    context.FillText(displayText[selEnd..], new Point(textX + (allWidth - rightWidth), textY));
+                }
+            }
+            else
             {
                 context.SetFill(Color);
-                context.FillText(displayText[..selStart], new Point(textX, textY));
+                context.FillText(displayText, new Point(textX, textY));
             }
 
-            context.SetFill(SelectedColor);
-            context.FillText(displayText[selStart..selEnd], new Point(textX + selX, textY));
-
-            if (selEnd < displayText.Length)
+            if (focused && caretVisible && sel.IsEmpty)
             {
+                var caretOffset = sel.Start > 0
+                    ? context.MeasureText(displayText[..(int)sel.Start]).Size.Width
+                    : (nfloat)0;
                 context.SetFill(Color);
-                context.FillText(displayText[selEnd..], new Point(textX + (allWidth - rightWidth), textY));
+                context.FillRect(new Rect(textX + caretOffset, frame.Y, 1, frame.Height));
             }
         }
-        else
+        finally
         {
-            context.SetFill(Color);
-            context.FillText(displayText, new Point(textX, textY));
-        }
-
-        if (focused && caretVisible && sel.IsEmpty)
-        {
-            var caretOffset = sel.Start > 0
-                ? context.MeasureText(displayText[..(int)sel.Start]).Size.Width
-                : (nfloat)0;
-            context.SetFill(Color);
-            context.FillRect(new Rect(textX + caretOffset, frame.Y, 1, frame.Height));
+            if (pooled != null) ArrayPool<char>.Shared.Return(pooled);
         }
     }
 
@@ -384,6 +409,9 @@ public struct TextInputLayer : ILayer<View>
 
     // ── Private helpers ──────────────────────────────────────────────────
 
+    // Stack-allocate display text for up to this many characters; rent from ArrayPool beyond that.
+    private const int MaxStackBufferSize = 256;
+
     private Font GetFont() => new Font
     {
         FontFamily  = FontFamily ?? ["Inter"],
@@ -393,8 +421,24 @@ public struct TextInputLayer : ILayer<View>
         FontStyle   = FontStyle,
     };
 
-    private string GetDisplayText() =>
-        IsPassword ? new string('\u2022', TextBuffer.Length) : TextBuffer.ToString();
+    /// <summary>
+    /// Fills <paramref name="buf"/> with the display characters (bullets for password,
+    /// raw text otherwise) and returns a <see cref="ReadOnlySpan{T}"/> over the filled region.
+    /// The caller must provide a buffer of at least <paramref name="len"/> characters,
+    /// and must not use the returned span after the buffer's lifetime ends.
+    /// </summary>
+    private ReadOnlySpan<char> FillDisplayBuffer(Span<char> buf, int len)
+    {
+        if (len == 0)
+            return ReadOnlySpan<char>.Empty;
+
+        if (IsPassword)
+            buf[..len].Fill('\u2022');
+        else
+            TextBuffer.CopyTo(0, buf, len);
+
+        return buf[..len];
+    }
 
     private void SetCursor(uint pos)
     {
@@ -425,6 +469,18 @@ public struct TextInputLayer : ILayer<View>
 
         textMeasure.SetFont(GetFont());
         var clickX = pointerPosition.X - contentRect.X;
-        return (uint)textMeasure.HitTestTextPosition(GetDisplayText(), clickX);
+        var len = TextBuffer.Length;
+        char[]? pooled = null;
+        Span<char> buf = len <= MaxStackBufferSize
+            ? stackalloc char[MaxStackBufferSize]
+            : (pooled = ArrayPool<char>.Shared.Rent(len));
+        try
+        {
+            return (uint)textMeasure.HitTestTextPosition(FillDisplayBuffer(buf, len), clickX);
+        }
+        finally
+        {
+            if (pooled != null) ArrayPool<char>.Shared.Return(pooled);
+        }
     }
 }

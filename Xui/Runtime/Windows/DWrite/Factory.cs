@@ -126,9 +126,19 @@ public static partial class DWrite
         public TextLayout.Ref CreateTextLayoutRef(ReadOnlySpan<char> text, TextFormat.Ptr textFormat, float maxWidth, float maxHeight)
         {
             void* textLayout;
-            fixed (char* textPtr = text)
+            if (text.IsEmpty)
             {
-                Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, void*, uint, void*, float, float, void**, int>)this[18])(this, textPtr, (uint)text.Length, textFormat, maxWidth, maxHeight, &textLayout));
+                // fixed (char* ptr = emptySpan) yields null; DirectWrite rejects a null text pointer.
+                // Pass a pointer to a local dummy char with length 0 instead.
+                char dummy = '\0';
+                Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, void*, uint, void*, float, float, void**, int>)this[18])(this, &dummy, 0u, textFormat, maxWidth, maxHeight, &textLayout));
+            }
+            else
+            {
+                fixed (char* textPtr = text)
+                {
+                    Marshal.ThrowExceptionForHR(((delegate* unmanaged[MemberFunction]<void*, void*, uint, void*, float, float, void**, int>)this[18])(this, textPtr, (uint)text.Length, textFormat, maxWidth, maxHeight, &textLayout));
+                }
             }
             return new TextLayout.Ref(textLayout);
         }
