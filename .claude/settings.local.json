@@ -12,7 +12,16 @@
       "Bash(tasklist /fi \"IMAGENAME eq devenv.exe\")",
       "Bash(dotnet add package ModelContextProtocol --prerelease)",
       "Bash(dotnet add package Microsoft.Extensions.Hosting --prerelease)",
-      "Bash(git add Xui/Utils/ Xui.sln .github/workflows/CD.yml)"
+      "Bash(git add Xui/Utils/ Xui.sln .github/workflows/CD.yml)",
+      "WebSearch",
+      "Bash(grep -E \"^.*/[A-Z].*\\\\.cs$\")",
+      "Bash(xargs basename:*)",
+      "Bash(while read:*)",
+      "Bash(do echo:*)",
+      "Read(//Users/cankov/git/xuiapps/code/**)",
+      "Bash(done)",
+      "Bash(grep -r \"public class\\\\|public struct\\\\|public interface\\\\|public enum\" /Users/cankov/git/xuiapps/code/Xui/Core/Core/UI --include=\"*.cs\" ! -path \"*/bin/*\" ! -path \"*/obj/*\")",
+      "Bash(grep -r \"public class\\\\|public struct\\\\|public interface\\\\|public enum\" /Users/cankov/git/xuiapps/code/Xui/Core/Core/Canvas --include=\"*.cs\" ! -path \"*/bin/*\" ! -path \"*/obj/*\")"
     ]
   }
 }
