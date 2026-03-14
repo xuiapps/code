@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -10,7 +11,7 @@ public static partial class User32
     public static partial class Types
     {
         [DebuggerDisplay("{Value}")]
-        public partial struct HWND
+        public partial struct HWND : IEquatable<HWND>
         {
             // Win32 Z-order insert-after special HWND values.
             // These are defined as (HWND)-1 and (HWND)-2.
@@ -112,6 +113,12 @@ public static partial class User32
                 EndPaint(this, ref lpPaint);
 
             public nint Value => this.value;
+
+            public bool Equals(HWND other) => this.value == other.value;
+            public override bool Equals(object? obj) => obj is HWND other && Equals(other);
+            public override int GetHashCode() => this.value.GetHashCode();
+            public static bool operator ==(HWND left, HWND right) => left.value == right.value;
+            public static bool operator !=(HWND left, HWND right) => left.value != right.value;
 
             /// <summary>
             /// Gets the DPI scale for this window.
