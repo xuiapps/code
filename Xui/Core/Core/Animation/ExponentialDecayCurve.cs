@@ -93,11 +93,16 @@ public readonly struct ExponentialDecayCurve
         {
             var t = (nfloat)(time - StartTime).TotalSeconds;
             if (t <= 0) return StartPosition;
-            if (time >= EndTime) return FinalPosition;
+            if (time >= EndTime) return Evaluate((nfloat)(EndTime - StartTime).TotalSeconds);
 
-            var decay = (nfloat)Math.Pow(DecayPerSecond, t);
-            return StartPosition + InitialVelocity * (1 - decay) / -nfloat.Log(DecayPerSecond);
+            return Evaluate(t);
         }
+    }
+
+    private nfloat Evaluate(nfloat t)
+    {
+        var decay = (nfloat)Math.Pow(DecayPerSecond, t);
+        return StartPosition + InitialVelocity * (1 - decay) / -nfloat.Log(DecayPerSecond);
     }
 
     /// <summary>
