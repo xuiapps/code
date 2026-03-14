@@ -54,24 +54,28 @@ public class PerformanceFooter : View
         nfloat groupX  = rect.X + (rect.Width - GroupWidth) / 2;
 
         // ── Slot 1: status ───────────────────────────────────────────────
-        string status = metrics.WasStalled  ? "Stalled"
-                      : metrics.WasAnimated ? "Animated"
-                                            : "Idle";
-        context.FillText(status, new Point(groupX, midY));
+        if (metrics.WasStalled)
+            context.FillText($"Stalled", new Point(groupX, midY));
+        else if (metrics.WasAnimated)
+            context.FillText($"Animated", new Point(groupX, midY));
+        else
+            context.FillText($"Idle", new Point(groupX, midY));
 
         // ── Slot 2: FPS ───────────────────────────────────────────────────
         nfloat fpsX = groupX + StatusSlotWidth + SlotGap;
-        string fpsText = metrics.SampleCount < 2
-            ? "-- fps"
-            : $"{(int)Math.Round(metrics.Fps)} fps";
-        context.FillText(fpsText, new Point(fpsX, midY));
+        if (metrics.SampleCount < 2)
+            context.FillText($"-- fps", new Point(fpsX, midY));
+        else
+            context.FillText($"{(int)Math.Round(metrics.Fps)} fps", new Point(fpsX, midY));
 
         // ── Slot 3: alloc ─────────────────────────────────────────────────
         nfloat allocX = fpsX + FpsSlotWidth + SlotGap;
         long alloc = metrics.AllocBytesLastFrame;
-        string allocStr = alloc >= 1_048_576 ? $"{alloc / 1_048_576.0:F1} MB"
-                        : alloc >= 1_024     ? $"{alloc / 1_024.0:F1} KB"
-                                             : $"{alloc}";
-        context.FillText($"Alloc: {allocStr} Bytes/frame", new Point(allocX, midY));
+        if (alloc >= 1_048_576)
+            context.FillText($"Alloc: {alloc / 1_048_576.0:F1} MB/frame", new Point(allocX, midY));
+        else if (alloc >= 1_024)
+            context.FillText($"Alloc: {alloc / 1_024.0:F1} KB/frame", new Point(allocX, midY));
+        else
+            context.FillText($"Alloc: {alloc} Bytes/frame", new Point(allocX, midY));
     }
 }
