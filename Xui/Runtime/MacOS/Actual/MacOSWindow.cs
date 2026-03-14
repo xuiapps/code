@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Xui.Core.Abstract.Events;
 using Xui.Core.Canvas;
+using Xui.Core.DI;
 using Xui.Core.Math2D;
 using static Xui.Core.Abstract.IWindow.IDesktopStyle;
 using static Xui.Runtime.MacOS.AppKit;
@@ -52,6 +53,9 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
     // Keyboard modifier tracking (for FlagsChanged)
     private nuint _lastModifierFlags;
 
+    // The root view — always the flipped drawing view, regardless of content view hierarchy.
+    private MacOSWindowRootView rootView = null!;
+
     // Text measurement context (used for hit-testing cursor position on mouse click)
     private MacOSTextMeasureContext? _textMeasureContext;
 
@@ -68,6 +72,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
     {
         if (serviceType == typeof(ITextMeasureContext)) return TextMeasureContext;
         if (serviceType == typeof(IImage)) return ImageFactory.CreateImage();
+        if (serviceType == typeof(IDeviceInfo)) return MacOSDeviceInfo.Instance;
         return null;
     }
 
@@ -83,7 +88,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
 
         if (@abstract is Xui.Core.Abstract.IWindow.IDesktopStyle dws)
         {
-            if (dws.Backdrop == WindowBackdrop.Chromeless)
+            if (dws.Backdrop is WindowBackdrop.Mica or WindowBackdrop.Acrylic or WindowBackdrop.Chromeless)
             {
                 mask =
                     NSWindowStyleMask.Titled |
@@ -113,7 +118,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
 
     public MacOSWindow(Xui.Core.Abstract.IWindow @abstract) : base(InitWithAbstract(@abstract))
     {
-        this.ContentView = new MacOSWindowRootView(this);
+        rootView = new MacOSWindowRootView(this);
 
         this.Abstract = @abstract;
         this.Title = "";
@@ -148,7 +153,41 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
                     Visible = true
                 };
                 this.ToolbarStyle = NSWindowToolbarStyle.Unified;
+                this.ContentView = rootView;
             }
+            else if (dws.Backdrop is WindowBackdrop.Mica or WindowBackdrop.Acrylic)
+            {
+                using var transparent = new NSColorRef(0, 0, 0, 0);
+                this.BackgroundColor = transparent;
+
+                var vev = new NSVisualEffectView
+                {
+                    Material = NSVisualEffectMaterial.UnderWindowBackground,
+                    BlendingMode = NSVisualEffectBlendingMode.BehindWindow,
+                    State = NSVisualEffectState.Active
+                };
+                rootView.AutoresizingMask =
+                    NSAutoresizingMaskOptions.WidthSizable |
+                    NSAutoresizingMaskOptions.HeightSizable;
+                vev.AddSubview(rootView);
+                this.ContentView = vev;
+                this.TitleVisibility = NSWindowTitleVisibility.Hidden;
+                this.TitlebarAppearsTransparent = true;
+                this.Toolbar = new NSToolbar
+                {
+                    ShowsBaselineSeparator = false,
+                    Visible = true
+                };
+                this.ToolbarStyle = NSWindowToolbarStyle.Unified;
+            }
+            else
+            {
+                this.ContentView = rootView;
+            }
+        }
+        else
+        {
+            this.ContentView = rootView;
         }
 
         this.displayLink = CADisplayLink.DisplayLink(this, AnimationFrameSel);
@@ -163,7 +202,11 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
         set => this.Title = value;
     }
 
-    void Xui.Core.Actual.IWindow.Show() => this.MakeKeyAndOrderFront();
+    void Xui.Core.Actual.IWindow.Show()
+    {
+        this.MakeKeyAndOrderFront();
+        this.PositionSystemButtons();
+    }
 
     protected void SendEvent(nint sel, NSEventRef e)
     {
@@ -230,7 +273,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
             type == NSEventType.OtherMouseDragged)
         {
             var rect = this.Rect;
-            var position = this.ContentView!.ConvertPointFromView(e.LocationInWindow, null);
+            var position = rootView.ConvertPointFromView(e.LocationInWindow, null);
 
             WindowHitTestEventRef eventRef = new()
             {
@@ -309,7 +352,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
         else if (type == NSEventType.LeftMouseDown || type == NSEventType.RightMouseDown || type == NSEventType.OtherMouseDown)
         {
             var rect = this.Rect;
-            var position = this.ContentView!.ConvertPointFromView(e.LocationInWindow, null);
+            var position = rootView.ConvertPointFromView(e.LocationInWindow, null);
 
             WindowHitTestEventRef eventRef = new()
             {
@@ -376,7 +419,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
             this.StyleMask |= NSWindowStyleMask.Resizable;
 
             var rect = this.Rect;
-            var position = this.ContentView!.ConvertPointFromView(e.LocationInWindow, null);
+            var position = rootView.ConvertPointFromView(e.LocationInWindow, null);
 
             WindowHitTestEventRef eventRef = new()
             {
@@ -491,11 +534,11 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
         this.Abstract.OnAnimationFrame(ref animationFrame);
     }
 
-    public void Invalidate() => this.ContentView!.NeedsDisplay = true;
+    public void Invalidate() => rootView.NeedsDisplay = true;
 
     internal void Render(NSRect rect)
     {
-        var contentFrame = this.ContentView!.Frame;
+        var contentFrame = rootView.Frame;
         var area = new Rect(0, 0, contentFrame.Size.width, contentFrame.Size.height);
         this.Abstract.DisplayArea = area;
         this.Abstract.SafeArea = area;

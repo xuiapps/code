@@ -57,6 +57,7 @@ public static partial class AppKit
         private static readonly Sel SetContentMinSizeSel = new Sel("setContentMinSize:");
 
         private static readonly Prop.NInt LevelProp = new Prop.NInt("level", "setLevel:");
+        private static readonly Sel StandardWindowButtonSel = new Sel("standardWindowButton:");
 
         public NSWindow(nint id) : base(id)
         {
@@ -197,6 +198,13 @@ public static partial class AppKit
         public void PerformDrag(NSEventRef e) => objc_msgSend(this, PerformWindowDragWithEventSel, e);
 
         public void PerformZoom() => objc_msgSend(this, PerformZoomSel, IntPtr.Zero);
+
+        /// <summary>
+        /// Returns the raw native pointer to one of the standard window chrome buttons.
+        /// The returned pointer is borrowed — do not retain or dispose it.
+        /// </summary>
+        public nint StandardWindowButton(NSWindowButton button) =>
+            objc_msgSend_retIntPtr(this, StandardWindowButtonSel, (nint)button);
 
         public void SetFrame(NSRect frame, bool display) => objc_msgSend_frameDisplay(this, SetFrameDisplaySel, frame, display);
 

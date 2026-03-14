@@ -29,9 +29,11 @@ namespace Xui.Middleware.Emulator.Actual;
 public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow, Xui.Core.Abstract.IWindow.IDesktopStyle
 {
     private Point? leftMouseButtonTouch = null;
+    private readonly EmulatorPlatform platform;
 
-    public EmulatorWindow()
+    public EmulatorWindow(EmulatorPlatform platform)
     {
+        this.platform = platform;
     }
 
     /// <summary>
@@ -65,6 +67,9 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
     void Xui.Core.Actual.IWindow.Invalidate() => Platform!.Invalidate();
 
     void Xui.Core.Actual.IWindow.Show() => Platform!.Show();
+
+    object? Xui.Core.Actual.IWindow.GetService(Type serviceType) =>
+        Platform!.GetService(serviceType);
 
     /// <summary>
     /// The display area available to the app inside the mobile frame (excluding chrome).
@@ -211,7 +216,7 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
             width: render.Rect.Width - borderWidth - borderWidth,
             height: render.Rect.Height - titleHeight - gap - borderWidth - borderWidth);
 
-        using (var ctx = Xui.Core.Actual.Runtime.DrawingContext!)
+        using (var ctx = platform.BasePlatform.DrawingContext)
         {
             ctx.Save();
 
@@ -237,7 +242,7 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
             Abstract!.Render(ref emulatorRender);
         }
 
-        using (var ctx = Xui.Core.Actual.Runtime.DrawingContext!)
+        using (var ctx = platform.BasePlatform.DrawingContext)
         {
             ctx.Restore();
 

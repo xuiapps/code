@@ -10,9 +10,10 @@ public class MainWindow : Xui.Core.Abstract.Window, IWindow.IDesktopStyle
 {
     private NFloat HeaderHeight = 48;
     
-    WindowBackdrop IWindow.IDesktopStyle.Backdrop => WindowBackdrop.Mica;
+    WindowBackdrop IWindow.IDesktopStyle.Backdrop => WindowBackdrop.Acrylic;
     Size? IWindow.IDesktopStyle.StartupSize => new Size(900, 600);
     WindowClientArea IWindow.IDesktopStyle.ClientArea => WindowClientArea.Extended;
+    Point? IWindow.IDesktopStyle.MacOSWindowSystemButtonsOffset => new Point(16, 38);
 
     public MainWindow(IServiceProvider context) : base(context)
     {

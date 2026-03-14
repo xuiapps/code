@@ -15,8 +15,10 @@ public partial interface IWindow
         /// with system caption buttons but no icon or title text.
         /// </para>
         /// <para>
-        /// <b>macOS</b>: <c>Chromeless</c> maps to <c>FullSizeContentView | Borderless</c>.
-        /// <c>Mica</c> and <c>Acrylic</c> fall back to <c>Default</c> for now.
+        /// <b>macOS</b>: <c>Chromeless</c> maps to <c>FullSizeContentView | Borderless</c>
+        /// with a transparent title bar and empty toolbar (traffic-light buttons remain, no chrome visible).
+        /// <c>Acrylic</c> uses <c>NSVisualEffectView</c> with the same transparent-titlebar + empty-toolbar treatment.
+        /// <c>Mica</c> is a Windows-only concept; prefer <c>Acrylic</c> for cross-platform blur-behind.
         /// </para>
         /// </remarks>
         public enum WindowBackdrop
@@ -32,14 +34,16 @@ public partial interface IWindow
             Chromeless = 1,
 
             /// <summary>
-            /// Translucent blurred backdrop (Windows 11 Mica). System caption buttons are kept,
-            /// but icon and title text are removed. The app can draw into the full window area.
+            /// Translucent blurred backdrop using the Windows 11 Mica material. System caption
+            /// buttons are kept, but icon and title text are removed.
+            /// <b>Windows only</b> — use <see cref="Acrylic"/> for cross-platform blur-behind.
             /// </summary>
             Mica = 2,
 
             /// <summary>
-            /// Acrylic blur-behind backdrop (Windows 11). Similar to Mica but with a more
-            /// translucent, in-app blur effect.
+            /// Blur-behind backdrop. On Windows 11 uses the Acrylic DWM material (more translucent
+            /// than Mica). On macOS uses <c>NSVisualEffectView</c> with a transparent title bar and
+            /// empty toolbar so traffic-light buttons are visible without any other chrome.
             /// </summary>
             Acrylic = 3,
         }

@@ -32,6 +32,16 @@ public partial interface IWindow
         public DesktopWindowLevel Level => DesktopWindowLevel.Normal;
 
         /// <summary>
+        /// Custom position for the macOS traffic-light system buttons (close, miniaturize, zoom).
+        /// <c>X</c> is the left offset of the close button from the window edge.
+        /// <c>Y</c> controls how much the title-bar container extends beyond the button height,
+        /// centering the buttons at <c>Y/2</c> pixels from the top of the window.
+        /// Only applied on macOS with <see cref="WindowBackdrop.Chromeless"/> or <see cref="WindowBackdrop.Acrylic"/>.
+        /// When <c>null</c> the system default position is used.
+        /// </summary>
+        public Point? MacOSWindowSystemButtonsOffset => null;
+
+        /// <summary>
         /// Controls whether the client area includes the title bar region.
         /// </summary>
         /// <remarks>

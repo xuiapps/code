@@ -1,5 +1,6 @@
 using Xui.Core.Animation;
 using Xui.Core.Canvas;
+using Xui.Core.DI;
 using Xui.Core.Math2D;
 using Xui.Core.UI;
 using Xui.Apps.XuiSDK.Icons;
@@ -10,7 +11,7 @@ namespace Xui.Apps.XuiSDK;
 public class NavigationShell : ViewCollection
 {
     private static readonly nfloat NavWidth = 220;
-    private static readonly nfloat HeaderHeight = 48;
+    private static readonly nfloat HeaderHeight = 52;
 
     private readonly NavButton homeButton;
     private readonly NavButton techButton;
@@ -202,8 +203,9 @@ public class NavigationShell : ViewCollection
         // Xui logo in header (64x64 scaled to 24x24)
         nfloat logoSize = 24;
         nfloat logoScale = logoSize / 64;
-        nfloat logoX = rect.X + 12;
-        nfloat logoY = rect.Y + (HeaderHeight - logoSize) / 2;
+        var deviceInfo = this.GetService<IDeviceInfo>();
+        nfloat logoX = rect.X + (deviceInfo?.Platform == DevicePlatform.MacOS ? 90 : 12);
+        nfloat logoY = rect.Y + (HeaderHeight - logoSize) / 2 + 1;
         context.Save();
         context.Translate((logoX, logoY));
         context.Scale((logoScale, logoScale));
@@ -215,7 +217,7 @@ public class NavigationShell : ViewCollection
         context.TextBaseline = TextBaseline.Middle;
         context.TextAlign = TextAlign.Left;
         context.SetFill(new Color(0x1A1A1AFF));
-        context.FillText("Xui SDK", new Point(logoX + logoSize + 8, rect.Y + HeaderHeight / 2));
+        context.FillText("Xui SDK", new Point(logoX + logoSize + 8, rect.Y + HeaderHeight / 2 + 3));
 
         // Header separator line
         context.SetStroke(new Color(0x00000015));

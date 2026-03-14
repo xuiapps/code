@@ -13,6 +13,7 @@ public class MacOSWindowDelegate : NSObject
             .AddProtocol(new Protocol(AppKit.Lib, "NSWindowDelegate"))
             .AddMethod("windowShouldClose:", WindowShouldClose)
             .AddMethod("windowWillEnterFullScreen:", WindowWillEnterFullScreen)
+            .AddMethod("windowWillExitFullScreen:", WindowWillExitFullScreen)
             .AddMethod("windowDidExitFullScreen:", WindowDidExitFullScreen)
             .AddMethod("windowDidResize:", WindowDidResize)
             .Register();
@@ -27,8 +28,22 @@ public class MacOSWindowDelegate : NSObject
     {
     }
 
-    protected static void WindowDidExitFullScreen(nint self, nint sel, nint notification)
+    protected static void WindowWillExitFullScreen(nint self, nint sel, nint notification) =>
+        Marshalling.Get<MacOSWindowDelegate>(self).WindowWillExitFullScreen();
+
+    private void WindowWillExitFullScreen()
     {
+        this.window.IsExitingFullScreen = true;
+        this.window.PositionSystemButtons();
+    }
+
+    protected static void WindowDidExitFullScreen(nint self, nint sel, nint notification) =>
+        Marshalling.Get<MacOSWindowDelegate>(self).WindowDidExitFullScreen();
+
+    private void WindowDidExitFullScreen()
+    {
+        this.window.IsExitingFullScreen = false;
+        this.window.PositionSystemButtons();
     }
 
     protected static void WindowDidResize(nint self, nint sel, nint notification) =>
@@ -40,6 +55,7 @@ public class MacOSWindowDelegate : NSObject
         var area = new Rect(0, 0, contentFrame.Size.width, contentFrame.Size.height);
         this.window.Abstract.DisplayArea = area;
         this.window.Abstract.SafeArea = area;
+        this.window.PositionSystemButtons();
         this.window.Invalidate();
     }
 

@@ -12,7 +12,7 @@ namespace Xui.Middleware.Emulator.Actual;
 /// </summary>
 public class EmulatorPlatform : IRuntime
 {
-    private IRuntime BasePlatform;
+    internal IRuntime BasePlatform;
 
     /// <summary>
     /// Gets the drawing context from the base platform.
@@ -50,7 +50,7 @@ public class EmulatorPlatform : IRuntime
     /// <returns>An actual window with emulator middleware applied.</returns>
     public Xui.Core.Actual.IWindow CreateWindow(Xui.Core.Abstract.IWindow windowAbstract)
     {
-        var middleware = new EmulatorWindow();
+        var middleware = new EmulatorWindow(this);
         middleware.Abstract = windowAbstract;
         var window = this.BasePlatform.CreateWindow(middleware);
         middleware.Platform = window;
