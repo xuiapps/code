@@ -1,3 +1,4 @@
+using Xui.Core.Abstract;
 using Xui.Core.Animation;
 using Xui.Core.Canvas;
 using Xui.Core.DI;
@@ -12,6 +13,7 @@ public class NavigationShell : ViewCollection
 {
     private static readonly nfloat NavWidth = 220;
     private static readonly nfloat HeaderHeight = 52;
+    private static readonly nfloat FooterHeight = PerformanceFooter.Height;
 
     private readonly NavButton homeButton;
     private readonly NavButton techButton;
@@ -25,6 +27,8 @@ public class NavigationShell : ViewCollection
     private readonly ContactPage contactPage = new();
     private readonly ScrollDemoPage scrollPage = new();
 
+    private readonly PerformanceFooter footer;
+
     private View activePage;
     private string activePageName = "Home";
 
@@ -35,7 +39,7 @@ public class NavigationShell : ViewCollection
     private bool indicatorAnimating;
     private int selectedIndex;
 
-    public NavigationShell()
+    public NavigationShell(WindowRenderingMetrics metrics)
     {
         homeButton = new NavButton { Text = "Home", NavIcon = new HomeIcon() };
         techButton = new NavButton { Text = "Tech", NavIcon = new SpyGlassIcon() };
@@ -53,12 +57,15 @@ public class NavigationShell : ViewCollection
         activePage = homePage;
         selectedIndex = 0;
 
+        footer = new PerformanceFooter(metrics);
+
         Add(homeButton);
         Add(techButton);
         Add(archButton);
         Add(contactButton);
         Add(scrollButton);
         Add(homePage);
+        Add(footer);
     }
 
     private NavButton ButtonAtIndex(int index) => index switch
@@ -158,8 +165,10 @@ public class NavigationShell : ViewCollection
 
         var contentSize = new Size(
             availableBorderEdgeSize.Width - NavWidth,
-            availableBorderEdgeSize.Height - HeaderHeight);
+            availableBorderEdgeSize.Height - HeaderHeight - FooterHeight);
         activePage.Measure(contentSize, context);
+
+        footer.Measure(new Size(availableBorderEdgeSize.Width, FooterHeight), context);
 
         return availableBorderEdgeSize;
     }
@@ -192,8 +201,10 @@ public class NavigationShell : ViewCollection
             rect.X + NavWidth,
             rect.Y + HeaderHeight,
             rect.Width - NavWidth,
-            rect.Height - HeaderHeight);
+            rect.Height - HeaderHeight - FooterHeight);
         activePage.Arrange(contentRect, context);
+
+        footer.Arrange(new Rect(rect.X, rect.Y + rect.Height - FooterHeight, rect.Width, FooterHeight), context);
     }
 
     protected override void RenderCore(IContext context)
@@ -219,23 +230,24 @@ public class NavigationShell : ViewCollection
         context.SetFill(new Color(0x1A1A1AFF));
         context.FillText("Xui SDK", new Point(logoX + logoSize + 8, rect.Y + HeaderHeight / 2 + 3));
 
-        // Header separator line
-        context.SetStroke(new Color(0x00000015));
+        // Render children (nav buttons + active page + footer)
+        base.RenderCore(context);
+
+        // Separator lines drawn last so content backgrounds don't cover them
         context.LineWidth = 1;
+        context.SetStroke(new Color(0x00000015));
         context.BeginPath();
         context.MoveTo(new Point(rect.X, rect.Y + HeaderHeight));
         context.LineTo(new Point(rect.X + rect.Width, rect.Y + HeaderHeight));
+        context.MoveTo(new Point(rect.X, rect.Y + rect.Height - FooterHeight));
+        context.LineTo(new Point(rect.X + rect.Width, rect.Y + rect.Height - FooterHeight));
         context.Stroke();
 
-        // Nav/content separator
         context.SetStroke(new Color(0x00000010));
         context.BeginPath();
         context.MoveTo(new Point(rect.X + NavWidth, rect.Y + HeaderHeight));
-        context.LineTo(new Point(rect.X + NavWidth, rect.Y + rect.Height));
+        context.LineTo(new Point(rect.X + NavWidth, rect.Y + rect.Height - FooterHeight));
         context.Stroke();
-
-        // Render children (nav buttons + active page)
-        base.RenderCore(context);
 
         // Animated indicator bar (drawn on top of everything in nav area)
         nfloat barX = rect.X + 10;
