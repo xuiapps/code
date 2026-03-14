@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Xui.Core.Actual;
 using Xui.Core.Canvas;
 
@@ -7,14 +8,14 @@ public class MacOSPlatform : Xui.Core.Actual.IRuntime
 {
     public static readonly MacOSPlatform Instance = new MacOSPlatform();
 
-    private MacOSDrawingContext macOSDrawingContext = new MacOSDrawingContext();
     private MacOSRunLoop? macOSRunLoop;
+
+    // NOTE: This will have to be thread static, if we want to render in multiple threads.
+    internal static readonly Stack<IContext> DisplayContextStack = new Stack<IContext>();
 
     private MacOSPlatform()
     {
     }
-
-    public IContext DrawingContext => macOSDrawingContext.Bind();
 
     public IDispatcher MainDispatcher => macOSRunLoop!;
 

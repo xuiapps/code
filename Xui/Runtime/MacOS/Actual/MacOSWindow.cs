@@ -57,6 +57,9 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
     // The root view — always the flipped drawing view, regardless of content view hierarchy.
     private MacOSWindowRootView rootView = null!;
 
+    // Per-window drawing context (owns Path2D, text measure, paint state)
+    private readonly MacOSDrawingContext drawingContext = new MacOSDrawingContext();
+
     // Text measurement context (used for hit-testing cursor position on mouse click)
     private MacOSTextMeasureContext? _textMeasureContext;
 
@@ -71,6 +74,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
 
     public object? GetService(Type serviceType)
     {
+        if (serviceType == typeof(IContext)) return drawingContext.Bind();
         if (serviceType == typeof(ITextMeasureContext)) return TextMeasureContext;
         if (serviceType == typeof(IImage)) return ImageFactory.CreateImage();
         if (serviceType == typeof(IDeviceInfo)) return MacOSDeviceInfo.Instance;
@@ -558,6 +562,15 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
         RenderEventRef render = new(rect, frame);
 
         this.pendingInvalidate = false;
-        this.Abstract.Render(ref render);
+        var ctx = this.drawingContext.Bind();
+        MacOSPlatform.DisplayContextStack.Push(ctx);
+        try
+        {
+            this.Abstract.Render(ref render);
+        }
+        finally
+        {
+            MacOSPlatform.DisplayContextStack.Pop();
+        }
     }
 }

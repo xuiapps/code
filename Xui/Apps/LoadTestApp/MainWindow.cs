@@ -106,7 +106,7 @@ public class MainWindow : Window
         this.previousFrameMemory = memNow;
         this.hasPreviousFrameMemory = true;
 
-        var ctx = this.Runtime.DrawingContext;
+        using var ctx = (this.GetService(typeof(IContext)) as IContext)!;
 
         // Clear background
         ctx.SetFill(Colors.Black);

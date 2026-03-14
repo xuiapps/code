@@ -77,7 +77,7 @@ public class MainWindow : Window, IWindow.IDesktopStyle
 
     public override void Render(ref RenderEventRef renderEventRef)
     {
-        using var ctx = (this.GetService(typeof(IContext)) as IContext) ?? this.Runtime.DrawingContext;
+        using var ctx = (this.GetService(typeof(IContext)) as IContext)!;
 
         var rect = renderEventRef.Rect;
         var insetRect = rect - 2.5;

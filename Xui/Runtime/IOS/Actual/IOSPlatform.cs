@@ -1,5 +1,3 @@
-using Xui.Core.Canvas;
-
 namespace Xui.Runtime.IOS.Actual;
 
 public class IOSPlatform : Xui.Core.Actual.IRuntime
@@ -13,8 +11,6 @@ public class IOSPlatform : Xui.Core.Actual.IRuntime
     {
     }
     
-    public IContext DrawingContext => iOSDrawingContext.Bind();
-
     public Xui.Core.Actual.IDispatcher MainDispatcher => iOSRunLoop!;
 
     public Xui.Core.Actual.IRunLoop CreateRunloop(Xui.Core.Abstract.Application applicationAbstract) => this.iOSRunLoop = new IOSRunLoop(applicationAbstract);

@@ -17,8 +17,6 @@ public class Win32Platform : IRuntime
 
     internal IReadOnlyList<Win32Window> Windows => this.windows;
     
-    public IContext DrawingContext => DisplayContextStack.Peek();
-
     public IDispatcher MainDispatcher => win32RunLoop!;
 
     // NOTE: This will have to be thread static, if we want to render in multiple threads.

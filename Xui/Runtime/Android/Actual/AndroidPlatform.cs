@@ -1,8 +1,6 @@
 using System;
 using Xui.Core.Abstract;
 using Xui.Core.Actual;
-using Xui.Core.Canvas;
-
 namespace Xui.Runtime.Android.Actual;
 
 public class AndroidPlatform : IRuntime
@@ -10,8 +8,6 @@ public class AndroidPlatform : IRuntime
     public static readonly AndroidPlatform Instance = new AndroidPlatform();
 
     public AndroidDrawingContext AndroidDrawingContext { get; set; } = new AndroidDrawingContext();
-
-    IContext IRuntime.DrawingContext => this.AndroidDrawingContext;
 
     public IDispatcher MainDispatcher => throw new System.NotImplementedException();
 

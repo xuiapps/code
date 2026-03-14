@@ -216,7 +216,7 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
             width: render.Rect.Width - borderWidth - borderWidth,
             height: render.Rect.Height - titleHeight - gap - borderWidth - borderWidth);
 
-        using (var ctx = platform.BasePlatform.DrawingContext)
+        using (var ctx = (Platform!.GetService(typeof(IContext)) as IContext)!)
         {
             ctx.Save();
 
@@ -242,7 +242,7 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
             Abstract!.Render(ref emulatorRender);
         }
 
-        using (var ctx = platform.BasePlatform.DrawingContext)
+        using (var ctx = (Platform!.GetService(typeof(IContext)) as IContext)!)
         {
             ctx.Restore();
 

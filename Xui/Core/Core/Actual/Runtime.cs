@@ -1,5 +1,4 @@
 using Xui.Core.Actual;
-using Xui.Core.Canvas;
 using Xui.Core.Debug;
 
 namespace Xui.Core.Actual;
@@ -40,11 +39,6 @@ public static class Runtime
             current = value;
         }
     }
-
-    /// <summary>
-    /// Gets the global drawing context provided by the current platform runtime, if available.
-    /// </summary>
-    public static IContext? DrawingContext => Current?.DrawingContext;
 
     /// <summary>
     /// Gets the main dispatcher for scheduling UI work on the platform's main thread, if available.
