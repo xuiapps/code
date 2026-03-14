@@ -44,6 +44,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
     private CADisplayLink displayLink;
     private TimeSpan previousFrameTime;
     private TimeSpan nextFrameTime;
+    private bool pendingInvalidate;
 
     // Custom resize mechanism
     private WindowHitTestEventRef.WindowArea _activeResizeEdge = WindowHitTestEventRef.WindowArea.Default;
@@ -532,9 +533,19 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
         this.nextFrameTime = this.displayLink.TargetTimestamp;
         var animationFrame = new FrameEventRef(this.previousFrameTime, this.nextFrameTime);
         this.Abstract.OnAnimationFrame(ref animationFrame);
+
+        if (this.pendingInvalidate)
+        {
+            this.pendingInvalidate = false;
+            rootView.NeedsDisplay = true;
+        }
     }
 
-    public void Invalidate() => rootView.NeedsDisplay = true;
+    public void Invalidate()
+    {
+        this.pendingInvalidate = true;
+        rootView.NeedsDisplay = true;
+    }
 
     internal void Render(NSRect rect)
     {
@@ -546,6 +557,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
         FrameEventRef frame = new(this.previousFrameTime, this.nextFrameTime);
         RenderEventRef render = new(rect, frame);
 
+        this.pendingInvalidate = false;
         this.Abstract.Render(ref render);
     }
 }
