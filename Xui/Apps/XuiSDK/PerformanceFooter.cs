@@ -23,8 +23,9 @@ public class PerformanceFooter : View
     private const float StatusSlotWidth = 68;  // "Animated" is widest
     private const float FpsSlotWidth    = 48;  // "999 fps" is widest
     private const float AllocSlotWidth  = 148; // "Alloc: 9999.9 KB/frame" is widest
+    private const float HeapSlotWidth   = 140; // "Heap: 999,999,999 B" is widest
     private const float SlotGap         = 16;
-    private const float GroupWidth      = StatusSlotWidth + SlotGap + FpsSlotWidth + SlotGap + AllocSlotWidth;
+    private const float GroupWidth      = StatusSlotWidth + SlotGap + FpsSlotWidth + SlotGap + AllocSlotWidth + SlotGap + HeapSlotWidth;
 
     private static readonly Color ColorText = new(0x00000099);
 
@@ -77,5 +78,10 @@ public class PerformanceFooter : View
             context.FillText($"Alloc: {alloc / 1_024.0:F1} KB/frame", new Point(allocX, midY));
         else
             context.FillText($"Alloc: {alloc} Bytes/frame", new Point(allocX, midY));
+
+        // ── Slot 4: heap ──────────────────────────────────────────────────
+        nfloat heapX = allocX + AllocSlotWidth + SlotGap;
+        long heap = GC.GetTotalMemory(false);
+        context.FillText($"Heap: {heap:N0} B", new Point(heapX, midY));
     }
 }
