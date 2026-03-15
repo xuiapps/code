@@ -99,11 +99,11 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
             lpszClassName = lpszClassNamePtr,
             hIconSm = 0
         };
-        Marshal.FreeHGlobal(lpszClassNamePtr);
 
         this.Renderer = new DirectXContext(this);
 
         ushort classAtom = RegisterClassEx(w);
+        Marshal.FreeHGlobal(lpszClassNamePtr);
 
         uint dwExStyle;
         uint dwStyle;

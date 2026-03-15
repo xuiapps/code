@@ -150,7 +150,6 @@ internal sealed class Win32Popup : IPopup
         if (popupClassAtom != 0) return;
 
         popupWndProcDelegate = PopupWndProc;
-        GCHandle.Alloc(popupWndProcDelegate);
         nint wndProc = Marshal.GetFunctionPointerForDelegate(popupWndProcDelegate);
 
         nint className = Marshal.StringToHGlobalUni("XuiPopup");
@@ -169,9 +168,9 @@ internal sealed class Win32Popup : IPopup
             lpszClassName = className,
             hIconSm = 0
         };
-        Marshal.FreeHGlobal(className);
 
         popupClassAtom = RegisterClassEx(wc);
+        Marshal.FreeHGlobal(className);
     }
 
     private static int PopupWndProc(HWND hWnd, WindowMessage uMsg, WPARAM wParam, LPARAM lParam)
