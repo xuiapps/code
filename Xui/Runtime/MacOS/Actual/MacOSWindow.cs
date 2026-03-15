@@ -1,10 +1,12 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
 using Xui.Core.Abstract.Events;
 using Xui.Core.Canvas;
 using Xui.Core.DI;
 using Xui.Core.Math2D;
+using Xui.Core.UI;
 using static Xui.Core.Abstract.IWindow.IDesktopStyle;
 using static Xui.Runtime.MacOS.AppKit;
 using static Xui.Runtime.MacOS.AppKit.NSEventRef;
@@ -72,13 +74,54 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
     private MacOSImageFactory ImageFactory =>
         _imageFactory ??= new MacOSImageFactory();
 
+    // Active popups owned by this window
+    private readonly List<MacOSPopup> activePopups = new();
+
     public object? GetService(Type serviceType)
     {
         if (serviceType == typeof(IContext)) return drawingContext.Bind();
         if (serviceType == typeof(ITextMeasureContext)) return TextMeasureContext;
         if (serviceType == typeof(IImage)) return ImageFactory.CreateImage();
         if (serviceType == typeof(IDeviceInfo)) return MacOSDeviceInfo.Instance;
+        if (serviceType == typeof(Xui.Core.UI.IPopup)) return CreatePopup();
         return null;
+    }
+
+    private MacOSPopup CreatePopup()
+    {
+        var popup = new MacOSPopup(this);
+        activePopups.Add(popup);
+        popup.Closed += () => activePopups.Remove(popup);
+        return popup;
+    }
+
+    /// <summary>
+    /// Dismisses all active popups owned by this window.
+    /// </summary>
+    internal void DismissPopups()
+    {
+        // Copy to avoid modifying during iteration
+        var popups = activePopups.ToArray();
+        foreach (var p in popups)
+            p.Close();
+    }
+
+    /// <summary>
+    /// Checks if a mouse-down at the given screen point should dismiss any popups.
+    /// Returns true if any popup was dismissed.
+    /// </summary>
+    private bool TryDismissPopupsOnMouseDown(NSPoint screenPoint)
+    {
+        if (activePopups.Count == 0) return false;
+
+        bool dismissed = false;
+        var popups = activePopups.ToArray();
+        foreach (var p in popups)
+        {
+            if (p.TryDismissOnMouseDown(screenPoint))
+                dismissed = true;
+        }
+        return dismissed;
     }
 
     public static nint InitWithAbstract(Xui.Core.Abstract.IWindow @abstract)
@@ -356,6 +399,18 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
         }
         else if (type == NSEventType.LeftMouseDown || type == NSEventType.RightMouseDown || type == NSEventType.OtherMouseDown)
         {
+            // Dismiss popups on click-outside
+            if (activePopups.Count > 0)
+            {
+                var windowRect = new NSRect
+                {
+                    Origin = e.LocationInWindow,
+                    Size = new NSSize { width = 0, height = 0 }
+                };
+                var screenPoint = this.ConvertRectToScreen(windowRect).Origin;
+                this.TryDismissPopupsOnMouseDown(screenPoint);
+            }
+
             var rect = this.Rect;
             var position = rootView.ConvertPointFromView(e.LocationInWindow, null);
 
@@ -524,6 +579,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
 
     protected void Close()
     {
+        this.DismissPopups();
         this.Abstract.Closed();
         Super super = new Super(this, NSWindow.Class);
         objc_msgSendSuper(ref super, CloseSel);
