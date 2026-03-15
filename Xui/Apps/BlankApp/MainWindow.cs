@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using Xui.Core.Abstract;
 using Xui.Core.Abstract.Events;
 using Xui.Core.Canvas;
+using Xui.Core.DI;
 using static Xui.Core.Canvas.Colors;
 using static Xui.Core.Animation.Easing;
 using Xui.Core.Math2D;
@@ -214,7 +215,7 @@ public class MainWindow : Window
 
     public override void Render(ref RenderEventRef render)
     {
-        using var ctx = (this.GetService(typeof(IContext)) as IContext)!;
+        var ctx = this.GetRequiredService<IContext>();
 
         var centerGuide = render.Rect.Width / 2f;
 

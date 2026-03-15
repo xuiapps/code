@@ -1,6 +1,7 @@
 using Xui.Core.Abstract;
 using Xui.Core.Abstract.Events;
 using Xui.Core.Canvas;
+using Xui.Core.DI;
 using Xui.Core.Math2D;
 using Window = Xui.Core.Abstract.Window;
 using static Xui.Core.Canvas.Colors;
@@ -77,7 +78,7 @@ public class MainWindow : Window, IWindow.IDesktopStyle
 
     public override void Render(ref RenderEventRef renderEventRef)
     {
-        using var ctx = (this.GetService(typeof(IContext)) as IContext)!;
+        var ctx = this.GetRequiredService<IContext>();
 
         var rect = renderEventRef.Rect;
         var insetRect = rect - 2.5;

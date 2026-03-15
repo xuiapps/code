@@ -3,6 +3,7 @@ using Xui.Core.Abstract.Events;
 using Xui.Core.Actual;
 using Xui.Core.Canvas;
 using Xui.Core.Debug;
+using Xui.Core.DI;
 using Xui.Core.Math2D;
 using Xui.Core.UI;
 
@@ -127,7 +128,7 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard, IService
         var rect = renderEventRef.Rect;
         // using var trace = Runtime.CurrentInstruments.Trace(Scope.Rendering, LevelOfDetail.Essential,
         //     $"Window.Render Rect({rect.X:F1}, {rect.Y:F1}, {rect.Width:F1}, {rect.Height:F1})");
-        using var context = (this.GetService(typeof(IContext)) as IContext)!;
+        var context = this.GetRequiredService<IContext>();
         ((IContent)this.RootView).Update(ref renderEventRef, context);
     }
 
