@@ -60,7 +60,12 @@ public class RootView : View, IContent, IFocus
     {
         this.Window = window;
         this.EventRouter = new EventRouter(this);
-        var attachEvent = new AttachEventRef();
+
+        var instruments = window.GetService(typeof(IInstruments)) as IInstruments;
+        var attachEvent = new AttachEventRef
+        {
+            Instruments = new InstrumentsAccessor(instruments?.CreateSink())
+        };
         AttachSubtree(this, ref attachEvent);
         ActivateSubtree(this);
     }

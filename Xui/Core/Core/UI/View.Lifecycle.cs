@@ -33,6 +33,7 @@ public partial class View
     internal static void AttachSubtree(View view, ref AttachEventRef e)
     {
         view.Flags |= ViewFlags.Attached;
+        view.Instruments = e.Instruments;
         view.OnAttach(ref e);
 
         for (int i = 0; i < view.Count; i++)
