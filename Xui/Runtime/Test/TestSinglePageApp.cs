@@ -78,7 +78,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         var application = this.host.Services.GetRequiredService<TApplication>();
         application.Run();
 
-        this.Window = Window.OpenWindows[Window.OpenWindows.Count - 1];
+        this.Window = (Window)this.platform.Windows[this.platform.Windows.Count - 1].Abstract;
         this.Window.DisplayArea = new Rect(0, 0, windowSize.Width, windowSize.Height);
         this.Window.SafeArea = this.Window.DisplayArea;
 

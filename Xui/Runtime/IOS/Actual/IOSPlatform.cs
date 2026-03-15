@@ -2,12 +2,10 @@ namespace Xui.Runtime.IOS.Actual;
 
 public class IOSPlatform : Xui.Core.Actual.IRuntime
 {
-    public static readonly IOSPlatform Instance = new IOSPlatform();
-
     private IOSDrawingContext iOSDrawingContext = new IOSDrawingContext();
     private IOSRunLoop? iOSRunLoop;
 
-    private IOSPlatform()
+    public IOSPlatform()
     {
     }
     

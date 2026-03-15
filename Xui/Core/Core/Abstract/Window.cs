@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using Xui.Core.Abstract.Events;
 using Xui.Core.Actual;
 using Xui.Core.Canvas;
@@ -20,8 +19,6 @@ namespace Xui.Core.Abstract;
 /// </remarks>
 public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard, IServiceProvider, IDisposable
 {
-    private static IList<Window> openWindows = new List<Window>();
-
     /// <summary>The service provider for this window.</summary>
     public IServiceProvider Context { get; }
 
@@ -45,11 +42,6 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard, IService
 
     /// <summary>The platform runtime used by this window.</summary>
     public IRuntime Runtime { get; }
-
-    /// <summary>
-    /// Gets a read-only list of all currently open Xui windows.
-    /// </summary>
-    public static IReadOnlyList<Window> OpenWindows = new ReadOnlyCollection<Window>(openWindows);
 
     /// <summary>
     /// Gets the underlying platform-specific window instance.
@@ -116,10 +108,8 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard, IService
     /// </summary>
     public void Show()
     {
-        // Xui.Core.Actual.Runtime.CurrentInstruments.Log(Scope.Application, LevelOfDetail.Essential,
-        //     $"Window.Show {this.GetType().Name}");
         this.Actual.Show();
-        openWindows.Add(this);
+        HotReload.OnReload += this.Invalidate;
     }
 
     /// <inheritdoc/>
@@ -151,7 +141,7 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard, IService
     {
         // Runtime.CurrentInstruments.Log(Scope.Application, LevelOfDetail.Essential,
         //     $"Window.Closed {this.GetType().Name}");
-        openWindows.Remove(this);
+        HotReload.OnReload -= this.Invalidate;
         platformClosed = true;
         if (DestroyOnClose)
             Dispose();

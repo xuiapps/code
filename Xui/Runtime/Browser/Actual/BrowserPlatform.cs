@@ -6,7 +6,6 @@ namespace Xui.Runtime.Browser.Actual;
 
 public partial class BrowserPlatform : Xui.Core.Actual.IRuntime
 {
-    public static readonly BrowserPlatform Instance = new BrowserPlatform();
 
     public IDispatcher MainDispatcher => throw new System.NotImplementedException();
 

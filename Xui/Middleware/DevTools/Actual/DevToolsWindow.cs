@@ -56,7 +56,7 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
     /// Returns a <see cref="SplicingContext"/> when a screenshot is pending so the next
     /// render pass writes simultaneously to the real display and an SVG capture stream.
     /// </summary>
-    object? Xui.Core.Actual.IWindow.GetService(Type t)
+    object? IServiceProvider.GetService(Type t)
     {
         if (t != typeof(IContext))
             return Platform!.GetService(t);

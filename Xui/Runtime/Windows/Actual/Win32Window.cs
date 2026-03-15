@@ -5,7 +5,6 @@ using Xui.Core.Abstract.Events;
 using Xui.Core.Canvas;
 using Xui.Core.Debug;
 using Xui.Core.DI;
-using CoreRuntime = Xui.Core.Actual.Runtime;
 using Xui.Core.Math2D;
 using Xui.Runtime.Windows.Win32;
 using static Xui.Core.Abstract.IWindow.IDesktopStyle;
@@ -66,8 +65,12 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
         return window.OnMessage(hWnd, uMsg, wParam, lParam);
     }
 
-    public Win32Window(Xui.Core.Abstract.IWindow @abstract)
+    internal readonly Win32Platform platform;
+    internal readonly InstrumentsAccessor instruments;
+
+    public Win32Window(Win32Platform platform, Xui.Core.Abstract.IWindow @abstract)
     {
+        this.platform = platform;
         this.Abstract = @abstract;
         this.Title = "";
 
@@ -343,7 +346,7 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
 
                 this.Abstract.SafeArea = dipRect;
 
-                CoreRuntime.CurrentInstruments.Log(Scope.Rendering, LevelOfDetail.Essential,
+                this.instruments.Log(Scope.Rendering, LevelOfDetail.Essential,
                     $"WM_SIZE client=({clientW}, {clientH}) dpi={this.dpiScale:F2} dip=({dipRect.Width:F1}, {dipRect.Height:F1})");
 
                 var res = this.Hwnd.DefWindowProc(uMsg, wParam, lParam);
@@ -384,7 +387,7 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
 
             case WindowMessage.WM_DESTROY:
             {
-                Win32Platform.Instance.RemoveWindow(this);
+                this.platform.RemoveWindow(this);
                 this.Abstract.Closed();
                 break;
             }
@@ -637,7 +640,7 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
 
     public void Show()
     {
-        CoreRuntime.CurrentInstruments.Log(Scope.Application, LevelOfDetail.Essential,
+        this.instruments.Log(Scope.Application, LevelOfDetail.Essential,
             $"Win32Window.Show hwnd={this.Hwnd} dpiScale={this.dpiScale:F2}");
         this.Hwnd.ShowWindow();
         this.Hwnd.UpdateWindow();
@@ -657,12 +660,12 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
             this.invalid = false;
             this.Renderer.Render();
 
-            CoreRuntime.CurrentInstruments.Log(Scope.ViewState, LevelOfDetail.Info,
+            this.instruments.Log(Scope.ViewState, LevelOfDetail.Info,
                 $"Win32Window.Render completed, invalid={this.invalid}");
         }
         else
         {
-            CoreRuntime.CurrentInstruments.Log(Scope.ViewState, LevelOfDetail.Diagnostic,
+            this.instruments.Log(Scope.ViewState, LevelOfDetail.Diagnostic,
                 $"Win32Window.Render SKIPPED (invalid=false)");
         }
     }

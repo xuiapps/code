@@ -26,4 +26,6 @@ public class TestWindow : Xui.Core.Actual.IWindow
     {
         Invalid = true;
     }
+
+    public object? GetService(Type serviceType) => null;
 }

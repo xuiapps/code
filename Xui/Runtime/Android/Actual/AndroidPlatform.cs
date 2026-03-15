@@ -5,7 +5,6 @@ namespace Xui.Runtime.Android.Actual;
 
 public class AndroidPlatform : IRuntime
 {
-    public static readonly AndroidPlatform Instance = new AndroidPlatform();
 
     public AndroidDrawingContext AndroidDrawingContext { get; set; } = new AndroidDrawingContext();
 
