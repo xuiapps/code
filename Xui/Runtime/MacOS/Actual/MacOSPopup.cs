@@ -122,9 +122,6 @@ internal sealed class MacOSPopup : IPopup
 
         parentWindow.RemoveChildWindow(popupWindow);
         popupWindow.OrderOut();
-        popupWindow = null;
-        rootView = null;
-        content = null;
 
         Closed?.Invoke();
     }
@@ -191,6 +188,16 @@ internal sealed class MacOSPopup : IPopup
     public void Dispose()
     {
         Close();
+
+        // Dispose in order: window first (releases its retain on the content view),
+        // then the view (releases our retain). Popup is single-use — a new instance
+        // is required to show again.
+        popupWindow?.Dispose();
+        rootView?.Dispose();
+
+        popupWindow = null;
+        rootView = null;
+        content = null;
     }
 
     /// <summary>

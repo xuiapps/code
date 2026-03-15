@@ -229,12 +229,19 @@ public class DockLayerTest : View
             };
         }
 
+        protected override void OnDetach(ref DetachEventRef e)
+        {
+            activePopup?.Dispose();
+            activePopup = null;
+        }
+
         internal void OpenDropdown()
         {
             if (activePopup is { IsVisible: true })
             {
-                activePopup.Close();
-                return;
+                // Maybe reuse the popup instead of making a new instance each time.
+                activePopup.Dispose();
+                activePopup = null;
             }
 
             activePopup = this.GetService<IPopup>();
