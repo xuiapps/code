@@ -34,7 +34,7 @@ public partial class View
 
         if ((this.Flags & ViewFlags.Attached) != 0)
         {
-            var attachEvent = new AttachEventRef();
+            var attachEvent = new AttachEventRef { Instruments = this.Instruments };
             AttachSubtree(child, ref attachEvent);
         }
 
