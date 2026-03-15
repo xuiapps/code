@@ -32,6 +32,7 @@ public interface IPopup : IDisposable
     /// <param name="size">
     /// Desired popup size. If <c>null</c>, the platform falls back to a default size.
     /// </param>
+    /// <param name="effect">Visual backdrop effect to apply to the popup window.</param>
     void Show(View content, Rect anchorRect, PopupPlacement placement = PopupPlacement.Below, Size? size = null, PopupEffect effect = PopupEffect.None);
 
     /// <summary>Closes the popup if visible.</summary>
