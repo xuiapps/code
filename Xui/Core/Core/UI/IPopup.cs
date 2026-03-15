@@ -30,7 +30,7 @@ public interface IPopup : IDisposable
     /// </param>
     /// <param name="placement">Preferred placement direction.</param>
     /// <param name="size">
-    /// Desired popup size. If <c>null</c>, the popup measures the content to determine size.
+    /// Desired popup size. If <c>null</c>, the platform falls back to a default size.
     /// </param>
     void Show(View content, Rect anchorRect, PopupPlacement placement = PopupPlacement.Below, Size? size = null, PopupEffect effect = PopupEffect.None);
 
