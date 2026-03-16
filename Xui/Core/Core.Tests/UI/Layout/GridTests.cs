@@ -25,6 +25,21 @@ public class GridTests
                 new Label { Text = "Send",  [RowStart] = 3, [ColumnStart] = 2 },
             ]
         };
+
+        Assert.Equal(2, grid.TemplateColumns.Length);
+        Assert.Equal(3, grid.TemplateRows.Length);
+        Assert.Equal((nfloat)8,  grid.RowGap);
+        Assert.Equal((nfloat)12, grid.ColumnGap);
+        Assert.Equal(5, grid.Count);
+
+        var name  = (Label)grid[0];
+        var email = (Label)grid[2];
+        var send  = (Label)grid[4];
+
+        Assert.Equal((nint)1, name[RowStart]);
+        Assert.Equal((nint)1, name[ColumnStart]);
+        Assert.Equal((nint)2, email[RowStart]);
+        Assert.Equal((nint)2, send[ColumnStart]);
     }
 
     [Fact]
@@ -39,8 +54,6 @@ public class GridTests
                 "sidebar content",
                 "footer  footer",
             ],
-            RowGap    = 0,
-            ColumnGap = 0,
             Content =
             [
                 new Label { Text = "App Title",   [Area] = "header"  },
@@ -49,5 +62,12 @@ public class GridTests
                 new Label { Text = "© 2026",      [Area] = "footer"  },
             ]
         };
+
+        Assert.Equal(3, grid.TemplateAreas.Length);
+        Assert.Equal(4, grid.Count);
+        Assert.Equal("header",  ((Label)grid[0])[Area]);
+        Assert.Equal("sidebar", ((Label)grid[1])[Area]);
+        Assert.Equal("content", ((Label)grid[2])[Area]);
+        Assert.Equal("footer",  ((Label)grid[3])[Area]);
     }
 }

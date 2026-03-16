@@ -24,6 +24,16 @@ public class FlexBoxTests
                 new Label { Text = "Help"   },
             ]
         };
+
+        Assert.Equal(FlexBox.Direction.Row,            toolbar.FlexDirection);
+        Assert.Equal(FlexBox.AlignItems.Center,        toolbar.FlexAlignItems);
+        Assert.Equal(FlexBox.JustifyContent.FlexStart, toolbar.FlexJustifyContent);
+        Assert.Equal((nfloat)8,                        toolbar.ColumnGap);
+        Assert.Equal(5,                                toolbar.Count);
+
+        var spacer = (Label)toolbar[3];
+        Assert.Equal((nfloat)1, spacer[Grow]);
+        Assert.Equal((nfloat)1, spacer[Shrink]);   // default per CSS spec
     }
 
     [Fact]
@@ -42,5 +52,15 @@ public class FlexBoxTests
                 new Label { Text = "Footer" },
             ]
         };
+
+        Assert.Equal(FlexBox.Direction.Column,   card.FlexDirection);
+        Assert.Equal(FlexBox.Wrap.NoWrap,        card.FlexWrap);
+        Assert.Equal(FlexBox.AlignItems.Stretch, card.FlexAlignItems);
+        Assert.Equal(3,                          card.Count);
+
+        var body = (Label)card[1];
+        Assert.Equal("Body",    body.Text);
+        Assert.Equal((nfloat)1, body[Grow]);
+        Assert.Equal((nfloat)1, body[Shrink]);
     }
 }

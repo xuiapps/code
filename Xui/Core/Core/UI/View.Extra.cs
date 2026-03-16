@@ -2,36 +2,34 @@ namespace Xui.Core.UI;
 
 public partial class View
 {
-    // Storage not yet implemented — getters return DefaultValue, setters are no-ops.
-    // Boxing will happen here once the dictionary lands; a flat buffer optimisation
-    // can replace it later without changing the public API.
+    private Dictionary<Extra, object?>? extras;
 
     /// <summary>Gets or sets an <see cref="nint"/> extra on this view.</summary>
     public nint this[Extra<nint> key]
     {
-        get => key.DefaultValue;
-        set { }
+        get => extras != null && extras.TryGetValue(key, out var v) ? (nint)v! : key.DefaultValue;
+        set => (extras ??= [])[key] = value;
     }
 
     /// <summary>Gets or sets an <see cref="nfloat"/> extra on this view.</summary>
     public nfloat this[Extra<nfloat> key]
     {
-        get => key.DefaultValue;
-        set { }
+        get => extras != null && extras.TryGetValue(key, out var v) ? (nfloat)v! : key.DefaultValue;
+        set => (extras ??= [])[key] = value;
     }
 
     /// <summary>Gets or sets a <see cref="string"/> extra on this view.</summary>
     public string? this[Extra<string?> key]
     {
-        get => key.DefaultValue;
-        set { }
+        get => extras != null && extras.TryGetValue(key, out var v) ? (string?)v : key.DefaultValue;
+        set => (extras ??= [])[key] = value;
     }
 
     /// <summary>Gets or sets a <see cref="bool"/> extra on this view.</summary>
     public bool this[Extra<bool> key]
     {
-        get => key.DefaultValue;
-        set { }
+        get => extras != null && extras.TryGetValue(key, out var v) ? (bool)v! : key.DefaultValue;
+        set => (extras ??= [])[key] = value;
     }
 
     /// <summary>
@@ -41,8 +39,8 @@ public partial class View
     /// </summary>
     public object? this[Extra key]
     {
-        get => key.BoxedDefault;
-        set { }
+        get => extras != null && extras.TryGetValue(key, out var v) ? v : key.BoxedDefault;
+        set => (extras ??= [])[key] = value;
     }
 
     /// <summary>
