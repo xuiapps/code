@@ -5,22 +5,24 @@ namespace Xui.Core.UI.Layout;
 
 /// <summary>
 /// CSS Grid Layout implementation for the Grid container.
-/// This implementation follows the CSS Grid Layout Module Level 1 specification
-/// and supports the core features defined in the Grid class.
+/// Provides MeasureCore and ArrangeCore implementations following the CSS Grid Layout Module Level 1 specification.
 /// </summary>
 /// <remarks>
-/// Implementation notes:
-/// - Track sizing supports: Length, Auto, MinContent, MaxContent, Fr (fractional units), MinMax, and FitContent
-/// - Auto-placement follows grid-auto-flow (row or column direction)
-/// - Named grid areas are parsed from TemplateAreas
-/// - Gaps are applied between tracks
-/// - Alignment is supported via justify-items, align-items, justify-content, align-content
-/// - Child positioning via grid-row-start/end, grid-column-start/end, and grid-area
-/// 
-/// Algorithm approach:
-/// 1. Build grid structure: parse areas, determine placement for each child
-/// 2. Measure tracks: resolve fixed sizes, content-based sizes, then distribute fr units
-/// 3. Arrange children: position each child in its grid area with alignment
+/// <para>Implementation notes:</para>
+/// <list type="bullet">
+/// <item>Track sizing supports: Length, Auto, MinContent, MaxContent, Fr (fractional units), MinMax, and FitContent</item>
+/// <item>Auto-placement follows grid-auto-flow (row or column direction)</item>
+/// <item>Named grid areas are parsed from TemplateAreas</item>
+/// <item>Gaps are applied between tracks</item>
+/// <item>Alignment is supported via justify-items, align-items, justify-content, align-content</item>
+/// <item>Child positioning via grid-row-start/end, grid-column-start/end, and grid-area</item>
+/// </list>
+/// <para>Algorithm approach:</para>
+/// <list type="number">
+/// <item>Build grid structure: parse areas, determine placement for each child</item>
+/// <item>Measure tracks: resolve fixed sizes, content-based sizes, then distribute fr units</item>
+/// <item>Arrange children: position each child in its grid area with alignment</item>
+/// </list>
 /// </remarks>
 public partial class Grid
 {
@@ -190,17 +192,17 @@ public partial class Grid
         int columnStart = child[ColumnStart] > 0 ? (int)child[ColumnStart] - 1 : -1;
         int columnEnd = child[ColumnEnd] > 0 ? (int)child[ColumnEnd] - 1 : -1;
 
-        // Handle row span
+        // Handle row span: if start is specified but end is not, use span
         var rowSpanValue = child[RowSpan];
-        if (rowStart >= 0 && rowEnd < 0 && rowSpanValue > 1)
+        if (rowStart >= 0 && rowEnd < 0 && rowSpanValue >= 1)
             rowEnd = rowStart + (int)rowSpanValue;
         
-        // Handle column span
+        // Handle column span: if start is specified but end is not, use span
         var columnSpanValue = child[ColumnSpan];
-        if (columnStart >= 0 && columnEnd < 0 && columnSpanValue > 1)
+        if (columnStart >= 0 && columnEnd < 0 && columnSpanValue >= 1)
             columnEnd = columnStart + (int)columnSpanValue;
 
-        // Default to span 1 if only start is specified
+        // Default to span 1 if only start is specified (and span wasn't applied)
         if (rowStart >= 0 && rowEnd < 0)
             rowEnd = rowStart + 1;
         if (columnStart >= 0 && columnEnd < 0)
@@ -209,16 +211,21 @@ public partial class Grid
         // Auto-placement if not fully specified
         if (rowStart < 0 || columnStart < 0)
         {
-            var (autoRow, autoCol) = AutoPlaceItem(childIndex, rowStart, columnStart, rowEnd - rowStart, columnEnd - columnStart);
+            // Calculate spans for auto-placement (default to 1 if not specified)
+            int rowSpan = rowEnd >= 0 && rowStart >= 0 ? rowEnd - rowStart : 1;
+            int columnSpan = columnEnd >= 0 && columnStart >= 0 ? columnEnd - columnStart : 1;
+            
+            var (autoRow, autoCol) = AutoPlaceItem(childIndex, rowStart, columnStart, rowSpan, columnSpan);
+            
             if (rowStart < 0)
             {
                 rowStart = autoRow;
-                rowEnd = rowStart + (rowEnd < 0 ? 1 : rowEnd - rowStart);
+                rowEnd = rowStart + rowSpan;
             }
             if (columnStart < 0)
             {
                 columnStart = autoCol;
-                columnEnd = columnStart + (columnEnd < 0 ? 1 : columnEnd - columnStart);
+                columnEnd = columnStart + columnSpan;
             }
         }
 
