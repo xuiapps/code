@@ -5,6 +5,7 @@ using System.IO.Pipes;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Xml;
 
 namespace Xui.MCP;
 
@@ -150,13 +151,28 @@ public static class AppTools
     }
 
     [McpServerTool]
-    [Description("Inspect the visual UI tree of the running Xui app. Returns a JSON view tree.")]
+    [Description("Inspect the visual UI tree of the running Xui app. Returns an XML view tree.")]
     public static async Task<string> InspectUi()
     {
         var crash = CrashReport();
         if (crash != null) return crash;
         if (client == null) return "No app connected. Call StartApp first.";
         var result = await client.SendAsync("ui.inspect");
+        
+        if (result is JsonElement el)
+        {
+            try
+            {
+                var inspectResult = el.Deserialize<InspectResult>(DevToolsClient.JsonOptions);
+                if (inspectResult?.Root != null)
+                    return ViewNodeToXml(inspectResult.Root);
+            }
+            catch (Exception ex)
+            {
+                return $"Error deserializing inspect result: {ex.Message}\n\nRaw result: {result}";
+            }
+        }
+        
         return result?.ToString() ?? "null";
     }
 
@@ -271,12 +287,80 @@ public static class AppTools
         }
         catch { }
     }
+
+    /// <summary>
+    /// Converts a ViewNode tree to XML format for better human readability.
+    /// </summary>
+    private static string ViewNodeToXml(ViewNode node)
+    {
+        var sb = new StringBuilder();
+        var settings = new XmlWriterSettings
+        {
+            Indent = true,
+            IndentChars = "  ",
+            OmitXmlDeclaration = false,
+            Encoding = Encoding.UTF8
+        };
+
+        using (var writer = XmlWriter.Create(sb, settings))
+        {
+            writer.WriteStartDocument();
+            WriteViewNode(writer, node);
+            writer.WriteEndDocument();
+        }
+
+        return sb.ToString();
+    }
+
+    private static void WriteViewNode(XmlWriter writer, ViewNode node)
+    {
+        writer.WriteStartElement(node.Type);
+
+        // Add id attribute if present
+        if (!string.IsNullOrEmpty(node.Id))
+            writer.WriteAttributeString("id", node.Id);
+
+        // Add class attribute if present
+        if (!string.IsNullOrEmpty(node.ClassName))
+            writer.WriteAttributeString("class", node.ClassName);
+
+        // Add position and size attributes
+        writer.WriteAttributeString("x", node.X.ToString("F2"));
+        writer.WriteAttributeString("y", node.Y.ToString("F2"));
+        writer.WriteAttributeString("w", node.W.ToString("F2"));
+        writer.WriteAttributeString("h", node.H.ToString("F2"));
+
+        // Add center point for clicking
+        writer.WriteAttributeString("centerX", node.CenterX.ToString("F2"));
+        writer.WriteAttributeString("centerY", node.CenterY.ToString("F2"));
+
+        // Add visible attribute
+        writer.WriteAttributeString("visible", node.Visible.ToString().ToLower());
+
+        // Recursively write children
+        foreach (var child in node.Children)
+            WriteViewNode(writer, child);
+
+        writer.WriteEndElement();
+    }
+
+    // Records matching the DevTools protocol
+    private record InspectResult(ViewNode Root);
+    
+    private record ViewNode(
+        string Type,
+        float X, float Y, float W, float H,
+        float CenterX, float CenterY,
+        bool Visible,
+        string? Id,
+        string? ClassName,
+        ViewNode[] Children);
 }
 
 /// <summary>Named-pipe JSON-RPC client for the Xui DevTools protocol.</summary>
 internal sealed class DevToolsClient : IDisposable
 {
-    private static readonly JsonSerializerOptions opts = new()
+    public static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
@@ -304,7 +388,7 @@ internal sealed class DevToolsClient : IDisposable
             throw new InvalidOperationException("Not connected.");
 
         var id = nextId++;
-        var json = JsonSerializer.Serialize(new { method, id, @params }, opts);
+        var json = JsonSerializer.Serialize(new { method, id, @params }, JsonOptions);
         await writer.WriteLineAsync(json);
 
         var line = await reader.ReadLineAsync();

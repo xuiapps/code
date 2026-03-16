@@ -36,7 +36,10 @@ public record InspectResult(ViewNode Root);
 public record ViewNode(
     string Type,
     float X, float Y, float W, float H,
+    float CenterX, float CenterY,
     bool Visible,
+    string? Id,
+    string? ClassName,
     ViewNode[] Children);
 
 public record ScreenshotResult(string Svg);

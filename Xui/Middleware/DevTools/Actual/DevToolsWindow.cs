@@ -149,7 +149,7 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
             {
                 var root = Abstract is Xui.Core.Abstract.Window w
                     ? WalkView(w.RootView)
-                    : new ViewNode("window", 0, 0, 0, 0, true, []);
+                    : new ViewNode("window", 0, 0, 0, 0, 0, 0, true, null, null, []);
                 tcs.SetResult(new InspectResult(root));
             }
             catch (Exception ex) { tcs.SetException(ex); }
@@ -247,11 +247,24 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
         var children = new ViewNode[view.Count];
         for (int i = 0; i < view.Count; i++)
             children[i] = WalkView(view[i]);
+        
+        // Calculate center point for clicking
+        var centerX = (float)(f.X + f.Width / 2);
+        var centerY = (float)(f.Y + f.Height / 2);
+        
+        // Get ClassName as comma-separated string or null
+        var className = view.ClassName.Count > 0 
+            ? string.Join(" ", view.ClassName) 
+            : null;
+        
         return new ViewNode(
             view.GetType().Name,
             (float)f.X, (float)f.Y,
             (float)f.Width, (float)f.Height,
+            centerX, centerY,
             true,
+            view.Id,
+            className,
             children);
     }
 }
