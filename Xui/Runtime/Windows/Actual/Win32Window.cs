@@ -75,6 +75,8 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
     {
         this.platform = platform;
         this.Abstract = @abstract;
+        var instrumentsFactory = (@abstract as IServiceProvider)?.GetService(typeof(IInstruments)) as IInstruments;
+        this.instruments = new InstrumentsAccessor(instrumentsFactory?.CreateSink());
         this.Title = "";
 
         nint hbrBackground = GetSysColorBrush((int)WindowColor.COLOR_WINDOW);
