@@ -60,7 +60,7 @@ file sealed class DevToolsHandler(DevToolsPlatform platform) : IDevToolsHandler
 {
     private DevToolsWindow? Window => platform.Window;
 
-    public Task<IO.InspectResult> HandleInspect() => Window?.HandleInspect() ?? Task.FromResult(new IO.InspectResult(new IO.ViewNode("no-window", 0, 0, 0, 0, false, [])));
+    public Task<IO.InspectResult> HandleInspect() => Window?.HandleInspect() ?? Task.FromResult(new IO.InspectResult(new IO.ViewNode("no-window", 0, 0, 0, 0, 0, 0, false, null, null, [])));
     public Task<IO.ScreenshotResult> HandleScreenshot() => Window?.HandleScreenshot() ?? Task.FromResult(new IO.ScreenshotResult("<svg/>"));
     public Task HandleTap(IO.TapParams p) => Window?.HandleTap(p) ?? Task.CompletedTask;
     public Task HandlePointer(IO.PointerParams p) => Window?.HandlePointer(p) ?? Task.CompletedTask;

@@ -39,8 +39,8 @@
           DestinationFiles="@(_StaticFiles->'$(_ResDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
 
     <!-- Generate stripped API .cs files into obj\resources\api -->
-    <Exec Command="dotnet run --project tools\XuiApiExport\XuiApiExport.csproj -- . &quot;$(_ResDir)\api&quot;"
-          WorkingDirectory="$(MSBuildThisFileDirectory)..\..\.." />
+    <Exec Command="dotnet run --project tools/XuiApiExport/XuiApiExport.csproj -- . &quot;$(_ResDir)/api&quot;"
+          WorkingDirectory="$(MSBuildThisFileDirectory)../../.." />
 
     <!-- Pack everything into a single zip and embed it -->
     <ZipDirectory SourceDirectory="$(_ResDir)"
