@@ -31,6 +31,11 @@ public class SdkHomePage : VerticalStack
             Margin = 3,
             Text = "Nested Stacks"
         });
+        this.Add(new SdkExampleButton<GridLayoutExample>() {
+            Id = "GridLayout",
+            Margin = 3,
+            Text = "Grid Layout"
+        });
         this.Add(new SdkExampleButton<ViewCollectionAlignmentExample>() {
             Id = "ViewCollectionAlignment",
             Margin = 3,
