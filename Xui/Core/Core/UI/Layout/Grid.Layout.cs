@@ -3,6 +3,25 @@ using Xui.Core.Canvas;
 
 namespace Xui.Core.UI.Layout;
 
+/// <summary>
+/// CSS Grid Layout implementation for the Grid container.
+/// This implementation follows the CSS Grid Layout Module Level 1 specification
+/// and supports the core features defined in the Grid class.
+/// </summary>
+/// <remarks>
+/// Implementation notes:
+/// - Track sizing supports: Length, Auto, MinContent, MaxContent, Fr (fractional units), MinMax, and FitContent
+/// - Auto-placement follows grid-auto-flow (row or column direction)
+/// - Named grid areas are parsed from TemplateAreas
+/// - Gaps are applied between tracks
+/// - Alignment is supported via justify-items, align-items, justify-content, align-content
+/// - Child positioning via grid-row-start/end, grid-column-start/end, and grid-area
+/// 
+/// Algorithm approach:
+/// 1. Build grid structure: parse areas, determine placement for each child
+/// 2. Measure tracks: resolve fixed sizes, content-based sizes, then distribute fr units
+/// 3. Arrange children: position each child in its grid area with alignment
+/// </remarks>
 public partial class Grid
 {
     /// <inheritdoc/>

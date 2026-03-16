@@ -292,4 +292,159 @@ public class GridTests
         Assert.Equal(0, box3.Frame.X, precision: 1);
         Assert.Equal(50, box3.Frame.Y, precision: 1);
     }
+
+    [Fact]
+    public void Grid_EmptyGrid_ReturnsZeroSize()
+    {
+        var grid = new Grid
+        {
+            TemplateColumns = [100, 200],
+            TemplateRows = [50, 75],
+        };
+
+        var size = grid.Measure((400, 800), null);
+
+        // Empty grid should have zero size
+        Assert.Equal(new Size(0, 0), size);
+    }
+
+    [Fact]
+    public void Grid_MinMaxTrackSize_ClampsToRange()
+    {
+        var grid = new Grid
+        {
+            TemplateColumns = [TrackSize.MinMax(50, 150)],
+            TemplateRows = [50],
+            Content =
+            [
+                new TestBox { Width = 200, Height = 40, [RowStart] = 1, [ColumnStart] = 1 },
+            ]
+        };
+
+        var size = grid.Measure((400, 800), null);
+
+        // MinMax(50, 150) with content width 200 should be clamped to 150
+        Assert.Equal(new Size(150, 50), size);
+    }
+
+    [Fact]
+    public void Grid_FitContentTrackSize_ClampsToMax()
+    {
+        var grid = new Grid
+        {
+            TemplateColumns = [TrackSize.FitContent(100)],
+            TemplateRows = [50],
+            Content =
+            [
+                new TestBox { Width = 200, Height = 40, [RowStart] = 1, [ColumnStart] = 1 },
+            ]
+        };
+
+        var size = grid.Measure((400, 800), null);
+
+        // FitContent(100) with content width 200 should be clamped to 100
+        Assert.Equal(new Size(100, 50), size);
+    }
+
+    [Fact]
+    public void Grid_RowSpan_SpansMultipleRows()
+    {
+        var grid = new Grid
+        {
+            TemplateColumns = [100, 100],
+            TemplateRows = [50, 50, 50],
+            Content =
+            [
+                new TestBox { [RowStart] = 1, [RowSpan] = 2, [ColumnStart] = 1 },
+                new TestBox { [RowStart] = 1, [ColumnStart] = 2 },
+            ]
+        };
+
+        var size = grid.Measure((400, 800), null);
+        Assert.Equal(new Size(200, 150), size);
+
+        grid.Arrange((0, 0, 400, 800), null);
+
+        var box1 = grid[0];
+        var box2 = grid[1];
+
+        // Box 1 should span 2 rows (height = 100)
+        Assert.Equal(100, box1.Frame.Height, precision: 1);
+        
+        // Box 2 should only occupy first row (height = 50)
+        Assert.Equal(50, box2.Frame.Height, precision: 1);
+    }
+
+    [Fact]
+    public void Grid_ColumnSpan_SpansMultipleColumns()
+    {
+        var grid = new Grid
+        {
+            TemplateColumns = [100, 100, 100],
+            TemplateRows = [50],
+            Content =
+            [
+                new TestBox { [RowStart] = 1, [ColumnStart] = 1, [ColumnSpan] = 2 },
+                new TestBox { [RowStart] = 1, [ColumnStart] = 3 },
+            ]
+        };
+
+        var size = grid.Measure((400, 800), null);
+        Assert.Equal(new Size(300, 50), size);
+
+        grid.Arrange((0, 0, 400, 800), null);
+
+        var box1 = grid[0];
+        var box2 = grid[1];
+
+        // Box 1 should span 2 columns (width = 200)
+        Assert.Equal(200, box1.Frame.Width, precision: 1);
+        
+        // Box 2 should only occupy third column (width = 100)
+        Assert.Equal(100, box2.Frame.Width, precision: 1);
+    }
+
+    [Fact]
+    public void Grid_AutoRows_CreatesImplicitRows()
+    {
+        var grid = new Grid
+        {
+            TemplateColumns = [100, 100],
+            TemplateRows = [],
+            AutoRows = 60,
+            Content =
+            [
+                new TestBox { [RowStart] = 1, [ColumnStart] = 1 },
+                new TestBox { [RowStart] = 2, [ColumnStart] = 1 },
+                new TestBox { [RowStart] = 3, [ColumnStart] = 1 },
+            ]
+        };
+
+        var size = grid.Measure((400, 800), null);
+
+        // 3 implicit rows at 60 each = 180 height
+        Assert.Equal(new Size(200, 180), size);
+    }
+
+    [Fact]
+    public void Grid_AutoColumns_CreatesImplicitColumns()
+    {
+        var grid = new Grid
+        {
+            TemplateColumns = [],
+            TemplateRows = [50],
+            AutoColumns = 80,
+            Content =
+            [
+                new TestBox { [RowStart] = 1, [ColumnStart] = 1 },
+                new TestBox { [RowStart] = 1, [ColumnStart] = 2 },
+                new TestBox { [RowStart] = 1, [ColumnStart] = 3 },
+            ]
+        };
+
+        var size = grid.Measure((400, 800), null);
+
+        // 3 implicit columns at 80 each = 240 width
+        Assert.Equal(new Size(240, 50), size);
+    }
 }
