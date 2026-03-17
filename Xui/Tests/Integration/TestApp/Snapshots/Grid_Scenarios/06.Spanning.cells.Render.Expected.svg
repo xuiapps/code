@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="560" viewBox="0 0 800 560">
+  <rect x="200" y="24" width="1" height="536" fill="#E0E0E0" />
+  <text x="3" y="27" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Basic fixed grid</text>
+  <text x="3" y="51.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Grid with gaps</text>
+  <text x="3" y="75.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Fractional units</text>
+  <text x="3" y="99.45" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Auto tracks</text>
+  <rect x="3" y="123.6" width="194" height="18.15" fill="#D3D3D3" />
+  <text x="3" y="123.6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Spanning cells</text>
+  <text x="3" y="147.75" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Named areas</text>
+  <text x="3" y="171.9" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Auto flow</text>
+  <text x="3" y="196.05" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Alignment</text>
+  <text x="3" y="220.2" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Fixed container</text>
+  <text x="3" y="244.34" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Scrollable grid</text>
+  <text x="3" y="268.49" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Nested grids</text>
+  <text x="3" y="292.64" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">MinMax tracks</text>
+  <rect x="200" y="24" width="600" height="536" fill="#F5F5F5" />
+  <path d="M 228 49 H 632 A 3 3 0 0 1 635 52 V 94 A 3 3 0 0 1 632 97 H 228 A 3 3 0 0 1 225 94 V 52 A 3 3 0 0 1 228 49 Z " fill="#4A90D9" fill-rule="nonzero" />
+  <text x="351.29" y="65.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">col-span 3  (cols 1–3, row 1)</text>
+  <path d="M 228 48.5 H 632 A 3.5 3.5 0 0 1 635.5 52 V 94 A 3.5 3.5 0 0 1 632 97.5 H 228 A 3.5 3.5 0 0 1 224.5 94 V 52 A 3.5 3.5 0 0 1 228 48.5 Z " fill="none" stroke="#000000" stroke-opacity="0.19" />
+  <path d="M 648 49 H 772 A 3 3 0 0 1 775 52 V 288 A 3 3 0 0 1 772 291 H 648 A 3 3 0 0 1 645 288 V 52 A 3 3 0 0 1 648 49 Z " fill="#9B59B6" fill-rule="nonzero" />
+  <text x="663.4" y="162.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">row
+span
+4
+(col 4)</text>
+  <path d="M 648 48.5 H 772 A 3.5 3.5 0 0 1 775.5 52 V 288 A 3.5 3.5 0 0 1 772 291.5 H 648 A 3.5 3.5 0 0 1 644.5 288 V 52 A 3.5 3.5 0 0 1 648 48.5 Z " fill="none" stroke="#000000" stroke-opacity="0.19" />
+  <path d="M 228 107 H 492 A 3 3 0 0 1 495 110 V 230 A 3 3 0 0 1 492 233 H 228 A 3 3 0 0 1 225 230 V 110 A 3 3 0 0 1 228 107 Z " fill="#1ABC9C" fill-rule="nonzero" />
+  <text x="277.21" y="162.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">2×2 span
+(rows 2–3, cols 1–2)</text>
+  <path d="M 228 106.5 H 492 A 3.5 3.5 0 0 1 495.5 110 V 230 A 3.5 3.5 0 0 1 492 233.5 H 228 A 3.5 3.5 0 0 1 224.5 230 V 110 A 3.5 3.5 0 0 1 228 106.5 Z " fill="none" stroke="#000000" stroke-opacity="0.19" />
+  <path d="M 508 107 H 632 A 3 3 0 0 1 635 110 V 162 A 3 3 0 0 1 632 165 H 508 A 3 3 0 0 1 505 162 V 110 A 3 3 0 0 1 508 107 Z " fill="#F0B27A" fill-rule="nonzero" />
+  <text x="561.66" y="129.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">2,3</text>
+  <path d="M 508 106.5 H 632 A 3.5 3.5 0 0 1 635.5 110 V 162 A 3.5 3.5 0 0 1 632 165.5 H 508 A 3.5 3.5 0 0 1 504.5 162 V 110 A 3.5 3.5 0 0 1 508 106.5 Z " fill="none" stroke="#000000" stroke-opacity="0.19" />
+  <path d="M 508 175 H 632 A 3 3 0 0 1 635 178 V 230 A 3 3 0 0 1 632 233 H 508 A 3 3 0 0 1 505 230 V 178 A 3 3 0 0 1 508 175 Z " fill="#85C1E9" fill-rule="nonzero" />
+  <text x="561.62" y="197.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">3,3</text>
+  <path d="M 508 174.5 H 632 A 3.5 3.5 0 0 1 635.5 178 V 230 A 3.5 3.5 0 0 1 632 233.5 H 508 A 3.5 3.5 0 0 1 504.5 230 V 178 A 3.5 3.5 0 0 1 508 174.5 Z " fill="none" stroke="#000000" stroke-opacity="0.19" />
+  <path d="M 228 243 H 352 A 3 3 0 0 1 355 246 V 288 A 3 3 0 0 1 352 291 H 228 A 3 3 0 0 1 225 288 V 246 A 3 3 0 0 1 228 243 Z " fill="#F1948A" fill-rule="nonzero" />
+  <text x="282.81" y="260.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">4,1</text>
+  <path d="M 228 242.5 H 352 A 3.5 3.5 0 0 1 355.5 246 V 288 A 3.5 3.5 0 0 1 352 291.5 H 228 A 3.5 3.5 0 0 1 224.5 288 V 246 A 3.5 3.5 0 0 1 228 242.5 Z " fill="none" stroke="#000000" stroke-opacity="0.19" />
+  <path d="M 368 243 H 492 A 3 3 0 0 1 495 246 V 288 A 3 3 0 0 1 492 291 H 368 A 3 3 0 0 1 365 288 V 246 A 3 3 0 0 1 368 243 Z " fill="#82E0AA" fill-rule="nonzero" />
+  <text x="421.69" y="260.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">4,2</text>
+  <path d="M 368 242.5 H 492 A 3.5 3.5 0 0 1 495.5 246 V 288 A 3.5 3.5 0 0 1 492 291.5 H 368 A 3.5 3.5 0 0 1 364.5 288 V 246 A 3.5 3.5 0 0 1 368 242.5 Z " fill="none" stroke="#000000" stroke-opacity="0.19" />
+  <path d="M 508 243 H 632 A 3 3 0 0 1 635 246 V 288 A 3 3 0 0 1 632 291 H 508 A 3 3 0 0 1 505 288 V 246 A 3 3 0 0 1 508 243 Z " fill="#FAD7A0" fill-rule="nonzero" />
+  <text x="561.65" y="260.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">4,3</text>
+  <path d="M 508 242.5 H 632 A 3.5 3.5 0 0 1 635.5 246 V 288 A 3.5 3.5 0 0 1 632 291.5 H 508 A 3.5 3.5 0 0 1 504.5 288 V 246 A 3.5 3.5 0 0 1 508 242.5 Z " fill="none" stroke="#000000" stroke-opacity="0.19" />
+  <rect x="0" y="0" width="800" height="24" fill="#FFFFFF" />
+  <text x="0" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+  <text x="73.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Grid Layout</text>
+  <g transform="translate(100 132.67236328125)" opacity="0.9">
+    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
+  </g>
+</svg>
