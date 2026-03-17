@@ -42,22 +42,6 @@ The Xui Grid implementation is a clean-room implementation designed specifically
 4. **Alignment:** Supports justify-items, align-items, justify-content, align-content for positioning items within cells and the grid within its container
 5. **Gaps:** Applies row-gap and column-gap spacing between tracks
 
-### Features Implemented
-
-- ✅ Template columns and rows with TrackSize variants
-- ✅ Auto-placement (grid-auto-flow)
-- ✅ Named grid areas (grid-template-areas)
-- ✅ Gap support (row-gap, column-gap)
-- ✅ Alignment (justify-items, align-items, justify-content, align-content)
-- ✅ Child positioning (grid-row-start/end, grid-column-start/end, grid-area)
-- ✅ Fractional units (fr)
-- ✅ MinMax and FitContent track sizing
-- ✅ RowSpan and ColumnSpan helpers
-
-### Test Infrastructure
-
-Test views (TestBox and TextLabel) were created to test Grid layout without depending on full text measurement or rendering infrastructure. These use simple measurement formulas specified in the implementation requirements.
-
 ---
 
 ## Acknowledgments
