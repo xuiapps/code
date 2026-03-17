@@ -1,12 +1,10 @@
+using System.Runtime.InteropServices;
 using Xui.Core.Canvas;
 using Xui.Core.Math2D;
 using Xui.Core.UI;
 using Xui.Core.UI.Layout;
 using static Xui.Core.Canvas.Colors;
 using static Xui.Core.UI.Layout.FlexBox;
-#pragma warning disable CS8981
-using nfloat = System.Runtime.InteropServices.NFloat;
-#pragma warning restore CS8981
 
 namespace Xui.Apps.TestApp.Pages.FlexBox.Tests;
 
@@ -20,7 +18,14 @@ public class NestedFlexTest : View
 
     private static readonly Color[] palette =
     [
-        Blue5, Green5, Red5, Yellow5, Purple5, Orange5, Cyan5, Pink5
+        new Color(0x4A, 0x90, 0xD9, 0xFF), // Blue
+        new Color(0x5C, 0xC8, 0x5A, 0xFF), // Green
+        new Color(0xE8, 0x5D, 0x5D, 0xFF), // Red
+        new Color(0xF5, 0xA6, 0x23, 0xFF), // Yellow
+        new Color(0x9B, 0x59, 0xB6, 0xFF), // Purple
+        new Color(0xF3, 0x9C, 0x12, 0xFF), // Orange
+        new Color(0x1A, 0xBC, 0x9C, 0xFF), // Cyan
+        new Color(0xE7, 0x4C, 0x3C, 0xFF), // Pink
     ];
 
     public override int Count => 1;
@@ -31,10 +36,9 @@ public class NestedFlexTest : View
         // Outer vertical container
         outerFlex = new global::Xui.Core.UI.Layout.FlexBox
         {
-            FlexDirection = Direction.Column,
+            FlexDirection = global::Xui.Core.UI.Layout.FlexBox.Direction.Column,
             FlexJustifyContent = JustifyContent.FlexStart,
             FlexAlignItems = AlignItems.Stretch,
-            RowGap = 15,
             Content =
             [
                 // Header section
@@ -63,14 +67,8 @@ public class NestedFlexTest : View
 
     protected override void RenderCore(IContext context)
     {
-        context.SetFill(Gray10);
+        context.SetFill(new Color(0xF5, 0xF5, 0xF5, 0xFF));
         context.FillRect(Frame);
-
-        // Draw legend
-        context.SetFill(White);
-        context.SetFont(["Inter"], 12, FontWeight.Normal, FontSlant.Normal);
-        context.FillText("Nested flex containers: header, content (with 3 columns), and footer", Frame.X + 10, Frame.Y + Frame.Height - 15);
-
         base.RenderCore(context);
     }
 
@@ -78,10 +76,9 @@ public class NestedFlexTest : View
     {
         var headerFlex = new global::Xui.Core.UI.Layout.FlexBox
         {
-            FlexDirection = Direction.Row,
+            FlexDirection = global::Xui.Core.UI.Layout.FlexBox.Direction.Row,
             FlexJustifyContent = JustifyContent.SpaceBetween,
             FlexAlignItems = AlignItems.Center,
-            ColumnGap = 10,
             Content =
             [
                 Box("Logo", palette[0], 80, 40),
@@ -94,12 +91,11 @@ public class NestedFlexTest : View
 
     private View CreateNavigation()
     {
-        return new global::Xui.Core.UI.Layout.FlexBox
+        var navFlex = new global::Xui.Core.UI.Layout.FlexBox
         {
-            FlexDirection = Direction.Row,
+            FlexDirection = global::Xui.Core.UI.Layout.FlexBox.Direction.Row,
             FlexJustifyContent = JustifyContent.Center,
             FlexAlignItems = AlignItems.Center,
-            ColumnGap = 8,
             Content =
             [
                 Box("Home", palette[2], 60, 30),
@@ -107,105 +103,81 @@ public class NestedFlexTest : View
                 Box("Contact", palette[4], 60, 30),
             ]
         };
+        navFlex[Grow] = 1;
+        return navFlex;
     }
 
     private View CreateContent()
     {
         var contentFlex = new global::Xui.Core.UI.Layout.FlexBox
         {
-            FlexDirection = Direction.Row,
+            FlexDirection = global::Xui.Core.UI.Layout.FlexBox.Direction.Row,
             FlexJustifyContent = JustifyContent.SpaceBetween,
             FlexAlignItems = AlignItems.Stretch,
-            ColumnGap = 15,
             Content =
             [
-                CreateColumn("Left", palette[5], 3),
-                CreateColumn("Center", palette[6], 4),
-                CreateColumn("Right", palette[7], 3),
+                CreateColumn("Left", palette[5]),
+                CreateColumn("Center", palette[6]),
+                CreateColumn("Right", palette[7]),
             ]
         };
-        return new FixedHeightContainer(contentFlex, 200);
+        contentFlex[Grow] = 1;
+        return contentFlex;
     }
 
-    private View CreateColumn(string title, Color color, int itemCount)
+    private View CreateColumn(string title, Color color)
     {
-        var items = new View[itemCount];
-        for (int i = 0; i < itemCount; i++)
+        var columnFlex = new global::Xui.Core.UI.Layout.FlexBox
         {
-            items[i] = Box($"{i + 1}", color, 0, 35);
-        }
-
-        return new FlexContainer
-        {
-            FlexGrow = 1,
-            InnerFlex = new global::Xui.Core.UI.Layout.FlexBox
-            {
-                FlexDirection = Direction.Column,
-                FlexJustifyContent = JustifyContent.FlexStart,
-                FlexAlignItems = AlignItems.Stretch,
-                RowGap = 8,
-                Content = items
-            }
+            FlexDirection = global::Xui.Core.UI.Layout.FlexBox.Direction.Column,
+            FlexJustifyContent = JustifyContent.FlexStart,
+            FlexAlignItems = AlignItems.Stretch,
+            Content =
+            [
+                Box(title, color, 0, 30),
+                Box("Item 1", color, 0, 35),
+                Box("Item 2", color, 0, 35),
+                Box("Item 3", color, 0, 35),
+            ]
         };
+        columnFlex[Grow] = 1;
+        return columnFlex;
     }
 
     private View CreateFooter()
     {
-        return new FixedHeightContainer(
-            Box("Footer Area", palette[0], 0, 50),
-            50
-        );
+        return Box("Footer Area", palette[0], 0, 50);
     }
 
-    private static View Box(string text, Color color, nfloat width, nfloat height)
+    private static View Box(string text, Color color, NFloat width, NFloat height)
     {
-        return new BoxView
+        var border = new Border
         {
-            Text = text,
             BackgroundColor = color,
-            Width = width,
-            Height = height
+            BorderThickness = 1,
+            BorderColor = new Color(0x00, 0x00, 0x00, 0x40),
+            Padding = 4,
+            Content = new Label
+            {
+                Text = text,
+                FontFamily = ["Inter"],
+                FontSize = 12,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Middle,
+            }
         };
-    }
-
-    private class FlexContainer : View
-    {
-        public nfloat FlexGrow { get; set; }
-        public global::Xui.Core.UI.Layout.FlexBox? InnerFlex { get; set; }
-
-        public override int Count => InnerFlex != null ? 1 : 0;
-        public override View this[int index] => InnerFlex!;
-
-        public FlexContainer()
-        {
-        }
-
-        protected override Size MeasureCore(Size availableSize, IMeasureContext context)
-        {
-            InnerFlex?.Measure(availableSize, context);
-            return InnerFlex?.DesiredSize ?? Size.Zero;
-        }
-
-        protected override void ArrangeCore(Rect rect, IMeasureContext context)
-        {
-            InnerFlex?.Arrange(rect, context);
-        }
-
-        protected override void RenderCore(IContext context)
-        {
-            base.RenderCore(context);
-        }
+        return new SizedBox(border, width, height);
     }
 
     private class FixedHeightContainer : View
     {
         private readonly View child;
-        private readonly nfloat height;
+        private readonly NFloat height;
 
         public override int Count => 1;
         public override View this[int index] => child;
 
-        public FixedHeightContainer(View child, nfloat height)
+        public FixedHeightContainer(View child, NFloat height)
         {
             this.child = child;
             this.height = height;
@@ -224,29 +196,34 @@ public class NestedFlexTest : View
         }
     }
 
-    private class BoxView : View
+    private class SizedBox : View
     {
-        public string Text { get; set; } = "";
-        public Color BackgroundColor { get; set; }
-        public nfloat Width { get; set; }
-        public nfloat Height { get; set; }
+        private readonly View _content;
+        public NFloat Width { get; set; }
+        public NFloat Height { get; set; }
+
+        public override int Count => _content != null ? 1 : 0;
+        public override View this[int index] => _content;
+
+        public SizedBox(View content, NFloat width, NFloat height)
+        {
+            _content = content;
+            Width = width;
+            Height = height;
+            if (_content != null)
+                AddProtectedChild(_content);
+        }
 
         protected override Size MeasureCore(Size availableSize, IMeasureContext context)
         {
-            if (Width > 0)
-                return new Size(Width, Height);
-            return new Size(availableSize.Width, Height);
+            var size = new Size(Width > 0 ? Width : availableSize.Width, Height > 0 ? Height : availableSize.Height);
+            _content?.Measure(size, context);
+            return size;
         }
 
-        protected override void RenderCore(IContext context)
+        protected override void ArrangeCore(Rect rect, IMeasureContext context)
         {
-            context.SetFill(BackgroundColor);
-            context.FillRect(Frame);
-
-            context.SetFill(White);
-            context.SetFont(["Inter"], 12, FontWeight.Normal, FontSlant.Normal);
-            var textWidth = Text.Length * 6;
-            context.FillText(Text, Frame.X + Frame.Width / 2 - textWidth / 2, Frame.Y + Frame.Height / 2 + 4);
+            _content?.Arrange(rect, context);
         }
     }
 }

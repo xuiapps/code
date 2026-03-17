@@ -43,18 +43,18 @@ public class FlexBoxExample : Example
             list = new VerticalStack();
             AddProtectedChild(list);
 
-            list.Add(new Label { Text = "Basic row", Margin = 3 });
-            list.Add(new Label { Text = "Basic column", Margin = 3 });
-            list.Add(new Label { Text = "Grow & shrink", Margin = 3 });
-            list.Add(new Label { Text = "Wrapping", Margin = 3 });
-            list.Add(new Label { Text = "Justify content", Margin = 3 });
-            list.Add(new Label { Text = "Align items", Margin = 3 });
-            list.Add(new Label { Text = "Align content", Margin = 3 });
-            list.Add(new Label { Text = "Gaps", Margin = 3 });
-            list.Add(new Label { Text = "Reverse direction", Margin = 3 });
-            list.Add(new Label { Text = "Nested flex", Margin = 3 });
-            list.Add(new Label { Text = "Responsive layout", Margin = 3 });
-            list.Add(new Label { Text = "Mixed sizing", Margin = 3 });
+            list.Add(new Label { Id = "Basic row", Text = "Basic row", Margin = 3 });
+            list.Add(new Label { Id = "Basic column", Text = "Basic column", Margin = 3 });
+            list.Add(new Label { Id = "Grow & shrink", Text = "Grow & shrink", Margin = 3 });
+            list.Add(new Label { Id = "Wrapping", Text = "Wrapping", Margin = 3 });
+            list.Add(new Label { Id = "Justify content", Text = "Justify content", Margin = 3 });
+            list.Add(new Label { Id = "Align items", Text = "Align items", Margin = 3 });
+            list.Add(new Label { Id = "Align content", Text = "Align content", Margin = 3 });
+            list.Add(new Label { Id = "Gaps", Text = "Gaps", Margin = 3 });
+            list.Add(new Label { Id = "Reverse direction", Text = "Reverse direction", Margin = 3 });
+            list.Add(new Label { Id = "Nested flex", Text = "Nested flex", Margin = 3 });
+            list.Add(new Label { Id = "Responsive layout", Text = "Responsive layout", Margin = 3 });
+            list.Add(new Label { Id = "Mixed sizing", Text = "Mixed sizing", Margin = 3 });
 
             Preview = new BasicRowTest();
         }
@@ -79,7 +79,7 @@ public class FlexBoxExample : Example
 
         protected override void RenderCore(IContext context)
         {
-            context.SetFill(Gray9);
+            context.SetFill(new Color(0xA9, 0xA9, 0xA9, 0xFF));
             context.FillRect(Frame);
             base.RenderCore(context);
         }
