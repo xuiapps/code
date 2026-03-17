@@ -488,8 +488,8 @@ public partial class FlexBox
         var lineMainSize = isHorizontal ? lineRect.Width : lineRect.Height;
         var remainingMainSpace = lineMainSize - totalItemsMainSize - totalGaps;
 
-        // Calculate main-axis positions based on justify-content
-        var mainPositions = CalculateJustifyContent(line.Items.Count, totalItemsMainSize, remainingMainSpace, mainGap);
+        // Calculate main-axis start positions based on justify-content
+        var mainPositions = CalculateJustifyContentPositions(line.Items, remainingMainSpace, mainGap);
 
         // Arrange each item
         for (int i = 0; i < line.Items.Count; i++)
@@ -497,50 +497,53 @@ public partial class FlexBox
             var item = line.Items[i];
             var child = this[item.ChildIndex];
 
-            // Determine main-axis position
+            // Determine main-axis position and size
             var mainPos = mainPositions[i];
             var mainSize = item.MainSize;
 
             // Determine cross-axis size (handle stretch)
+            var lineCrossSize = isHorizontal ? lineRect.Height : lineRect.Width;
             var crossSize = item.HypotheticalCrossSize;
-            if (FlexAlignItems == AlignItems.Stretch)
-            {
-                crossSize = isHorizontal ? lineRect.Height : lineRect.Width;
-            }
+            
+            // For stretch, use the line cross size as available
+            var crossAvailable = FlexAlignItems == AlignItems.Stretch ? lineCrossSize : item.HypotheticalCrossSize;
 
-            // Re-measure child with final sizes
+            // Re-measure child with flex-determined sizes to get actual content size
             var childAvailSize = isHorizontal
-                ? new Size(mainSize, crossSize)
-                : new Size(crossSize, mainSize);
+                ? new Size(mainSize, crossAvailable)
+                : new Size(crossAvailable, mainSize);
             var childMeasured = child.Measure(childAvailSize, context);
 
-            // Apply align-items for cross-axis positioning
-            var crossPos = CalculateItemCrossPosition(
-                isHorizontal ? lineRect.Height : lineRect.Width,
-                isHorizontal ? childMeasured.Height : childMeasured.Width
-            );
+            // Use flex-determined main size, measured cross size (unless stretching)
+            var finalMainSize = mainSize;
+            var finalCrossSize = FlexAlignItems == AlignItems.Stretch ? lineCrossSize : 
+                                 (isHorizontal ? childMeasured.Height : childMeasured.Width);
 
-            // Create final rect
+            // Apply align-items for cross-axis positioning
+            var crossPos = CalculateItemCrossPosition(lineCrossSize, finalCrossSize);
+
+            // Create final rect using flex-determined sizes
             Rect itemRect;
             if (isHorizontal)
             {
-                var x = lineRect.X + (isReverse ? lineRect.Width - mainPos - mainSize : mainPos);
+                var x = lineRect.X + (isReverse ? lineRect.Width - mainPos - finalMainSize : mainPos);
                 var y = lineRect.Y + crossPos;
-                itemRect = new Rect(x, y, childMeasured.Width, childMeasured.Height);
+                itemRect = new Rect(x, y, finalMainSize, finalCrossSize);
             }
             else
             {
                 var x = lineRect.X + crossPos;
-                var y = lineRect.Y + (isReverse ? lineRect.Height - mainPos - mainSize : mainPos);
-                itemRect = new Rect(x, y, childMeasured.Width, childMeasured.Height);
+                var y = lineRect.Y + (isReverse ? lineRect.Height - mainPos - finalMainSize : mainPos);
+                itemRect = new Rect(x, y, finalCrossSize, finalMainSize);
             }
 
             child.Arrange(itemRect, context);
         }
     }
 
-    private nfloat[] CalculateJustifyContent(int itemCount, nfloat totalItemsSize, nfloat remainingSpace, nfloat gap)
+    private nfloat[] CalculateJustifyContentPositions(List<FlexItem> items, nfloat remainingSpace, nfloat gap)
     {
+        var itemCount = items.Count;
         var positions = new nfloat[itemCount];
 
         switch (FlexJustifyContent)
@@ -550,7 +553,7 @@ public partial class FlexBox
                 for (int i = 0; i < itemCount; i++)
                 {
                     positions[i] = offset;
-                    offset += gap;
+                    offset += items[i].MainSize + gap;
                 }
                 break;
 
@@ -559,7 +562,7 @@ public partial class FlexBox
                 for (int i = 0; i < itemCount; i++)
                 {
                     positions[i] = offset;
-                    offset += gap;
+                    offset += items[i].MainSize + gap;
                 }
                 break;
 
@@ -568,7 +571,7 @@ public partial class FlexBox
                 for (int i = 0; i < itemCount; i++)
                 {
                     positions[i] = offset;
-                    offset += gap;
+                    offset += items[i].MainSize + gap;
                 }
                 break;
 
@@ -580,7 +583,7 @@ public partial class FlexBox
                     for (int i = 0; i < itemCount; i++)
                     {
                         positions[i] = offset;
-                        offset += spaceBetween + gap;
+                        offset += items[i].MainSize + spaceBetween;
                     }
                 }
                 else
@@ -595,7 +598,7 @@ public partial class FlexBox
                 for (int i = 0; i < itemCount; i++)
                 {
                     positions[i] = offset;
-                    offset += spaceAround + gap;
+                    offset += items[i].MainSize + spaceAround;
                 }
                 break;
 
@@ -605,7 +608,7 @@ public partial class FlexBox
                 for (int i = 0; i < itemCount; i++)
                 {
                     positions[i] = offset;
-                    offset += spaceEvenly + gap;
+                    offset += items[i].MainSize + spaceEvenly;
                 }
                 break;
         }
