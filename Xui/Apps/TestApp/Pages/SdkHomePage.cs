@@ -1,5 +1,6 @@
 using Xui.Apps.TestApp.Examples;
 using Xui.Apps.TestApp.Pages.Canvas;
+using Xui.Apps.TestApp.Pages.Grid;
 using Xui.Apps.TestApp.Pages.Layers;
 using Xui.Core.UI;
 using static Xui.Core.Canvas.FontWeight;
@@ -31,7 +32,7 @@ public class SdkHomePage : VerticalStack
             Margin = 3,
             Text = "Nested Stacks"
         });
-        this.Add(new SdkExampleButton<GridLayoutExample>() {
+        this.Add(new SdkExampleButton<GridExample>() {
             Id = "GridLayout",
             Margin = 3,
             Text = "Grid Layout"
