@@ -37,4 +37,14 @@ public partial class Grid
     /// Corresponds to CSS <c>order</c>.
     /// </summary>
     public static readonly View.Extra<nint> Order = new(0);
+
+    /// <summary>
+    /// The number of rows the item spans. Shorthand for setting <see cref="RowEnd"/> = <see cref="RowStart"/> + RowSpan.
+    /// </summary>
+    public static readonly View.Extra<nint> RowSpan = new(1);
+
+    /// <summary>
+    /// The number of columns the item spans. Shorthand for setting <see cref="ColumnEnd"/> = <see cref="ColumnStart"/> + ColumnSpan.
+    /// </summary>
+    public static readonly View.Extra<nint> ColumnSpan = new(1);
 }

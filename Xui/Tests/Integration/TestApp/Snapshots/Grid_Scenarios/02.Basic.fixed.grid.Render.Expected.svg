@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="560" viewBox="0 0 800 560">
+  <rect x="200" y="24" width="1" height="536" fill="#E0E0E0" />
+  <rect x="3" y="27" width="194" height="18.15" fill="#D3D3D3" />
+  <text x="3" y="27" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Basic fixed grid</text>
+  <text x="3" y="51.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Grid with gaps</text>
+  <text x="3" y="75.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Fractional units</text>
+  <text x="3" y="99.45" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Auto tracks</text>
+  <text x="3" y="123.6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Spanning cells</text>
+  <text x="3" y="147.75" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Named areas</text>
+  <text x="3" y="171.9" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Auto flow</text>
+  <text x="3" y="196.05" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Alignment</text>
+  <text x="3" y="220.2" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Fixed container</text>
+  <text x="3" y="244.34" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Scrollable grid</text>
+  <text x="3" y="268.49" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Nested grids</text>
+  <text x="3" y="292.64" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">MinMax tracks</text>
+  <rect x="200" y="24" width="600" height="536" fill="#F5F5F5" />
+  <rect x="351" y="203" width="98" height="58" fill="#4A90D9" />
+  <text x="391.7" y="224.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">1, 1</text>
+  <rect x="350.5" y="202.5" width="99" height="59" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="451" y="203" width="98" height="58" fill="#5CC85A" />
+  <text x="490.48" y="224.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">1, 2</text>
+  <rect x="450.5" y="202.5" width="99" height="59" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="551" y="203" width="98" height="58" fill="#E85D5D" />
+  <text x="590.44" y="224.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">1, 3</text>
+  <rect x="550.5" y="202.5" width="99" height="59" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="351" y="263" width="98" height="58" fill="#F5A623" />
+  <text x="390.48" y="284.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">2, 1</text>
+  <rect x="350.5" y="262.5" width="99" height="59" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="451" y="263" width="98" height="58" fill="#9B59B6" />
+  <text x="489.27" y="284.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">2, 2</text>
+  <rect x="450.5" y="262.5" width="99" height="59" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="551" y="263" width="98" height="58" fill="#1ABC9C" />
+  <text x="589.22" y="284.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">2, 3</text>
+  <rect x="550.5" y="262.5" width="99" height="59" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="351" y="323" width="98" height="58" fill="#F39C12" />
+  <text x="390.44" y="344.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">3, 1</text>
+  <rect x="350.5" y="322.5" width="99" height="59" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="451" y="323" width="98" height="58" fill="#3498DB" />
+  <text x="489.22" y="344.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">3, 2</text>
+  <rect x="450.5" y="322.5" width="99" height="59" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="551" y="323" width="98" height="58" fill="#E74C3C" />
+  <text x="589.17" y="344.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">3, 3</text>
+  <rect x="550.5" y="322.5" width="99" height="59" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="0" y="0" width="800" height="24" fill="#FFFFFF" />
+  <text x="0" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+  <text x="73.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Grid Layout</text>
+  <g transform="translate(100 36.07470703125)" opacity="0.9">
+    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
+  </g>
+</svg>
