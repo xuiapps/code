@@ -351,7 +351,7 @@ public partial class FlexBox
         var remainingCrossSpace = containerCrossSize - totalCrossSize;
 
         // Determine cross-axis positions based on align-content
-        var crossPositions = CalculateAlignContent(structure.Lines.Count, remainingCrossSpace, crossGap);
+        var crossPositions = CalculateAlignContentPositions(structure.Lines, remainingCrossSpace, crossGap);
 
         // Create rects for each line
         var crossStart = structure.IsHorizontal ? containerRect.Y : containerRect.X;
@@ -373,19 +373,21 @@ public partial class FlexBox
         return lineRects;
     }
 
-    private nfloat[] CalculateAlignContent(int lineCount, nfloat remainingSpace, nfloat gap)
+    private nfloat[] CalculateAlignContentPositions(List<FlexLine> lines, nfloat remainingSpace, nfloat gap)
     {
+        var lineCount = lines.Count;
         var positions = new nfloat[lineCount];
 
         if (lineCount == 1 || remainingSpace <= 0)
         {
             // Single line or no space: simple positioning
-            nfloat crossSize = 0;
+            nfloat offset = 0;
             for (int i = 0; i < lineCount; i++)
             {
-                positions[i] = crossSize;
+                positions[i] = offset;
+                offset += lines[i].CrossSize;
                 if (i < lineCount - 1)
-                    crossSize += gap;
+                    offset += gap;
             }
             return positions;
         }
@@ -399,6 +401,7 @@ public partial class FlexBox
                 for (int i = 0; i < lineCount; i++)
                 {
                     positions[i] = offset;
+                    offset += lines[i].CrossSize;
                     if (i < lineCount - 1)
                         offset += gap;
                 }
@@ -409,6 +412,7 @@ public partial class FlexBox
                 for (int i = 0; i < lineCount; i++)
                 {
                     positions[i] = offset;
+                    offset += lines[i].CrossSize;
                     if (i < lineCount - 1)
                         offset += gap;
                 }
@@ -419,6 +423,7 @@ public partial class FlexBox
                 for (int i = 0; i < lineCount; i++)
                 {
                     positions[i] = offset;
+                    offset += lines[i].CrossSize;
                     if (i < lineCount - 1)
                         offset += gap;
                 }
@@ -432,8 +437,12 @@ public partial class FlexBox
                     for (int i = 0; i < lineCount; i++)
                     {
                         positions[i] = offset;
-                        offset += spaceBetween + gap;
+                        offset += lines[i].CrossSize + spaceBetween;
                     }
+                }
+                else
+                {
+                    positions[0] = 0;
                 }
                 break;
 
@@ -443,7 +452,7 @@ public partial class FlexBox
                 for (int i = 0; i < lineCount; i++)
                 {
                     positions[i] = offset;
-                    offset += spaceAround + gap;
+                    offset += lines[i].CrossSize + spaceAround;
                 }
                 break;
 
@@ -453,7 +462,7 @@ public partial class FlexBox
                 for (int i = 0; i < lineCount; i++)
                 {
                     positions[i] = offset;
-                    offset += spaceEvenly + gap;
+                    offset += lines[i].CrossSize + spaceEvenly;
                 }
                 break;
 
@@ -464,7 +473,10 @@ public partial class FlexBox
                 for (int i = 0; i < lineCount; i++)
                 {
                     positions[i] = offset;
-                    offset += extraPerLine + gap;
+                    // For stretch, the line height/width includes the extra space
+                    offset += lines[i].CrossSize + extraPerLine;
+                    if (i < lineCount - 1)
+                        offset += gap;
                 }
                 break;
         }
