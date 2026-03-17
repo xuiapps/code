@@ -1,6 +1,7 @@
 using Xui.Apps.TestApp.Examples;
 using Xui.Apps.TestApp.Pages.Canvas;
 using Xui.Apps.TestApp.Pages.Grid;
+using Xui.Apps.TestApp.Pages.FlexBox;
 using Xui.Apps.TestApp.Pages.Layers;
 using Xui.Core.UI;
 using static Xui.Core.Canvas.FontWeight;
@@ -36,6 +37,11 @@ public class SdkHomePage : VerticalStack
             Id = "GridLayout",
             Margin = 3,
             Text = "Grid Layout"
+        });
+        this.Add(new SdkExampleButton<FlexBoxExample>() {
+            Id = "FlexBoxLayout",
+            Margin = 3,
+            Text = "FlexBox Layout"
         });
         this.Add(new SdkExampleButton<ViewCollectionAlignmentExample>() {
             Id = "ViewCollectionAlignment",
