@@ -1,9 +1,7 @@
 using Xui.GPU.Shaders;
 using Xui.GPU.Shaders.Types;
 using Xui.GPU.Software;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
+using Xui.Runtime.Software;
 
 namespace Xui.GPU.Samples.Triangle;
 
@@ -70,32 +68,35 @@ class Program
         
         Console.WriteLine("Triangle rendered successfully!");
         
-        // Convert framebuffer to ImageSharp format and save as PNG
+        // Convert framebuffer to RGBA byte array and save as PNG using in-house encoder
         Console.WriteLine("Converting to PNG format...");
         
-        using (var image = new Image<Rgba32>(width, height))
+        // Extract RGBA bytes from framebuffer
+        byte[] rgbaPixels = new byte[width * height * 4];
+        int index = 0;
+        
+        for (int y = 0; y < height; y++)
         {
-            // Copy framebuffer data directly to image (no double conversion)
-            for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++)
             {
-                for (int x = 0; x < width; x++)
-                {
-                    var pixelRgba32 = framebuffer.GetColor(x, y);
-                    
-                    // Extract RGBA bytes from packed uint (little-endian: ABGR in memory)
-                    byte a = (byte)(pixelRgba32 & 0xFF);
-                    byte b = (byte)((pixelRgba32 >> 8) & 0xFF);
-                    byte g = (byte)((pixelRgba32 >> 16) & 0xFF);
-                    byte r = (byte)((pixelRgba32 >> 24) & 0xFF);
-                    
-                    image[x, y] = new Rgba32(r, g, b, a);
-                }
+                var pixelRgba32 = framebuffer.GetColor(x, y);
+                
+                // Extract RGBA bytes from packed uint (little-endian: ABGR in memory)
+                byte a = (byte)(pixelRgba32 & 0xFF);
+                byte b = (byte)((pixelRgba32 >> 8) & 0xFF);
+                byte g = (byte)((pixelRgba32 >> 16) & 0xFF);
+                byte r = (byte)((pixelRgba32 >> 24) & 0xFF);
+                
+                rgbaPixels[index++] = r;
+                rgbaPixels[index++] = g;
+                rgbaPixels[index++] = b;
+                rgbaPixels[index++] = a;
             }
-            
-            var outputPath = "triangle_output.png";
-            image.SaveAsPng(outputPath);
-            Console.WriteLine($"Output saved to: {Path.GetFullPath(outputPath)}");
         }
+        
+        var outputPath = "triangle_output.png";
+        PngEncoder.SaveRGBA(outputPath, rgbaPixels, width, height);
+        Console.WriteLine($"Output saved to: {Path.GetFullPath(outputPath)}");
         
         Console.WriteLine();
         Console.WriteLine("Success! The triangle has been rendered using:");

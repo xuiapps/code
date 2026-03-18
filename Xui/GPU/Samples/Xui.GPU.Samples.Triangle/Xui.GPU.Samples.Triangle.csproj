@@ -14,10 +14,7 @@
     <ProjectReference Include="..\..\Core\Xui.GPU\Xui.GPU.csproj" />
     <ProjectReference Include="..\..\Core\Xui.GPU.Shaders\Xui.GPU.Shaders.csproj" />
     <ProjectReference Include="..\..\Software\Xui.GPU.Software\Xui.GPU.Software.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+    <ProjectReference Include="..\..\..\Runtime\Software\Xui.Runtime.Software.csproj" />
   </ItemGroup>
 
 </Project>
