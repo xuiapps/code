@@ -212,8 +212,8 @@ public class HlslCodeGenerator : IShaderBackend
     {
         return constant.Value switch
         {
-            float f => f.ToString("G9") + "f",
-            double d => d.ToString("G17"),
+            float f => f.ToString("R") + "f",  // Round-trip format preserves exact value
+            double d => d.ToString("R"),       // Round-trip format preserves exact value
             int i => i.ToString(),
             uint u => u.ToString() + "u",
             bool b => b ? "true" : "false",
