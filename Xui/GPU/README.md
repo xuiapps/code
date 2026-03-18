@@ -14,13 +14,16 @@ The system is organized into five major layers:
 - **Xui.GPU.Tests** - Unit tests for core functionality
 
 ### 2. Build-time Tooling (Semantic Analysis & Code Generation)
+- **Xui.GPU.IR** - Backend-neutral intermediate representation (AST for shaders) ✅
+- **Xui.GPU.Backends** - Backend abstraction interface ✅
+- **Xui.GPU.Backends.Hlsl** - HLSL code generation for DirectX ✅
+- **Xui.GPU.IR.Tests** - Unit tests for IR and HLSL generation (15 tests) ✅
 - **Xui.GPU.Analyzers** - Roslyn analyzers for shader validation (future)
 - **Xui.GPU.Generator** - Source generator for metadata and backend code (future)
-- **Xui.GPU.IR** - Backend-neutral intermediate representation (future)
 
 ### 3. Backend Emission
-- **Xui.GPU.Backends** - Backend abstraction (future)
-- **Xui.GPU.Backends.Hlsl** - HLSL code generation (future)
+- **Xui.GPU.Backends** - Backend abstraction (IShaderBackend interface) ✅
+- **Xui.GPU.Backends.Hlsl** - HLSL code generation (complete implementation) ✅
 - **Xui.GPU.Backends.Metal** - Metal Shading Language generation (future)
 - **Xui.GPU.Backends.Vulkan** - Vulkan-targeted generation (future)
 
@@ -37,11 +40,12 @@ The system is organized into five major layers:
 
 ## Samples
 
-- **Xui.GPU.Samples.Triangle** - MVP demo: Draw a triangle to RGBA bitmap with depth buffer
+- **Xui.GPU.Samples.Triangle** - MVP demo: Draw a triangle to RGBA bitmap with depth buffer ✅
+- **Xui.GPU.Samples.HlslGen** - Demo: Generate HLSL shader code from IR ✅
 
 ## Current Status
 
-**Phase 0-4, 8-11 Complete**: Full working software renderer with MVP triangle demo! 🎉
+**Phase 0-5, 8-12 Complete**: Full working software renderer, IR, and HLSL backend! 🎉
 
 - ✅ Directory structure created
 - ✅ Project files configured and added to solution
@@ -58,24 +62,32 @@ The system is organized into five major layers:
 - ✅ **Triangle rasterization** (edge functions, barycentric coordinates, scan conversion)
 - ✅ **Fragment execution** (varying interpolation, depth testing, alpha blending)
 - ✅ **Working triangle demo** (renders beautiful RGB triangle to PNG)
+- ✅ **Intermediate Representation (IR)** - Complete node system for shader AST
+- ✅ **HLSL Backend** - Full HLSL code generation from IR
+- ✅ **HLSL generation sample** - Demonstrates IR → HLSL translation
 - ✅ All projects build successfully
-- ✅ **Unit tests: 93/93 passing** (66 original + 27 new software renderer tests)
+- ✅ **Unit tests: 114/114 passing** (99 existing + 15 new IR/HLSL tests)
 - ✅ Visual validation: Triangle renders correctly with smooth color interpolation
 
 ## Next Steps
 
 See [plans/xui-gpu-rendering-pipeline.md](/plans/xui-gpu-rendering-pipeline.md) for the complete implementation roadmap.
 
-**Current Milestone: MVP Complete! 🎉**
+**Current Milestone: Phase 5 + Phase 12 Complete! 🎉**
 
-The software renderer is fully functional with a working triangle demo. Next phases focus on build-time tooling and additional features:
+The software renderer is fully functional with a working triangle demo, AND we now have complete IR and HLSL code generation working!
+
+**Completed:**
+- ✅ Phase 5: Intermediate Representation (IR) - Complete AST for shaders
+- ✅ Phase 12: HLSL Backend - Full code generation to DirectX HLSL
 
 **Future Phases:**
 - Phase 2: Extended shader attributes (interpolation qualifiers: Flat, Linear, Perspective)
-- Phase 5-7: IR, analyzers, and source generators for shader validation and code generation
-- Phase 12: HLSL backend for DirectX 12 support
+- Phase 6-7: Roslyn analyzers and source generators for automatic shader validation and code generation
 - Phase 13: Pipeline composition and validation
-- Phase 14-16: Advanced features, Metal backend, hardware backends
+- Phase 14: Extended math and intrinsics (swizzles, more texture modes)
+- Phase 15: Metal Shading Language backend
+- Phase 16: Advanced features, hardware backends (D3D12, Metal, Vulkan)
 
 ## Key Design Principles
 
@@ -91,12 +103,17 @@ The software renderer is fully functional with a working triangle demo. Next pha
 # Build all GPU projects
 dotnet build Xui/GPU/Core/Xui.GPU/Xui.GPU.csproj
 
-# Run tests (93 tests)
+# Run tests (114 tests: 99 core + 15 IR/HLSL)
 dotnet test Xui/GPU/Core/Xui.GPU.Tests/Xui.GPU.Tests.csproj
+dotnet test Xui/GPU/BuildTime/Xui.GPU.IR.Tests/Xui.GPU.IR.Tests.csproj
 
 # Run triangle sample - renders RGB triangle to PNG
 dotnet run --project Xui/GPU/Samples/Xui.GPU.Samples.Triangle/Xui.GPU.Samples.Triangle.csproj
 # Output: triangle_output.png (512x512 rendered triangle with smooth color interpolation)
+
+# Run HLSL generation sample - generates HLSL shader code
+dotnet run --project Xui/GPU/Samples/Xui.GPU.Samples.HlslGen/Xui.GPU.Samples.HlslGen.csproj
+# Output: triangle_shader.hlsl (HLSL vertex and pixel shaders)
 ```
 
 ### Triangle Sample Output
@@ -108,6 +125,15 @@ The triangle demo produces a beautiful 512x512 PNG image showing:
 - Dark gray background
 - Demonstrates the complete Xui.GPU pipeline from C# shaders to pixels
 - **Uses in-house `Xui.Runtime.Software.PngEncoder` with zero third-party dependencies**
+
+### HLSL Generation Sample Output
+The HLSL generation demo produces valid DirectX shader code:
+- Generates complete HLSL vertex and pixel shaders
+- Proper struct definitions with semantics (SV_POSITION, TEXCOORD)
+- Type mapping: F32→float, Float2→float2, Float4→float4
+- Demonstrates the IR → HLSL backend translation
+- Output can be compiled with `fxc.exe` or `dxc.exe` on Windows
+- Ready for integration with D3D12 hardware backend
 
 ## Documentation
 

@@ -6,4 +6,4 @@ _site/
 api/
 *.user
 
-.claude/settings.local.json
+.claude/settings.local.json*.hlsl
