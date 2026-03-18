@@ -204,7 +204,8 @@ public class HlslCodeGenerator : IShaderBackend
             IrUnaryOp unaryOp => GenerateUnaryOp(unaryOp),
             IrMethodCall methodCall => GenerateMethodCall(methodCall),
             IrConstructor constructor => GenerateConstructor(constructor),
-            _ => $"/* TODO: {expression.GetType().Name} */"
+            _ => throw new InvalidOperationException(
+                $"Unsupported expression type '{expression.GetType().Name}' at {expression.SourceLocation?.ToDisplayString() ?? "unknown location"}")
         };
     }
 
@@ -217,7 +218,8 @@ public class HlslCodeGenerator : IShaderBackend
             int i => i.ToString(),
             uint u => u.ToString() + "u",
             bool b => b ? "true" : "false",
-            _ => constant.Value.ToString() ?? "0"
+            _ => throw new InvalidOperationException(
+                $"Unsupported constant type '{constant.Value?.GetType().Name ?? "null"}' at {constant.SourceLocation?.ToDisplayString() ?? "unknown location"}")
         };
     }
 
@@ -245,7 +247,8 @@ public class HlslCodeGenerator : IShaderBackend
             BinaryOperator.BitwiseXor => "^",
             BinaryOperator.ShiftLeft => "<<",
             BinaryOperator.ShiftRight => ">>",
-            _ => "?"
+            _ => throw new InvalidOperationException(
+                $"Unsupported binary operator '{binaryOp.Operator}' at {binaryOp.SourceLocation?.ToDisplayString() ?? "unknown location"}")
         };
         return $"({left} {op} {right})";
     }
@@ -258,7 +261,8 @@ public class HlslCodeGenerator : IShaderBackend
             UnaryOperator.Negate => "-",
             UnaryOperator.LogicalNot => "!",
             UnaryOperator.BitwiseNot => "~",
-            _ => "?"
+            _ => throw new InvalidOperationException(
+                $"Unsupported unary operator '{unaryOp.Operator}' at {unaryOp.SourceLocation?.ToDisplayString() ?? "unknown location"}")
         };
         return $"({op}{operand})";
     }
@@ -296,14 +300,16 @@ public class HlslCodeGenerator : IShaderBackend
                 ScalarKind.I32 => "int",
                 ScalarKind.U32 => "uint",
                 ScalarKind.Bool => "bool",
-                _ => "unknown"
+                _ => throw new InvalidOperationException(
+                    $"Unsupported scalar kind '{scalar.ScalarKind}' at {type.SourceLocation?.ToDisplayString() ?? "unknown location"}")
             },
             IrVectorType vector => GetHlslVectorType(vector),
             IrMatrixType matrix => GetHlslMatrixType(matrix),
             IrStructType structType => structType.Name,
             IrTextureType texture => $"Texture2D<{GetHlslType(texture.PixelType)}>",
             IrSamplerType => "SamplerState",
-            _ => "unknown"
+            _ => throw new InvalidOperationException(
+                $"Unsupported IR type '{type.GetType().Name}' at {type.SourceLocation?.ToDisplayString() ?? "unknown location"}")
         };
     }
 
@@ -315,7 +321,8 @@ public class HlslCodeGenerator : IShaderBackend
             ScalarKind.I32 => "int",
             ScalarKind.U32 => "uint",
             ScalarKind.Bool => "bool",
-            _ => "unknown"
+            _ => throw new InvalidOperationException(
+                $"Unsupported vector element type '{vector.ElementType.ScalarKind}' at {vector.SourceLocation?.ToDisplayString() ?? "unknown location"}")
         };
         return $"{baseType}{vector.Dimension}";
     }
@@ -325,7 +332,10 @@ public class HlslCodeGenerator : IShaderBackend
         var baseType = matrix.ElementType.ScalarKind switch
         {
             ScalarKind.F32 => "float",
-            _ => "unknown"
+            ScalarKind.I32 => "int",
+            ScalarKind.U32 => "uint",
+            _ => throw new InvalidOperationException(
+                $"Unsupported matrix element type '{matrix.ElementType.ScalarKind}' at {matrix.SourceLocation?.ToDisplayString() ?? "unknown location"}. Only F32, I32, and U32 are supported for matrices.")
         };
         return $"{baseType}{matrix.Rows}x{matrix.Columns}";
     }
@@ -342,7 +352,8 @@ public class HlslCodeGenerator : IShaderBackend
                     BuiltInSemantic.FragDepth => " : SV_DEPTH",
                     BuiltInSemantic.InstanceId => " : SV_InstanceID",
                     BuiltInSemantic.VertexId => " : SV_VertexID",
-                    _ => ""
+                    _ => throw new InvalidOperationException(
+                        $"Unsupported built-in semantic '{builtIn.Semantic}' at {decoration.SourceLocation?.ToDisplayString() ?? "unknown location"}")
                 };
             }
             else if (decoration is IrLocationDecoration location)
@@ -355,7 +366,8 @@ public class HlslCodeGenerator : IShaderBackend
 
     private string MapIntrinsicToHlsl(string methodName)
     {
-        // Most shader intrinsics map directly to HLSL
+        // Map shader intrinsics to HLSL built-ins
+        // This is a 1:1 mapping that must be kept in sync with Xui.GPU.Shaders.Intrinsics.Shader
         return methodName switch
         {
             "Clamp" => "clamp",
@@ -391,7 +403,10 @@ public class HlslCodeGenerator : IShaderBackend
             "Fwidth" => "fwidth",
             "Sample" => "Sample",
             "Load" => "Load",
-            _ => methodName  // Pass through unknown methods
+            _ => throw new InvalidOperationException(
+                $"Unsupported shader intrinsic '{methodName}'. All intrinsics must have explicit HLSL mappings. " +
+                $"If this is a valid intrinsic, add it to MapIntrinsicToHlsl. " +
+                $"Available intrinsics are defined in Xui.GPU.Shaders.Intrinsics.Shader.")
         };
     }
 
