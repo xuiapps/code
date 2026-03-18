@@ -101,10 +101,10 @@ public struct Float4x4
     public static Float4x4 CreateTranslation(F32 x, F32 y, F32 z)
     {
         return new Float4x4(
-            new Float4(F32.One, F32.Zero, F32.Zero, F32.Zero),
-            new Float4(F32.Zero, F32.One, F32.Zero, F32.Zero),
-            new Float4(F32.Zero, F32.Zero, F32.One, F32.Zero),
-            new Float4(x, y, z, F32.One)
+            new Float4(F32.One, F32.Zero, F32.Zero, x),
+            new Float4(F32.Zero, F32.One, F32.Zero, y),
+            new Float4(F32.Zero, F32.Zero, F32.One, z),
+            new Float4(F32.Zero, F32.Zero, F32.Zero, F32.One)
         );
     }
 
