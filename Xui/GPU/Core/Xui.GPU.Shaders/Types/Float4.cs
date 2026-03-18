@@ -98,6 +98,24 @@ public struct Float4
     public static Float4 operator *(F32 left, Float4 right) =>
         new(left * right.X, left * right.Y, left * right.Z, left * right.W);
 
+    /// <summary>
+    /// Divides two vectors component-wise.
+    /// </summary>
+    public static Float4 operator /(Float4 left, Float4 right) =>
+        new(left.X / right.X, left.Y / right.Y, left.Z / right.Z, left.W / right.W);
+
+    /// <summary>
+    /// Divides a vector by a scalar.
+    /// </summary>
+    public static Float4 operator /(Float4 left, F32 right) =>
+        new(left.X / right, left.Y / right, left.Z / right, left.W / right);
+
+    /// <summary>
+    /// Negates a vector.
+    /// </summary>
+    public static Float4 operator -(Float4 value) =>
+        new(-value.X, -value.Y, -value.Z, -value.W);
+
     /// <inheritdoc/>
     public override string ToString() => $"({X}, {Y}, {Z}, {W})";
 }

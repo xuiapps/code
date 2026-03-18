@@ -1,24 +1,24 @@
 namespace Xui.GPU.Shaders.Types;
 
 /// <summary>
-/// A 2-component vector of 32-bit floats.
+/// A 2-component vector of 32-bit signed integers.
 /// </summary>
-public struct Float2
+public struct Int2
 {
     /// <summary>
     /// The X component.
     /// </summary>
-    public F32 X;
+    public I32 X;
 
     /// <summary>
     /// The Y component.
     /// </summary>
-    public F32 Y;
+    public I32 Y;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Float2"/> struct.
+    /// Initializes a new instance of the <see cref="Int2"/> struct.
     /// </summary>
-    public Float2(F32 x, F32 y)
+    public Int2(I32 x, I32 y)
     {
         X = x;
         Y = y;
@@ -27,7 +27,7 @@ public struct Float2
     /// <summary>
     /// Initializes a new instance with both components set to the same value.
     /// </summary>
-    public Float2(F32 value)
+    public Int2(I32 value)
     {
         X = value;
         Y = value;
@@ -36,59 +36,59 @@ public struct Float2
     /// <summary>
     /// Gets the zero vector.
     /// </summary>
-    public static Float2 Zero => new(F32.Zero, F32.Zero);
+    public static Int2 Zero => new(I32.Zero, I32.Zero);
 
     /// <summary>
     /// Gets the one vector.
     /// </summary>
-    public static Float2 One => new(F32.One, F32.One);
+    public static Int2 One => new(I32.One, I32.One);
 
     /// <summary>
     /// Adds two vectors.
     /// </summary>
-    public static Float2 operator +(Float2 left, Float2 right) =>
+    public static Int2 operator +(Int2 left, Int2 right) =>
         new(left.X + right.X, left.Y + right.Y);
 
     /// <summary>
     /// Subtracts two vectors.
     /// </summary>
-    public static Float2 operator -(Float2 left, Float2 right) =>
+    public static Int2 operator -(Int2 left, Int2 right) =>
         new(left.X - right.X, left.Y - right.Y);
 
     /// <summary>
     /// Multiplies two vectors component-wise.
     /// </summary>
-    public static Float2 operator *(Float2 left, Float2 right) =>
+    public static Int2 operator *(Int2 left, Int2 right) =>
         new(left.X * right.X, left.Y * right.Y);
 
     /// <summary>
     /// Multiplies a vector by a scalar.
     /// </summary>
-    public static Float2 operator *(Float2 left, F32 right) =>
+    public static Int2 operator *(Int2 left, I32 right) =>
         new(left.X * right, left.Y * right);
 
     /// <summary>
     /// Multiplies a scalar by a vector.
     /// </summary>
-    public static Float2 operator *(F32 left, Float2 right) =>
+    public static Int2 operator *(I32 left, Int2 right) =>
         new(left * right.X, left * right.Y);
 
     /// <summary>
     /// Divides two vectors component-wise.
     /// </summary>
-    public static Float2 operator /(Float2 left, Float2 right) =>
+    public static Int2 operator /(Int2 left, Int2 right) =>
         new(left.X / right.X, left.Y / right.Y);
 
     /// <summary>
     /// Divides a vector by a scalar.
     /// </summary>
-    public static Float2 operator /(Float2 left, F32 right) =>
+    public static Int2 operator /(Int2 left, I32 right) =>
         new(left.X / right, left.Y / right);
 
     /// <summary>
     /// Negates a vector.
     /// </summary>
-    public static Float2 operator -(Float2 value) =>
+    public static Int2 operator -(Int2 value) =>
         new(-value.X, -value.Y);
 
     /// <inheritdoc/>
