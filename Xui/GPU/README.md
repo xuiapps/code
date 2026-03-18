@@ -107,6 +107,7 @@ The triangle demo produces a beautiful 512x512 PNG image showing:
 - Smooth color interpolation across the triangle surface using barycentric coordinates
 - Dark gray background
 - Demonstrates the complete Xui.GPU pipeline from C# shaders to pixels
+- **Uses in-house `Xui.Runtime.Software.PngEncoder` with zero third-party dependencies**
 
 ## Documentation
 
