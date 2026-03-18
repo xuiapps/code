@@ -36,6 +36,37 @@ public readonly struct Bool
     /// </summary>
     public static implicit operator bool(Bool value) => value._value;
 
+    /// <summary>
+    /// Tests equality of two Bool values.
+    /// </summary>
+    public static Bool operator ==(Bool left, Bool right) => new(left._value == right._value);
+
+    /// <summary>
+    /// Tests inequality of two Bool values.
+    /// </summary>
+    public static Bool operator !=(Bool left, Bool right) => new(left._value != right._value);
+
+    /// <summary>
+    /// Performs logical AND of two Bool values.
+    /// </summary>
+    public static Bool operator &(Bool left, Bool right) => new(left._value && right._value);
+
+    /// <summary>
+    /// Performs logical OR of two Bool values.
+    /// </summary>
+    public static Bool operator |(Bool left, Bool right) => new(left._value || right._value);
+
+    /// <summary>
+    /// Performs logical NOT of a Bool value.
+    /// </summary>
+    public static Bool operator !(Bool value) => new(!value._value);
+
+    /// <inheritdoc/>
+    public override bool Equals(object? obj) => obj is Bool other && _value == other._value;
+
+    /// <inheritdoc/>
+    public override int GetHashCode() => _value.GetHashCode();
+
     /// <inheritdoc/>
     public override string ToString() => _value.ToString();
 }

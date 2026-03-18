@@ -80,6 +80,24 @@ public struct Float3
     public static Float3 operator *(F32 left, Float3 right) =>
         new(left * right.X, left * right.Y, left * right.Z);
 
+    /// <summary>
+    /// Divides two vectors component-wise.
+    /// </summary>
+    public static Float3 operator /(Float3 left, Float3 right) =>
+        new(left.X / right.X, left.Y / right.Y, left.Z / right.Z);
+
+    /// <summary>
+    /// Divides a vector by a scalar.
+    /// </summary>
+    public static Float3 operator /(Float3 left, F32 right) =>
+        new(left.X / right, left.Y / right, left.Z / right);
+
+    /// <summary>
+    /// Negates a vector.
+    /// </summary>
+    public static Float3 operator -(Float3 value) =>
+        new(-value.X, -value.Y, -value.Z);
+
     /// <inheritdoc/>
     public override string ToString() => $"({X}, {Y}, {Z})";
 }

@@ -73,6 +73,24 @@ public struct Float2
     public static Float2 operator *(F32 left, Float2 right) =>
         new(left * right.X, left * right.Y);
 
+    /// <summary>
+    /// Divides two vectors component-wise.
+    /// </summary>
+    public static Float2 operator /(Float2 left, Float2 right) =>
+        new(left.X / right.X, left.Y / right.Y);
+
+    /// <summary>
+    /// Divides a vector by a scalar.
+    /// </summary>
+    public static Float2 operator /(Float2 left, F32 right) =>
+        new(left.X / right, left.Y / right);
+
+    /// <summary>
+    /// Negates a vector.
+    /// </summary>
+    public static Float2 operator -(Float2 value) =>
+        new(-value.X, -value.Y);
+
     /// <inheritdoc/>
     public override string ToString() => $"({X}, {Y})";
 }

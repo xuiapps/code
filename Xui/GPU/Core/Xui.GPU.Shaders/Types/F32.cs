@@ -66,6 +66,42 @@ public readonly struct F32
     /// </summary>
     public static F32 operator -(F32 value) => new(-value._value);
 
+    /// <summary>
+    /// Tests equality of two F32 values.
+    /// </summary>
+    public static Bool operator ==(F32 left, F32 right) => new(left._value == right._value);
+
+    /// <summary>
+    /// Tests inequality of two F32 values.
+    /// </summary>
+    public static Bool operator !=(F32 left, F32 right) => new(left._value != right._value);
+
+    /// <summary>
+    /// Tests if left is less than right.
+    /// </summary>
+    public static Bool operator <(F32 left, F32 right) => new(left._value < right._value);
+
+    /// <summary>
+    /// Tests if left is greater than right.
+    /// </summary>
+    public static Bool operator >(F32 left, F32 right) => new(left._value > right._value);
+
+    /// <summary>
+    /// Tests if left is less than or equal to right.
+    /// </summary>
+    public static Bool operator <=(F32 left, F32 right) => new(left._value <= right._value);
+
+    /// <summary>
+    /// Tests if left is greater than or equal to right.
+    /// </summary>
+    public static Bool operator >=(F32 left, F32 right) => new(left._value >= right._value);
+
+    /// <inheritdoc/>
+    public override bool Equals(object? obj) => obj is F32 other && _value == other._value;
+
+    /// <inheritdoc/>
+    public override int GetHashCode() => _value.GetHashCode();
+
     /// <inheritdoc/>
     public override string ToString() => _value.ToString();
 }
