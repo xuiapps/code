@@ -95,6 +95,143 @@ public struct Float4x4
         );
     }
 
+    /// <summary>
+    /// Creates a translation matrix.
+    /// </summary>
+    public static Float4x4 CreateTranslation(F32 x, F32 y, F32 z)
+    {
+        return new Float4x4(
+            new Float4(F32.One, F32.Zero, F32.Zero, F32.Zero),
+            new Float4(F32.Zero, F32.One, F32.Zero, F32.Zero),
+            new Float4(F32.Zero, F32.Zero, F32.One, F32.Zero),
+            new Float4(x, y, z, F32.One)
+        );
+    }
+
+    /// <summary>
+    /// Creates a rotation matrix around the X axis.
+    /// </summary>
+    public static Float4x4 CreateRotationX(F32 angle)
+    {
+        float angleValue = angle;
+        float cos = MathF.Cos(angleValue);
+        float sin = MathF.Sin(angleValue);
+        
+        return new Float4x4(
+            new Float4(F32.One, F32.Zero, F32.Zero, F32.Zero),
+            new Float4(F32.Zero, new F32(cos), new F32(sin), F32.Zero),
+            new Float4(F32.Zero, new F32(-sin), new F32(cos), F32.Zero),
+            new Float4(F32.Zero, F32.Zero, F32.Zero, F32.One)
+        );
+    }
+
+    /// <summary>
+    /// Creates a rotation matrix around the Y axis.
+    /// </summary>
+    public static Float4x4 CreateRotationY(F32 angle)
+    {
+        float angleValue = angle;
+        float cos = MathF.Cos(angleValue);
+        float sin = MathF.Sin(angleValue);
+        
+        return new Float4x4(
+            new Float4(new F32(cos), F32.Zero, new F32(-sin), F32.Zero),
+            new Float4(F32.Zero, F32.One, F32.Zero, F32.Zero),
+            new Float4(new F32(sin), F32.Zero, new F32(cos), F32.Zero),
+            new Float4(F32.Zero, F32.Zero, F32.Zero, F32.One)
+        );
+    }
+
+    /// <summary>
+    /// Creates a rotation matrix around the Z axis.
+    /// </summary>
+    public static Float4x4 CreateRotationZ(F32 angle)
+    {
+        float angleValue = angle;
+        float cos = MathF.Cos(angleValue);
+        float sin = MathF.Sin(angleValue);
+        
+        return new Float4x4(
+            new Float4(new F32(cos), new F32(sin), F32.Zero, F32.Zero),
+            new Float4(new F32(-sin), new F32(cos), F32.Zero, F32.Zero),
+            new Float4(F32.Zero, F32.Zero, F32.One, F32.Zero),
+            new Float4(F32.Zero, F32.Zero, F32.Zero, F32.One)
+        );
+    }
+
+    /// <summary>
+    /// Creates a perspective projection matrix.
+    /// </summary>
+    /// <param name="fovY">Field of view in the Y direction (in radians).</param>
+    /// <param name="aspectRatio">Aspect ratio (width / height).</param>
+    /// <param name="nearPlane">Near clipping plane distance.</param>
+    /// <param name="farPlane">Far clipping plane distance.</param>
+    public static Float4x4 CreatePerspective(F32 fovY, F32 aspectRatio, F32 nearPlane, F32 farPlane)
+    {
+        float fovYValue = fovY;
+        float aspectValue = aspectRatio;
+        float nearValue = nearPlane;
+        float farValue = farPlane;
+        
+        float yScale = 1.0f / MathF.Tan(fovYValue * 0.5f);
+        float xScale = yScale / aspectValue;
+        float zRange = farValue / (nearValue - farValue);
+        
+        return new Float4x4(
+            new Float4(new F32(xScale), F32.Zero, F32.Zero, F32.Zero),
+            new Float4(F32.Zero, new F32(yScale), F32.Zero, F32.Zero),
+            new Float4(F32.Zero, F32.Zero, new F32(zRange), new F32(-1.0f)),
+            new Float4(F32.Zero, F32.Zero, new F32(nearValue * zRange), F32.Zero)
+        );
+    }
+
+    /// <summary>
+    /// Creates a view matrix (look-at matrix).
+    /// </summary>
+    public static Float4x4 CreateLookAt(Float3 eye, Float3 target, Float3 up)
+    {
+        // Calculate forward, right, and up vectors
+        Float3 zAxis = Normalize(Subtract(eye, target)); // Forward
+        Float3 xAxis = Normalize(Cross(up, zAxis));      // Right
+        Float3 yAxis = Cross(zAxis, xAxis);              // Up
+
+        // Create view matrix
+        return new Float4x4(
+            new Float4(xAxis.X, yAxis.X, zAxis.X, F32.Zero),
+            new Float4(xAxis.Y, yAxis.Y, zAxis.Y, F32.Zero),
+            new Float4(xAxis.Z, yAxis.Z, zAxis.Z, F32.Zero),
+            new Float4(
+                -(xAxis.X * eye.X + xAxis.Y * eye.Y + xAxis.Z * eye.Z),
+                -(yAxis.X * eye.X + yAxis.Y * eye.Y + yAxis.Z * eye.Z),
+                -(zAxis.X * eye.X + zAxis.Y * eye.Y + zAxis.Z * eye.Z),
+                F32.One
+            )
+        );
+    }
+
+    // Helper functions for CreateLookAt
+    private static Float3 Subtract(Float3 a, Float3 b)
+    {
+        return new Float3(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+    }
+
+    private static Float3 Cross(Float3 a, Float3 b)
+    {
+        return new Float3(
+            a.Y * b.Z - a.Z * b.Y,
+            a.Z * b.X - a.X * b.Z,
+            a.X * b.Y - a.Y * b.X
+        );
+    }
+
+    private static Float3 Normalize(Float3 v)
+    {
+        float lengthSquared = (v.X * v.X + v.Y * v.Y + v.Z * v.Z);
+        float length = MathF.Sqrt(lengthSquared);
+        float invLength = 1.0f / length;
+        return new Float3(new F32((float)v.X * invLength), new F32((float)v.Y * invLength), new F32((float)v.Z * invLength));
+    }
+
     /// <inheritdoc/>
     public override string ToString() => $"[\n  {Row0}\n  {Row1}\n  {Row2}\n  {Row3}\n]";
 }
