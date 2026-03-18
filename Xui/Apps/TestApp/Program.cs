@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xui.Apps.BlankApp;
+using Xui.Apps.TestApp;
 using Xui.Core.DI;
 
 return new HostBuilder()

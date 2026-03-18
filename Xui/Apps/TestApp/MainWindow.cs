@@ -1,7 +1,7 @@
 using Xui.Apps.TestApp.Pages;
 using Xui.Core.Abstract;
 
-namespace Xui.Apps.BlankApp;
+namespace Xui.Apps.TestApp;
 
 public class MainWindow : Window
 {
