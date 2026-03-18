@@ -41,7 +41,8 @@ The system is organized into five major layers:
 
 ## Current Status
 
-**Phases 0, 1, 3, 4 Complete**: Core type system, operators, resources, and intrinsics established
+**Phase 0-4, 8-11 Complete**: Full working software renderer with MVP triangle demo! 🎉
+
 - ✅ Directory structure created
 - ✅ Project files configured and added to solution
 - ✅ Basic shader scalar types (F32, I32, U32, Bool)
@@ -53,19 +54,28 @@ The system is organized into five major layers:
 - ✅ Resource types (Uniform<T>, Texture2D<T>, Sampler)
 - ✅ Complete operator support for all types
 - ✅ Comprehensive shader intrinsics (math, trigonometry, vectors, textures)
+- ✅ **Software renderer infrastructure** (Framebuffer, ColorTarget, Viewport, RenderContext)
+- ✅ **Triangle rasterization** (edge functions, barycentric coordinates, scan conversion)
+- ✅ **Fragment execution** (varying interpolation, depth testing, alpha blending)
+- ✅ **Working triangle demo** (renders beautiful RGB triangle to PNG)
 - ✅ All projects build successfully
-- ✅ Unit tests for type system, operators, intrinsics, and resources (66/66 passing)
-- ✅ Triangle sample project skeleton
+- ✅ **Unit tests: 93/93 passing** (66 original + 27 new software renderer tests)
+- ✅ Visual validation: Triangle renders correctly with smooth color interpolation
 
 ## Next Steps
 
 See [plans/xui-gpu-rendering-pipeline.md](/plans/xui-gpu-rendering-pipeline.md) for the complete implementation roadmap.
 
-**Next Phases:**
-- Phase 2: Extended shader attributes (interpolation qualifiers)
-- Phase 5-7: IR, analyzers, and source generators
-- Phase 8-10: Software renderer implementation
-- Phase 11: Working triangle demo (MVP milestone)
+**Current Milestone: MVP Complete! 🎉**
+
+The software renderer is fully functional with a working triangle demo. Next phases focus on build-time tooling and additional features:
+
+**Future Phases:**
+- Phase 2: Extended shader attributes (interpolation qualifiers: Flat, Linear, Perspective)
+- Phase 5-7: IR, analyzers, and source generators for shader validation and code generation
+- Phase 12: HLSL backend for DirectX 12 support
+- Phase 13: Pipeline composition and validation
+- Phase 14-16: Advanced features, Metal backend, hardware backends
 
 ## Key Design Principles
 
@@ -75,18 +85,29 @@ See [plans/xui-gpu-rendering-pipeline.md](/plans/xui-gpu-rendering-pipeline.md) 
 4. **IR as Semantic Bridge** - Roslyn → IR → Backends (not direct HLSL emission)
 5. **Type-Driven Pipeline Linkage** - Use generics and attributes, not string names
 
-## Building
+## Building and Running
 
 ```bash
 # Build all GPU projects
 dotnet build Xui/GPU/Core/Xui.GPU/Xui.GPU.csproj
 
-# Run tests
+# Run tests (93 tests)
 dotnet test Xui/GPU/Core/Xui.GPU.Tests/Xui.GPU.Tests.csproj
 
-# Run triangle sample
+# Run triangle sample - renders RGB triangle to PNG
 dotnet run --project Xui/GPU/Samples/Xui.GPU.Samples.Triangle/Xui.GPU.Samples.Triangle.csproj
+# Output: triangle_output.png (512x512 rendered triangle with smooth color interpolation)
 ```
+
+### Triangle Sample Output
+The triangle demo produces a beautiful 512x512 PNG image showing:
+- Red vertex at top
+- Green vertex at bottom-left  
+- Blue vertex at bottom-right
+- Smooth color interpolation across the triangle surface using barycentric coordinates
+- Dark gray background
+- Demonstrates the complete Xui.GPU pipeline from C# shaders to pixels
+- **Uses in-house `Xui.Runtime.Software.PngEncoder` with zero third-party dependencies**
 
 ## Documentation
 

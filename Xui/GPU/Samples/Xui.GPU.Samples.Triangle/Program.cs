@@ -1,30 +1,111 @@
 using Xui.GPU.Shaders;
 using Xui.GPU.Shaders.Types;
+using Xui.GPU.Software;
+using Xui.Runtime.Software;
 
 namespace Xui.GPU.Samples.Triangle;
 
 /// <summary>
 /// MVP demonstration: Render a triangle to an RGBA bitmap using CPU software rendering.
-/// This will be the first working end-to-end example of the Xui.GPU pipeline.
+/// This is the first working end-to-end example of the Xui.GPU pipeline.
 /// </summary>
 class Program
 {
-    static void Main(string[] args)
+    static unsafe void Main(string[] args)
     {
         Console.WriteLine("Xui.GPU Triangle Sample - MVP");
         Console.WriteLine("==============================");
         Console.WriteLine();
-        Console.WriteLine("This sample will render a triangle using:");
-        Console.WriteLine("- C# authored vertex and fragment shaders");
-        Console.WriteLine("- CPU software rasterization");
-        Console.WriteLine("- RGBA bitmap output with depth buffer");
+        
+        const int width = 512;
+        const int height = 512;
+        
+        // Create framebuffer with depth buffer
+        using var framebuffer = new Framebuffer(width, height, withDepthBuffer: true);
+        var context = new RenderContext(framebuffer);
+        
+        // Clear to dark gray background
+        Console.WriteLine($"Creating {width}x{height} framebuffer with depth buffer...");
+        context.ClearColor(new Color4(new F32(0.1f), new F32(0.1f), new F32(0.1f), new F32(1.0f)));
+        context.ClearDepth(1.0f);
+        
+        // Define triangle vertices (in normalized device coordinates)
+        var vertices = new TriangleVertex[]
+        {
+            // Top vertex - Red
+            new TriangleVertex 
+            { 
+                Position = new Float2(new F32(0.0f), new F32(-0.6f)),
+                Color = new Color4(new F32(1.0f), new F32(0.0f), new F32(0.0f), new F32(1.0f))
+            },
+            // Bottom left - Green
+            new TriangleVertex 
+            { 
+                Position = new Float2(new F32(-0.6f), new F32(0.6f)),
+                Color = new Color4(new F32(0.0f), new F32(1.0f), new F32(0.0f), new F32(1.0f))
+            },
+            // Bottom right - Blue
+            new TriangleVertex 
+            { 
+                Position = new Float2(new F32(0.6f), new F32(0.6f)),
+                Color = new Color4(new F32(0.0f), new F32(0.0f), new F32(1.0f), new F32(1.0f))
+            }
+        };
+        
+        Console.WriteLine("Rendering triangle with color interpolation...");
+        
+        // Pin vertex array and create vertex source
+        fixed (TriangleVertex* ptr = vertices)
+        {
+            var vertexSource = new VertexSource<TriangleVertex>(ptr, vertices.Length);
+            var vertexShader = new TriangleVertexShader();
+            var fragmentShader = new TriangleFragmentShader();
+            var bindings = new EmptyBindings();
+            
+            // Draw the triangle
+            context.Draw(vertexSource, vertexShader, fragmentShader, bindings);
+        }
+        
+        Console.WriteLine("Triangle rendered successfully!");
+        
+        // Convert framebuffer to RGBA byte array and save as PNG using in-house encoder
+        Console.WriteLine("Converting to PNG format...");
+        
+        // Extract RGBA bytes from framebuffer
+        byte[] rgbaPixels = new byte[width * height * 4];
+        int index = 0;
+        
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                var pixelRgba32 = framebuffer.GetColor(x, y);
+                
+                // Extract RGBA bytes from packed uint (little-endian: ABGR in memory)
+                byte a = (byte)(pixelRgba32 & 0xFF);
+                byte b = (byte)((pixelRgba32 >> 8) & 0xFF);
+                byte g = (byte)((pixelRgba32 >> 16) & 0xFF);
+                byte r = (byte)((pixelRgba32 >> 24) & 0xFF);
+                
+                rgbaPixels[index++] = r;
+                rgbaPixels[index++] = g;
+                rgbaPixels[index++] = b;
+                rgbaPixels[index++] = a;
+            }
+        }
+        
+        var outputPath = "triangle_output.png";
+        PngEncoder.SaveRGBA(outputPath, rgbaPixels, width, height);
+        Console.WriteLine($"Output saved to: {Path.GetFullPath(outputPath)}");
+        
         Console.WriteLine();
-        Console.WriteLine("TODO: Implementation will be completed in subsequent phases:");
-        Console.WriteLine("  Phase 1-4: Type system and shader interfaces");
-        Console.WriteLine("  Phase 8-10: Software renderer");
-        Console.WriteLine("  Phase 11: Triangle demo implementation");
+        Console.WriteLine("Success! The triangle has been rendered using:");
+        Console.WriteLine("  ✓ C# authored vertex and fragment shaders");
+        Console.WriteLine("  ✓ CPU software rasterization with depth testing");
+        Console.WriteLine("  ✓ Barycentric coordinate interpolation");
+        Console.WriteLine("  ✓ RGBA color output");
         Console.WriteLine();
-        Console.WriteLine("Current status: Project structure created ✓");
+        Console.WriteLine("This demonstrates a complete working Xui.GPU pipeline!");
     }
 }
 

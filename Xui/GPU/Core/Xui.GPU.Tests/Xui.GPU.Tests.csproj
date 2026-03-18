@@ -7,6 +7,7 @@
     <RootNamespace>Xui.GPU.Tests</RootNamespace>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Xui.GPU\Xui.GPU.csproj" />
     <ProjectReference Include="..\Xui.GPU.Shaders\Xui.GPU.Shaders.csproj" />
+    <ProjectReference Include="..\..\Software\Xui.GPU.Software\Xui.GPU.Software.csproj" />
   </ItemGroup>
 
 </Project>
