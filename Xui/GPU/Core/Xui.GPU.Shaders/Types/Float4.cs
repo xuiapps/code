@@ -48,6 +48,17 @@ public struct Float4
     }
 
     /// <summary>
+    /// Initializes a new instance from a Float3 and w component.
+    /// </summary>
+    public Float4(Float3 xyz, F32 w)
+    {
+        X = xyz.X;
+        Y = xyz.Y;
+        Z = xyz.Z;
+        W = w;
+    }
+
+    /// <summary>
     /// Initializes a new instance with all components set to the same value.
     /// </summary>
     public Float4(F32 value)

@@ -354,4 +354,98 @@ public class ShaderTypesTests
         Assert.Equal(2.0f, (float)result.Row2.Z);
         Assert.Equal(1.0f, (float)result.Row3.W);
     }
+
+    [Fact]
+    public void Float4x4_CreateTranslation_Works()
+    {
+        var translation = Float4x4.CreateTranslation(new F32(1.0f), new F32(2.0f), new F32(3.0f));
+        var point = new Float4(F32.Zero, F32.Zero, F32.Zero, F32.One);
+        
+        var result = translation * point;
+        
+        Assert.Equal(1.0f, (float)result.X);
+        Assert.Equal(2.0f, (float)result.Y);
+        Assert.Equal(3.0f, (float)result.Z);
+        Assert.Equal(1.0f, (float)result.W);
+    }
+
+    [Fact]
+    public void Float4x4_CreateRotationY_Works()
+    {
+        // Rotate 90 degrees around Y axis
+        var rotation = Float4x4.CreateRotationY(new F32(MathF.PI / 2.0f));
+        var point = new Float4(F32.One, F32.Zero, F32.Zero, F32.One);
+        
+        var result = rotation * point;
+        
+        // Point (1,0,0) should rotate to approximately (0,0,1)
+        Assert.Equal(0.0f, (float)result.X, 5);
+        Assert.Equal(0.0f, (float)result.Y, 5);
+        Assert.Equal(1.0f, (float)result.Z, 5);
+        Assert.Equal(1.0f, (float)result.W, 5);
+    }
+
+    [Fact]
+    public void Float4x4_CreatePerspective_Works()
+    {
+        var perspective = Float4x4.CreatePerspective(
+            new F32(MathF.PI / 4.0f),  // 45 degree FOV
+            new F32(1.0f),              // 1:1 aspect ratio
+            new F32(0.1f),              // Near plane
+            new F32(100.0f)             // Far plane
+        );
+        
+        // Check that the matrix is not identity
+        Assert.NotEqual(1.0f, (float)perspective.Row0.X);
+        Assert.NotEqual(0.0f, (float)perspective.Row0.X);
+        Assert.NotEqual(1.0f, (float)perspective.Row1.Y);
+        Assert.NotEqual(0.0f, (float)perspective.Row1.Y);
+        
+        // Check perspective projection properties ([0,1] depth range, DirectX-style)
+        // Row 3, column 2 (Z component) should be -1 for perspective divide
+        Assert.Equal(-1.0f, (float)perspective.Row3.Z);
+        // Row 2 should have depth mapping coefficients
+        Assert.NotEqual(0.0f, (float)perspective.Row2.Z);
+        Assert.NotEqual(0.0f, (float)perspective.Row2.W);
+    }
+
+    [Fact]
+    public void Float4_Float3Constructor_Works()
+    {
+        var vec3 = new Float3(new F32(1.0f), new F32(2.0f), new F32(3.0f));
+        var vec4 = new Float4(vec3, new F32(4.0f));
+        
+        Assert.Equal(1.0f, (float)vec4.X);
+        Assert.Equal(2.0f, (float)vec4.Y);
+        Assert.Equal(3.0f, (float)vec4.Z);
+        Assert.Equal(4.0f, (float)vec4.W);
+    }
+
+    [Fact]
+    public void Float3_Cross_Works()
+    {
+        var xAxis = new Float3(F32.One, F32.Zero, F32.Zero);
+        var yAxis = new Float3(F32.Zero, F32.One, F32.Zero);
+        
+        var zAxis = Float3.Cross(xAxis, yAxis);
+        
+        Assert.Equal(0.0f, (float)zAxis.X);
+        Assert.Equal(0.0f, (float)zAxis.Y);
+        Assert.Equal(1.0f, (float)zAxis.Z);
+    }
+
+    [Fact]
+    public void Float3_Normalize_Works()
+    {
+        var vec = new Float3(new F32(3.0f), new F32(4.0f), F32.Zero);
+        var normalized = Float3.Normalize(vec);
+        
+        // Length should be 1
+        float lengthSquared = (float)(normalized.X * normalized.X + normalized.Y * normalized.Y + normalized.Z * normalized.Z);
+        Assert.Equal(1.0f, MathF.Sqrt(lengthSquared), 5);
+        
+        // Direction should be preserved
+        Assert.Equal(0.6f, (float)normalized.X, 5);
+        Assert.Equal(0.8f, (float)normalized.Y, 5);
+    }
 }

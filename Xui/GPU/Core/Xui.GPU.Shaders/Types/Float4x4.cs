@@ -95,6 +95,127 @@ public struct Float4x4
         );
     }
 
+    /// <summary>
+    /// Creates a translation matrix.
+    /// </summary>
+    public static Float4x4 CreateTranslation(F32 x, F32 y, F32 z)
+    {
+        return new Float4x4(
+            new Float4(F32.One, F32.Zero, F32.Zero, x),
+            new Float4(F32.Zero, F32.One, F32.Zero, y),
+            new Float4(F32.Zero, F32.Zero, F32.One, z),
+            new Float4(F32.Zero, F32.Zero, F32.Zero, F32.One)
+        );
+    }
+
+    /// <summary>
+    /// Creates a rotation matrix around the X axis.
+    /// </summary>
+    public static Float4x4 CreateRotationX(F32 angle)
+    {
+        float angleValue = angle;
+        float cos = MathF.Cos(angleValue);
+        float sin = MathF.Sin(angleValue);
+        
+        return new Float4x4(
+            new Float4(F32.One, F32.Zero, F32.Zero, F32.Zero),
+            new Float4(F32.Zero, new F32(cos), new F32(sin), F32.Zero),
+            new Float4(F32.Zero, new F32(-sin), new F32(cos), F32.Zero),
+            new Float4(F32.Zero, F32.Zero, F32.Zero, F32.One)
+        );
+    }
+
+    /// <summary>
+    /// Creates a rotation matrix around the Y axis.
+    /// </summary>
+    public static Float4x4 CreateRotationY(F32 angle)
+    {
+        float angleValue = angle;
+        float cos = MathF.Cos(angleValue);
+        float sin = MathF.Sin(angleValue);
+        
+        return new Float4x4(
+            new Float4(new F32(cos), F32.Zero, new F32(-sin), F32.Zero),
+            new Float4(F32.Zero, F32.One, F32.Zero, F32.Zero),
+            new Float4(new F32(sin), F32.Zero, new F32(cos), F32.Zero),
+            new Float4(F32.Zero, F32.Zero, F32.Zero, F32.One)
+        );
+    }
+
+    /// <summary>
+    /// Creates a rotation matrix around the Z axis.
+    /// </summary>
+    public static Float4x4 CreateRotationZ(F32 angle)
+    {
+        float angleValue = angle;
+        float cos = MathF.Cos(angleValue);
+        float sin = MathF.Sin(angleValue);
+        
+        return new Float4x4(
+            new Float4(new F32(cos), new F32(sin), F32.Zero, F32.Zero),
+            new Float4(new F32(-sin), new F32(cos), F32.Zero, F32.Zero),
+            new Float4(F32.Zero, F32.Zero, F32.One, F32.Zero),
+            new Float4(F32.Zero, F32.Zero, F32.Zero, F32.One)
+        );
+    }
+
+    /// <summary>
+    /// Creates a perspective projection matrix.
+    /// </summary>
+    /// <param name="fovY">Field of view in the Y direction (in radians).</param>
+    /// <param name="aspectRatio">Aspect ratio (width / height).</param>
+    /// <param name="nearPlane">Near clipping plane distance.</param>
+    /// <param name="farPlane">Far clipping plane distance.</param>
+    /// <remarks>
+    /// This uses a [0, 1] depth range (DirectX/Vulkan style) instead of OpenGL's [-1, 1].
+    /// The matrix maps the near plane to NDC Z = 0 and far plane to NDC Z = 1.
+    /// </remarks>
+    public static Float4x4 CreatePerspective(F32 fovY, F32 aspectRatio, F32 nearPlane, F32 farPlane)
+    {
+        float fovYValue = fovY;
+        float aspectValue = aspectRatio;
+        float zNear = nearPlane;
+        float zFar = farPlane;
+        
+        float yScale = 1.0f / MathF.Tan(fovYValue * 0.5f);
+        float xScale = yScale / aspectValue;
+        
+        // DirectX/Vulkan-style perspective projection with [0, 1] depth range
+        // Maps near plane to Z=0, far plane to Z=1
+        float near = nearPlane;
+        float far = farPlane;
+        float depth = far - near;
+        float q = -far / depth;  // Depth mapping coefficient
+        
+        return new Float4x4(
+            new Float4(new F32(xScale), F32.Zero, F32.Zero, F32.Zero),
+            new Float4(F32.Zero, new F32(yScale), F32.Zero, F32.Zero),
+            new Float4(F32.Zero, F32.Zero, new F32(q), new F32(q * near)),
+            new Float4(F32.Zero, F32.Zero, new F32(-1.0f), F32.Zero)
+        );
+    }
+
+    /// <summary>
+    /// Creates a view matrix (look-at matrix).
+    /// </summary>
+    public static Float4x4 CreateLookAt(Float3 eye, Float3 target, Float3 up)
+    {
+        // Calculate forward, right, and up vectors
+        Float3 zAxis = Float3.Normalize(eye - target); // Forward (camera looks along -Z)
+        Float3 xAxis = Float3.Normalize(Float3.Cross(up, zAxis));      // Right
+        Float3 yAxis = Float3.Cross(zAxis, xAxis);              // Up
+
+        // For row-major matrix * column-vector multiplication:
+        // The basis vectors should be in ROWS, not columns
+        // Translation is in the last column (W component of each row)
+        return new Float4x4(
+            new Float4(xAxis.X, xAxis.Y, xAxis.Z, -(xAxis.X * eye.X + xAxis.Y * eye.Y + xAxis.Z * eye.Z)),
+            new Float4(yAxis.X, yAxis.Y, yAxis.Z, -(yAxis.X * eye.X + yAxis.Y * eye.Y + yAxis.Z * eye.Z)),
+            new Float4(zAxis.X, zAxis.Y, zAxis.Z, -(zAxis.X * eye.X + zAxis.Y * eye.Y + zAxis.Z * eye.Z)),
+            new Float4(F32.Zero, F32.Zero, F32.Zero, F32.One)
+        );
+    }
+
     /// <inheritdoc/>
     public override string ToString() => $"[\n  {Row0}\n  {Row1}\n  {Row2}\n  {Row3}\n]";
 }
