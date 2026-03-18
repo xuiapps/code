@@ -98,6 +98,29 @@ public struct Float3
     public static Float3 operator -(Float3 value) =>
         new(-value.X, -value.Y, -value.Z);
 
+    /// <summary>
+    /// Computes the cross product of two vectors.
+    /// </summary>
+    public static Float3 Cross(Float3 a, Float3 b)
+    {
+        return new Float3(
+            a.Y * b.Z - a.Z * b.Y,
+            a.Z * b.X - a.X * b.Z,
+            a.X * b.Y - a.Y * b.X
+        );
+    }
+
+    /// <summary>
+    /// Normalizes the vector to unit length.
+    /// </summary>
+    public static Float3 Normalize(Float3 v)
+    {
+        float lengthSquared = (v.X * v.X + v.Y * v.Y + v.Z * v.Z);
+        float length = MathF.Sqrt(lengthSquared);
+        float invLength = 1.0f / length;
+        return new Float3(new F32((float)v.X * invLength), new F32((float)v.Y * invLength), new F32((float)v.Z * invLength));
+    }
+
     /// <inheritdoc/>
     public override string ToString() => $"({X}, {Y}, {Z})";
 }

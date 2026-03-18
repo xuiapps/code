@@ -191,9 +191,9 @@ public struct Float4x4
     public static Float4x4 CreateLookAt(Float3 eye, Float3 target, Float3 up)
     {
         // Calculate forward, right, and up vectors
-        Float3 zAxis = Normalize(Subtract(eye, target)); // Forward
-        Float3 xAxis = Normalize(Cross(up, zAxis));      // Right
-        Float3 yAxis = Cross(zAxis, xAxis);              // Up
+        Float3 zAxis = Float3.Normalize(eye - target); // Forward
+        Float3 xAxis = Float3.Normalize(Float3.Cross(up, zAxis));      // Right
+        Float3 yAxis = Float3.Cross(zAxis, xAxis);              // Up
 
         // Create view matrix
         return new Float4x4(
@@ -207,29 +207,6 @@ public struct Float4x4
                 F32.One
             )
         );
-    }
-
-    // Helper functions for CreateLookAt
-    private static Float3 Subtract(Float3 a, Float3 b)
-    {
-        return new Float3(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
-    }
-
-    private static Float3 Cross(Float3 a, Float3 b)
-    {
-        return new Float3(
-            a.Y * b.Z - a.Z * b.Y,
-            a.Z * b.X - a.X * b.Z,
-            a.X * b.Y - a.Y * b.X
-        );
-    }
-
-    private static Float3 Normalize(Float3 v)
-    {
-        float lengthSquared = (v.X * v.X + v.Y * v.Y + v.Z * v.Z);
-        float length = MathF.Sqrt(lengthSquared);
-        float invLength = 1.0f / length;
-        return new Float3(new F32((float)v.X * invLength), new F32((float)v.Y * invLength), new F32((float)v.Z * invLength));
     }
 
     /// <inheritdoc/>

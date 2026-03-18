@@ -416,4 +416,32 @@ public class ShaderTypesTests
         Assert.Equal(3.0f, (float)vec4.Z);
         Assert.Equal(4.0f, (float)vec4.W);
     }
+
+    [Fact]
+    public void Float3_Cross_Works()
+    {
+        var xAxis = new Float3(F32.One, F32.Zero, F32.Zero);
+        var yAxis = new Float3(F32.Zero, F32.One, F32.Zero);
+        
+        var zAxis = Float3.Cross(xAxis, yAxis);
+        
+        Assert.Equal(0.0f, (float)zAxis.X);
+        Assert.Equal(0.0f, (float)zAxis.Y);
+        Assert.Equal(1.0f, (float)zAxis.Z);
+    }
+
+    [Fact]
+    public void Float3_Normalize_Works()
+    {
+        var vec = new Float3(new F32(3.0f), new F32(4.0f), F32.Zero);
+        var normalized = Float3.Normalize(vec);
+        
+        // Length should be 1
+        float lengthSquared = (float)(normalized.X * normalized.X + normalized.Y * normalized.Y + normalized.Z * normalized.Z);
+        Assert.Equal(1.0f, MathF.Sqrt(lengthSquared), 5);
+        
+        // Direction should be preserved
+        Assert.Equal(0.6f, (float)normalized.X, 5);
+        Assert.Equal(0.8f, (float)normalized.Y, 5);
+    }
 }
