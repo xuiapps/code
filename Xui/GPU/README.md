@@ -41,18 +41,20 @@ The system is organized into five major layers:
 
 ## Current Status
 
-**Phase 0 Complete**: Project structure and basic type system established
+**Phases 0, 1, 3, 4 Complete**: Core type system, operators, resources, and intrinsics established
 - ✅ Directory structure created
 - ✅ Project files configured and added to solution
 - ✅ Basic shader scalar types (F32, I32, U32, Bool)
-- ✅ Vector types (Float2, Float3, Float4)
+- ✅ Vector types (Float2, Float3, Float4, Int2)
 - ✅ Matrix type (Float4x4)
 - ✅ Color4 type
 - ✅ Shader stage interfaces (IVertexShader, IFragmentShader)
 - ✅ Basic attributes (ShaderProgram, VertexShader, FragmentShader, Location, BuiltIn)
-- ✅ Resource types (Uniform<T>)
+- ✅ Resource types (Uniform<T>, Texture2D<T>, Sampler)
+- ✅ Complete operator support for all types
+- ✅ Comprehensive shader intrinsics (math, trigonometry, vectors, textures)
 - ✅ All projects build successfully
-- ✅ Unit tests for type system (8/8 passing)
+- ✅ Unit tests for type system, operators, intrinsics, and resources (66/66 passing)
 - ✅ Triangle sample project skeleton
 
 ## Next Steps
@@ -60,8 +62,7 @@ The system is organized into five major layers:
 See [plans/xui-gpu-rendering-pipeline.md](/plans/xui-gpu-rendering-pipeline.md) for the complete implementation roadmap.
 
 **Next Phases:**
-- Phase 1: Complete type system with operators and intrinsics
-- Phase 2-4: Shader intrinsics and resource types
+- Phase 2: Extended shader attributes (interpolation qualifiers)
 - Phase 5-7: IR, analyzers, and source generators
 - Phase 8-10: Software renderer implementation
 - Phase 11: Working triangle demo (MVP milestone)
