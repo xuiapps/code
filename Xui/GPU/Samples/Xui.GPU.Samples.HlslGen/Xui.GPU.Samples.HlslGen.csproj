@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>Xui.GPU.Samples.HlslGen</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../BuildTime/Xui.GPU.IR/Xui.GPU.IR.csproj" />
+    <ProjectReference Include="../../BuildTime/Xui.GPU.Backends/Xui.GPU.Backends.csproj" />
+    <ProjectReference Include="../../BuildTime/Xui.GPU.Backends.Hlsl/Xui.GPU.Backends.Hlsl.csproj" />
+  </ItemGroup>
+
+</Project>

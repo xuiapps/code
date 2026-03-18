@@ -272,6 +272,28 @@ The MVP (Triangle Demo) is considered successful when:
 - Each phase should be completable by a single agent in one session
 - Maintain comprehensive test coverage throughout
 
+### Critical Requirements for Backend Implementations
+
+**Source Location Tracking:**
+- All IR nodes must have source location information (file, line, column)
+- This enables mapping backend errors to original C# source during code generation
+- Error messages must reference the original source location for developer clarity
+- Example: "Unsupported intrinsic 'Foo' at MyShader.cs(42,15)"
+
+**Strict Backend Translation:**
+- Backend code generators must be completely strict - no pass-through or "YOLO" defaults
+- Every switch statement must explicitly handle all cases or throw with source location
+- Unknown constructs must fail with clear error messages, not silently pass through
+- This ensures 1:1 mapping between C# shader functions and native platform functions
+- Each intrinsic, operator, and type must have an explicit mapping or error
+
+**Platform Function Mapping:**
+- When implementing hardware backends (D3D12, Metal, Vulkan), maintain explicit mappings
+- Document all C# → Native function translations (e.g., Shader.Clamp → clamp in HLSL)
+- All 40+ shader intrinsics must have verified mappings for each backend
+- Update MapIntrinsicToHlsl, MapIntrinsicToMsl, etc. when adding new intrinsics
+- Any unmapped function must fail compilation with helpful error message
+
 ## References
 
 - RFC document (this plan is derived from it)
