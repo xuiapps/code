@@ -32,9 +32,22 @@ public unsafe struct VertexSource<T> where T : unmanaged
     /// <param name="vertices">Array of vertex data.</param>
     /// <returns>A pinned vertex source.</returns>
     /// <remarks>
-    /// The returned VertexSource does not own the memory.
-    /// The caller must ensure the array remains pinned during use.
+    /// IMPORTANT: This method is unsafe and should not be used in production code.
+    /// The returned VertexSource contains a pointer to memory that will become invalid
+    /// once the fixed block exits. The array can be moved by the garbage collector.
+    /// 
+    /// Instead, use the constructor directly within a fixed block:
+    /// <code>
+    /// fixed (TVertex* ptr = vertices)
+    /// {
+    ///     var source = new VertexSource&lt;TVertex&gt;(ptr, vertices.Length);
+    ///     // Use source here
+    /// }
+    /// </code>
+    /// 
+    /// This method is deprecated and will be removed in a future version.
     /// </remarks>
+    [Obsolete("Use constructor within a fixed block instead. This method creates dangling pointers.", error: true)]
     public static VertexSource<T> FromArray(T[] vertices)
     {
         if (vertices == null || vertices.Length == 0)

@@ -249,8 +249,19 @@ public unsafe class RenderContext
     /// Extracts the position from a varying structure.
     /// </summary>
     /// <remarks>
-    /// This is a temporary helper that assumes the first field is Float4 position.
-    /// In a complete implementation, this would use reflection or source generation.
+    /// IMPORTANT CONSTRAINT: This implementation assumes that the first field of TVarying
+    /// is a Float4 position field. This is a temporary limitation of the current implementation.
+    /// 
+    /// TVarying structures MUST follow this layout:
+    /// <code>
+    /// struct MyVaryings {
+    ///     public Float4 Position;  // MUST be first field
+    ///     // ... other fields
+    /// }
+    /// </code>
+    /// 
+    /// Future versions will use reflection or source generation to eliminate this constraint.
+    /// Failure to follow this constraint will result in undefined behavior.
     /// </remarks>
     private static Float4 GetPositionFromVarying<TVarying>(TVarying varying) where TVarying : unmanaged
     {
@@ -263,18 +274,34 @@ public unsafe class RenderContext
     /// Interpolates varying values using barycentric coordinates.
     /// </summary>
     /// <remarks>
-    /// This is a simplified implementation that performs linear interpolation.
-    /// A complete implementation would handle perspective-correct interpolation
-    /// and use proper field-by-field interpolation.
+    /// IMPORTANT CONSTRAINTS: This simplified implementation has several limitations:
+    /// 1. Assumes TVarying contains only float fields with no padding
+    /// 2. Performs linear interpolation (not perspective-correct)
+    /// 3. Will produce incorrect results if structure has padding bytes
+    /// 
+    /// TVarying structures MUST:
+    /// - Contain only fields that are floats or composed of floats (Float2, Float3, Float4, Color4)
+    /// - Have no padding (sizeof(TVarying) must be divisible by sizeof(float))
+    /// - Use [StructLayout(LayoutKind.Sequential)] if unsure
+    /// 
+    /// Future versions will:
+    /// - Handle perspective-correct interpolation
+    /// - Use proper field-by-field interpolation via reflection/codegen
+    /// - Support arbitrary structure layouts
     /// </remarks>
     private static TVarying InterpolateVarying<TVarying>(
         TVarying v0, TVarying v1, TVarying v2,
         float w0, float w1, float w2) where TVarying : unmanaged
     {
-        // For now, use a simple linear interpolation on the raw bytes
-        // This works for simple cases but isn't perspective-correct
-        
         int size = sizeof(TVarying);
+        
+        // Validate that structure size is a multiple of float size
+        if (size % sizeof(float) != 0)
+        {
+            throw new InvalidOperationException(
+                $"Varying type {typeof(TVarying).Name} has size {size} which is not a multiple of sizeof(float). " +
+                "Structure may contain padding or non-float fields. This is not supported by the current implementation.");
+        }
         TVarying result = default;
         
         byte* p0 = (byte*)&v0;

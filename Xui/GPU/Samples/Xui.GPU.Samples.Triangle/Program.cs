@@ -75,20 +75,20 @@ class Program
         
         using (var image = new Image<Rgba32>(width, height))
         {
-            // Copy framebuffer data to image
+            // Copy framebuffer data directly to image (no double conversion)
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
                     var pixelRgba32 = framebuffer.GetColor(x, y);
-                    var color = ColorTarget.FromRgba32(pixelRgba32);
                     
-                    image[x, y] = new Rgba32(
-                        (byte)(color.R * 255),
-                        (byte)(color.G * 255),
-                        (byte)(color.B * 255),
-                        (byte)(color.A * 255)
-                    );
+                    // Extract RGBA bytes from packed uint (little-endian: ABGR in memory)
+                    byte a = (byte)(pixelRgba32 & 0xFF);
+                    byte b = (byte)((pixelRgba32 >> 8) & 0xFF);
+                    byte g = (byte)((pixelRgba32 >> 16) & 0xFF);
+                    byte r = (byte)((pixelRgba32 >> 24) & 0xFF);
+                    
+                    image[x, y] = new Rgba32(r, g, b, a);
                 }
             }
             

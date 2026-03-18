@@ -217,8 +217,7 @@ public unsafe struct Framebuffer : IDisposable
     {
         if (_ownsMemory)
         {
-            if (_colorData != null)
-                NativeMemory.Free(_colorData);
+            NativeMemory.Free(_colorData);
             if (_depthData != null)
                 NativeMemory.Free(_depthData);
         }
