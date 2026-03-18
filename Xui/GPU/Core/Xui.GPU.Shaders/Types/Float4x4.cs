@@ -182,12 +182,15 @@ public struct Float4x4
         
         // DirectX/Vulkan-style perspective projection with [0, 1] depth range
         // Maps near plane to Z=0, far plane to Z=1
-        float depth = zFar - zNear;
+        float near = nearPlane;
+        float far = farPlane;
+        float depth = far - near;
+        float q = -far / depth;  // Depth mapping coefficient
         
         return new Float4x4(
             new Float4(new F32(xScale), F32.Zero, F32.Zero, F32.Zero),
             new Float4(F32.Zero, new F32(yScale), F32.Zero, F32.Zero),
-            new Float4(F32.Zero, F32.Zero, new F32(-zFar / depth), new F32(-zNear * zFar / depth)),
+            new Float4(F32.Zero, F32.Zero, new F32(q), new F32(q * near)),
             new Float4(F32.Zero, F32.Zero, new F32(-1.0f), F32.Zero)
         );
     }

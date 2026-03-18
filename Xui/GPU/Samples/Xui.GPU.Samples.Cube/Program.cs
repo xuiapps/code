@@ -39,14 +39,13 @@ class Program
         
         // Setup transformation matrices
         float rotationAngle = MathF.PI / 6.0f; // 30 degrees
+        const float cubeScale = 0.6f; // Scale for reasonable screen coverage
         
         // Model matrix: Scale down, then rotate around Y and X axes
-        var scaleMatrix = Float4x4.Identity;
-        // Manual scale by 0.6 for reasonable size
-        scaleMatrix = new Float4x4(
-            new Float4(new F32(0.6f), F32.Zero, F32.Zero, F32.Zero),
-            new Float4(F32.Zero, new F32(0.6f), F32.Zero, F32.Zero),
-            new Float4(F32.Zero, F32.Zero, new F32(0.6f), F32.Zero),
+        var scaleMatrix = new Float4x4(
+            new Float4(new F32(cubeScale), F32.Zero, F32.Zero, F32.Zero),
+            new Float4(F32.Zero, new F32(cubeScale), F32.Zero, F32.Zero),
+            new Float4(F32.Zero, F32.Zero, new F32(cubeScale), F32.Zero),
             new Float4(F32.Zero, F32.Zero, F32.Zero, F32.One)
         );
         
