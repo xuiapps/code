@@ -1,5 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="800" height="560" viewBox="0 0 800 560">
-  <rect x="0" y="24" width="800" height="536" fill="#A9A9A9" />
   <text x="3" y="27" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Basic row</text>
   <text x="3" y="51.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Basic column</text>
   <text x="3" y="75.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Grow &amp; shrink</text>

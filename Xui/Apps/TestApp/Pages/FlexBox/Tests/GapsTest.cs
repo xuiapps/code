@@ -142,8 +142,11 @@ public class GapsTest : View
             context.FillRect(new Rect(Frame.X, Frame.Y, 135, Frame.Height));
 
             // Draw label text
+            context.SetFont(new Font { FontFamily = ["Inter"], FontSize = 12 });
+            context.TextBaseline = TextBaseline.Middle;
+            context.TextAlign = TextAlign.Center;
             context.SetFill(White);
-            // TODO: Add text rendering
+            context.FillText(Label, new Point(Frame.X + 67.5f, Frame.Y + Frame.Height / 2));
 
             // Draw flex container background
             context.SetFill(new Color(0xC0, 0xC0, 0xC0, 0xFF));

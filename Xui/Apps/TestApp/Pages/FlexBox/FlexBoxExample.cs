@@ -5,6 +5,7 @@ using Xui.Apps.TestApp.Pages.FlexBox.Tests;
 using Xui.Core.Canvas;
 using Xui.Core.Math2D;
 using Xui.Core.UI;
+using Xui.Core.UI.Input;
 using static Xui.Core.Canvas.Colors;
 
 namespace Xui.Apps.TestApp.Pages.FlexBox;
@@ -43,20 +44,31 @@ public class FlexBoxExample : Example
             list = new VerticalStack();
             AddProtectedChild(list);
 
-            list.Add(new Label { Id = "Basic row", Text = "Basic row", Margin = 3 });
-            list.Add(new Label { Id = "Basic column", Text = "Basic column", Margin = 3 });
-            list.Add(new Label { Id = "Grow & shrink", Text = "Grow & shrink", Margin = 3 });
-            list.Add(new Label { Id = "Wrapping", Text = "Wrapping", Margin = 3 });
-            list.Add(new Label { Id = "Justify content", Text = "Justify content", Margin = 3 });
-            list.Add(new Label { Id = "Align items", Text = "Align items", Margin = 3 });
-            list.Add(new Label { Id = "Align content", Text = "Align content", Margin = 3 });
-            list.Add(new Label { Id = "Gaps", Text = "Gaps", Margin = 3 });
-            list.Add(new Label { Id = "Reverse direction", Text = "Reverse direction", Margin = 3 });
-            list.Add(new Label { Id = "Nested flex", Text = "Nested flex", Margin = 3 });
-            list.Add(new Label { Id = "Responsive layout", Text = "Responsive layout", Margin = 3 });
-            list.Add(new Label { Id = "Mixed sizing", Text = "Mixed sizing", Margin = 3 });
+            AddTest<BasicRowTest>("Basic row");
+            AddTest<BasicColumnTest>("Basic column");
+            AddTest<GrowAndShrinkTest>("Grow & shrink");
+            AddTest<WrapTest>("Wrapping");
+            AddTest<JustifyContentTest>("Justify content");
+            AddTest<AlignItemsTest>("Align items");
+            AddTest<AlignContentTest>("Align content");
+            AddTest<GapsTest>("Gaps");
+            AddTest<ReverseDirectionTest>("Reverse direction");
+            AddTest<NestedFlexTest>("Nested flex");
+            AddTest<ResponsiveLayoutTest>("Responsive layout");
+            AddTest<MixedSizingTest>("Mixed sizing");
 
             Preview = new BasicRowTest();
+        }
+
+        public void AddTest<T>(string name) where T : View, new()
+        {
+            list.Add(new FlexBoxNavButton(() => Preview = new T())
+            {
+                Id = name,
+                Margin = 3,
+                Text = name,
+                FontFamily = ["Inter"],
+            });
         }
 
         protected override Size MeasureCore(Size availableSize, IMeasureContext context)
@@ -76,11 +88,64 @@ public class FlexBoxExample : Example
             list.Arrange(new Rect(rect.X, rect.Y, listWidth, rect.Height), context);
             preview?.Arrange(new Rect(rect.X + listWidth, rect.Y, rect.Width - listWidth, rect.Height), context);
         }
+    }
+
+    public class FlexBoxNavButton : Label
+    {
+        private readonly Action onClick;
+        private bool hover;
+        private bool pressed;
+
+        public FlexBoxNavButton(Action onClick)
+        {
+            this.onClick = onClick;
+        }
+
+        public override void OnPointerEvent(ref PointerEventRef e, EventPhase phase)
+        {
+            if (e.State.PointerType == PointerType.Mouse)
+            {
+                if (e.Type == PointerEventType.Enter)
+                {
+                    hover = true;
+                    InvalidateRender();
+                }
+                else if (e.Type == PointerEventType.Leave)
+                {
+                    hover = false;
+                    InvalidateRender();
+                }
+                else if (phase == EventPhase.Tunnel && e.Type == PointerEventType.Down)
+                {
+                    CapturePointer(e.PointerId);
+                    pressed = true;
+                    InvalidateRender();
+                }
+                else if (phase == EventPhase.Tunnel && e.Type == PointerEventType.Up)
+                {
+                    ReleasePointer(e.PointerId);
+                    onClick();
+                    pressed = false;
+                    InvalidateRender();
+                }
+            }
+
+            base.OnPointerEvent(ref e, phase);
+        }
 
         protected override void RenderCore(IContext context)
         {
-            context.SetFill(new Color(0xA9, 0xA9, 0xA9, 0xFF));
-            context.FillRect(Frame);
+            if (pressed)
+            {
+                context.SetFill(Yellow);
+                context.FillRect(Frame);
+            }
+            else if (hover)
+            {
+                context.SetFill(LightGray);
+                context.FillRect(Frame);
+            }
+
             base.RenderCore(context);
         }
     }
