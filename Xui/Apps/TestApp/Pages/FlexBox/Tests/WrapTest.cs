@@ -1,0 +1,126 @@
+using System.Runtime.InteropServices;
+using Xui.Core.Canvas;
+using Xui.Core.Math2D;
+using Xui.Core.UI;
+using Xui.Core.UI.Layout;
+using static Xui.Core.Canvas.Colors;
+using static Xui.Core.UI.Layout.FlexBox;
+
+namespace Xui.Apps.TestApp.Pages.FlexBox.Tests;
+
+/// <summary>
+/// Demonstrates flex-wrap property for multi-line layouts.
+/// Items wrap onto new lines when they don't fit.
+/// </summary>
+public class WrapTest : View
+{
+    private readonly global::Xui.Core.UI.Layout.FlexBox flexBox;
+
+    private static readonly Color[] palette =
+    [
+        new Color(0x4A, 0x90, 0xD9, 0xFF), // Blue
+        new Color(0x5C, 0xC8, 0x5A, 0xFF), // Green
+        new Color(0xE8, 0x5D, 0x5D, 0xFF), // Red
+        new Color(0xF5, 0xA6, 0x23, 0xFF), // Yellow
+        new Color(0x9B, 0x59, 0xB6, 0xFF), // Purple
+        new Color(0xF3, 0x9C, 0x12, 0xFF), // Orange
+        new Color(0x1A, 0xBC, 0x9C, 0xFF), // Cyan
+        new Color(0xE7, 0x4C, 0x3C, 0xFF), // Pink
+    ];
+
+    public override int Count => 1;
+    public override View this[int index] => flexBox;
+
+    public WrapTest()
+    {
+        flexBox = new global::Xui.Core.UI.Layout.FlexBox
+        {
+            FlexDirection = global::Xui.Core.UI.Layout.FlexBox.Direction.Row,
+            FlexWrap = Wrap.Wrap,
+            FlexJustifyContent = JustifyContent.FlexStart,
+            FlexAlignItems = AlignItems.FlexStart,
+            FlexAlignContent = AlignContent.FlexStart,
+            Content =
+            [
+                Box("1", palette[0], 120, 60),
+                Box("2", palette[1], 140, 60),
+                Box("3", palette[2], 100, 60),
+                Box("4", palette[3], 130, 60),
+                Box("5", palette[4], 110, 60),
+                Box("6", palette[5], 150, 60),
+                Box("7", palette[6], 120, 60),
+                Box("8", palette[7], 100, 60),
+            ]
+        };
+        AddProtectedChild(flexBox);
+    }
+
+    protected override Size MeasureCore(Size availableSize, IMeasureContext context)
+    {
+        flexBox.Measure(availableSize, context);
+        return availableSize;
+    }
+
+    protected override void ArrangeCore(Rect rect, IMeasureContext context)
+    {
+        flexBox.Arrange(rect, context);
+    }
+
+    protected override void RenderCore(IContext context)
+    {
+        context.SetFill(new Color(0xF5, 0xF5, 0xF5, 0xFF));
+        context.FillRect(Frame);
+        base.RenderCore(context);
+    }
+
+    private static View Box(string text, Color color, NFloat width, NFloat height)
+    {
+        var border = new Border
+        {
+            BackgroundColor = color,
+            BorderThickness = 1,
+            BorderColor = new Color(0x00, 0x00, 0x00, 0x40),
+            Padding = 4,
+            Content = new Label
+            {
+                Text = text,
+                FontFamily = ["Inter"],
+                FontSize = 12,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Middle,
+            }
+        };
+        return new SizedBox(border, width, height);
+    }
+
+    private class SizedBox : View
+    {
+        private readonly View _content;
+        public NFloat Width { get; set; }
+        public NFloat Height { get; set; }
+
+        public override int Count => _content != null ? 1 : 0;
+        public override View this[int index] => _content;
+
+        public SizedBox(View content, NFloat width, NFloat height)
+        {
+            _content = content;
+            Width = width;
+            Height = height;
+            if (_content != null)
+                AddProtectedChild(_content);
+        }
+
+        protected override Size MeasureCore(Size availableSize, IMeasureContext context)
+        {
+            var size = new Size(Width > 0 ? Width : availableSize.Width, Height > 0 ? Height : availableSize.Height);
+            _content?.Measure(size, context);
+            return size;
+        }
+
+        protected override void ArrangeCore(Rect rect, IMeasureContext context)
+        {
+            _content?.Arrange(rect, context);
+        }
+    }
+}

@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="560" viewBox="0 0 800 560">
+  <text x="3" y="27" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Basic row</text>
+  <text x="3" y="51.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Basic column</text>
+  <text x="3" y="75.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Grow &amp; shrink</text>
+  <text x="3" y="99.45" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Wrapping</text>
+  <text x="3" y="123.6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Justify content</text>
+  <text x="3" y="147.75" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Align items</text>
+  <text x="3" y="171.9" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Align content</text>
+  <text x="3" y="196.05" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Gaps</text>
+  <text x="3" y="220.2" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Reverse direction</text>
+  <text x="3" y="244.34" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Nested flex</text>
+  <rect x="3" y="268.49" width="194" height="18.15" fill="#D3D3D3" />
+  <text x="3" y="268.49" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Responsive layout</text>
+  <text x="3" y="292.64" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Mixed sizing</text>
+  <rect x="200" y="24" width="600" height="536" fill="#F5F5F5" />
+  <rect x="NaN" y="25" width="98" height="48" fill="#4A90D9" />
+  <text x="NaN" y="41.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Logo</text>
+  <rect x="NaN" y="24.5" width="99" height="49" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="NaN" y="32.5" width="88" height="33" fill="#5CC85A" />
+  <text x="NaN" y="41.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Dashboard</text>
+  <rect x="NaN" y="32" width="89" height="34" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="NaN" y="32.5" width="83" height="33" fill="#E85D5D" />
+  <text x="NaN" y="41.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Products</text>
+  <rect x="NaN" y="32" width="84" height="34" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="NaN" y="32.5" width="83" height="33" fill="#F5A623" />
+  <text x="NaN" y="41.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Analytics</text>
+  <rect x="NaN" y="32" width="84" height="34" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="NaN" y="32.5" width="78" height="33" fill="#9B59B6" />
+  <text x="NaN" y="41.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Settings</text>
+  <rect x="NaN" y="32" width="79" height="34" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="NaN" y="25" width="48" height="48" fill="#1ABC9C" />
+  <text x="NaN" y="41.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">User</text>
+  <rect x="NaN" y="24.5" width="49" height="49" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="NaN" y="85" width="198" height="38" fill="#E74C3C" />
+  <text x="NaN" y="96.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Item 1</text>
+  <rect x="NaN" y="84.5" width="199" height="39" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="NaN" y="125" width="198" height="38" fill="#3498DB" />
+  <text x="NaN" y="136.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Item 2</text>
+  <rect x="NaN" y="124.5" width="199" height="39" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="NaN" y="165" width="198" height="38" fill="#E74C3C" />
+  <text x="NaN" y="176.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Item 3</text>
+  <rect x="NaN" y="164.5" width="199" height="39" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="NaN" y="205" width="198" height="38" fill="#3498DB" />
+  <text x="NaN" y="216.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Item 4</text>
+  <rect x="NaN" y="204.5" width="199" height="39" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="NaN" y="245" width="198" height="38" fill="#E74C3C" />
+  <text x="NaN" y="256.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Item 5</text>
+  <rect x="NaN" y="244.5" width="199" height="39" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="NaN" y="85" width="178" height="118" fill="#4A90D9" />
+  <text x="NaN" y="136.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Card 1</text>
+  <rect x="NaN" y="84.5" width="179" height="119" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="NaN" y="85" width="178" height="118" fill="#5CC85A" />
+  <text x="NaN" y="136.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Card 2</text>
+  <rect x="NaN" y="84.5" width="179" height="119" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="NaN" y="85" width="178" height="118" fill="#E85D5D" />
+  <text x="NaN" y="136.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Card 3</text>
+  <rect x="NaN" y="84.5" width="179" height="119" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="NaN" y="85" width="178" height="118" fill="#F5A623" />
+  <text x="NaN" y="136.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Card 4</text>
+  <rect x="NaN" y="84.5" width="179" height="119" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="NaN" y="85" width="178" height="118" fill="#9B59B6" />
+  <text x="NaN" y="136.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Card 5</text>
+  <rect x="NaN" y="84.5" width="179" height="119" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="NaN" y="85" width="178" height="118" fill="#F39C12" />
+  <text x="NaN" y="136.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Card 6</text>
+  <rect x="NaN" y="84.5" width="179" height="119" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="NaN" y="501" width="148" height="33" fill="#E74C3C" />
+  <text x="NaN" y="510.24" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">© 2024 Company</text>
+  <rect x="NaN" y="500.5" width="149" height="34" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="NaN" y="503.5" width="68" height="28" fill="#3498DB" />
+  <text x="NaN" y="510.24" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Privacy</text>
+  <rect x="NaN" y="503" width="69" height="29" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="NaN" y="503.5" width="68" height="28" fill="#2ECC71" />
+  <text x="NaN" y="510.24" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Terms</text>
+  <rect x="NaN" y="503" width="69" height="29" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="NaN" y="503.5" width="68" height="28" fill="#4A90D9" />
+  <text x="NaN" y="510.24" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Contact</text>
+  <rect x="NaN" y="503" width="69" height="29" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="0" y="0" width="800" height="24" fill="#FFFFFF" />
+  <text x="0" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+  <text x="73.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">FlexBox Layout</text>
+  <g transform="translate(100 277.56884765625)" opacity="0.9">
+    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
+  </g>
+</svg>

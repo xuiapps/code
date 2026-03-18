@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="560" viewBox="0 0 800 560">
+  <text x="3" y="27" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Basic row</text>
+  <text x="3" y="51.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Basic column</text>
+  <text x="3" y="75.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Grow &amp; shrink</text>
+  <text x="3" y="99.45" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Wrapping</text>
+  <text x="3" y="123.6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Justify content</text>
+  <rect x="3" y="147.75" width="194" height="18.15" fill="#D3D3D3" />
+  <text x="3" y="147.75" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Align items</text>
+  <text x="3" y="171.9" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Align content</text>
+  <text x="3" y="196.05" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Gaps</text>
+  <text x="3" y="220.2" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Reverse direction</text>
+  <text x="3" y="244.34" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Nested flex</text>
+  <text x="3" y="268.49" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Responsive layout</text>
+  <text x="3" y="292.64" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Mixed sizing</text>
+  <rect x="200" y="24" width="600" height="536" fill="#F5F5F5" />
+  <rect x="200" y="24" width="95" height="80" fill="#A9A9A9" />
+  <text x="247.5" y="64" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central" font-size="12" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">flex-start</text>
+  <rect x="300" y="24" width="500" height="80" fill="#C0C0C0" />
+  <rect x="301" y="25" width="58" height="28" fill="#4A90D9" />
+  <text x="327.56" y="31.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">1</text>
+  <rect x="300.5" y="24.5" width="59" height="29" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="361" y="25" width="58" height="48" fill="#5CC85A" />
+  <text x="386.34" y="41.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">2</text>
+  <rect x="360.5" y="24.5" width="59" height="49" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="421" y="25" width="58" height="38" fill="#E85D5D" />
+  <text x="446.29" y="36.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">3</text>
+  <rect x="420.5" y="24.5" width="59" height="39" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="200" y="104" width="95" height="80" fill="#A9A9A9" />
+  <text x="247.5" y="144" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central" font-size="12" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">flex-end</text>
+  <rect x="300" y="104" width="500" height="80" fill="#C0C0C0" />
+  <rect x="301" y="125" width="58" height="28" fill="#4A90D9" />
+  <text x="327.56" y="131.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">1</text>
+  <rect x="300.5" y="124.5" width="59" height="29" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="361" y="105" width="58" height="48" fill="#5CC85A" />
+  <text x="386.34" y="121.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">2</text>
+  <rect x="360.5" y="104.5" width="59" height="49" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="421" y="115" width="58" height="38" fill="#E85D5D" />
+  <text x="446.29" y="126.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">3</text>
+  <rect x="420.5" y="114.5" width="59" height="39" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="200" y="184" width="95" height="80" fill="#A9A9A9" />
+  <text x="247.5" y="224" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central" font-size="12" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">center</text>
+  <rect x="300" y="184" width="500" height="80" fill="#C0C0C0" />
+  <rect x="301" y="195" width="58" height="28" fill="#4A90D9" />
+  <text x="327.56" y="201.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">1</text>
+  <rect x="300.5" y="194.5" width="59" height="29" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="361" y="185" width="58" height="48" fill="#5CC85A" />
+  <text x="386.34" y="201.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">2</text>
+  <rect x="360.5" y="184.5" width="59" height="49" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="421" y="190" width="58" height="38" fill="#E85D5D" />
+  <text x="446.29" y="201.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">3</text>
+  <rect x="420.5" y="189.5" width="59" height="39" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="200" y="264" width="95" height="80" fill="#A9A9A9" />
+  <text x="247.5" y="304" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central" font-size="12" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">stretch</text>
+  <rect x="300" y="264" width="500" height="80" fill="#C0C0C0" />
+  <rect x="301" y="265" width="58" height="48" fill="#4A90D9" />
+  <text x="327.56" y="281.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">1</text>
+  <rect x="300.5" y="264.5" width="59" height="49" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="361" y="265" width="58" height="48" fill="#5CC85A" />
+  <text x="386.34" y="281.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">2</text>
+  <rect x="360.5" y="264.5" width="59" height="49" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="421" y="265" width="58" height="48" fill="#E85D5D" />
+  <text x="446.29" y="281.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">3</text>
+  <rect x="420.5" y="264.5" width="59" height="49" fill="none" stroke="#000000" stroke-opacity="0.25" />
+  <rect x="0" y="0" width="800" height="24" fill="#FFFFFF" />
+  <text x="0" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+  <text x="73.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">FlexBox Layout</text>
+  <g transform="translate(100 156.82177734375)" opacity="0.9">
+    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
+  </g>
+</svg>
