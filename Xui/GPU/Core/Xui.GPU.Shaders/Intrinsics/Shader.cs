@@ -528,4 +528,45 @@ public static class Shader
     {
         return Abs(Ddx(value)) + Abs(Ddy(value));
     }
+
+    // ===== Texture Sampling Intrinsics =====
+    // Note: These functions will be implemented by the software renderer
+    // and translated to appropriate backend-specific texture sampling operations.
+
+    /// <summary>
+    /// Samples a 2D texture at the specified UV coordinates using a sampler.
+    /// </summary>
+    /// <param name="texture">The texture to sample from.</param>
+    /// <param name="sampler">The sampler defining filtering and addressing modes.</param>
+    /// <param name="uv">The UV texture coordinates.</param>
+    /// <returns>The sampled color value.</returns>
+    /// <remarks>
+    /// This is a placeholder implementation. Actual texture sampling will be
+    /// implemented by the software renderer or hardware backend.
+    /// </remarks>
+    public static Color4 Sample(Texture2D<Color4> texture, Sampler sampler, Float2 uv)
+    {
+        throw new NotImplementedException(
+            "Texture sampling can only be performed within shader execution context. " +
+            "This intrinsic will be implemented by the renderer backend."
+        );
+    }
+
+    /// <summary>
+    /// Loads a texel from a 2D texture at the specified integer coordinates.
+    /// </summary>
+    /// <param name="texture">The texture to load from.</param>
+    /// <param name="location">The integer texel coordinates.</param>
+    /// <returns>The texel color value.</returns>
+    /// <remarks>
+    /// Unlike Sample(), Load() does not perform filtering and uses integer coordinates.
+    /// This is a placeholder implementation that will be implemented by the renderer backend.
+    /// </remarks>
+    public static Color4 Load(Texture2D<Color4> texture, Int2 location)
+    {
+        throw new NotImplementedException(
+            "Texture loading can only be performed within shader execution context. " +
+            "This intrinsic will be implemented by the renderer backend."
+        );
+    }
 }
