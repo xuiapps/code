@@ -1,5 +1,3 @@
-using Xui.GPU.Shaders.Types;
-
 namespace Xui.GPU.Shaders.Types;
 
 /// <summary>
