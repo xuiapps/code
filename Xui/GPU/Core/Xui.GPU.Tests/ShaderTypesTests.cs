@@ -401,8 +401,12 @@ public class ShaderTypesTests
         Assert.NotEqual(1.0f, (float)perspective.Row1.Y);
         Assert.NotEqual(0.0f, (float)perspective.Row1.Y);
         
-        // Check perspective projection sign
-        Assert.Equal(-1.0f, (float)perspective.Row2.W);
+        // Check perspective projection properties ([0,1] depth range, DirectX-style)
+        // Row 3, column 2 (Z component) should be -1 for perspective divide
+        Assert.Equal(-1.0f, (float)perspective.Row3.Z);
+        // Row 2 should have depth mapping coefficients
+        Assert.NotEqual(0.0f, (float)perspective.Row2.Z);
+        Assert.NotEqual(0.0f, (float)perspective.Row2.W);
     }
 
     [Fact]

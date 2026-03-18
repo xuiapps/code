@@ -155,10 +155,27 @@ public unsafe class RenderContext
         var pos1 = GetPositionFromVarying(varying1);
         var pos2 = GetPositionFromVarying(varying2);
 
+        // Perform perspective divide to convert from clip space to NDC
+        float w0Clip = pos0.W;
+        float w1Clip = pos1.W;
+        float w2Clip = pos2.W;
+        
+        float ndc0X = pos0.X / w0Clip;
+        float ndc0Y = pos0.Y / w0Clip;
+        float ndc0Z = pos0.Z / w0Clip;
+        
+        float ndc1X = pos1.X / w1Clip;
+        float ndc1Y = pos1.Y / w1Clip;
+        float ndc1Z = pos1.Z / w1Clip;
+        
+        float ndc2X = pos2.X / w2Clip;
+        float ndc2Y = pos2.Y / w2Clip;
+        float ndc2Z = pos2.Z / w2Clip;
+
         // Transform to screen space
-        _viewport.Transform(pos0.X, pos0.Y, pos0.Z, out float x0, out float y0, out float z0);
-        _viewport.Transform(pos1.X, pos1.Y, pos1.Z, out float x1, out float y1, out float z1);
-        _viewport.Transform(pos2.X, pos2.Y, pos2.Z, out float x2, out float y2, out float z2);
+        _viewport.Transform(ndc0X, ndc0Y, ndc0Z, out float x0, out float y0, out float z0);
+        _viewport.Transform(ndc1X, ndc1Y, ndc1Z, out float x1, out float y1, out float z1);
+        _viewport.Transform(ndc2X, ndc2Y, ndc2Z, out float x2, out float y2, out float z2);
 
         // Compute bounding box
         int minX = (int)Math.Max(0, Math.Floor(Math.Min(Math.Min(x0, x1), x2)));

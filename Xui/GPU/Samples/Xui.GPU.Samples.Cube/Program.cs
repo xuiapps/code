@@ -40,9 +40,19 @@ class Program
         // Setup transformation matrices
         float rotationAngle = MathF.PI / 6.0f; // 30 degrees
         
-        // Model matrix: Rotate around Y and X axes
+        // Model matrix: Scale down, then rotate around Y and X axes
+        var scaleMatrix = Float4x4.Identity;
+        // Manual scale by 0.6 for reasonable size
+        scaleMatrix = new Float4x4(
+            new Float4(new F32(0.6f), F32.Zero, F32.Zero, F32.Zero),
+            new Float4(F32.Zero, new F32(0.6f), F32.Zero, F32.Zero),
+            new Float4(F32.Zero, F32.Zero, new F32(0.6f), F32.Zero),
+            new Float4(F32.Zero, F32.Zero, F32.Zero, F32.One)
+        );
+        
         var modelMatrix = Float4x4.CreateRotationY(new F32(rotationAngle)) * 
-                         Float4x4.CreateRotationX(new F32(rotationAngle * 0.5f));
+                         Float4x4.CreateRotationX(new F32(rotationAngle * 0.5f)) *
+                         scaleMatrix;
         
         // View matrix: Camera at (0, 0, 5) looking at origin
         var viewMatrix = Float4x4.CreateLookAt(
