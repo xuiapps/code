@@ -70,11 +70,10 @@ internal sealed class MacOSImageFactory : IImagePipeline, IDisposable
         nint dataPtr = handle.AddrOfPinnedObject();
 
         // Create a data provider with a release callback that unpins the buffer
-        var releaseCallback = Marshal.GetFunctionPointerForDelegate(DataProviderReleaseCallback);
         using var provider = CGDataProviderRef.CreateWithData(
             dataPtr,
             dataSize,
-            releaseCallback);
+            releaseCallbackPtr);
 
         // Create RGB colorspace
         using var colorspace = CGColorSpaceRef.CreateDeviceRGB();
@@ -96,6 +95,7 @@ internal sealed class MacOSImageFactory : IImagePipeline, IDisposable
         nint retained = CFRetain(cgImage);
         
         // Store the GCHandle using data pointer as key for proper cleanup
+        // The entry will be removed when the CGDataProvider is released by CoreGraphics
         lock (releaseCallbackHandles)
         {
             releaseCallbackHandles[dataPtr] = handle;
@@ -107,12 +107,15 @@ internal sealed class MacOSImageFactory : IImagePipeline, IDisposable
     // Callback delegate for CGDataProvider to unpin the buffer when the provider is destroyed
     private delegate void DataProviderReleaseCallbackDelegate(nint info, nint data, nuint size);
     private static readonly DataProviderReleaseCallbackDelegate DataProviderReleaseCallback = OnDataProviderRelease;
+    private static readonly nint releaseCallbackPtr = Marshal.GetFunctionPointerForDelegate(DataProviderReleaseCallback);
     private static readonly Dictionary<nint, GCHandle> releaseCallbackHandles = new();
 
     private static void OnDataProviderRelease(nint info, nint data, nuint size)
     {
         // The data pointer is the address of the pinned buffer
         // Find and free the corresponding GCHandle
+        // This is called by CoreGraphics when the CGDataProvider is destroyed,
+        // which happens when the last CGImage referencing it is released
         lock (releaseCallbackHandles)
         {
             if (releaseCallbackHandles.TryGetValue(data, out var handle))
