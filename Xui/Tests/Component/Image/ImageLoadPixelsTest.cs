@@ -117,12 +117,6 @@ public class ImageLoadPixelsTest
         Assert.NotEmpty(actual);
     }
 
-    private static string GetSnapshotPath(string fileName, [CallerFilePath] string callerPath = "")
-    {
-        var sourceDir = Path.GetDirectoryName(callerPath)!;
-        return Path.Combine(sourceDir, fileName);
-    }
-
     private static string Render(View view)
     {
         var size = new Size(600, 400);

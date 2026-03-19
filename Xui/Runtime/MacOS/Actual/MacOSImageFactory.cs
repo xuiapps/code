@@ -66,7 +66,7 @@ internal sealed class MacOSImageFactory : IImagePipeline, IDisposable
         bgra32Data.CopyTo(pixelBuffer);
 
         // Pin the buffer and create a data provider
-        var handle = System.Runtime.InteropServices.GCHandle.Alloc(pixelBuffer, System.Runtime.InteropServices.GCHandleType.Pinned);
+        var handle = GCHandle.Alloc(pixelBuffer, GCHandleType.Pinned);
         nint dataPtr = handle.AddrOfPinnedObject();
 
         // Create a data provider with a release callback that unpins the buffer
@@ -95,9 +95,11 @@ internal sealed class MacOSImageFactory : IImagePipeline, IDisposable
         // Transfer ownership of the CGImage (retain it so it survives the using block)
         nint retained = CFRetain(cgImage);
         
-        // Store the GCHandle in a weak table so we can free it later if needed
-        // For now, we'll let the GC collect it when the image is no longer referenced
-        releaseCallbackHandles[retained] = handle;
+        // Store the GCHandle using data pointer as key for proper cleanup
+        lock (releaseCallbackHandles)
+        {
+            releaseCallbackHandles[dataPtr] = handle;
+        }
 
         return new MacOSImageResource(retained, (uint)width, (uint)height);
     }
@@ -105,22 +107,18 @@ internal sealed class MacOSImageFactory : IImagePipeline, IDisposable
     // Callback delegate for CGDataProvider to unpin the buffer when the provider is destroyed
     private delegate void DataProviderReleaseCallbackDelegate(nint info, nint data, nuint size);
     private static readonly DataProviderReleaseCallbackDelegate DataProviderReleaseCallback = OnDataProviderRelease;
-    private static readonly System.Collections.Generic.Dictionary<nint, System.Runtime.InteropServices.GCHandle> releaseCallbackHandles = new();
+    private static readonly Dictionary<nint, GCHandle> releaseCallbackHandles = new();
 
     private static void OnDataProviderRelease(nint info, nint data, nuint size)
     {
         // The data pointer is the address of the pinned buffer
-        // We need to find and free the corresponding GCHandle
+        // Find and free the corresponding GCHandle
         lock (releaseCallbackHandles)
         {
-            foreach (var kvp in releaseCallbackHandles)
+            if (releaseCallbackHandles.TryGetValue(data, out var handle))
             {
-                if (kvp.Value.AddrOfPinnedObject() == data)
-                {
-                    kvp.Value.Free();
-                    releaseCallbackHandles.Remove(kvp.Key);
-                    break;
-                }
+                handle.Free();
+                releaseCallbackHandles.Remove(data);
             }
         }
     }
