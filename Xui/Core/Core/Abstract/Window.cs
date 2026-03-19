@@ -26,7 +26,7 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard, IService
     /// Checks the window's DI service provider first; if not found, falls back to the
     /// platform window's own services (e.g. <see cref="Xui.Core.Actual.IImagePipeline"/> from Win32).
     public virtual object? GetService(Type serviceType) =>
-        this.Context.GetService(serviceType) ?? this.Actual.GetService(serviceType);
+        this.Context.GetService(serviceType) ?? this.Actual?.GetService(serviceType);
 
     /// <summary>A list of disposables disposed when the window closes.</summary>
     public List<IDisposable> DisposeQueue { get; } = [];

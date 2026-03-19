@@ -69,8 +69,13 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
 
     void Xui.Core.Actual.IWindow.Show() => Platform!.Show();
 
-    public object? GetService(Type serviceType) =>
-        Platform!.GetService(serviceType);
+    public object? GetService(Type serviceType)
+    {
+        // During construction, Platform is not yet wired — fall back to the abstract window's services.
+        if (Platform == null)
+            return (Abstract as IServiceProvider)?.GetService(serviceType);
+        return Platform.GetService(serviceType);
+    }
 
     /// <summary>
     /// The display area available to the app inside the mobile frame (excluding chrome).

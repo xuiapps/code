@@ -235,6 +235,7 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
 
     public object? GetService(Type serviceType)
     {
+        if (serviceType == typeof(IContext)) return Win32Platform.DisplayContextStack.Count > 0 ? Win32Platform.DisplayContextStack.Peek() : null;
         if (serviceType == typeof(IImage)) return this.Renderer.ImageFactory?.CreateImage();
         if (serviceType == typeof(ITextMeasureContext)) return this.TextMeasureContext;
         if (serviceType == typeof(IDeviceInfo)) return Win32DeviceInfo.Instance;

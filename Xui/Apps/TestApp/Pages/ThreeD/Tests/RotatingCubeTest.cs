@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using Xui.Core.Canvas;
+using Xui.Core.DI;
 using Xui.Core.Math2D;
 using Xui.Core.UI;
 using Xui.Core.UI.Input;
@@ -22,8 +23,9 @@ public class RotatingCubeTest : View
     private NFloat dragStartRotY = 0;
     
     private unsafe Framebuffer? framebuffer = null;
-    private GpuImage? gpuImage = null;
-    
+    private IImage? platformImage = null;
+    private byte[]? bgraBuffer = null;
+
     private bool isInitialized = false;
 
     public RotatingCubeTest()
@@ -78,34 +80,46 @@ public class RotatingCubeTest : View
 
     protected override unsafe void RenderCore(IContext context)
     {
-        // Initialize GPU resources if needed
+        // Initialize resources if needed
         if (!isInitialized || framebuffer == null)
         {
             framebuffer?.Dispose();
             framebuffer = new Framebuffer(300, 300, withDepthBuffer: true);
+            bgraBuffer = new byte[300 * 300 * 4];
+            platformImage = this.GetService<IImage>();
             isInitialized = true;
         }
 
-        // Render the 3D cube to the framebuffer
+        // Render the 3D cube to the software framebuffer
         RenderCube(framebuffer.Value);
 
-        // Create or update the GPU image wrapper
-        if (gpuImage == null)
-        {
-            gpuImage = new GpuImage(framebuffer.Value);
-        }
-        else
-        {
-            gpuImage.UpdateFramebuffer(framebuffer.Value);
-        }
+        // Convert framebuffer pixels (stored as uint 0xRRGGBBAA, LE bytes [A,B,G,R])
+        // to BGRA bytes ([B,G,R,A]) expected by DXGI_FORMAT_B8G8R8A8_UNORM.
+        ConvertToBgra(framebuffer.Value, bgraBuffer!);
 
-        // Draw the GPU-rendered image to the canvas
+        // Upload pixels to the platform image and draw
+        platformImage?.LoadPixels(300, 300, bgraBuffer);
         var destRect = new Rect(this.Frame.X, this.Frame.Y, 300, 300);
-        context.DrawImage(gpuImage, destRect);
+        if (platformImage != null)
+            context.DrawImage(platformImage, destRect);
 
         // Draw border
         context.SetStroke(Black);
         context.StrokeRect(destRect);
+    }
+
+    private static unsafe void ConvertToBgra(Framebuffer fb, byte[] bgra)
+    {
+        uint* src = fb.ColorData;
+        int count = fb.Width * fb.Height;
+        for (int i = 0; i < count; i++)
+        {
+            uint px = src[i]; // 0xRRGGBBAA in value
+            bgra[i * 4 + 0] = (byte)(px >> 8);   // B
+            bgra[i * 4 + 1] = (byte)(px >> 16);  // G
+            bgra[i * 4 + 2] = (byte)(px >> 24);  // R
+            bgra[i * 4 + 3] = (byte)(px);        // A
+        }
     }
 
     private unsafe void RenderCube(Framebuffer fb)
@@ -232,57 +246,3 @@ public class RotatingCubeTest : View
     }
 }
 
-/// <summary>
-/// Wrapper class that bridges GPU Framebuffer to IImage for canvas rendering.
-/// This allows GPU-rendered content to be drawn using standard canvas DrawImage APIs.
-/// </summary>
-public class GpuImage : IImage
-{
-    private unsafe Framebuffer framebuffer;
-    private byte[]? cachedBytes;
-    private bool isDirty = true;
-
-    public unsafe Size Size => new Size(framebuffer.Width, framebuffer.Height);
-
-    public unsafe GpuImage(Framebuffer fb)
-    {
-        framebuffer = fb;
-    }
-
-    public unsafe void UpdateFramebuffer(Framebuffer fb)
-    {
-        framebuffer = fb;
-        isDirty = true;
-    }
-
-    public void Load(string uri)
-    {
-        // GpuImage is already loaded - it wraps a live framebuffer
-        // This method is here to satisfy IImage interface but is not used
-        // The framebuffer is updated via UpdateFramebuffer()
-    }
-
-    public Task LoadAsync(string uri)
-    {
-        // GpuImage is already loaded - async version
-        return Task.CompletedTask;
-    }
-
-    public void Dispose()
-    {
-        // GpuImage doesn't own the framebuffer, so don't dispose it
-        cachedBytes = null;
-    }
-
-    // Platform-specific rendering would access the framebuffer data
-    // For now, this provides the byte array for software rendering
-    internal unsafe byte[] GetBytes()
-    {
-        if (isDirty || cachedBytes == null)
-        {
-            cachedBytes = framebuffer.ToByteArray();
-            isDirty = false;
-        }
-        return cachedBytes;
-    }
-}
