@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Xui.Core.Actual;
 using Xui.Core.Canvas;
@@ -48,6 +49,81 @@ internal sealed class MacOSImageFactory : IImagePipeline, IDisposable
 
     internal Task<MacOSImageResource?> GetOrLoadAsync(string uri) =>
         Task.Run(() => GetOrLoad(uri));
+
+    /// <summary>
+    /// Uploads raw BGRA32 pixel data to a new CGImage.
+    /// Creates a CGDataProvider backed by a pinned managed array copy,
+    /// then wraps it in a CGImage for CoreGraphics rendering.
+    /// </summary>
+    internal unsafe MacOSImageResource UploadFromPixels(int width, int height, ReadOnlySpan<byte> bgra32Data)
+    {
+        uint stride = (uint)(width * 4);
+        uint dataSize = (uint)(height * stride);
+
+        // Copy the pixel data to a pinned managed array that will stay alive
+        // for the lifetime of the CGImage. The data provider will reference this buffer.
+        var pixelBuffer = new byte[dataSize];
+        bgra32Data.CopyTo(pixelBuffer);
+
+        // Pin the buffer and create a data provider
+        var handle = System.Runtime.InteropServices.GCHandle.Alloc(pixelBuffer, System.Runtime.InteropServices.GCHandleType.Pinned);
+        nint dataPtr = handle.AddrOfPinnedObject();
+
+        // Create a data provider with a release callback that unpins the buffer
+        var releaseCallback = Marshal.GetFunctionPointerForDelegate(DataProviderReleaseCallback);
+        using var provider = CGDataProviderRef.CreateWithData(
+            dataPtr,
+            dataSize,
+            releaseCallback);
+
+        // Create RGB colorspace
+        using var colorspace = CGColorSpaceRef.CreateDeviceRGB();
+
+        // Create CGImage from the data provider
+        // BGRA format with premultiplied alpha
+        using var cgImage = CGImageRef.Create(
+            width: (nuint)width,
+            height: (nuint)height,
+            bitsPerComponent: 8,
+            bitsPerPixel: 32,
+            bytesPerRow: stride,
+            colorspace: colorspace,
+            bitmapInfo: CGBitmapInfo.ByteOrder32Little | CGBitmapInfo.AlphaPremultipliedFirst,
+            provider: provider,
+            shouldInterpolate: true);
+
+        // Transfer ownership of the CGImage (retain it so it survives the using block)
+        nint retained = CFRetain(cgImage);
+        
+        // Store the GCHandle in a weak table so we can free it later if needed
+        // For now, we'll let the GC collect it when the image is no longer referenced
+        releaseCallbackHandles[retained] = handle;
+
+        return new MacOSImageResource(retained, (uint)width, (uint)height);
+    }
+
+    // Callback delegate for CGDataProvider to unpin the buffer when the provider is destroyed
+    private delegate void DataProviderReleaseCallbackDelegate(nint info, nint data, nuint size);
+    private static readonly DataProviderReleaseCallbackDelegate DataProviderReleaseCallback = OnDataProviderRelease;
+    private static readonly System.Collections.Generic.Dictionary<nint, System.Runtime.InteropServices.GCHandle> releaseCallbackHandles = new();
+
+    private static void OnDataProviderRelease(nint info, nint data, nuint size)
+    {
+        // The data pointer is the address of the pinned buffer
+        // We need to find and free the corresponding GCHandle
+        lock (releaseCallbackHandles)
+        {
+            foreach (var kvp in releaseCallbackHandles)
+            {
+                if (kvp.Value.AddrOfPinnedObject() == data)
+                {
+                    kvp.Value.Free();
+                    releaseCallbackHandles.Remove(kvp.Key);
+                    break;
+                }
+            }
+        }
+    }
 
     // ── Internals ─────────────────────────────────────────────────────────────
 
