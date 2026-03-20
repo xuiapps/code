@@ -12,10 +12,10 @@ public static partial class CoreGraphics
         public static partial void CGImageRelease(nint image);
 
         [LibraryImport(CoreGraphicsLib)]
-        private static partial nuint CGImageGetWidth(nint image);
+        internal static partial nuint CGImageGetWidth(nint image);
 
         [LibraryImport(CoreGraphicsLib)]
-        private static partial nuint CGImageGetHeight(nint image);
+        internal static partial nuint CGImageGetHeight(nint image);
 
         [LibraryImport(CoreGraphicsLib)]
         private static partial nint CGImageCreateWithImageInRect(nint image, CGRect rect);

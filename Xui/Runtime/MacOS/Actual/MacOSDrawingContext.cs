@@ -535,7 +535,7 @@ public partial class MacOSDrawingContext : IContext
 
         public void Set(ImagePattern pattern)
         {
-            if (pattern.Image is not MacOSImage img || img.Resource == null || img.Resource.CGImage == 0)
+            if (pattern.Image is not MacOSImage img || img.Resource?.CGImage == null)
                 return;
             this.Reset(PaintStyle.BitmapBrush);
             this.cgImage      = img.Resource.CGImage;
@@ -571,21 +571,21 @@ public partial class MacOSDrawingContext : IContext
 
     void IImageDrawingContext.DrawImage(IImage image, Rect dest)
     {
-        if (image is not MacOSImage img || img.Resource == null || img.Resource.CGImage == 0)
+        if (image is not MacOSImage img || img.Resource?.CGImage == null)
             return;
         DrawCGImageFlipped(img.Resource.CGImage, dest, 1f);
     }
 
     void IImageDrawingContext.DrawImage(IImage image, Rect dest, NFloat opacity)
     {
-        if (image is not MacOSImage img || img.Resource == null || img.Resource.CGImage == 0)
+        if (image is not MacOSImage img || img.Resource?.CGImage == null)
             return;
         DrawCGImageFlipped(img.Resource.CGImage, dest, opacity);
     }
 
     void IImageDrawingContext.DrawImage(IImage image, Rect source, Rect dest, NFloat opacity)
     {
-        if (image is not MacOSImage img || img.Resource == null || img.Resource.CGImage == 0)
+        if (image is not MacOSImage img || img.Resource?.CGImage == null)
             return;
         // Crop to source rect (in image pixel coordinates) then draw cropped image.
         using var cropped = CGImageRef.CreateWithImageInRect(img.Resource.CGImage, source);

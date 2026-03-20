@@ -80,7 +80,7 @@ internal sealed class MacOSImageFactory : IImagePipeline, IDisposable
 
         // Create CGImage from the data provider
         // BGRA format with premultiplied alpha
-        using var cgImage = CGImageRef.Create(
+        using var cgImageRef = CGImageRef.Create(
             width: (nuint)width,
             height: (nuint)height,
             bitsPerComponent: 8,
@@ -92,7 +92,7 @@ internal sealed class MacOSImageFactory : IImagePipeline, IDisposable
             shouldInterpolate: true);
 
         // Transfer ownership of the CGImage (retain it so it survives the using block)
-        nint retained = CFRetain(cgImage);
+        nint retained = CFRetain(cgImageRef);
         
         // Store the GCHandle using data pointer as key for proper cleanup
         // The entry will be removed when the CGDataProvider is released by CoreGraphics
@@ -101,7 +101,7 @@ internal sealed class MacOSImageFactory : IImagePipeline, IDisposable
             releaseCallbackHandles[dataPtr] = handle;
         }
 
-        return new MacOSImageResource(retained, (uint)width, (uint)height);
+        return new MacOSImageResource(new CoreGraphics.CGImage(retained));
     }
 
     // Callback delegate for CGDataProvider to unpin the buffer when the provider is destroyed
@@ -138,15 +138,12 @@ internal sealed class MacOSImageFactory : IImagePipeline, IDisposable
         using var pathString = new CFStringRef(resolvedPath);
         using var url = CFURLRef.CreateWithFileSystemPath(pathString);
         using var source = CGImageSourceRef.CreateWithURL(url);
-        using var cgImage = source.CreateImageAtIndex(0);
-
-        var width  = (uint)cgImage.Width;
-        var height = (uint)cgImage.Height;
+        using var cgImageRef = source.CreateImageAtIndex(0);
 
         // Transfer ownership of the CGImageRef out of the ref-struct without releasing.
         // MacOSImageResource takes ownership and will call CGImageRelease on Dispose.
-        nint retained = CFRetain(cgImage);
-        return new MacOSImageResource(retained, width, height);
+        nint retained = CFRetain(cgImageRef);
+        return new MacOSImageResource(new CoreGraphics.CGImage(retained));
     }
 
     public void Dispose()

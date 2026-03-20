@@ -1,36 +1,29 @@
 using System;
-using static Xui.Runtime.MacOS.CoreGraphics;
 
 namespace Xui.Runtime.MacOS.Actual;
 
 /// <summary>
 /// Holds the decoded, platform-resident image data for a single URI.
-/// Stores a CGImageRef for CoreGraphics drawing today and is structured to
+/// Stores a CGImage for CoreGraphics drawing today and is structured to
 /// accommodate an MTLTexture handle for Metal rendering in the future.
 /// </summary>
 internal sealed class MacOSImageResource : IDisposable
 {
-    /// <summary>CGImageRef — used by CoreGraphics drawing today.</summary>
-    internal nint CGImage;
+    /// <summary>CGImage — used by CoreGraphics drawing today.</summary>
+    internal CoreGraphics.CGImage CGImage;
 
     // internal nint MTLTexture; // MTLTextureRef — Metal future
 
-    internal uint Width;
-    internal uint Height;
+    internal uint Width => CGImage.Width;
+    internal uint Height => CGImage.Height;
 
-    internal MacOSImageResource(nint cgImage, uint width, uint height)
+    internal MacOSImageResource(CoreGraphics.CGImage cgImage)
     {
         CGImage = cgImage;
-        Width   = width;
-        Height  = height;
     }
 
     public void Dispose()
     {
-        if (CGImage != 0)
-        {
-            CGImageRef.CGImageRelease(CGImage);
-            CGImage = 0;
-        }
+        CGImage?.Dispose();
     }
 }
