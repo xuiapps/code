@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Xui.Core.Canvas;
 using Xui.Core.Math2D;
@@ -30,4 +31,10 @@ internal sealed class MacOSImage : IImage
 
     public Task LoadAsync(string uri) =>
         factory.GetOrLoadAsync(uri).ContinueWith(t => resource = t.Result);
+
+    public void LoadPixels(int width, int height, ReadOnlySpan<byte> bgra32Data)
+    {
+        resource?.Dispose();
+        resource = factory.UploadFromPixels(width, height, bgra32Data);
+    }
 }
