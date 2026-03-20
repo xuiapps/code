@@ -19,6 +19,8 @@
 
   <ItemGroup>
     <ProjectReference Include="../../Core/Core/Xui.Core.csproj" />
+    <ProjectReference Include="../../GPU/Hardware/Xui.GPU.Hardware.Metal/Xui.GPU.Hardware.Metal.csproj" />
+    <ProjectReference Include="../../GPU/BuildTime/Xui.GPU.Backends.Metal/Xui.GPU.Backends.Metal.csproj" />
   </ItemGroup>
 
 </Project>

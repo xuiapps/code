@@ -119,7 +119,8 @@ public class GpuHardwareCubeTest : View
 
     private void TryInitializeGpu()
     {
-        _gpuDevice = GpuDeviceFactory.TryCreate();
+        // Resolve IGpuDevice via DI - provided by the platform window (D3D11 on Windows, Metal on macOS/iOS).
+        _gpuDevice = this.GetService<IGpuDevice>();
         if (_gpuDevice == null)
         {
             _gpuAvailable = false;
@@ -127,28 +128,30 @@ public class GpuHardwareCubeTest : View
             return;
         }
 
+        // Resolve IShaderBackend via DI - provided by the platform window (HlslCodeGenerator on
+        // Windows, MslCodeGenerator on macOS/iOS).
+        var shaderBackend = this.GetService<Xui.GPU.Backends.IShaderBackend>();
+        if (shaderBackend == null)
+        {
+            _gpuAvailable = false;
+            _backendName = "Software (no shader backend)";
+            return;
+        }
+
         try
         {
             _backendName = _gpuDevice.BackendName;
 
-            // Generate shader source for the current platform
+            // Generate shader source via the platform-provided backend (IR → HLSL or MSL)
             var module = CreateCubeShaderModule();
+            var shaderSource = shaderBackend.GenerateCode(module);
 
-#if WINDOWS
-            var hlslGenerator = new HlslCodeGenerator();
-            var shaderSource = hlslGenerator.GenerateCode(module);
-            _vertexShader = _gpuDevice.CompileVertexShader(shaderSource, "VSMain");
-            _fragmentShader = _gpuDevice.CompileFragmentShader(shaderSource, "PSMain");
-#elif MACOS || IOS
-            var mslGenerator = new MslCodeGenerator();
-            var shaderSource = mslGenerator.GenerateCode(module);
-            _vertexShader = _gpuDevice.CompileVertexShader(shaderSource, "vertex_main");
-            _fragmentShader = _gpuDevice.CompileFragmentShader(shaderSource, "fragment_main");
-#else
-            _gpuAvailable = false;
-            _backendName = "Software (no backend)";
-            return;
-#endif
+            // Determine entry point names from the backend
+            string vsEntry = shaderBackend.Name == "MSL" ? "vertex_main" : "VSMain";
+            string fsEntry = shaderBackend.Name == "MSL" ? "fragment_main" : "PSMain";
+
+            _vertexShader = _gpuDevice.CompileVertexShader(shaderSource, vsEntry);
+            _fragmentShader = _gpuDevice.CompileFragmentShader(shaderSource, fsEntry);
 
             _renderTarget = _gpuDevice.CreateRenderTarget(300, 300);
             _gpuAvailable = true;

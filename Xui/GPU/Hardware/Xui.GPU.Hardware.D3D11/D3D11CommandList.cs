@@ -17,7 +17,6 @@ internal sealed unsafe class D3D11CommandList : IGpuCommandList
     private void* _currentVertexBuffer;
     private uint _currentStride;
     private void* _currentConstantBuffer;
-    private int _currentConstantBufferSize;
     private bool _disposed;
 
     internal D3D11CommandList(void* device, void* context)
@@ -75,11 +74,11 @@ internal sealed unsafe class D3D11CommandList : IGpuCommandList
         _currentFragmentShader = pipeline.FragmentShader as D3D11FragmentShader;
 
         // Set vertex shader
-        var vsNative = _currentVertexShader?.NativeShader ?? null;
+        void* vsNative = _currentVertexShader != null ? _currentVertexShader.NativeShader : null;
         D3D11Native.Context_VSSetShader(_context, vsNative, null, 0);
 
         // Set pixel shader
-        var psNative = _currentFragmentShader?.NativeShader ?? null;
+        void* psNative = _currentFragmentShader != null ? _currentFragmentShader.NativeShader : null;
         D3D11Native.Context_PSSetShader(_context, psNative, null, 0);
 
         // Set depth stencil state

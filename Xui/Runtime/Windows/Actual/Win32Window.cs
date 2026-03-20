@@ -233,6 +233,22 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
         }
     }
 
+    // GPU device pipeline (D3D11 hardware-accelerated 3D rendering)
+    private Xui.GPU.Hardware.D3D11.D3D11GpuDevice? _gpuDevice;
+
+    private Xui.GPU.Hardware.IGpuDevice? GpuDevice
+    {
+        get
+        {
+            if (_gpuDevice == null)
+            {
+                try { _gpuDevice = new Xui.GPU.Hardware.D3D11.D3D11GpuDevice(); }
+                catch { /* Hardware GPU not available; return null */ }
+            }
+            return _gpuDevice;
+        }
+    }
+
     public object? GetService(Type serviceType)
     {
         if (serviceType == typeof(IContext)) return Win32Platform.DisplayContextStack.Count > 0 ? Win32Platform.DisplayContextStack.Peek() : null;
@@ -240,6 +256,8 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
         if (serviceType == typeof(ITextMeasureContext)) return this.TextMeasureContext;
         if (serviceType == typeof(IDeviceInfo)) return Win32DeviceInfo.Instance;
         if (serviceType == typeof(IPopup)) return CreatePopup();
+        if (serviceType == typeof(Xui.GPU.Hardware.IGpuDevice)) return GpuDevice;
+        if (serviceType == typeof(Xui.GPU.Backends.IShaderBackend)) return new Xui.GPU.Backends.Hlsl.HlslCodeGenerator();
         return null;
     }
 

@@ -84,20 +84,14 @@ internal static partial class MetalNative
     // ---- Metal device methods ----
 
     /// <summary>Calls [MTLDevice newLibraryWithSource:options:error:]</summary>
-    internal static nint Device_NewLibraryWithSource(nint device, nint source, nint options, out nint error)
+    internal static unsafe nint Device_NewLibraryWithSource(nint device, nint source, nint options, out nint error)
     {
         var sel = Sel_RegisterName("newLibraryWithSource:options:error:");
-        nint localError = 0;
-        unsafe
-        {
-            nint result;
-            fixed (nint* pError = &localError)
-            {
-                result = DeviceNewLibraryWithSource(device, sel, source, options, (nint)pError);
-            }
-            error = localError;
-            return result;
-        }
+        nint* pError = stackalloc nint[1];
+        *pError = 0;
+        var result = DeviceNewLibraryWithSource(device, sel, source, options, (nint)pError);
+        error = *pError;
+        return result;
     }
 
     [LibraryImport(ObjCLib, EntryPoint = "objc_msgSend")]
@@ -111,20 +105,14 @@ internal static partial class MetalNative
     }
 
     /// <summary>Calls [MTLDevice newRenderPipelineStateWithDescriptor:error:]</summary>
-    internal static nint Device_NewRenderPipelineState(nint device, nint descriptor, out nint error)
+    internal static unsafe nint Device_NewRenderPipelineState(nint device, nint descriptor, out nint error)
     {
         var sel = Sel_RegisterName("newRenderPipelineStateWithDescriptor:error:");
-        nint localError = 0;
-        unsafe
-        {
-            nint result;
-            fixed (nint* pError = &localError)
-            {
-                result = DeviceNewRenderPipelineState(device, sel, descriptor, (nint)pError);
-            }
-            error = localError;
-            return result;
-        }
+        nint* pError = stackalloc nint[1];
+        *pError = 0;
+        var result = DeviceNewRenderPipelineState(device, sel, descriptor, (nint)pError);
+        error = *pError;
+        return result;
     }
 
     [LibraryImport(ObjCLib, EntryPoint = "objc_msgSend")]

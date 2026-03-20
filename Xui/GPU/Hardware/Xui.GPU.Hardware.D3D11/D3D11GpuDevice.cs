@@ -55,7 +55,7 @@ public sealed class D3D11GpuDevice : IGpuDevice
     }
 
     /// <inheritdoc/>
-    public IGpuVertexShader CompileVertexShader(string source, string entryPoint)
+    public unsafe IGpuVertexShader CompileVertexShader(string source, string entryPoint)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         var bytecode = D3DCompiler.Compile(source, entryPoint, "vs_5_0");
@@ -63,7 +63,7 @@ public sealed class D3D11GpuDevice : IGpuDevice
     }
 
     /// <inheritdoc/>
-    public IGpuFragmentShader CompileFragmentShader(string source, string entryPoint)
+    public unsafe IGpuFragmentShader CompileFragmentShader(string source, string entryPoint)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         var bytecode = D3DCompiler.Compile(source, entryPoint, "ps_5_0");
@@ -78,7 +78,7 @@ public sealed class D3D11GpuDevice : IGpuDevice
     }
 
     /// <inheritdoc/>
-    public IGpuCommandList CreateCommandList()
+    public unsafe IGpuCommandList CreateCommandList()
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         return new D3D11CommandList(_device, _deviceContext);
