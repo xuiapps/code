@@ -43,10 +43,19 @@ public class MslCodeGenerator : IShaderBackend
         WriteLine("using namespace metal;");
         WriteLine();
 
+        // Identify roles so struct fields get correct Metal attributes:
+        //   - vertex input struct fields have no attributes (accessed via pointer+vertexId)
+        //   - fragment output struct fields use [[color(N)]]
+        //   - all other user-location fields use [[user(locnN)]]
+        var vertexInputType = module.VertexStage?.InputType;
+        var fragmentOutputType = module.FragmentStage?.OutputType;
+
         // Generate struct declarations
         foreach (var structDecl in module.Structs)
         {
-            GenerateStructDecl(structDecl);
+            bool isVertexInput = structDecl.Type == vertexInputType;
+            bool isFragmentOutput = structDecl.Type == fragmentOutputType;
+            GenerateStructDecl(structDecl, isVertexInput, isFragmentOutput);
             WriteLine();
         }
 
@@ -67,7 +76,7 @@ public class MslCodeGenerator : IShaderBackend
         return _output.ToString();
     }
 
-    private void GenerateStructDecl(IrStructDecl structDecl)
+    private void GenerateStructDecl(IrStructDecl structDecl, bool isVertexInput = false, bool isFragmentOutput = false)
     {
         var structType = structDecl.Type;
         WriteLine($"struct {structType.Name}");
@@ -77,7 +86,7 @@ public class MslCodeGenerator : IShaderBackend
         foreach (var field in structType.Fields)
         {
             var typeStr = GetMslType(field.Type);
-            var attribute = GetMslAttribute(field.Decorations);
+            var attribute = GetMslAttribute(field.Decorations, isVertexInput, isFragmentOutput);
             WriteLine($"{typeStr} {field.Name}{attribute};");
         }
 
@@ -91,10 +100,28 @@ public class MslCodeGenerator : IShaderBackend
         var outputType = GetMslType(stage.OutputType);
         var inputType = GetMslType(stage.InputType);
 
-        // MSL vertex functions are marked with [[vertex]]
-        WriteLine($"[[vertex]] {outputType} vertex_main({inputType} input [[stage_in]])");
+        // MSL vertex functions receive vertex data as a device buffer pointer + vertex_id.
+        // This avoids requiring a MTLVertexDescriptor and correctly handles the [[stage_in]]
+        // attribute restriction (which requires [[attribute(N)]] fields AND a vertex descriptor).
+        var paramsList = new List<string>
+        {
+            $"device const {inputType}* vertices [[buffer(0)]]",
+            "uint vertexId [[vertex_id]]",
+        };
+        if (stage.BindingsType != null)
+        {
+            var bindingsType = GetMslType(stage.BindingsType);
+            paramsList.Add($"constant {bindingsType}& bindings [[buffer(1)]]");
+        }
+        var paramsStr = string.Join(", ", paramsList);
+
+        WriteLine($"[[vertex]] {outputType} vertex_main({paramsStr})");
         WriteLine("{");
         _indentLevel++;
+
+        // Declare the input local variable from the vertex buffer so the shader body
+        // can reference it the same way as with [[stage_in]].
+        WriteLine($"{inputType} input = vertices[vertexId];");
 
         // Generate body statements
         GenerateBlock(stage.Body);
@@ -230,7 +257,7 @@ public class MslCodeGenerator : IShaderBackend
     {
         return constant.Value switch
         {
-            float f => f.ToString("R") + "f",
+            float f => FloatLiteral(f),
             double d => d.ToString("R"),
             int i => i.ToString(),
             uint u => u.ToString() + "u",
@@ -238,6 +265,22 @@ public class MslCodeGenerator : IShaderBackend
             _ => throw new InvalidOperationException(
                 $"Unsupported constant type '{constant.Value?.GetType().Name ?? "null"}' at {constant.SourceLocation?.ToDisplayString() ?? "unknown location"}")
         };
+    }
+
+    /// <summary>
+    /// Formats a float constant for MSL. Metal requires a decimal point in float literals
+    /// (e.g. <c>1.0f</c> is valid, <c>1f</c> is not).
+    /// </summary>
+    private static string FloatLiteral(float f)
+    {
+        var s = f.ToString("R");
+        // Ensure the literal always contains a decimal point (Metal requirement)
+        if (!s.Contains('.') && !s.Contains('e') && !s.Contains('E')
+            && !s.Contains('N') && !s.Contains('n'))   // guard NaN/Infinity
+        {
+            s += ".0";
+        }
+        return s + "f";
     }
 
     private string GenerateBinaryOp(IrBinaryOp binaryOp)
@@ -368,7 +411,7 @@ public class MslCodeGenerator : IShaderBackend
         return $"{baseType}{matrix.Columns}x{matrix.Rows}";
     }
 
-    private string GetMslAttribute(List<IrDecoration> decorations)
+    private string GetMslAttribute(List<IrDecoration> decorations, bool isVertexInput, bool isFragmentOutput)
     {
         foreach (var decoration in decorations)
         {
@@ -387,8 +430,15 @@ public class MslCodeGenerator : IShaderBackend
             }
             else if (decoration is IrLocationDecoration location)
             {
-                // MSL uses [[user(name)]] or [[attribute(n)]] for user-defined locations
-                return $" [[user(locn{location.Location})]]";
+                if (isVertexInput)
+                    // Vertex input structs are accessed via pointer+vertexId — no field attributes.
+                    return "";
+                else if (isFragmentOutput)
+                    // Fragment output color attachments use [[color(N)]].
+                    return $" [[color({location.Location})]]";
+                else
+                    // Inter-stage varyings (vertex output / fragment input) use [[user(locnN)]].
+                    return $" [[user(locn{location.Location})]]";
             }
         }
         return "";
