@@ -21,6 +21,9 @@ public sealed class D3D11GpuDevice : IGpuDevice
     /// <inheritdoc/>
     public string BackendName => "D3D11";
 
+    /// <inheritdoc/>
+    public bool IsDisposed => _disposed;
+
     /// <summary>
     /// Creates a new Direct3D 11 GPU device.
     /// </summary>

@@ -168,7 +168,7 @@ public class GpuHardwareCubeTest : View
             _fragmentShader = null;
             _renderTarget?.Dispose();
             _renderTarget = null;
-            _gpuDevice?.Dispose();
+            // NOTE: _gpuDevice is owned by the platform window via DI - do NOT dispose it here.
             _gpuDevice = null;
         }
     }

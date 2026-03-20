@@ -18,6 +18,9 @@ public sealed class MetalGpuDevice : IGpuDevice
     /// <inheritdoc/>
     public string BackendName => "Metal";
 
+    /// <inheritdoc/>
+    public bool IsDisposed => _disposed;
+
     /// <summary>
     /// Creates a new Metal GPU device using the system default device.
     /// </summary>

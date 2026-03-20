@@ -240,8 +240,9 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
     {
         get
         {
-            if (_gpuDevice == null)
+            if (_gpuDevice == null || _gpuDevice.IsDisposed)
             {
+                _gpuDevice = null;
                 try { _gpuDevice = new Xui.GPU.Hardware.D3D11.D3D11GpuDevice(); }
                 catch { /* Hardware GPU not available; return null */ }
             }

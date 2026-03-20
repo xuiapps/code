@@ -81,8 +81,9 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
     {
         get
         {
-            if (_gpuDevice == null)
+            if (_gpuDevice == null || _gpuDevice.IsDisposed)
             {
+                _gpuDevice = null;
                 try { _gpuDevice = new Xui.GPU.Hardware.Metal.MetalGpuDevice(); }
                 catch { /* Metal not available; return null */ }
             }

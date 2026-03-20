@@ -168,6 +168,9 @@ public interface IGpuDevice : IDisposable
     /// <summary>Gets the name of this GPU backend (e.g., "D3D11", "Metal").</summary>
     string BackendName { get; }
 
+    /// <summary>Gets whether this device has been disposed.</summary>
+    bool IsDisposed { get; }
+
     /// <summary>
     /// Compiles a vertex shader from native shader source code.
     /// </summary>
