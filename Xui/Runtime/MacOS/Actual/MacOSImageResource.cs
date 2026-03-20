@@ -10,12 +10,12 @@ namespace Xui.Runtime.MacOS.Actual;
 internal sealed class MacOSImageResource : IDisposable
 {
     /// <summary>CGImage — used by CoreGraphics drawing today.</summary>
-    internal CoreGraphics.CGImage CGImage;
+    internal CoreGraphics.CGImage? CGImage;
 
     // internal nint MTLTexture; // MTLTextureRef — Metal future
 
-    internal uint Width => CGImage.Width;
-    internal uint Height => CGImage.Height;
+    internal uint Width => CGImage?.Width ?? 0;
+    internal uint Height => CGImage?.Height ?? 0;
 
     internal MacOSImageResource(CoreGraphics.CGImage cgImage)
     {
@@ -25,5 +25,6 @@ internal sealed class MacOSImageResource : IDisposable
     public void Dispose()
     {
         CGImage?.Dispose();
+        CGImage = null;
     }
 }

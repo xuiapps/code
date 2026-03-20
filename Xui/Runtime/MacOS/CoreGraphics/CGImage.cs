@@ -12,34 +12,37 @@ public static partial class CoreGraphics
     /// </summary>
     public class CGImage : IDisposable
     {
-        public readonly nint Ptr;
+        private nint ptr;
 
         public CGImage(nint ptr)
         {
             if (ptr == 0)
                 throw new ObjCException($"{nameof(CGImage)} instantiated with nil pointer.");
-            this.Ptr = ptr;
+            this.ptr = ptr;
         }
 
-        public uint Width => (uint)CGImageRef.CGImageGetWidth(Ptr);
-        public uint Height => (uint)CGImageRef.CGImageGetHeight(Ptr);
+        public uint Width => (uint)CGImageRef.CGImageGetWidth(ptr);
+        public uint Height => (uint)CGImageRef.CGImageGetHeight(ptr);
 
-        public static implicit operator nint(CGImage? image) => image?.Ptr ?? 0;
+        public static implicit operator nint(CGImage? image) => image?.ptr ?? 0;
 
         public void Dispose()
         {
-            if (Ptr != 0)
-            {
-                CGImageRef.CGImageRelease(Ptr);
-            }
+            Release();
             GC.SuppressFinalize(this);
         }
 
         ~CGImage()
         {
-            if (Ptr != 0)
+            Release();
+        }
+
+        private void Release()
+        {
+            if (ptr != 0)
             {
-                CGImageRef.CGImageRelease(Ptr);
+                CGImageRef.CGImageRelease(ptr);
+                ptr = 0;
             }
         }
     }
