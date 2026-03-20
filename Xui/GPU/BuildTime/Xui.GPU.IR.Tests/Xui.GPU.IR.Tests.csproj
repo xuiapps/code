@@ -26,6 +26,7 @@
     <ProjectReference Include="../Xui.GPU.IR/Xui.GPU.IR.csproj" />
     <ProjectReference Include="../Xui.GPU.Backends/Xui.GPU.Backends.csproj" />
     <ProjectReference Include="../Xui.GPU.Backends.Hlsl/Xui.GPU.Backends.Hlsl.csproj" />
+    <ProjectReference Include="../Xui.GPU.Backends.Metal/Xui.GPU.Backends.Metal.csproj" />
   </ItemGroup>
 
 </Project>

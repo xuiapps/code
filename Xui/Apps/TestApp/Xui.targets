@@ -71,6 +71,21 @@
     <ProjectReference Include="../../GPU/Core/Xui.GPU/Xui.GPU.csproj" />
     <ProjectReference Include="../../GPU/Core/Xui.GPU.Shaders/Xui.GPU.Shaders.csproj" />
     <ProjectReference Include="../../GPU/Software/Xui.GPU.Software/Xui.GPU.Software.csproj" />
+    <ProjectReference Include="../../GPU/Hardware/Xui.GPU.Hardware/Xui.GPU.Hardware.csproj" />
+    <ProjectReference Include="../../GPU/BuildTime/Xui.GPU.IR/Xui.GPU.IR.csproj" />
+    <ProjectReference Include="../../GPU/BuildTime/Xui.GPU.Backends/Xui.GPU.Backends.csproj" />
+    <ProjectReference
+        Condition=" $(XuiWindows) == 'true' "
+        Include="../../GPU/BuildTime/Xui.GPU.Backends.Hlsl/Xui.GPU.Backends.Hlsl.csproj" />
+    <ProjectReference
+        Condition=" $(XuiWindows) == 'true' "
+        Include="../../GPU/Hardware/Xui.GPU.Hardware.D3D11/Xui.GPU.Hardware.D3D11.csproj" />
+    <ProjectReference
+        Condition=" $(XuiMacOS) == 'true' Or $(XuiIOS) == 'true' "
+        Include="../../GPU/BuildTime/Xui.GPU.Backends.Metal/Xui.GPU.Backends.Metal.csproj" />
+    <ProjectReference
+        Condition=" $(XuiMacOS) == 'true' Or $(XuiIOS) == 'true' "
+        Include="../../GPU/Hardware/Xui.GPU.Hardware.Metal/Xui.GPU.Hardware.Metal.csproj" />
 
     <!-- Middleware -->
     <ProjectReference

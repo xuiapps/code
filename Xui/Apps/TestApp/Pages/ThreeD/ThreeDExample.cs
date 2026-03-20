@@ -47,6 +47,7 @@ public class ThreeDExample : Example
             this.AddProtectedChild(this.list);
 
             this.AddTest<RotatingCubeTest>("Rotating Cube");
+            this.AddTest<GpuHardwareCubeTest>("GPU Hardware Cube");
 
             // Select first test by default
             this.Demo = new RotatingCubeTest();

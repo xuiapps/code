@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net10.0-macos;net10.0-ios</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>Xui.GPU.Hardware.Metal</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Xui.GPU.Hardware/Xui.GPU.Hardware.csproj" />
+    <ProjectReference Include="../../BuildTime/Xui.GPU.Backends.Metal/Xui.GPU.Backends.Metal.csproj" />
+  </ItemGroup>
+
+</Project>

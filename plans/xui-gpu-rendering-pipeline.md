@@ -53,58 +53,58 @@ The rendering pipeline consists of five major layers:
 
 ### Phase 0: Planning and Infrastructure (This Session)
 - [x] Create this plan document
-- [ ] Create directory structure for all projects
-- [ ] Add projects to Xui.sln
-- [ ] Set up basic project files with dependencies
-- [ ] Create placeholder namespaces and folder structure
-- [ ] Initial commit of skeleton structure
+- [x] Create directory structure for all projects
+- [x] Add projects to Xui.sln
+- [x] Set up basic project files with dependencies
+- [x] Create placeholder namespaces and folder structure
+- [x] Initial commit of skeleton structure
 
 ### Phase 1: Core Type System (Milestone 1a)
-- [ ] Implement shader scalar types (F32, I32, U32, Bool)
-- [ ] Implement vector types (Vec2<T>, Vec3<T>, Vec4<T>)
-- [ ] Create convenience aliases (Float2, Float3, Float4)
-- [ ] Implement Color4 type
-- [ ] Add matrix types (Mat2<T>, Mat3<T>, Mat4<T>, Float4x4)
-- [ ] Add operator overloads for shader math
-- [ ] Add unit tests for type system
-- [ ] Document public API with XML comments
+- [x] Implement shader scalar types (F32, I32, U32, Bool)
+- [x] Implement vector types (Vec2<T>, Vec3<T>, Vec4<T>)
+- [x] Create convenience aliases (Float2, Float3, Float4)
+- [x] Implement Color4 type
+- [x] Add matrix types (Mat2<T>, Mat3<T>, Mat4<T>, Float4x4)
+- [x] Add operator overloads for shader math
+- [x] Add unit tests for type system
+- [x] Document public API with XML comments
 
 ### Phase 2: Shader Interfaces and Attributes (Milestone 1b)
-- [ ] Define IShaderStage base interface
-- [ ] Define IVertexShader<TInput, TOutput, TBindings> interface
-- [ ] Define IFragmentShader<TInput, TOutput, TBindings> interface
-- [ ] Implement shader attributes ([ShaderProgram], [VertexShader], [FragmentShader])
-- [ ] Implement location attributes ([Location(n)], [BuiltIn(semantic)])
-- [ ] Implement binding attributes ([Group(n)], [Binding(n)])
-- [ ] Add interpolation attributes (Flat, Linear, Perspective)
-- [ ] Document attribute usage patterns
+- [x] Define IShaderStage base interface
+- [x] Define IVertexShader<TInput, TOutput, TBindings> interface
+- [x] Define IFragmentShader<TInput, TOutput, TBindings> interface
+- [x] Implement shader attributes ([ShaderProgram], [VertexShader], [FragmentShader])
+- [x] Implement location attributes ([Location(n)], [BuiltIn(semantic)])
+- [x] Implement binding attributes ([Group(n)], [Binding(n)])
+- [x] Add interpolation attributes (Flat, Linear, Perspective)
+- [x] Document attribute usage patterns
 
 ### Phase 3: Resource Types (Milestone 1c)
-- [ ] Implement Uniform<T> wrapper type
-- [ ] Implement Texture2D<TPixel> type
-- [ ] Implement Sampler type
-- [ ] Define resource access methods (Sample, Load)
-- [ ] Add resource capability flags
-- [ ] Add unit tests for resource types
+- [x] Implement Uniform<T> wrapper type
+- [x] Implement Texture2D<TPixel> type
+- [x] Implement Sampler type
+- [x] Define resource access methods (Sample, Load)
+- [x] Add resource capability flags
+- [x] Add unit tests for resource types
 
 ### Phase 4: Shader Intrinsics (Milestone 1d)
-- [ ] Create Shader static class for intrinsics
-- [ ] Implement basic math intrinsics (Clamp, Saturate, Lerp, Min, Max, Abs)
-- [ ] Implement trigonometric intrinsics (Sin, Cos, Tan)
-- [ ] Implement vector intrinsics (Dot, Length, Normalize, Cross)
-- [ ] Implement derivative intrinsics (Ddx, Ddy) - fragment only
-- [ ] Implement texture sampling intrinsics
-- [ ] Document stage restrictions for each intrinsic
+- [x] Create Shader static class for intrinsics
+- [x] Implement basic math intrinsics (Clamp, Saturate, Lerp, Min, Max, Abs)
+- [x] Implement trigonometric intrinsics (Sin, Cos, Tan)
+- [x] Implement vector intrinsics (Dot, Length, Normalize, Cross)
+- [x] Implement derivative intrinsics (Ddx, Ddy) - fragment only
+- [x] Implement texture sampling intrinsics
+- [x] Document stage restrictions for each intrinsic
 
 ### Phase 5: Intermediate Representation (Milestone 2a)
-- [ ] Design IR node base types
-- [ ] Implement type nodes (ScalarType, VectorType, MatrixType, StructType)
-- [ ] Implement expression nodes (Constant, Parameter, Field, BinaryOp, UnaryOp)
-- [ ] Implement statement nodes (VarDecl, Assignment, Return, If, Block)
-- [ ] Implement decoration nodes (Location, BuiltIn, Binding, Interpolation)
-- [ ] Implement module and stage declaration nodes
-- [ ] Add IR serialization for debugging
-- [ ] Add unit tests for IR construction
+- [x] Design IR node base types
+- [x] Implement type nodes (ScalarType, VectorType, MatrixType, StructType)
+- [x] Implement expression nodes (Constant, Parameter, Field, BinaryOp, UnaryOp)
+- [x] Implement statement nodes (VarDecl, Assignment, Return, If, Block)
+- [x] Implement decoration nodes (Location, BuiltIn, Binding, Interpolation)
+- [x] Implement module and stage declaration nodes
+- [x] Add IR serialization for debugging
+- [x] Add unit tests for IR construction
 
 ### Phase 6: Roslyn Analyzer (Milestone 2b)
 - [ ] Set up analyzer project infrastructure
@@ -127,82 +127,118 @@ The rendering pipeline consists of five major layers:
 - [ ] Document generated code patterns
 
 ### Phase 8: Software Renderer - Core Infrastructure (Milestone 3a)
-- [ ] Design internal execution types (CpuScalarF32, CpuQuadF32)
-- [ ] Implement Framebuffer and ColorTarget
-- [ ] Implement VertexSource<T> for vertex data
-- [ ] Implement basic primitive assembly
-- [ ] Implement viewport transform
-- [ ] Add unit tests for infrastructure
+- [x] Design internal execution types (CpuScalarF32, CpuQuadF32)
+- [x] Implement Framebuffer and ColorTarget
+- [x] Implement VertexSource<T> for vertex data
+- [x] Implement basic primitive assembly
+- [x] Implement viewport transform
+- [x] Add unit tests for infrastructure
 
 ### Phase 9: Software Renderer - Rasterization (Milestone 3b)
-- [ ] Implement triangle rasterization (scan conversion)
-- [ ] Implement barycentric coordinate calculation
-- [ ] Implement edge function tests
-- [ ] Implement per-pixel coverage determination
-- [ ] Add depth buffer support
-- [ ] Add unit tests with known triangle outputs
+- [x] Implement triangle rasterization (scan conversion)
+- [x] Implement barycentric coordinate calculation
+- [x] Implement edge function tests
+- [x] Implement per-pixel coverage determination
+- [x] Add depth buffer support
+- [x] Add unit tests with known triangle outputs
 
 ### Phase 10: Software Renderer - Fragment Execution (Milestone 3c)
-- [ ] Implement fragment quad grouping (2x2 pixels)
-- [ ] Implement varying interpolation for quads
-- [ ] Implement derivative calculation (ddx, ddy)
-- [ ] Implement fragment shader execution
-- [ ] Implement blend operations
-- [ ] Add unit tests for fragment execution
+- [x] Implement fragment quad grouping (2x2 pixels)
+- [x] Implement varying interpolation for quads
+- [x] Implement derivative calculation (ddx, ddy)
+- [x] Implement fragment shader execution
+- [x] Implement blend operations
+- [x] Add unit tests for fragment execution
 
 ### Phase 11: MVP Triangle Demo (Milestone 3d)
-- [ ] Create Xui.GPU.Samples.Triangle project
-- [ ] Define simple vertex structure with position and color
-- [ ] Author vertex shader in C#
-- [ ] Author fragment shader in C#
-- [ ] Set up pipeline descriptor
-- [ ] Render triangle to RGBA bitmap
-- [ ] Save output as PNG
-- [ ] Add depth/stencil buffer
-- [ ] Verify output visually
-- [ ] Document the demo
+- [x] Create Xui.GPU.Samples.Triangle project
+- [x] Define simple vertex structure with position and color
+- [x] Author vertex shader in C#
+- [x] Author fragment shader in C#
+- [x] Set up pipeline descriptor
+- [x] Render triangle to RGBA bitmap
+- [x] Save output as PNG
+- [x] Add depth/stencil buffer
+- [x] Verify output visually
+- [x] Document the demo
 
 ### Phase 12: HLSL Backend (Milestone 4a)
-- [ ] Implement IR to HLSL translator
-- [ ] Map shader types to HLSL types
-- [ ] Generate HLSL vertex shader entry point
-- [ ] Generate HLSL fragment (pixel) shader entry point
-- [ ] Handle resource bindings in HLSL
-- [ ] Handle built-in semantics (SV_Position, etc.)
-- [ ] Generate metadata for compiled shaders
-- [ ] Add unit tests comparing HLSL output
+- [x] Implement IR to HLSL translator
+- [x] Map shader types to HLSL types
+- [x] Generate HLSL vertex shader entry point
+- [x] Generate HLSL fragment (pixel) shader entry point
+- [x] Handle resource bindings in HLSL
+- [x] Handle built-in semantics (SV_Position, etc.)
+- [x] Generate metadata for compiled shaders
+- [x] Add unit tests comparing HLSL output
 
 ### Phase 13: Pipeline Composition (Milestone 4b)
-- [ ] Implement RenderPipeline<TVertex, TFragment, ...> type
-- [ ] Implement PipelineDescriptor with state (topology, blend, etc.)
-- [ ] Implement pipeline validation
-- [ ] Verify vertex output matches fragment input
-- [ ] Add pipeline creation APIs
-- [ ] Add unit tests for pipeline composition
+- [x] Implement RenderPipeline<TVertex, TFragment, ...> type
+- [x] Implement PipelineDescriptor with state (topology, blend, etc.)
+- [x] Implement pipeline validation
+- [x] Verify vertex output matches fragment input
+- [x] Add pipeline creation APIs
+- [x] Add unit tests for pipeline composition
 
 ### Phase 14: Extended Math and Intrinsics (Milestone 5a)
-- [ ] Add swizzle support for vectors
-- [ ] Add more texture sampling modes
-- [ ] Add more intrinsic functions (Pow, Exp, Log, Sqrt)
-- [ ] Add interpolation control
-- [ ] Add more blend modes
-- [ ] Add unit tests
+- [x] Add swizzle support for vectors
+- [x] Add more texture sampling modes
+- [x] Add more intrinsic functions (Pow, Exp, Log, Sqrt)
+- [x] Add interpolation control
+- [x] Add more blend modes
+- [x] Add unit tests
 
-### Phase 15: Metal Backend (Milestone 5b)
-- [ ] Implement IR to Metal Shading Language translator
-- [ ] Map shader types to MSL types
-- [ ] Generate MSL vertex shader entry point
-- [ ] Generate MSL fragment shader entry point
-- [ ] Handle resource bindings in MSL
-- [ ] Add unit tests comparing MSL output
+### Phase 15a: DirectX Hardware Backend (Milestone 6a)
+- [x] Implement HLSL code generator (Phase 12 - already complete)
+- [x] Create `Xui.GPU.Hardware` abstract interface (`IGpuDevice`, `IGpuRenderTarget`, `IGpuCommandList`, etc.)
+- [x] Create `Xui.GPU.Hardware.D3D11` project (Windows-only, net10.0-windows)
+- [x] Implement `D3D11GpuDevice` - creates hardware D3D11 device
+- [x] Implement `D3D11RenderTarget` - offscreen render target with CPU readback
+- [x] Implement `D3D11CommandList` - records draw calls (vertex buffers, constant buffers, draw)
+- [x] Implement `D3D11VertexShader` / `D3D11FragmentShader` - compiled from HLSL bytecode
+- [x] Implement `D3DCompiler` - compiles HLSL to bytecode via `d3dcompiler_47.dll`
+- [x] Implement `D3D11Native` - P/Invoke wrappers for D3D11 COM API
 
-### Phase 16: Advanced Features (Future)
+### Phase 15b: Metal Hardware Backend (Milestone 6b)
+- [x] Create `Xui.GPU.Backends.Metal` project - MSL code generator
+- [x] Implement `MslCodeGenerator` - translates IR to Metal Shading Language
+- [x] Map shader types to MSL types (float, float2, float4, etc.)
+- [x] Map shader intrinsics to MSL functions (mix vs lerp, dfdx/dfdy vs ddx/ddy, fract vs frac)
+- [x] Generate MSL vertex shader with `[[vertex]]` attribute and `[[stage_in]]`
+- [x] Generate MSL fragment shader with `[[fragment]]` attribute
+- [x] Handle MSL field attributes (`[[position]]`, `[[user(locnN)]]`)
+- [x] Add 11 unit tests comparing MSL output
+- [x] Create `Xui.GPU.Hardware.Metal` project (macOS/iOS, net10.0-macos/ios)
+- [x] Implement `MetalGpuDevice` - creates Metal device via `MTLCreateSystemDefaultDevice`
+- [x] Implement `MetalRenderTarget` - offscreen MTLTexture with `getBytes` readback
+- [x] Implement `MetalCommandList` - uses MTLCommandBuffer and MTLRenderCommandEncoder
+- [x] Implement `MetalVertexShader` / `MetalFragmentShader` - compiled from MSL via `newLibraryWithSource:`
+- [x] Implement `MetalNative` - Objective-C runtime P/Invoke wrappers for Metal API
+- [x] Add MSL generation sample (`Xui.GPU.Samples.MslGen`) showing side-by-side HLSL vs MSL output
+
+### Phase 15c: Vulkan Backend (Future)
+- [ ] Implement IR to SPIR-V / GLSL translator
+- [ ] Create `Xui.GPU.Hardware.Vulkan` project
+- [ ] Implement Vulkan device, render target, command list
+
+### Phase 16: TestApp Integration - Hardware GPU Demo
+- [x] Add `IGpuDevice`, `IGpuRenderTarget`, `IGpuCommandList` to `Xui.GPU.Hardware`
+- [x] Add hardware backend project references to TestApp conditionally (Windows/macOS/iOS)
+- [x] Create `GpuDeviceFactory` - platform-aware factory (D3D11 on Windows, Metal on macOS/iOS)
+- [x] Create `GpuHardwareCubeTest` - 3D rotating cube using hardware GPU
+  - [x] Uses hardware GPU when available (D3D11/Metal)
+  - [x] Falls back to software rendering on other platforms
+  - [x] Displays current GPU backend name as overlay text
+  - [x] Click-and-drag rotation interaction
+  - [x] Uses IR → HLSL/MSL code generation for shader source
+- [x] Add "GPU Hardware Cube" entry to TestApp 3D examples list
+
+### Phase 17: Advanced Features (Future)
 - [ ] Add compute shader support
 - [ ] Add storage buffer support
 - [ ] Add storage texture support
 - [ ] Add instancing support
-- [ ] Implement Vulkan backend
-- [ ] Implement hardware backends (D3D12, Metal, Vulkan)
+- [ ] Implement Vulkan backend (Phase 15c)
 - [ ] Add multisampling support
 - [ ] Add advanced blend modes
 - [ ] Optimize IR passes
