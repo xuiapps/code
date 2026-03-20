@@ -1,6 +1,6 @@
 using Xui.Core.DI;
 
-namespace Xui.Apps.BlankApp;
+namespace Xui.Apps.TestApp;
 
 public class Application : Xui.Core.Abstract.Application
 {

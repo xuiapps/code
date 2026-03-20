@@ -91,6 +91,28 @@ public struct Float2
     public static Float2 operator -(Float2 value) =>
         new(-value.X, -value.Y);
 
+    // ===== Swizzle Properties =====
+
+    /// <summary>
+    /// Gets the XX swizzle (X, X).
+    /// </summary>
+    public readonly Float2 XX => new(X, X);
+
+    /// <summary>
+    /// Gets the XY swizzle (X, Y).
+    /// </summary>
+    public readonly Float2 XY => new(X, Y);
+
+    /// <summary>
+    /// Gets the YX swizzle (Y, X).
+    /// </summary>
+    public readonly Float2 YX => new(Y, X);
+
+    /// <summary>
+    /// Gets the YY swizzle (Y, Y).
+    /// </summary>
+    public readonly Float2 YY => new(Y, Y);
+
     /// <inheritdoc/>
     public override string ToString() => $"({X}, {Y})";
 }

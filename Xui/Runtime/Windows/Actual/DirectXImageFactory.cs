@@ -62,6 +62,46 @@ internal sealed class DirectXImageFactory : IImagePipeline, IDisposable
     internal Task<DirectXImageResource?> GetOrLoadAsync(string uri) =>
         Task.Run(() => GetOrLoad(uri));
 
+    internal unsafe DirectXImageResource UploadFromPixels(int width, int height, ReadOnlySpan<byte> bgra32Data)
+    {
+        uint stride = (uint)(width * 4);
+        fixed (byte* pixels = bgra32Data)
+        {
+            var desc = new D3D11.Texture2DDesc
+            {
+                Width          = (uint)width,
+                Height         = (uint)height,
+                MipLevels      = 1,
+                ArraySize      = 1,
+                Format         = DXGI.Format.B8G8R8A8_UNORM,
+                SampleDesc     = new DXGI.SampleDesc { Count = 1, Quality = 0 },
+                Usage          = 0,
+                BindFlags      = (uint)D3D11.BindFlags.ShaderResource,
+                CPUAccessFlags = 0,
+                MiscFlags      = 0,
+            };
+            var sub = new D3D11.SubresourceData { pSysMem = pixels, SysMemPitch = stride };
+            var texture = this.d3d11Device.CreateTexture2D(desc, sub);
+
+            void* surfacePtr = texture.QueryInterface(in DXGI.Surface.IID);
+            using var surface = new DXGI.Surface(surfacePtr);
+
+            var bitmapProps = new BitmapProperties1
+            {
+                PixelFormat = new PixelFormat
+                {
+                    Format    = DXGI.Format.B8G8R8A8_UNORM,
+                    AlphaMode = AlphaMode.Premultiplied,
+                },
+                BitmapOptions = BitmapOptions.None,
+                DpiX = 96.0f,
+                DpiY = 96.0f,
+            };
+            var d2dBitmap = this.d2d1DeviceContext.CreateBitmapFromDxgiSurface(surface, bitmapProps);
+            return new DirectXImageResource(texture, d2dBitmap, (uint)width, (uint)height);
+        }
+    }
+
     // ── Device-lost recovery ─────────────────────────────────────────────────
 
     /// <summary>

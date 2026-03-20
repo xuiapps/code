@@ -58,8 +58,12 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
     /// </summary>
     object? IServiceProvider.GetService(Type t)
     {
+        // During construction, Platform is not yet wired — fall back to the abstract window's services.
+        if (Platform == null)
+            return (Abstract as IServiceProvider)?.GetService(t);
+
         if (t != typeof(IContext))
-            return Platform!.GetService(t);
+            return Platform.GetService(t);
 
         IContext ctx;
         if (pendingScreenshot != null && svgStream != null)

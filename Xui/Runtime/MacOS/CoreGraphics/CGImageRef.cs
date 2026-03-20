@@ -12,13 +12,27 @@ public static partial class CoreGraphics
         public static partial void CGImageRelease(nint image);
 
         [LibraryImport(CoreGraphicsLib)]
-        private static partial nuint CGImageGetWidth(nint image);
+        internal static partial nuint CGImageGetWidth(nint image);
 
         [LibraryImport(CoreGraphicsLib)]
-        private static partial nuint CGImageGetHeight(nint image);
+        internal static partial nuint CGImageGetHeight(nint image);
 
         [LibraryImport(CoreGraphicsLib)]
         private static partial nint CGImageCreateWithImageInRect(nint image, CGRect rect);
+
+        [LibraryImport(CoreGraphicsLib)]
+        private static partial nint CGImageCreate(
+            nuint width,
+            nuint height,
+            nuint bitsPerComponent,
+            nuint bitsPerPixel,
+            nuint bytesPerRow,
+            nint colorspace,
+            CGBitmapInfo bitmapInfo,
+            nint provider,
+            nint decode,
+            [MarshalAs(UnmanagedType.I1)] bool shouldInterpolate,
+            int renderingIntent);
 
         public readonly nint Self;
 
@@ -39,6 +53,37 @@ public static partial class CoreGraphics
         public static CGImageRef CreateWithImageInRect(nint image, CGRect rect)
         {
             var result = CGImageCreateWithImageInRect(image, rect);
+            return new CGImageRef(result);
+        }
+
+        /// <summary>
+        /// Creates a new CGImage from raw pixel data provided by a data provider.
+        /// The caller owns the returned image and must dispose it.
+        /// </summary>
+        public static CGImageRef Create(
+            nuint width,
+            nuint height,
+            nuint bitsPerComponent,
+            nuint bitsPerPixel,
+            nuint bytesPerRow,
+            nint colorspace,
+            CGBitmapInfo bitmapInfo,
+            nint provider,
+            bool shouldInterpolate = true)
+        {
+            var result = CGImageCreate(
+                width,
+                height,
+                bitsPerComponent,
+                bitsPerPixel,
+                bytesPerRow,
+                colorspace,
+                bitmapInfo,
+                provider,
+                0, // decode array (null)
+                shouldInterpolate,
+                0  // rendering intent (default)
+            );
             return new CGImageRef(result);
         }
 

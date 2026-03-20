@@ -62,8 +62,9 @@ public class HlslCodeGenerator : IShaderBackend
         foreach (var field in structType.Fields)
         {
             var typeStr = GetHlslType(field.Type);
+            var interpolation = GetInterpolationModifier(field.Decorations);
             var semantic = GetSemanticString(field.Decorations);
-            WriteLine($"{typeStr} {field.Name}{semantic};");
+            WriteLine($"{interpolation}{typeStr} {field.Name}{semantic};");
         }
 
         _indentLevel--;
@@ -362,6 +363,25 @@ public class HlslCodeGenerator : IShaderBackend
             }
         }
         return "";
+    }
+
+    private string GetInterpolationModifier(List<IrDecoration> decorations)
+    {
+        foreach (var decoration in decorations)
+        {
+            if (decoration is IrInterpolationDecoration interpolation)
+            {
+                return interpolation.Mode switch
+                {
+                    InterpolationMode.Flat => "nointerpolation ",
+                    InterpolationMode.Linear => "noperspective ",
+                    InterpolationMode.Perspective => "",  // Default in HLSL
+                    _ => throw new InvalidOperationException(
+                        $"Unsupported interpolation mode '{interpolation.Mode}' at {decoration.SourceLocation?.ToDisplayString() ?? "unknown location"}")
+                };
+            }
+        }
+        return "";  // Default is perspective-correct
     }
 
     private string MapIntrinsicToHlsl(string methodName)

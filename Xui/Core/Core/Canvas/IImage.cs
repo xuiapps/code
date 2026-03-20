@@ -33,4 +33,12 @@ public interface IImage
     /// Subsequent <see cref="Load"/> calls with the same URI return instantly from cache.
     /// </summary>
     Task LoadAsync(string uri);
+
+    /// <summary>
+    /// Uploads raw CPU pixel data into this image, replacing any previously loaded content.
+    /// <paramref name="bgra32Data"/> must contain <c>width * height * 4</c> bytes in
+    /// BGRA order (B at the lowest address), matching <c>DXGI_FORMAT_B8G8R8A8_UNORM</c>.
+    /// Default implementation is a no-op on platforms that do not support pixel upload.
+    /// </summary>
+    void LoadPixels(int width, int height, ReadOnlySpan<byte> bgra32Data) { }
 }

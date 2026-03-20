@@ -2,6 +2,7 @@ using Xui.Apps.TestApp.Examples;
 using Xui.Apps.TestApp.Pages.Canvas;
 using Xui.Apps.TestApp.Pages.Grid;
 using Xui.Apps.TestApp.Pages.Layers;
+using Xui.Apps.TestApp.Pages.ThreeD;
 using Xui.Core.UI;
 using static Xui.Core.Canvas.FontWeight;
 
@@ -61,6 +62,11 @@ public class SdkHomePage : VerticalStack
             Id = "Layers",
             Margin = 3,
             Text = "Layers"
+        });
+        this.Add(new SdkExampleButton<ThreeDExample>() {
+            Id = "3D",
+            Margin = 3,
+            Text = "3D GPU Rendering"
         });
     }
 }

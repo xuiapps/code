@@ -121,6 +121,70 @@ public struct Float3
         return new Float3(new F32((float)v.X * invLength), new F32((float)v.Y * invLength), new F32((float)v.Z * invLength));
     }
 
+    // ===== Swizzle Properties =====
+
+    // 2-component swizzles
+    /// <summary>
+    /// Gets the XY swizzle (X, Y).
+    /// </summary>
+    public readonly Float2 XY => new(X, Y);
+
+    /// <summary>
+    /// Gets the XZ swizzle (X, Z).
+    /// </summary>
+    public readonly Float2 XZ => new(X, Z);
+
+    /// <summary>
+    /// Gets the YX swizzle (Y, X).
+    /// </summary>
+    public readonly Float2 YX => new(Y, X);
+
+    /// <summary>
+    /// Gets the YZ swizzle (Y, Z).
+    /// </summary>
+    public readonly Float2 YZ => new(Y, Z);
+
+    /// <summary>
+    /// Gets the ZX swizzle (Z, X).
+    /// </summary>
+    public readonly Float2 ZX => new(Z, X);
+
+    /// <summary>
+    /// Gets the ZY swizzle (Z, Y).
+    /// </summary>
+    public readonly Float2 ZY => new(Z, Y);
+
+    // 3-component swizzles
+    /// <summary>
+    /// Gets the XYZ swizzle (X, Y, Z).
+    /// </summary>
+    public readonly Float3 XYZ => new(X, Y, Z);
+
+    /// <summary>
+    /// Gets the XZY swizzle (X, Z, Y).
+    /// </summary>
+    public readonly Float3 XZY => new(X, Z, Y);
+
+    /// <summary>
+    /// Gets the YXZ swizzle (Y, X, Z).
+    /// </summary>
+    public readonly Float3 YXZ => new(Y, X, Z);
+
+    /// <summary>
+    /// Gets the YZX swizzle (Y, Z, X).
+    /// </summary>
+    public readonly Float3 YZX => new(Y, Z, X);
+
+    /// <summary>
+    /// Gets the ZXY swizzle (Z, X, Y).
+    /// </summary>
+    public readonly Float3 ZXY => new(Z, X, Y);
+
+    /// <summary>
+    /// Gets the ZYX swizzle (Z, Y, X).
+    /// </summary>
+    public readonly Float3 ZYX => new(Z, Y, X);
+
     /// <inheritdoc/>
     public override string ToString() => $"({X}, {Y}, {Z})";
 }

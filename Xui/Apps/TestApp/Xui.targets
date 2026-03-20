@@ -67,6 +67,11 @@
     <ProjectReference Include="../../Core/Core/Xui.Core.csproj" />
     <ProjectReference Include="../../Core/Core.DI/Xui.Core.DI.csproj" />
 
+    <!-- GPU -->
+    <ProjectReference Include="../../GPU/Core/Xui.GPU/Xui.GPU.csproj" />
+    <ProjectReference Include="../../GPU/Core/Xui.GPU.Shaders/Xui.GPU.Shaders.csproj" />
+    <ProjectReference Include="../../GPU/Software/Xui.GPU.Software/Xui.GPU.Software.csproj" />
+
     <!-- Middleware -->
     <ProjectReference
         Condition=" $(XuiEmulator) == 'true' "
