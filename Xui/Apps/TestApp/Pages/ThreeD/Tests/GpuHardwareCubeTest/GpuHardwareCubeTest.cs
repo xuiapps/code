@@ -115,7 +115,7 @@ public class GpuHardwareCubeTestView : View
     {
         using var cmd = _gpuDevice!.CreateCommandList();
 
-        cmd.BeginRenderPass(_renderTarget!, new GpuClearColor(0.502f, 0.502f, 0.502f, 1.0f));
+        cmd.BeginRenderPass(_renderTarget!, new Color4(0.502f, 0.502f, 0.502f, 1.0f));
 
         cmd.SetPipeline(new GpuPipelineDesc
         {

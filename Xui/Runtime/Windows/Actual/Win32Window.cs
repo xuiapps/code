@@ -234,7 +234,7 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
     }
 
     // GPU device pipeline (D3D11 hardware-accelerated 3D rendering)
-    private Xui.GPU.Hardware.D3D11.D3D11GpuDevice? _gpuDevice;
+    private Xui.GPU.Hardware.D3D11.DirectXGpuDevice? _gpuDevice;
 
     private Xui.GPU.Hardware.IGpuDevice? GpuDevice
     {
@@ -243,7 +243,7 @@ public partial class Win32Window : Xui.Core.Actual.IWindow
             if (_gpuDevice == null || _gpuDevice.IsDisposed)
             {
                 _gpuDevice = null;
-                try { _gpuDevice = new Xui.GPU.Hardware.D3D11.D3D11GpuDevice(); }
+                try { _gpuDevice = new Xui.GPU.Hardware.D3D11.DirectXGpuDevice(); }
                 catch { /* Hardware GPU not available; return null */ }
             }
             return _gpuDevice;

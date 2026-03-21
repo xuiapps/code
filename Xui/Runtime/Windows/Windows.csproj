@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <ProjectReference Include="../../Core/Core/Xui.Core.csproj" />
-    <ProjectReference Include="../../GPU/Xui.GPU.DirectX/Xui.GPU.DirectX.csproj" />
   </ItemGroup>
 
 </Project>

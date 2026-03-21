@@ -19,7 +19,6 @@
 
   <ItemGroup>
     <ProjectReference Include="../../Core/Core/Xui.Core.csproj" />
-    <ProjectReference Include="../../GPU/Xui.GPU.Metal/Xui.GPU.Metal.csproj" />
   </ItemGroup>
 
 </Project>

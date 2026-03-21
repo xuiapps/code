@@ -75,7 +75,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
         _imageFactory ??= new MacOSImageFactory();
 
     // GPU device pipeline (Metal hardware-accelerated 3D rendering)
-    private Xui.GPU.Hardware.Metal.MetalGpuDevice? _gpuDevice;
+    private Xui.GPU.Hardware.Metal.MacOSGpuDevice? _gpuDevice;
 
     private Xui.GPU.Hardware.IGpuDevice? GpuDevice
     {
@@ -84,7 +84,7 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
             if (_gpuDevice == null || _gpuDevice.IsDisposed)
             {
                 _gpuDevice = null;
-                try { _gpuDevice = new Xui.GPU.Hardware.Metal.MetalGpuDevice(); }
+                try { _gpuDevice = new Xui.GPU.Hardware.Metal.MacOSGpuDevice(); }
                 catch { /* Metal not available; return null */ }
             }
             return _gpuDevice;
