@@ -6,12 +6,11 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <RootNamespace>Xui.GPU.Backends.Metal</RootNamespace>
+    <RootNamespace>Xui.GPU.Hardware.Metal</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Xui.GPU.Backends/Xui.GPU.Backends.csproj" />
-    <ProjectReference Include="../Xui.GPU.IR/Xui.GPU.IR.csproj" />
+    <ProjectReference Include="../Xui.GPU/Xui.GPU.csproj" />
   </ItemGroup>
 
 </Project>

@@ -17,12 +17,15 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="6.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Xui.GPU\Xui.GPU.csproj" />
-    <ProjectReference Include="..\Xui.GPU.Shaders\Xui.GPU.Shaders.csproj" />
-    <ProjectReference Include="..\..\Software\Xui.GPU.Software\Xui.GPU.Software.csproj" />
+    <ProjectReference Include="..\Xui.GPU.Software\Xui.GPU.Software.csproj" />
   </ItemGroup>
 
 </Project>

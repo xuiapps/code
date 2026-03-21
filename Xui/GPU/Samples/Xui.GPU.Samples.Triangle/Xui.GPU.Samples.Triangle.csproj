@@ -11,9 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\Xui.GPU\Xui.GPU.csproj" />
-    <ProjectReference Include="..\..\Core\Xui.GPU.Shaders\Xui.GPU.Shaders.csproj" />
-    <ProjectReference Include="..\..\Software\Xui.GPU.Software\Xui.GPU.Software.csproj" />
+    <ProjectReference Include="..\..\Xui.GPU\Xui.GPU.csproj" />
+    <ProjectReference Include="..\..\Xui.GPU.Software\Xui.GPU.Software.csproj" />
     <ProjectReference Include="..\..\..\Runtime\Software\Xui.Runtime.Software.csproj" />
   </ItemGroup>
 

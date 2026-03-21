@@ -16,10 +16,10 @@
 
   <!-- Include IR and backend source files directly (all netstandard2.0 compatible) -->
   <ItemGroup>
-    <Compile Include="../Xui.GPU.IR/*.cs" LinkBase="IR" />
-    <Compile Include="../Xui.GPU.Backends/IShaderBackend.cs" LinkBase="Backends" />
-    <Compile Include="../Xui.GPU.Backends.Hlsl/HlslCodeGenerator.cs" LinkBase="Backends" />
-    <Compile Include="../Xui.GPU.Backends.Metal/MslCodeGenerator.cs" LinkBase="Backends" />
+    <Compile Include="../Xui.GPU/IR/*.cs" LinkBase="IR" />
+    <Compile Include="../Xui.GPU/Backends/IShaderBackend.cs" LinkBase="Backends" />
+    <Compile Include="../Xui.GPU/Backends/HlslCodeGenerator.cs" LinkBase="Backends" />
+    <Compile Include="../Xui.GPU/Backends/MslCodeGenerator.cs" LinkBase="Backends" />
   </ItemGroup>
 
 </Project>

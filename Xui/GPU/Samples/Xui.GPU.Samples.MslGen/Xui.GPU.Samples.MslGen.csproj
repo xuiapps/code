@@ -10,8 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../BuildTime/Xui.GPU.Backends.Metal/Xui.GPU.Backends.Metal.csproj" />
-    <ProjectReference Include="../../BuildTime/Xui.GPU.Backends.Hlsl/Xui.GPU.Backends.Hlsl.csproj" />
+    <ProjectReference Include="../../Xui.GPU/Xui.GPU.csproj" />
   </ItemGroup>
 
 </Project>
