@@ -70,6 +70,17 @@ public struct Color4
     public static Color4 operator *(Color4 left, F32 right) =>
         new(left.R * right, left.G * right, left.B * right, left.A * right);
 
+    /// <summary>
+    /// Implicitly converts a packed 32-bit RGBA value (0xRRGGBBAA) to a <see cref="Color4"/>.
+    /// Compatible with Xui.Core.Canvas.Colors web color constants.
+    /// </summary>
+    public static implicit operator Color4(uint rgba) => new(
+        new F32(((rgba >> 24) & 0xFF) / 255f),
+        new F32(((rgba >> 16) & 0xFF) / 255f),
+        new F32(((rgba >> 8) & 0xFF) / 255f),
+        new F32((rgba & 0xFF) / 255f)
+    );
+
     /// <inheritdoc/>
     public override string ToString() => $"({R}, {G}, {B}, {A})";
 }

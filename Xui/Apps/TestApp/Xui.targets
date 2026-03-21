@@ -74,6 +74,9 @@
     <ProjectReference Include="../../GPU/Hardware/Xui.GPU.Hardware/Xui.GPU.Hardware.csproj" />
     <ProjectReference Include="../../GPU/BuildTime/Xui.GPU.IR/Xui.GPU.IR.csproj" />
     <ProjectReference Include="../../GPU/BuildTime/Xui.GPU.Backends/Xui.GPU.Backends.csproj" />
+    <ProjectReference Include="../../GPU/BuildTime/Xui.GPU.Generator/Xui.GPU.Generator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
 
     <!-- Middleware -->
     <ProjectReference
