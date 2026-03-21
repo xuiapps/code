@@ -1,6 +1,19 @@
 namespace Xui.GPU.Hardware;
 
 /// <summary>
+/// Specifies which triangle faces to cull during rasterization.
+/// </summary>
+public enum GpuCullMode
+{
+    /// <summary>No culling — all triangles are rendered.</summary>
+    None = 0,
+    /// <summary>Back-facing triangles are culled (default).</summary>
+    Back = 1,
+    /// <summary>Front-facing triangles are culled.</summary>
+    Front = 2,
+}
+
+/// <summary>
 /// Represents a compiled GPU shader ready for use in a hardware pipeline.
 /// </summary>
 public interface IGpuShader : IDisposable
@@ -84,6 +97,9 @@ public sealed class GpuPipelineDesc
 
     /// <summary>Gets or sets whether depth writing is enabled.</summary>
     public bool DepthWriteEnabled { get; set; } = true;
+
+    /// <summary>Gets or sets the triangle cull mode.</summary>
+    public GpuCullMode CullMode { get; set; } = GpuCullMode.Back;
 }
 
 /// <summary>

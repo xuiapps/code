@@ -111,12 +111,19 @@ internal sealed unsafe class D3D11CommandList : IGpuCommandList
         D3D11Native.Context_OMSetDepthStencilState(_context, depthStencilState, 0);
         D3D11Native.Release(depthStencilState);
 
-        // Set rasterizer state (no culling to match software renderer behavior)
+        // Set rasterizer state with cull mode from pipeline descriptor
+        uint d3dCullMode = pipeline.CullMode switch
+        {
+            GpuCullMode.None => 1u,   // D3D11_CULL_NONE
+            GpuCullMode.Front => 2u,  // D3D11_CULL_FRONT
+            GpuCullMode.Back => 3u,   // D3D11_CULL_BACK
+            _ => 1u,
+        };
         var rsDesc = new D3D11Native.RasterizerDesc
         {
             FillMode = 3u,   // D3D11_FILL_SOLID
-            CullMode = 1u,   // D3D11_CULL_NONE
-            FrontCounterClockwise = 0,
+            CullMode = d3dCullMode,
+            FrontCounterClockwise = 1, // CCW winding = front-facing (matching Metal/OpenGL convention)
             DepthBias = 0,
             DepthBiasClamp = 0f,
             SlopeScaledDepthBias = 0f,

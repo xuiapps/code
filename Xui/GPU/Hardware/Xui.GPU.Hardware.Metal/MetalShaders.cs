@@ -69,14 +69,16 @@ internal sealed class MetalFragmentShader : IGpuFragmentShader
 /// </summary>
 internal sealed class MetalRenderTarget : IGpuRenderTarget
 {
-    private readonly nint _texture;  // id<MTLTexture>
-    private readonly nint _device;   // id<MTLDevice>
+    private readonly nint _texture;       // id<MTLTexture> — color
+    private readonly nint _depthTexture;  // id<MTLTexture> — depth (Depth32Float)
+    private readonly nint _device;        // id<MTLDevice>
     private bool _disposed;
 
     public int Width { get; }
     public int Height { get; }
     public IGpuTexture Texture => new MetalTexture(_texture, Width, Height);
     internal nint NativeTexture => _texture;
+    internal nint NativeDepthTexture => _depthTexture;
 
     internal MetalRenderTarget(int width, int height, nint device)
     {
@@ -90,6 +92,10 @@ internal sealed class MetalRenderTarget : IGpuRenderTarget
 
         if (_texture == 0)
             throw new InvalidOperationException("Failed to create Metal render target texture.");
+
+        _depthTexture = MetalNative.CreateDepthTexture(device, width, height);
+        if (_depthTexture == 0)
+            throw new InvalidOperationException("Failed to create Metal depth texture.");
     }
 
     /// <inheritdoc/>
@@ -120,6 +126,7 @@ internal sealed class MetalRenderTarget : IGpuRenderTarget
         if (_disposed) return;
         _disposed = true;
         MetalNative.Release(_texture);
+        MetalNative.Release(_depthTexture);
     }
 }
 

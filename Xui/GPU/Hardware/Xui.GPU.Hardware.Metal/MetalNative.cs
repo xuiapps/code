@@ -37,6 +37,9 @@ internal static partial class MetalNative
     [LibraryImport(ObjCLib, EntryPoint = "objc_msgSend")]
     internal static partial nint ObjC_MsgSendNIntNIntNInt(nint self, nint sel, nint arg0, nint arg1, nint arg2);
 
+    [LibraryImport(ObjCLib, EntryPoint = "objc_msgSend")]
+    internal static partial void ObjC_MsgSendDouble(nint self, nint sel, double arg0);
+
     // ---- Metal functions ----
 
     [LibraryImport(MetalLib, EntryPoint = "MTLCreateSystemDefaultDevice")]
@@ -203,7 +206,7 @@ internal static partial class MetalNative
     }
 
     /// <summary>Creates and configures an MTLRenderPipelineDescriptor.</summary>
-    internal static nint CreateRenderPipelineDescriptor(nint vertexFunction, nint fragmentFunction, nint vertexDescriptor = 0)
+    internal static nint CreateRenderPipelineDescriptor(nint vertexFunction, nint fragmentFunction, nint vertexDescriptor = 0, ulong depthPixelFormat = 0)
     {
         var cls = ObjC_GetClass("MTLRenderPipelineDescriptor");
         var allocSel = Sel_RegisterName("alloc");
@@ -232,6 +235,12 @@ internal static partial class MetalNative
         var att0 = ObjC_MsgSendULong(attArray, objectAtIndex, 0);
         var setPixelFormat = Sel_RegisterName("setPixelFormat:");
         ObjC_MsgSendULong(att0, setPixelFormat, 80); // MTLPixelFormatBGRA8Unorm = 80
+
+        // Set depth attachment pixel format if specified
+        if (depthPixelFormat != 0)
+        {
+            ObjC_MsgSendULong(desc, Sel_RegisterName("setDepthAttachmentPixelFormat:"), depthPixelFormat);
+        }
 
         return desc;
     }
@@ -307,7 +316,7 @@ internal static partial class MetalNative
     // ---- MTLRenderPassDescriptor ----
 
     /// <summary>Creates an MTLRenderPassDescriptor for a render target texture.</summary>
-    internal static nint CreateRenderPassDescriptor(nint texture, GpuClearColor clearColor)
+    internal static nint CreateRenderPassDescriptor(nint texture, GpuClearColor clearColor, nint depthTexture = 0)
     {
         var cls = ObjC_GetClass("MTLRenderPassDescriptor");
         var allocSel = Sel_RegisterName("alloc");
@@ -333,6 +342,16 @@ internal static partial class MetalNative
 
         // clearColor = MTLClearColor struct (4 doubles: r, g, b, a)
         SetClearColor(att0, clearColor.R, clearColor.G, clearColor.B, clearColor.A);
+
+        // Configure depth attachment if depth texture provided
+        if (depthTexture != 0)
+        {
+            var depthAttachment = ObjC_MsgSend(desc, Sel_RegisterName("depthAttachment"));
+            ObjC_MsgSendNInt(depthAttachment, setTexture, depthTexture);
+            ObjC_MsgSendULong(depthAttachment, setLoad, 2);   // MTLLoadActionClear
+            ObjC_MsgSendULong(depthAttachment, setStore, 0);  // MTLStoreActionDontCare
+            ObjC_MsgSendDouble(depthAttachment, Sel_RegisterName("setClearDepth:"), 1.0);
+        }
 
         return desc;
     }
@@ -410,6 +429,77 @@ internal static partial class MetalNative
 
     [LibraryImport(ObjCLib, EntryPoint = "objc_msgSend")]
     private static partial void TextureGetBytes(nint self, nint sel, nint bytes, nuint bytesPerRow, MTLRegion region, ulong mipmapLevel);
+
+    // ---- Depth Stencil ----
+
+    /// <summary>Creates an MTLDepthStencilDescriptor with the specified depth test/write settings.</summary>
+    internal static nint CreateDepthStencilDescriptor(bool depthTestEnabled, bool depthWriteEnabled)
+    {
+        var cls = ObjC_GetClass("MTLDepthStencilDescriptor");
+        var desc = ObjC_MsgSend(ObjC_MsgSend(cls, Sel_RegisterName("alloc")), Sel_RegisterName("init"));
+
+        // setDepthCompareFunction: MTLCompareFunctionLess=1, MTLCompareFunctionAlways=7
+        ulong compareFunc = depthTestEnabled ? 1UL : 7UL;
+        ObjC_MsgSendULong(desc, Sel_RegisterName("setDepthCompareFunction:"), compareFunc);
+
+        // setDepthWriteEnabled: pass 1 or 0 as ULong
+        ObjC_MsgSendULong(desc, Sel_RegisterName("setDepthWriteEnabled:"), depthWriteEnabled ? 1UL : 0UL);
+
+        return desc;
+    }
+
+    /// <summary>Calls [device newDepthStencilStateWithDescriptor:]</summary>
+    internal static nint Device_NewDepthStencilState(nint device, nint descriptor)
+    {
+        var sel = Sel_RegisterName("newDepthStencilStateWithDescriptor:");
+        return ObjC_MsgSendNInt(device, sel, descriptor);
+    }
+
+    /// <summary>Calls [encoder setDepthStencilState:]</summary>
+    internal static void Encoder_SetDepthStencilState(nint encoder, nint state)
+    {
+        var sel = Sel_RegisterName("setDepthStencilState:");
+        ObjC_MsgSendNInt(encoder, sel, state);
+    }
+
+    /// <summary>Calls [encoder setCullMode:] (MTLCullModeNone=0, MTLCullModeFront=1, MTLCullModeBack=2)</summary>
+    internal static void Encoder_SetCullMode(nint encoder, ulong cullMode)
+    {
+        var sel = Sel_RegisterName("setCullMode:");
+        ObjC_MsgSendULong(encoder, sel, cullMode);
+    }
+
+    /// <summary>Calls [encoder setFrontFacingWinding:] (MTLWindingClockwise=0, MTLWindingCounterClockwise=1)</summary>
+    internal static void Encoder_SetFrontFacingWinding(nint encoder, ulong winding)
+    {
+        var sel = Sel_RegisterName("setFrontFacingWinding:");
+        ObjC_MsgSendULong(encoder, sel, winding);
+    }
+
+    // ---- Depth Texture ----
+
+    /// <summary>Creates a depth texture with MTLPixelFormatDepth32Float.</summary>
+    internal static nint CreateDepthTexture(nint device, int width, int height)
+    {
+        var cls = ObjC_GetClass("MTLTextureDescriptor");
+        var desc = ObjC_MsgSend(ObjC_MsgSend(cls, Sel_RegisterName("alloc")), Sel_RegisterName("init"));
+
+        // textureType = MTLTextureType2D (2)
+        ObjC_MsgSendULong(desc, Sel_RegisterName("setTextureType:"), 2);
+        // pixelFormat = MTLPixelFormatDepth32Float (252)
+        ObjC_MsgSendULong(desc, Sel_RegisterName("setPixelFormat:"), 252);
+        // width / height
+        ObjC_MsgSendULong(desc, Sel_RegisterName("setWidth:"), (ulong)width);
+        ObjC_MsgSendULong(desc, Sel_RegisterName("setHeight:"), (ulong)height);
+        // usage = MTLTextureUsageRenderTarget (4)
+        ObjC_MsgSendULong(desc, Sel_RegisterName("setUsage:"), 4);
+        // storageMode = MTLStorageModePrivate (2)
+        ObjC_MsgSendULong(desc, Sel_RegisterName("setStorageMode:"), 2);
+
+        var texture = Device_NewTexture(device, desc);
+        Release(desc);
+        return texture;
+    }
 
     // ---- NSObject ----
 

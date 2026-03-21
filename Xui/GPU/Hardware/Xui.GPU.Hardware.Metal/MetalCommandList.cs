@@ -40,9 +40,9 @@ internal sealed unsafe class MetalCommandList : IGpuCommandList
         if (_commandBuffer == 0)
             throw new InvalidOperationException("Failed to create Metal command buffer.");
 
-        // Create render pass descriptor with our render target
+        // Create render pass descriptor with our render target (including depth texture)
         var passDesc = MetalNative.CreateRenderPassDescriptor(
-            _currentRenderTarget.NativeTexture, clearColor);
+            _currentRenderTarget.NativeTexture, clearColor, _currentRenderTarget.NativeDepthTexture);
 
         // Create render command encoder (autoreleased — must retain for our ownership)
         _encoder = MetalNative.Retain(
@@ -86,8 +86,9 @@ internal sealed unsafe class MetalCommandList : IGpuCommandList
             stride: 28);
 
         // Create render pipeline state with vertex descriptor, vertex and fragment functions
+        // MTLPixelFormatDepth32Float = 252
         var pipelineDesc = MetalNative.CreateRenderPipelineDescriptor(
-            _currentVertexShader.Function, _currentFragmentShader.Function, vertexDesc);
+            _currentVertexShader.Function, _currentFragmentShader.Function, vertexDesc, depthPixelFormat: 252);
         MetalNative.Release(vertexDesc);
 
         // Release old pipeline state if any
@@ -110,6 +111,26 @@ internal sealed unsafe class MetalCommandList : IGpuCommandList
 
         // Set pipeline state on encoder
         MetalNative.Encoder_SetRenderPipelineState(_encoder, _pipelineState);
+
+        // Create and set depth stencil state
+        var dsDesc = MetalNative.CreateDepthStencilDescriptor(pipeline.DepthTestEnabled, pipeline.DepthWriteEnabled);
+        var dsState = MetalNative.Device_NewDepthStencilState(_device, dsDesc);
+        MetalNative.Release(dsDesc);
+        MetalNative.Encoder_SetDepthStencilState(_encoder, dsState);
+        MetalNative.Release(dsState);
+
+        // Set cull mode: GpuCullMode maps to MTLCullMode (None=0, Front=1, Back=2)
+        ulong mtlCullMode = pipeline.CullMode switch
+        {
+            GpuCullMode.None => 0UL,   // MTLCullModeNone
+            GpuCullMode.Front => 1UL,  // MTLCullModeFront
+            GpuCullMode.Back => 2UL,   // MTLCullModeBack
+            _ => 0UL,
+        };
+        MetalNative.Encoder_SetCullMode(_encoder, mtlCullMode);
+
+        // Set front-facing winding to counter-clockwise (matching OpenGL/D3D convention)
+        MetalNative.Encoder_SetFrontFacingWinding(_encoder, 1); // MTLWindingCounterClockwise = 1
     }
 
     /// <inheritdoc/>

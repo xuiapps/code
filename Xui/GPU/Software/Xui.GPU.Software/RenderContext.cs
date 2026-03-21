@@ -5,6 +5,19 @@ using Xui.GPU.Shaders.Types;
 namespace Xui.GPU.Software;
 
 /// <summary>
+/// Specifies which triangle faces to cull during software rasterization.
+/// </summary>
+public enum CullMode
+{
+    /// <summary>No culling — all triangles are rendered.</summary>
+    None = 0,
+    /// <summary>Back-facing triangles are culled (default).</summary>
+    Back = 1,
+    /// <summary>Front-facing triangles are culled.</summary>
+    Front = 2,
+}
+
+/// <summary>
 /// Orchestrates the software rendering pipeline.
 /// </summary>
 /// <remarks>
@@ -18,6 +31,7 @@ public unsafe class RenderContext
     private PrimitiveTopology _topology;
     private bool _depthTestEnabled;
     private bool _blendEnabled;
+    private CullMode _cullMode;
 
     /// <summary>
     /// Gets the framebuffer associated with this render context.
@@ -61,6 +75,15 @@ public unsafe class RenderContext
     }
 
     /// <summary>
+    /// Gets or sets the triangle cull mode (default is Back).
+    /// </summary>
+    public CullMode CullMode
+    {
+        get => _cullMode;
+        set => _cullMode = value;
+    }
+
+    /// <summary>
     /// Creates a new render context with the specified framebuffer.
     /// </summary>
     /// <param name="framebuffer">The framebuffer to render into.</param>
@@ -71,6 +94,7 @@ public unsafe class RenderContext
         _topology = PrimitiveTopology.TriangleList;
         _depthTestEnabled = true;
         _blendEnabled = false;
+        _cullMode = CullMode.Back;
     }
 
     /// <summary>
@@ -176,6 +200,16 @@ public unsafe class RenderContext
         _viewport.Transform(ndc0X, ndc0Y, ndc0Z, out float x0, out float y0, out float z0);
         _viewport.Transform(ndc1X, ndc1Y, ndc1Z, out float x1, out float y1, out float z1);
         _viewport.Transform(ndc2X, ndc2Y, ndc2Z, out float x2, out float y2, out float z2);
+
+        // Back-face / front-face culling using screen-space winding order (cross product)
+        if (_cullMode != CullMode.None)
+        {
+            float edge = (x1 - x0) * (y2 - y0) - (y1 - y0) * (x2 - x0);
+            if (_cullMode == CullMode.Back && edge <= 0)
+                return; // Back-facing triangle, skip
+            if (_cullMode == CullMode.Front && edge >= 0)
+                return; // Front-facing triangle, skip
+        }
 
         // Compute bounding box
         int minX = (int)Math.Max(0, Math.Floor(Math.Min(Math.Min(x0, x1), x2)));
