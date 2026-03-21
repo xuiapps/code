@@ -35,8 +35,8 @@ internal sealed unsafe class MetalCommandList : IGpuCommandList
 
         _currentRenderTarget = (MetalRenderTarget)renderTarget;
 
-        // Create command buffer
-        _commandBuffer = MetalNative.CommandQueue_CommandBuffer(_commandQueue);
+        // Create command buffer (autoreleased — must retain for our ownership)
+        _commandBuffer = MetalNative.Retain(MetalNative.CommandQueue_CommandBuffer(_commandQueue));
         if (_commandBuffer == 0)
             throw new InvalidOperationException("Failed to create Metal command buffer.");
 
@@ -44,9 +44,9 @@ internal sealed unsafe class MetalCommandList : IGpuCommandList
         var passDesc = MetalNative.CreateRenderPassDescriptor(
             _currentRenderTarget.NativeTexture, clearColor);
 
-        // Create render command encoder
-        _encoder = MetalNative.CommandBuffer_RenderCommandEncoderWithDescriptor(
-            _commandBuffer, passDesc);
+        // Create render command encoder (autoreleased — must retain for our ownership)
+        _encoder = MetalNative.Retain(
+            MetalNative.CommandBuffer_RenderCommandEncoderWithDescriptor(_commandBuffer, passDesc));
 
         MetalNative.Release(passDesc);
 
@@ -59,6 +59,7 @@ internal sealed unsafe class MetalCommandList : IGpuCommandList
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         MetalNative.Encoder_EndEncoding(_encoder);
+        MetalNative.Release(_encoder);
         _encoder = 0;
     }
 
@@ -75,9 +76,19 @@ internal sealed unsafe class MetalCommandList : IGpuCommandList
         if (_currentFragmentShader == null)
             throw new InvalidOperationException("Pipeline requires a MetalFragmentShader.");
 
-        // Create render pipeline state with vertex and fragment functions
+        // Create vertex descriptor for CubeVertex: Float3 Position (12 bytes) + Color4 Color (16 bytes)
+        // This tells the hardware vertex fetch unit how to read tightly-packed C# data.
+        var vertexDesc = MetalNative.CreateVertexDescriptor(
+            [
+                new() { Format = 30, Offset = 0, BufferIndex = 0 },   // MTLVertexFormatFloat3 at offset 0
+                new() { Format = 31, Offset = 12, BufferIndex = 0 },  // MTLVertexFormatFloat4 at offset 12
+            ],
+            stride: 28);
+
+        // Create render pipeline state with vertex descriptor, vertex and fragment functions
         var pipelineDesc = MetalNative.CreateRenderPipelineDescriptor(
-            _currentVertexShader.Function, _currentFragmentShader.Function);
+            _currentVertexShader.Function, _currentFragmentShader.Function, vertexDesc);
+        MetalNative.Release(vertexDesc);
 
         // Release old pipeline state if any
         if (_pipelineState != 0)
@@ -178,6 +189,7 @@ internal sealed unsafe class MetalCommandList : IGpuCommandList
         if (_disposed) return;
         _disposed = true;
 
+        if (_encoder != 0) MetalNative.Release(_encoder);
         if (_vertexBuffer != 0) MetalNative.Release(_vertexBuffer);
         if (_constantBuffer != 0) MetalNative.Release(_constantBuffer);
         if (_pipelineState != 0) MetalNative.Release(_pipelineState);

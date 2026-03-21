@@ -157,8 +157,53 @@ internal static partial class MetalNative
 
     // ---- MTLRenderPipelineDescriptor ----
 
+    /// <summary>Describes a single vertex attribute for MTLVertexDescriptor.</summary>
+    internal struct VertexAttributeDesc
+    {
+        /// <summary>MTLVertexFormat enum value (e.g. Float2=29, Float3=30, Float4=31).</summary>
+        public ulong Format;
+        /// <summary>Byte offset of this attribute within the vertex struct.</summary>
+        public ulong Offset;
+        /// <summary>Which vertex buffer binding this attribute reads from.</summary>
+        public ulong BufferIndex;
+    }
+
+    /// <summary>
+    /// Creates an MTLVertexDescriptor that tells the hardware vertex fetch unit how to
+    /// read tightly-packed C# vertex data and deliver GPU-native aligned types to the shader.
+    /// </summary>
+    internal static nint CreateVertexDescriptor(VertexAttributeDesc[] attributes, ulong stride)
+    {
+        var cls = ObjC_GetClass("MTLVertexDescriptor");
+        var desc = ObjC_MsgSend(ObjC_MsgSend(cls, Sel_RegisterName("alloc")), Sel_RegisterName("init"));
+
+        // Configure each vertex attribute
+        var attrsArray = ObjC_MsgSend(desc, Sel_RegisterName("attributes"));
+        var objectAtIndex = Sel_RegisterName("objectAtIndexedSubscript:");
+        var setFormat = Sel_RegisterName("setFormat:");
+        var setOffset = Sel_RegisterName("setOffset:");
+        var setBufferIndex = Sel_RegisterName("setBufferIndex:");
+
+        for (int i = 0; i < attributes.Length; i++)
+        {
+            var attr = ObjC_MsgSendULong(attrsArray, objectAtIndex, (ulong)i);
+            ObjC_MsgSendULong(attr, setFormat, attributes[i].Format);
+            ObjC_MsgSendULong(attr, setOffset, attributes[i].Offset);
+            ObjC_MsgSendULong(attr, setBufferIndex, attributes[i].BufferIndex);
+        }
+
+        // Configure buffer layout 0: stride and per-vertex stepping
+        var layoutsArray = ObjC_MsgSend(desc, Sel_RegisterName("layouts"));
+        var layout0 = ObjC_MsgSendULong(layoutsArray, objectAtIndex, 0);
+        ObjC_MsgSendULong(layout0, Sel_RegisterName("setStride:"), stride);
+        ObjC_MsgSendULong(layout0, Sel_RegisterName("setStepFunction:"), 1); // MTLVertexStepFunctionPerVertex
+        ObjC_MsgSendULong(layout0, Sel_RegisterName("setStepRate:"), 1);
+
+        return desc;
+    }
+
     /// <summary>Creates and configures an MTLRenderPipelineDescriptor.</summary>
-    internal static nint CreateRenderPipelineDescriptor(nint vertexFunction, nint fragmentFunction)
+    internal static nint CreateRenderPipelineDescriptor(nint vertexFunction, nint fragmentFunction, nint vertexDescriptor = 0)
     {
         var cls = ObjC_GetClass("MTLRenderPipelineDescriptor");
         var allocSel = Sel_RegisterName("alloc");
@@ -172,6 +217,13 @@ internal static partial class MetalNative
         // Set fragment function
         var setFS = Sel_RegisterName("setFragmentFunction:");
         ObjC_MsgSendNInt(desc, setFS, fragmentFunction);
+
+        // Set vertex descriptor (tells Metal how to fetch vertex attributes)
+        if (vertexDescriptor != 0)
+        {
+            var setVertexDesc = Sel_RegisterName("setVertexDescriptor:");
+            ObjC_MsgSendNInt(desc, setVertexDesc, vertexDescriptor);
+        }
 
         // Set pixel format on colorAttachments[0] to BGRA8Unorm (80)
         var colAttachments = Sel_RegisterName("colorAttachments");
@@ -194,9 +246,9 @@ internal static partial class MetalNative
         var initSel = Sel_RegisterName("init");
         var desc = ObjC_MsgSend(ObjC_MsgSend(cls, allocSel), initSel);
 
-        // textureType = MTLTextureType2D (0)
+        // textureType = MTLTextureType2D (2)
         var setType = Sel_RegisterName("setTextureType:");
-        ObjC_MsgSendULong(desc, setType, 0);
+        ObjC_MsgSendULong(desc, setType, 2);
 
         // pixelFormat = MTLPixelFormatBGRA8Unorm (80)
         var setFormat = Sel_RegisterName("setPixelFormat:");
@@ -360,6 +412,14 @@ internal static partial class MetalNative
     private static partial void TextureGetBytes(nint self, nint sel, nint bytes, nuint bytesPerRow, MTLRegion region, ulong mipmapLevel);
 
     // ---- NSObject ----
+
+    /// <summary>Calls [obj retain] and returns the object.</summary>
+    internal static nint Retain(nint obj)
+    {
+        if (obj == 0) return 0;
+        var sel = Sel_RegisterName("retain");
+        return ObjC_MsgSend(obj, sel);
+    }
 
     /// <summary>Calls [obj release]</summary>
     internal static void Release(nint obj)

@@ -52,14 +52,13 @@ public class MslCodeGeneratorTests
 
         var msl = generator.GenerateCode(module);
 
-        // MSL vertex functions use [[vertex]] attribute
+        // MSL vertex functions use [[vertex]] attribute and [[stage_in]] for vertex input
         Assert.Contains("[[vertex]]", msl);
         Assert.Contains("vertex_main", msl);
-        // Vertex data is accessed via device buffer pointer + vertex_id (no [[stage_in]] for VS)
-        Assert.Contains("[[buffer(0)]]", msl);
-        Assert.Contains("[[vertex_id]]", msl);
-        // Fragment function still uses [[stage_in]] for its interpolated input
         Assert.Contains("[[stage_in]]", msl);
+        // Vertex input struct fields use [[attribute(N)]] for MTLVertexDescriptor mapping
+        Assert.Contains("[[attribute(0)]]", msl);
+        Assert.Contains("[[attribute(1)]]", msl);
     }
 
     [Fact]
@@ -92,11 +91,10 @@ public class MslCodeGeneratorTests
         // Fragment output color attachments use [[color(N)]]
         Assert.Contains("[[color(0)]]", msl);
 
-        // Vertex inputs have no field attributes (accessed via buffer pointer + vertex_id)
+        // Vertex input fields use [[attribute(N)]] (not [[user(locnN)]])
+        Assert.Contains("[[attribute(0)]]", msl);
+        Assert.Contains("[[attribute(1)]]", msl);
         Assert.DoesNotContain("[[user(locn1)]]", msl);
-
-        // Vertex function uses the device buffer + vertex_id pattern
-        Assert.Contains("[[vertex_id]]", msl);
     }
 
     [Fact]
@@ -178,18 +176,20 @@ public class MslCodeGeneratorTests
     }
 
     [Fact]
-    public void MslGenerator_VertexFunction_UsesBufferPointerAndVertexId()
+    public void MslGenerator_VertexFunction_UsesStageInWithVertexDescriptor()
     {
-        // Vertex data is accessed via device buffer pointer + vertex_id, not [[stage_in]],
-        // because [[stage_in]] with [[attribute(N)]] requires a MTLVertexDescriptor.
+        // Vertex data is accessed via [[stage_in]] with a MTLVertexDescriptor.
+        // The hardware vertex fetch unit handles conversion from packed C# data
+        // to GPU-native aligned types.
         var module = IrBuilder.CreateTriangleShaderModule();
         var generator = new MslCodeGenerator();
 
         var msl = generator.GenerateCode(module);
 
-        Assert.Contains("device const TriangleVertex* vertices [[buffer(0)]]", msl);
-        Assert.Contains("uint vertexId [[vertex_id]]", msl);
-        Assert.Contains("TriangleVertex input = vertices[vertexId];", msl);
+        Assert.Contains("TriangleVertex input [[stage_in]]", msl);
+        Assert.DoesNotContain("device const", msl);
+        Assert.DoesNotContain("vertex_id", msl);
+        Assert.DoesNotContain("vertices[vertexId]", msl);
     }
 
     [Fact]

@@ -100,13 +100,12 @@ public class MslCodeGenerator : IShaderBackend
         var outputType = GetMslType(stage.OutputType);
         var inputType = GetMslType(stage.InputType);
 
-        // MSL vertex functions receive vertex data as a device buffer pointer + vertex_id.
-        // This avoids requiring a MTLVertexDescriptor and correctly handles the [[stage_in]]
-        // attribute restriction (which requires [[attribute(N)]] fields AND a vertex descriptor).
+        // MSL vertex functions use [[stage_in]] with a MTLVertexDescriptor to specify
+        // vertex attribute formats and offsets. This lets the hardware vertex fetch unit
+        // convert tightly-packed C# vertex data to GPU-native aligned types automatically.
         var paramsList = new List<string>
         {
-            $"device const {inputType}* vertices [[buffer(0)]]",
-            "uint vertexId [[vertex_id]]",
+            $"{inputType} input [[stage_in]]",
         };
         if (stage.BindingsType != null)
         {
@@ -118,10 +117,6 @@ public class MslCodeGenerator : IShaderBackend
         WriteLine($"[[vertex]] {outputType} vertex_main({paramsStr})");
         WriteLine("{");
         _indentLevel++;
-
-        // Declare the input local variable from the vertex buffer so the shader body
-        // can reference it the same way as with [[stage_in]].
-        WriteLine($"{inputType} input = vertices[vertexId];");
 
         // Generate body statements
         GenerateBlock(stage.Body);
@@ -287,6 +282,19 @@ public class MslCodeGenerator : IShaderBackend
     {
         var left = GenerateExpression(binaryOp.Left);
         var right = GenerateExpression(binaryOp.Right);
+
+        // MSL float4x4 is column-major, but C#'s Float4x4 is row-major. When the same
+        // bytes are passed via a buffer, MSL reads rows as columns (effectively transposing).
+        // To get the correct result, swap matrix*vector to vector*matrix in MSL:
+        //   C# row-major:    M * v  =>  result[i] = dot(row_i, v)
+        //   MSL col-major:   v * M  =>  result[i] = dot(v, col_i) = dot(col_i, v) = dot(row_i, v)  ✓
+        if (binaryOp.Operator == BinaryOperator.Multiply
+            && binaryOp.Left.Type is IrMatrixType
+            && binaryOp.Right.Type is IrVectorType)
+        {
+            return $"({right} * {left})";
+        }
+
         var op = binaryOp.Operator switch
         {
             BinaryOperator.Add => "+",
@@ -431,8 +439,8 @@ public class MslCodeGenerator : IShaderBackend
             else if (decoration is IrLocationDecoration location)
             {
                 if (isVertexInput)
-                    // Vertex input structs are accessed via pointer+vertexId — no field attributes.
-                    return "";
+                    // Vertex input struct fields use [[attribute(N)]] for MTLVertexDescriptor mapping.
+                    return $" [[attribute({location.Location})]]";
                 else if (isFragmentOutput)
                     // Fragment output color attachments use [[color(N)]].
                     return $" [[color({location.Location})]]";

@@ -6,8 +6,8 @@ using namespace metal;
 
 struct TriangleVertex
 {
-    float2 Position [[user(locn0)]];
-    float4 Color [[user(locn1)]];
+    float2 Position;
+    float4 Color;
 };
 
 struct TriangleVaryings
@@ -18,14 +18,15 @@ struct TriangleVaryings
 
 struct FragmentOutput
 {
-    float4 Color [[user(locn0)]];
+    float4 Color [[color(0)]];
 };
 
 // Vertex Shader: TriangleVertexShader
-[[vertex]] TriangleVaryings vertex_main(TriangleVertex input [[stage_in]])
+[[vertex]] TriangleVaryings vertex_main(device const TriangleVertex* vertices [[buffer(0)]], uint vertexId [[vertex_id]])
 {
+    TriangleVertex input = vertices[vertexId];
     TriangleVaryings output;
-    output.Position = float4(input.Position, 0f, 1f);
+    output.Position = float4(input.Position, 0.0f, 1.0f);
     output.Color = input.Color;
     return output;
 }

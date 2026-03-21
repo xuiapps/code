@@ -233,7 +233,22 @@ The rendering pipeline consists of five major layers:
   - [x] Uses IR → HLSL/MSL code generation for shader source
 - [x] Add "GPU Hardware Cube" entry to TestApp 3D examples list
 
-### Phase 17: Advanced Features (Future)
+### Phase 17: Data-Driven Vertex Descriptors and Custom Mesh Formats
+- [ ] Make vertex descriptor/input layout data-driven (remove hardcoded CubeVertex layout from D3D11 and Metal command lists)
+- [ ] Derive vertex attribute metadata (format, offset, stride) from IR struct fields at pipeline creation time
+- [ ] Flow vertex layout info through `GpuPipelineDesc` so backends build descriptors automatically
+- [ ] Define a default vertex format: `{ Float3 Position, Float3 Normal, Float2 UV, Color4 Color }`
+- [ ] Support custom mesh vertex formats via source generator:
+  - User defines a C# struct (e.g. `struct MyMesh { Float3 Position; Float2 UV; }`)
+  - Mesh upload API accepts `ReadOnlySpan<T>` where `T` is the user's vertex struct
+  - Source generator (or Roslyn analyzer) reads the fields of `T` at build time
+  - Generates the IR struct metadata, vertex descriptor attributes, and field access code automatically
+  - Each backend creates the correct vertex descriptor/input layout from the generated metadata
+  - Shader code can access `input.Position`, `input.UV`, etc. with type safety
+- [ ] Validate vertex struct fields at build time (only allowed shader types: Float2, Float3, Float4, Color4, etc.)
+- [ ] Support interleaved and potentially non-interleaved (struct-of-arrays) vertex layouts
+
+### Phase 18: Advanced Features (Future)
 - [ ] Add compute shader support
 - [ ] Add storage buffer support
 - [ ] Add storage texture support
