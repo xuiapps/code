@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 480 340" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="10">
+  <rect width="480" height="340" fill="#f8f8f8" rx="8"/>
+  <text x="16" y="18" fill="#333" font-size="11" font-weight="700">Widget anatomy — design system token flow</text>
+
+  <!-- Card -->
+  <rect x="16" y="28" width="200" height="140" rx="12" fill="#fff" stroke="#e0e0e0" stroke-width="1.5"/>
+  <!-- Card content -->
+  <text x="28" y="52" fill="#1a1aff" font-size="9" font-weight="600">Colors.Surface.Background → fill</text>
+  <text x="28" y="66" fill="#888"    font-size="8">IShapeSystem.Large → rx="12"</text>
+  <!-- Title -->
+  <rect x="28" y="74" width="100" height="12" rx="2" fill="#e8e8ff"/>
+  <text x="28" y="85"  fill="#333" font-size="9">Typography.TitleMedium</text>
+  <!-- Body -->
+  <rect x="28" y="92"  width="170" height="8" rx="2" fill="#f0f0f0"/>
+  <rect x="28" y="104" width="140" height="8" rx="2" fill="#f0f0f0"/>
+  <!-- Button -->
+  <rect x="28" y="120" width="60" height="28" rx="14" fill="#4040ff"/>
+  <text x="58" y="139" fill="#fff" text-anchor="middle" font-weight="600" font-size="9">Action</text>
+  <text x="28" y="158" fill="#999" font-size="7">IColorSystem.Primary.Background → fill</text>
+
+  <!-- Arrows / token labels on right -->
+  <line x1="220" y1="38" x2="250" y2="38" stroke="#4040ff" stroke-width=".8" marker-end="url(#arrow)"/>
+  <text x="256" y="42" fill="#4040ff" font-size="9">Shape.Large (12 × RoundnessFactor)</text>
+
+  <line x1="220" y1="70" x2="250" y2="70" stroke="#1DB954" stroke-width=".8"/>
+  <text x="256" y="74" fill="#1DB954" font-size="9">Colors.Surface.Background</text>
+
+  <line x1="220" y1="100" x2="250" y2="100" stroke="#888" stroke-width=".8"/>
+  <text x="256" y="104" fill="#888" font-size="9">Typography.BodyMedium</text>
+
+  <line x1="220" y1="134" x2="250" y2="134" stroke="#ff7a1a" stroke-width=".8"/>
+  <text x="256" y="138" fill="#ff7a1a" font-size="9">Colors.Primary.Background (button fill)</text>
+
+  <!-- Spacing diagram -->
+  <text x="16" y="188" fill="#333" font-size="10" font-weight="600">Spacing token usage in a list row</text>
+  <rect x="16" y="196" width="440" height="56" rx="4" fill="#fff" stroke="#e0e0e0" stroke-width="1"/>
+  <!-- H padding indicators -->
+  <rect x="16" y="196" width="16" height="56" rx="0" fill="#4040ff" opacity=".12"/>
+  <rect x="440" y="196" width="16" height="56" rx="0" fill="#4040ff" opacity=".12"/>
+  <text x="24"  y="226" fill="#4040ff" font-size="7" text-anchor="middle">L</text>
+  <text x="448" y="226" fill="#4040ff" font-size="7" text-anchor="middle">L</text>
+  <!-- V padding indicators -->
+  <rect x="16" y="196" width="440" height="8" rx="0" fill="#1DB954" opacity=".12"/>
+  <rect x="16" y="244" width="440" height="8" rx="0" fill="#1DB954" opacity=".12"/>
+  <text x="230" y="203" fill="#1DB954" font-size="7" text-anchor="middle">S</text>
+  <text x="230" y="253" fill="#1DB954" font-size="7" text-anchor="middle">S</text>
+  <!-- Icon -->
+  <rect x="40" y="212" width="24" height="24" rx="12" fill="#e0e0ff"/>
+  <text x="52" y="229" fill="#4040ff" text-anchor="middle" font-size="12">♪</text>
+  <!-- Text content -->
+  <text x="74" y="222" fill="#222" font-size="11" font-weight="600">Song Title</text>
+  <text x="74" y="236" fill="#888" font-size="9">Artist Name</text>
+  <!-- Gap indicator -->
+  <rect x="64" y="218" width="10" height="12" rx="0" fill="#ff7a1a" opacity=".2"/>
+  <text x="69" y="226" fill="#ff7a1a" font-size="7" text-anchor="middle">S</text>
+
+  <!-- Legend -->
+  <rect x="16"  y="264" width="10" height="10" rx="1" fill="#4040ff" opacity=".3"/>
+  <text x="30"  y="273" fill="#333" font-size="8">Spacing.L (16 pt) — horizontal padding</text>
+  <rect x="16"  y="278" width="10" height="10" rx="1" fill="#1DB954" opacity=".3"/>
+  <text x="30"  y="287" fill="#333" font-size="8">Spacing.S  (8 pt) — vertical padding</text>
+  <rect x="16"  y="292" width="10" height="10" rx="1" fill="#ff7a1a" opacity=".3"/>
+  <text x="30"  y="301" fill="#333" font-size="8">Spacing.S  (8 pt) — gap between icon and text</text>
+  <text x="16"  y="316" fill="#555" font-size="8">MinimumHitTestRadius expands the transparent touch area of the icon to 44 pt (mobile) or 8 pt (desktop)</text>
+  <text x="16"  y="330" fill="#555" font-size="8">without changing its visual size or the row's layout.</text>
+</svg>

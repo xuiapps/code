@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 560 300" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="11">
+  <!-- Mobile -->
+  <rect x="10" y="10" width="160" height="280" rx="16" fill="#fafafa" stroke="#ddd" stroke-width="1.5"/>
+  <!-- Content area placeholder -->
+  <rect x="18" y="18" width="144" height="210" rx="4" fill="#f5f5f5"/>
+  <text x="90" y="120" fill="#ccc" text-anchor="middle" font-size="9">Content</text>
+  <!-- Bottom nav -->
+  <rect x="10" y="228" width="160" height="62" rx="0" fill="#fff" stroke="#eee" stroke-width="1"/>
+  <rect x="10" y="252" width="160" height="38" rx="0" fill="#fff"/>
+  <!-- Icons -->
+  <text x="40"  y="248" fill="#4040ff" text-anchor="middle" font-size="16">⌂</text>
+  <text x="90"  y="248" fill="#aaa"    text-anchor="middle" font-size="16">♪</text>
+  <text x="140" y="248" fill="#aaa"    text-anchor="middle" font-size="16">☰</text>
+  <!-- Indicator pill -->
+  <rect x="22" y="252" width="36" height="4" rx="2" fill="#4040ff"/>
+  <!-- Labels -->
+  <text x="40"  y="268" fill="#4040ff" text-anchor="middle" font-size="8" font-weight="600">Home</text>
+  <text x="90"  y="268" fill="#aaa"    text-anchor="middle" font-size="8">Explore</text>
+  <text x="140" y="268" fill="#aaa"    text-anchor="middle" font-size="8">Library</text>
+  <text x="90"  y="294" fill="#888"    text-anchor="middle" font-size="8">Bottom nav — DeviceIdiom.Mobile</text>
+
+  <!-- Tablet -->
+  <rect x="196" y="10" width="220" height="280" rx="10" fill="#fafafa" stroke="#ddd" stroke-width="1.5"/>
+  <!-- Left rail -->
+  <rect x="196" y="10" width="72" height="280" rx="10" fill="#fff" stroke="#eee" stroke-width="1"/>
+  <!-- Active pill -->
+  <rect x="202" y="46" width="60" height="36" rx="18" fill="#e0e0ff"/>
+  <text x="232" y="68" fill="#1a1aff" text-anchor="middle" font-size="14">⌂</text>
+  <!-- Other items -->
+  <text x="232" y="108" fill="#aaa"    text-anchor="middle" font-size="14">♪</text>
+  <text x="232" y="148" fill="#aaa"    text-anchor="middle" font-size="14">☰</text>
+  <text x="232" y="188" fill="#aaa"    text-anchor="middle" font-size="14">⚙</text>
+  <!-- Content area -->
+  <rect x="276" y="18" width="130" height="264" rx="4" fill="#f5f5f5"/>
+  <text x="341" y="150" fill="#ccc" text-anchor="middle" font-size="9">Content</text>
+  <text x="306" y="294" fill="#888" text-anchor="middle" font-size="8">Nav rail — DeviceIdiom.Tablet</text>
+
+  <!-- Desktop -->
+  <rect x="440" y="10" width="110" height="280" rx="6" fill="#fafafa" stroke="#ddd" stroke-width="1.5"/>
+  <rect x="440" y="10" width="34" height="280" rx="6" fill="#fff" stroke="#eee" stroke-width="1"/>
+  <!-- Expanded rail with labels -->
+  <rect x="443" y="46" width="28" height="28" rx="14" fill="#e0e0ff"/>
+  <text x="457" y="64" fill="#1a1aff" text-anchor="middle" font-size="11">⌂</text>
+  <text x="457" y="88"  fill="#aaa" text-anchor="middle" font-size="11">♪</text>
+  <text x="457" y="116" fill="#aaa" text-anchor="middle" font-size="11">☰</text>
+  <text x="457" y="144" fill="#aaa" text-anchor="middle" font-size="11">⚙</text>
+  <!-- Content -->
+  <rect x="482" y="18" width="60" height="264" rx="3" fill="#f5f5f5"/>
+  <text x="512" y="150" fill="#ccc" text-anchor="middle" font-size="8">Content</text>
+  <text x="495" y="294" fill="#888" text-anchor="middle" font-size="8">Desktop</text>
+</svg>

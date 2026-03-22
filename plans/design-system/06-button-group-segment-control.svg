@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="12">
+  <rect width="400" height="120" fill="#fafafa" rx="8"/>
+  <text x="16" y="20" fill="#444" font-size="10" font-weight="600">Button Group (Segment Control)</text>
+
+  <!-- Group border -->
+  <rect x="16" y="32" width="234" height="40" rx="20" fill="none" stroke="#c0c0c0" stroke-width="1.5"/>
+  <!-- Inactive left -->
+  <rect x="16" y="32" width="78" height="40" rx="20" fill="#f0f0f0"/>
+  <text x="55" y="57" fill="#444" text-anchor="middle" font-size="12">All</text>
+  <!-- Active middle (Primary.Container) -->
+  <rect x="94" y="32" width="78" height="40" rx="0" fill="#e0e0ff"/>
+  <text x="133" y="57" fill="#1a1aff" text-anchor="middle" font-size="12" font-weight="600">Music</text>
+  <!-- Inactive right -->
+  <rect x="172" y="32" width="78" height="40" rx="20" fill="#f0f0f0"/>
+  <text x="211" y="57" fill="#444" text-anchor="middle" font-size="12">Podcasts</text>
+
+  <!-- Annotation -->
+  <line x1="133" y1="80" x2="133" y2="94" stroke="#666" stroke-width=".8"/>
+  <text x="133" y="105" fill="#666" text-anchor="middle" font-size="9">IsActive → Primary.Container + Primary.OnContainer</text>
+
+  <!-- Dark mode variant -->
+  <rect x="268" y="32" width="114" height="40" rx="20" fill="#1a1a2e" stroke="#333" stroke-width="1"/>
+  <rect x="268" y="32" width="38" height="40" rx="20" fill="#1a1a2e"/>
+  <text x="287" y="57" fill="#888" text-anchor="middle" font-size="12">All</text>
+  <rect x="306" y="32" width="38" height="40" rx="0" fill="#3030a0"/>
+  <text x="325" y="57" fill="#9999ff" text-anchor="middle" font-size="12" font-weight="600">◉</text>
+  <rect x="344" y="32" width="38" height="40" rx="20" fill="#1a1a2e"/>
+  <text x="363" y="57" fill="#888" text-anchor="middle" font-size="12">Pod</text>
+  <text x="325" y="100" fill="#555" text-anchor="middle" font-size="9">dark mode</text>
+</svg>

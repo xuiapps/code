@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 540 320" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="11">
+  <rect width="540" height="320" fill="#f0f0f0" rx="8"/>
+  <text x="14" y="16" fill="#333" font-size="10" font-weight="700">Card variants — Surface.Background / Application.Background relationship</text>
+
+  <!-- App background -->
+  <rect x="14" y="24" width="512" height="288" rx="6" fill="#f8f8f8" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="26" y="40" fill="#999" font-size="8">Application.Background (Neutral 0.99)</text>
+
+  <!-- Plain card -->
+  <rect x="26" y="48" width="150" height="180" rx="12" fill="#ffffff" stroke="#ececec" stroke-width="1"/>
+  <text x="40" y="68" fill="#888" font-size="8">Surface.Background</text>
+  <!-- image placeholder -->
+  <rect x="36" y="76" width="130" height="70" rx="6" fill="#e8e8ff"/>
+  <text x="101" y="116" fill="#9090cc" text-anchor="middle" font-size="18">♪</text>
+  <!-- text -->
+  <text x="36" y="162" fill="#222" font-size="11" font-weight="600">Song Title</text>
+  <text x="36" y="177" fill="#888" font-size="9">Artist Name</text>
+  <!-- button -->
+  <rect x="36" y="188" width="80" height="28" rx="14" fill="#4040ff"/>
+  <text x="76" y="206" fill="#fff" text-anchor="middle" font-size="9" font-weight="600">▶  Play</text>
+  <text x="26" y="240" fill="#4040ff" font-size="7">Primary.Background → btn fill</text>
+
+  <!-- Tonal/elevated card -->
+  <rect x="192" y="48" width="150" height="180" rx="12" fill="#eeeeff" stroke="#d8d8ff" stroke-width="1"/>
+  <text x="206" y="68" fill="#6666cc" font-size="8">Surface.Container (selected/active)</text>
+  <rect x="202" y="76" width="130" height="70" rx="6" fill="#d8d8ff"/>
+  <text x="267" y="116" fill="#4040aa" text-anchor="middle" font-size="18">♪</text>
+  <text x="202" y="162" fill="#1a1aff" font-size="11" font-weight="600">Song Title</text>
+  <text x="202" y="177" fill="#6666aa" font-size="9">Artist Name</text>
+  <rect x="202" y="188" width="80" height="28" rx="14" fill="#0a0a60"/>
+  <text x="242" y="206" fill="#e0e0ff" text-anchor="middle" font-size="9" font-weight="600">▶  Play</text>
+  <text x="192" y="240" fill="#4040ff" font-size="7">Primary.OnContainer → btn fill (on tinted surface)</text>
+
+  <!-- Error/warning card -->
+  <rect x="358" y="48" width="150" height="140" rx="12" fill="#fff8f8" stroke="#ffcccc" stroke-width="1.5"/>
+  <text x="372" y="68" fill="#cc0000" font-size="8">Error.Container</text>
+  <text x="372" y="86" fill="#880000" font-size="9" font-weight="600">⚠  Upload failed</text>
+  <text x="372" y="101" fill="#aa4444" font-size="8">File too large (max 10 MB).</text>
+  <text x="372" y="114" fill="#aa4444" font-size="8">Try compressing it first.</text>
+  <rect x="372" y="124" width="70" height="24" rx="12" fill="#cc0000"/>
+  <text x="407" y="140" fill="#fff" text-anchor="middle" font-size="8" font-weight="600">Retry</text>
+  <rect x="448" y="124" width="50" height="24" rx="12" fill="none" stroke="#cc0000" stroke-width="1.2"/>
+  <text x="473" y="140" fill="#cc0000" text-anchor="middle" font-size="8">Dismiss</text>
+  <text x="358" y="205" fill="#cc0000" font-size="7">Error.Container bg · Error.Background btn · Error.Foreground label</text>
+
+  <!-- Token guide strip -->
+  <rect x="14" y="272" width="512" height="36" rx="4" fill="#fffbe6" stroke="#f0c000" stroke-width=".8"/>
+  <text x="22" y="284" fill="#7a6000" font-size="8" font-weight="600">ColorGroup usage guide:</text>
+  <text x="22" y="296" fill="#7a6000" font-size="8">Application.Background = screen canvas  ·  Surface.Background = card  ·  Surface.Container = highlighted card  ·  Primary.Background = action button</text>
+  <text x="22" y="308" fill="#7a6000" font-size="8">Primary.Container = tonal chip/badge  ·  Error.Container = error card bg  ·  Error.Background = destructive button fill</text>
+</svg>
