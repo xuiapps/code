@@ -9,6 +9,7 @@
   <text x="3" y="176.94" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">TextBox MVP</text>
   <text x="3" y="201.08" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Canvas Tests</text>
   <text x="3" y="225.23" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Layers</text>
+  <text x="3" y="249.38" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">3D GPU Rendering</text>
   <g transform="translate(10 10)" opacity="0.9">
     <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
   </g>
