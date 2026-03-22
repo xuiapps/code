@@ -9,6 +9,7 @@ namespace Xui.GPU.Backends.Hlsl;
 /// </summary>
 public class HlslCodeGenerator : IShaderBackend
 {
+    /// <summary>Gets the name of this backend ("HLSL").</summary>
     public string Name => "HLSL";
     
     private readonly StringBuilder _output = new();

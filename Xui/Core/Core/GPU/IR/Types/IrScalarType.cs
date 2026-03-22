@@ -5,10 +5,16 @@ namespace Xui.GPU.IR;
 /// </summary>
 public class IrScalarType : IrType
 {
+    /// <summary>Gets the IR node kind for this type.</summary>
     public override IrNodeKind Kind => IrNodeKind.ScalarType;
+    /// <summary>Gets the display name of this scalar type.</summary>
     public override string Name { get; }
+    /// <summary>Gets the scalar kind.</summary>
     public ScalarKind ScalarKind { get; }
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="IrScalarType"/> with the specified scalar kind.
+    /// </summary>
     public IrScalarType(ScalarKind kind)
     {
         ScalarKind = kind;

@@ -5,5 +5,10 @@ namespace Xui.GPU.IR;
 /// </summary>
 public enum UnaryOperator
 {
-    Negate, LogicalNot, BitwiseNot
+    /// <summary>Arithmetic negation (-).</summary>
+    Negate,
+    /// <summary>Logical NOT (!).</summary>
+    LogicalNot,
+    /// <summary>Bitwise NOT (~).</summary>
+    BitwiseNot
 }
