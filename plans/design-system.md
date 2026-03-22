@@ -199,46 +199,7 @@ extension but keep their visual bounds separate.
 
 ### 2.3 Spotify Paradigm: Same App, Different Idiom
 
-<svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="11">
-  <!-- Mobile -->
-  <rect x="10" y="10" width="140" height="280" rx="18" fill="#111" stroke="#444" stroke-width="1.5"/>
-  <rect x="20" y="20" width="120" height="180" rx="4" fill="#1DB954" opacity=".18"/>
-  <text x="80" y="115" fill="#1DB954" text-anchor="middle" font-size="28">♪</text>
-  <rect x="20" y="208" width="120" height="32" rx="16" fill="#1DB954" opacity=".9"/>
-  <text x="80" y="228" fill="#fff" text-anchor="middle" font-weight="600" font-size="10">▶  PLAY</text>
-  <text x="80" y="265" fill="#888" text-anchor="middle" font-size="9">⊕ Mobile — 44pt buttons</text>
-
-  <!-- Tablet -->
-  <rect x="180" y="30" width="200" height="240" rx="12" fill="#111" stroke="#444" stroke-width="1.5"/>
-  <rect x="180" y="30" width="72" height="240" rx="12" fill="#0a0a0a" stroke="#333" stroke-width="1"/>
-  <text x="216" y="90" fill="#1DB954" text-anchor="middle" font-size="11">Home</text>
-  <text x="216" y="115" fill="#888" text-anchor="middle" font-size="11">Search</text>
-  <text x="216" y="140" fill="#888" text-anchor="middle" font-size="11">Library</text>
-  <rect x="260" y="50" width="108" height="70" rx="4" fill="#1DB954" opacity=".18"/>
-  <text x="314" y="91" fill="#1DB954" text-anchor="middle" font-size="22">♪</text>
-  <rect x="260" y="130" width="108" height="28" rx="14" fill="#1DB954" opacity=".9"/>
-  <text x="314" y="148" fill="#fff" text-anchor="middle" font-weight="600" font-size="10">▶  PLAY</text>
-  <text x="280" y="282" fill="#888" text-anchor="middle" font-size="9">⊕ Tablet — side nav</text>
-
-  <!-- Desktop -->
-  <rect x="410" y="20" width="270" height="260" rx="6" fill="#111" stroke="#444" stroke-width="1.5"/>
-  <rect x="410" y="20" width="80" height="260" rx="6" fill="#0a0a0a" stroke="#333" stroke-width="1"/>
-  <text x="450" y="60" fill="#1DB954" text-anchor="middle" font-size="10" font-weight="600">Home</text>
-  <text x="450" y="80" fill="#888" text-anchor="middle" font-size="10">Search</text>
-  <text x="450" y="100" fill="#888" text-anchor="middle" font-size="10">Library</text>
-  <text x="450" y="120" fill="#888" text-anchor="middle" font-size="10">Liked</text>
-  <!-- content area -->
-  <rect x="498" y="30" width="174" height="100" rx="3" fill="#1a1a1a"/>
-  <text x="585" y="85" fill="#1DB954" text-anchor="middle" font-size="18">♪</text>
-  <!-- dense track list -->
-  <rect x="498" y="138" width="174" height="16" rx="2" fill="#1a1a1a"/>
-  <rect x="498" y="158" width="174" height="16" rx="2" fill="#222"/>
-  <rect x="498" y="178" width="174" height="16" rx="2" fill="#1a1a1a"/>
-  <!-- playback bar -->
-  <rect x="410" y="240" width="270" height="40" rx="0" fill="#181818" stroke="#333" stroke-width=".5"/>
-  <text x="545" y="264" fill="#fff" text-anchor="middle" font-size="11">▶  ⏭  ♡  🔊</text>
-  <text x="545" y="290" fill="#888" text-anchor="middle" font-size="9">⊕ Desktop — dense layout, 8pt hit areas</text>
-</svg>
+![Spotify idiom comparison — Mobile, Tablet, Desktop](design-system/01-spotify-idiom-comparison.svg)
 
 The same `IDesignSystem` feeds all three — only `IDeviceInfo.Idiom` and `MinimumHitTestRadius` change.
 
@@ -270,80 +231,7 @@ Color-scheme relationships:
 | Tetradic | Secondary = H + 90°, Tertiary = H + 180°, Quaternary = H + 270° |
 | Analogous | Secondary = H + 30°, Tertiary = H + 60° |
 
-<svg viewBox="0 0 480 160" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="9">
-  <!-- Title -->
-  <text x="8" y="14" fill="#ccc" font-size="10" font-weight="600">Tonal palette — Primary (blue), Secondary (green), Neutral</text>
-  <!-- Tone labels -->
-  <text x="8"   y="35" fill="#999" text-anchor="middle">0</text>
-  <text x="46"  y="35" fill="#999" text-anchor="middle">10</text>
-  <text x="84"  y="35" fill="#999" text-anchor="middle">20</text>
-  <text x="122" y="35" fill="#999" text-anchor="middle">30</text>
-  <text x="160" y="35" fill="#999" text-anchor="middle">40</text>
-  <text x="198" y="35" fill="#999" text-anchor="middle">50</text>
-  <text x="236" y="35" fill="#999" text-anchor="middle">60</text>
-  <text x="274" y="35" fill="#999" text-anchor="middle">70</text>
-  <text x="312" y="35" fill="#999" text-anchor="middle">80</text>
-  <text x="350" y="35" fill="#999" text-anchor="middle">90</text>
-  <text x="388" y="35" fill="#999" text-anchor="middle">95</text>
-  <text x="426" y="35" fill="#999" text-anchor="middle">99</text>
-  <text x="460" y="35" fill="#999" text-anchor="middle">100</text>
-  <!-- Primary ramp (blue) -->
-  <text x="8" y="62" fill="#ccc" font-size="8">P</text>
-  <rect x="20"  y="42" width="30" height="20" rx="2" fill="#000080"/>
-  <rect x="58"  y="42" width="30" height="20" rx="2" fill="#00008b"/>
-  <rect x="96"  y="42" width="30" height="20" rx="2" fill="#0000cd"/>
-  <rect x="134" y="42" width="30" height="20" rx="2" fill="#1a1aff"/>
-  <rect x="172" y="42" width="30" height="20" rx="2" fill="#4040ff"/>
-  <rect x="210" y="42" width="30" height="20" rx="2" fill="#6060ff"/>
-  <rect x="248" y="42" width="30" height="20" rx="2" fill="#8080ff"/>
-  <rect x="286" y="42" width="30" height="20" rx="2" fill="#9999ff"/>
-  <rect x="324" y="42" width="30" height="20" rx="2" fill="#b3b3ff"/>
-  <rect x="362" y="42" width="30" height="20" rx="2" fill="#ccccff"/>
-  <rect x="400" y="42" width="30" height="20" rx="2" fill="#e0e0ff"/>
-  <rect x="438" y="42" width="30" height="20" rx="2" fill="#f0f0ff"/>
-  <!-- Secondary ramp (green) -->
-  <text x="8" y="90" fill="#ccc" font-size="8">S</text>
-  <rect x="20"  y="70" width="30" height="20" rx="2" fill="#004000"/>
-  <rect x="58"  y="70" width="30" height="20" rx="2" fill="#006000"/>
-  <rect x="96"  y="70" width="30" height="20" rx="2" fill="#008000"/>
-  <rect x="134" y="70" width="30" height="20" rx="2" fill="#1aaa1a"/>
-  <rect x="172" y="70" width="30" height="20" rx="2" fill="#28c028"/>
-  <rect x="210" y="70" width="30" height="20" rx="2" fill="#3dd63d"/>
-  <rect x="248" y="70" width="30" height="20" rx="2" fill="#66e066"/>
-  <rect x="286" y="70" width="30" height="20" rx="2" fill="#80e680"/>
-  <rect x="324" y="70" width="30" height="20" rx="2" fill="#a3f0a3"/>
-  <rect x="362" y="70" width="30" height="20" rx="2" fill="#c0f5c0"/>
-  <rect x="400" y="70" width="30" height="20" rx="2" fill="#d9f9d9"/>
-  <rect x="438" y="70" width="30" height="20" rx="2" fill="#edfaed"/>
-  <!-- Neutral ramp (gray) -->
-  <text x="8" y="118" fill="#ccc" font-size="8">N</text>
-  <rect x="20"  y="98" width="30" height="20" rx="2" fill="#000000"/>
-  <rect x="58"  y="98" width="30" height="20" rx="2" fill="#1a1a1a"/>
-  <rect x="96"  y="98" width="30" height="20" rx="2" fill="#333333"/>
-  <rect x="134" y="98" width="30" height="20" rx="2" fill="#4d4d4d"/>
-  <rect x="172" y="98" width="30" height="20" rx="2" fill="#666666"/>
-  <rect x="210" y="98" width="30" height="20" rx="2" fill="#808080"/>
-  <rect x="248" y="98" width="30" height="20" rx="2" fill="#999999"/>
-  <rect x="286" y="98" width="30" height="20" rx="2" fill="#b3b3b3"/>
-  <rect x="324" y="98" width="30" height="20" rx="2" fill="#cccccc"/>
-  <rect x="362" y="98" width="30" height="20" rx="2" fill="#e0e0e0"/>
-  <rect x="400" y="98" width="30" height="20" rx="2" fill="#f0f0f0"/>
-  <rect x="438" y="98" width="30" height="20" rx="2" fill="#f8f8f8"/>
-  <!-- Accent / data-viz ramp (orange) -->
-  <text x="8" y="146" fill="#ccc" font-size="8">A</text>
-  <rect x="20"  y="126" width="30" height="20" rx="2" fill="#401500"/>
-  <rect x="58"  y="126" width="30" height="20" rx="2" fill="#7a2800"/>
-  <rect x="96"  y="126" width="30" height="20" rx="2" fill="#c04000"/>
-  <rect x="134" y="126" width="30" height="20" rx="2" fill="#e05800"/>
-  <rect x="172" y="126" width="30" height="20" rx="2" fill="#ff7a1a"/>
-  <rect x="210" y="126" width="30" height="20" rx="2" fill="#ff993d"/>
-  <rect x="248" y="126" width="30" height="20" rx="2" fill="#ffb366"/>
-  <rect x="286" y="126" width="30" height="20" rx="2" fill="#ffc080"/>
-  <rect x="324" y="126" width="30" height="20" rx="2" fill="#ffd4a3"/>
-  <rect x="362" y="126" width="30" height="20" rx="2" fill="#ffe4c4"/>
-  <rect x="400" y="126" width="30" height="20" rx="2" fill="#fff0dd"/>
-  <rect x="438" y="126" width="30" height="20" rx="2" fill="#fff8f0"/>
-</svg>
+![Tonal palette ramps — Primary, Secondary, Neutral, Accent](design-system/02-tonal-palette-ramps.svg)
 
 #### 3.1.2 `Color.Oklch` — Perceptual Color Space and Ramps
 
@@ -488,69 +376,7 @@ Container    ←→  OnContainer   (light pair  — use for tinted/highlighted e
 that canvas.  `Surface.Container` is a slightly differentiated alternate fill (e.g. alternating table
 rows, a hover highlight on a list item).
 
-<svg viewBox="0 0 520 200" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="10">
-  <rect width="520" height="200" fill="#f0f0f0" rx="8"/>
-  <text x="12" y="16" fill="#333" font-size="10" font-weight="700">ColorGroup — four-color anatomy (light mode, Primary group)</text>
-
-  <!-- Background swatch -->
-  <rect x="12" y="26" width="110" height="54" rx="6" fill="#4040ff"/>
-  <text x="67" y="48" fill="#fff" text-anchor="middle" font-size="9" font-weight="600">Background</text>
-  <text x="67" y="62" fill="#d0d0ff" text-anchor="middle" font-size="8">Primary ramp @ 0.40</text>
-  <text x="67" y="74" fill="#d0d0ff" text-anchor="middle" font-size="8">→ filled button fill</text>
-
-  <!-- Foreground swatch -->
-  <rect x="132" y="26" width="110" height="54" rx="6" fill="#ffffff" stroke="#e0e0e0" stroke-width="1"/>
-  <text x="187" y="44" fill="#4040ff" text-anchor="middle" font-size="9" font-weight="600">Foreground</text>
-  <text x="187" y="58" fill="#888" text-anchor="middle" font-size="8">Primary ramp @ 1.00</text>
-  <text x="187" y="70" fill="#888" text-anchor="middle" font-size="8">→ label on filled button</text>
-
-  <!-- Connector -->
-  <line x1="122" y1="53" x2="132" y2="53" stroke="#4040ff" stroke-width="1.5" stroke-dasharray="3,2"/>
-  <text x="127" y="49" fill="#4040ff" text-anchor="middle" font-size="8">on</text>
-
-  <!-- Container swatch -->
-  <rect x="12" y="96" width="110" height="54" rx="6" fill="#e0e0ff"/>
-  <text x="67" y="118" fill="#1a1aff" text-anchor="middle" font-size="9" font-weight="600">Container</text>
-  <text x="67" y="132" fill="#4040aa" text-anchor="middle" font-size="8">Primary ramp @ 0.90</text>
-  <text x="67" y="144" fill="#4040aa" text-anchor="middle" font-size="8">→ tonal button / chip</text>
-
-  <!-- OnContainer swatch -->
-  <rect x="132" y="96" width="110" height="54" rx="6" fill="#0a0a60"/>
-  <text x="187" y="118" fill="#e0e0ff" text-anchor="middle" font-size="9" font-weight="600">OnContainer</text>
-  <text x="187" y="132" fill="#9090cc" text-anchor="middle" font-size="8">Primary ramp @ 0.10</text>
-  <text x="187" y="144" fill="#9090cc" text-anchor="middle" font-size="8">→ label on chip</text>
-
-  <!-- Connector -->
-  <line x1="122" y1="123" x2="132" y2="123" stroke="#4040ff" stroke-width="1.5" stroke-dasharray="3,2"/>
-  <text x="127" y="119" fill="#4040ff" text-anchor="middle" font-size="8">on</text>
-
-  <!-- Ramp strip -->
-  <text x="260" y="38" fill="#555" font-size="9" font-weight="600">Underlying OKLCH Ramp (hue 240°)</text>
-  <rect x="260" y="44" width="22" height="100" rx="2" fill="#000080"/>
-  <rect x="284" y="44" width="22" height="100" rx="2" fill="#0000cd"/>
-  <rect x="308" y="44" width="22" height="100" rx="2" fill="#1a1aff"/>
-  <rect x="332" y="44" width="22" height="100" rx="2" fill="#4040ff"/>
-  <rect x="356" y="44" width="22" height="100" rx="2" fill="#8080ff"/>
-  <rect x="380" y="44" width="22" height="100" rx="2" fill="#b3b3ff"/>
-  <rect x="404" y="44" width="22" height="100" rx="2" fill="#e0e0ff"/>
-  <rect x="428" y="44" width="22" height="100" rx="2" fill="#f8f8ff"/>
-  <!-- tone markers -->
-  <line x1="332" y1="44"  x2="332" y2="32"  stroke="#4040ff" stroke-width=".8"/>
-  <text x="332" y="30"  fill="#4040ff" text-anchor="middle" font-size="8">0.40 → Background</text>
-  <line x1="404" y1="44"  x2="460" y2="158" stroke="#aaa" stroke-width=".8"/>
-  <text x="462" y="162" fill="#aaa" font-size="8">0.90 → Container</text>
-  <line x1="260" y1="44"  x2="248" y2="158" stroke="#333" stroke-width=".8"/>
-  <text x="150" y="162" fill="#333" font-size="8">0.10 → OnContainer  |  1.00 → Foreground</text>
-
-  <!-- Ramp index arrows -->
-  <text x="260" y="158" fill="#777" font-size="8">t=0</text>
-  <text x="442" y="158" fill="#777" font-size="8">t=1</text>
-  <text x="350" y="166" fill="#555" text-anchor="middle" font-size="8">Color.Oklch.Between(L=0, L=1)[t]</text>
-
-  <!-- Usage summary box -->
-  <rect x="260" y="172" width="248" height="24" rx="4" fill="#fffbe6" stroke="#f0c000" stroke-width=".8"/>
-  <text x="268" y="186" fill="#7a6000" font-size="8">Primary.Background → filled btn  ·  Primary.Container → chip / tonal btn</text>
-</svg>
+![OKLCH ColorGroup anatomy](design-system/03-oklch-colorgroup-anatomy.svg)
 
 > **Implementation note**: `IColorSystem.GetTonalRamp(hue, chroma)` returns a `Color.Oklch.Ramp`.
 > Each `ColorGroup` also exposes this ramp directly as a `Ramp` property, so widgets can build
@@ -593,25 +419,7 @@ The typography system defines a **scale** of named text styles.  Each style carr
 reflecting the user's platform accessibility font size preference. Widgets multiply every `FontSize` by
 this value.
 
-<svg viewBox="0 0 480 320" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif">
-  <rect width="480" height="320" fill="#0f0f0f" rx="8"/>
-  <text x="16" y="28" fill="#888" font-size="10">Type Scale</text>
-  <text x="16" y="64"  fill="#f0f0f0" font-size="28" font-weight="400">Display — 57 pt</text>
-  <text x="16" y="96"  fill="#f0f0f0" font-size="22" font-weight="400">Headline Large — 32 pt</text>
-  <text x="16" y="122" fill="#f0f0f0" font-size="18" font-weight="400">Headline Medium — 28 pt</text>
-  <text x="16" y="144" fill="#f0f0f0" font-size="15" font-weight="400">Headline Small — 24 pt</text>
-  <text x="16" y="164" fill="#f0f0f0" font-size="14" font-weight="400">Title Large — 22 pt</text>
-  <text x="16" y="182" fill="#f0f0f0" font-size="12" font-weight="500">Title Medium — 16 pt · weight 500</text>
-  <text x="16" y="198" fill="#ccc"    font-size="11" font-weight="500">Title Small — 14 pt · weight 500</text>
-  <text x="16" y="214" fill="#f0f0f0" font-size="11" font-weight="400">Body Large — 16 pt</text>
-  <text x="16" y="229" fill="#ccc"    font-size="10" font-weight="400">Body Medium — 14 pt (default)</text>
-  <text x="16" y="242" fill="#999"    font-size="9"  font-weight="400">Body Small — 12 pt</text>
-  <text x="16" y="257" fill="#e0e0e0" font-size="10" font-weight="500">Label Large — 14 pt · weight 500</text>
-  <text x="16" y="270" fill="#aaa"    font-size="9"  font-weight="500">Label Medium — 12 pt · weight 500</text>
-  <text x="16" y="282" fill="#777"    font-size="8"  font-weight="500">Label Small — 11 pt · weight 500</text>
-  <line x1="16" y1="288" x2="464" y2="288" stroke="#333" stroke-width=".5"/>
-  <text x="16" y="300" fill="#555" font-size="8">All sizes × AccessibilityFontScale (default 1.0)</text>
-</svg>
+![Typography scale](design-system/04-typography-scale.svg)
 
 ---
 
@@ -1113,98 +921,14 @@ Three **importance levels** map to different `ColorGroup` properties:
 
 **Corner radius**: `Shape.Full` (pill) by default.
 
-<svg viewBox="0 0 480 280" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="12">
-  <rect width="480" height="280" fill="#fafafa" rx="8"/>
-  <!-- Section label -->
-  <text x="16" y="20" fill="#444" font-size="10" font-weight="600">Button variants — light theme</text>
-
-  <!-- === Filled (Primary) === -->
-  <text x="16" y="44" fill="#888" font-size="9">Filled (Primary)</text>
-  <!-- Default -->
-  <rect x="16"  y="50" width="80" height="36" rx="18" fill="#4040ff"/>
-  <text x="56"  y="73" fill="#fff" text-anchor="middle" font-weight="600">Action</text>
-  <!-- Hover -->
-  <rect x="108" y="50" width="80" height="36" rx="18" fill="#5555ff"/>
-  <text x="148" y="73" fill="#fff" text-anchor="middle" font-weight="600">Action</text>
-  <text x="148" y="98" fill="#aaa" text-anchor="middle" font-size="8">hover</text>
-  <!-- Pressed -->
-  <rect x="200" y="50" width="80" height="36" rx="18" fill="#3030e0"/>
-  <text x="240" y="73" fill="#fff" text-anchor="middle" font-weight="600">Action</text>
-  <text x="240" y="98" fill="#aaa" text-anchor="middle" font-size="8">pressed</text>
-  <!-- Disabled -->
-  <rect x="292" y="50" width="80" height="36" rx="18" fill="#e0e0e0"/>
-  <text x="332" y="73" fill="#aaa" text-anchor="middle" font-weight="600">Action</text>
-  <text x="332" y="98" fill="#aaa" text-anchor="middle" font-size="8">disabled</text>
-
-  <!-- === Tonal (SecondaryContainer) === -->
-  <text x="16" y="118" fill="#888" font-size="9">Tonal (SecondaryContainer)</text>
-  <rect x="16"  y="124" width="80" height="36" rx="18" fill="#c0f5c0"/>
-  <text x="56"  y="147" fill="#003a00" text-anchor="middle" font-weight="600">Action</text>
-  <rect x="108" y="124" width="80" height="36" rx="18" fill="#d0f8d0"/>
-  <text x="148" y="147" fill="#003a00" text-anchor="middle" font-weight="600">Action</text>
-  <text x="148" y="171" fill="#aaa" text-anchor="middle" font-size="8">hover</text>
-  <rect x="200" y="124" width="80" height="36" rx="18" fill="#aaebaa"/>
-  <text x="240" y="147" fill="#003a00" text-anchor="middle" font-weight="600">Action</text>
-  <text x="240" y="171" fill="#aaa" text-anchor="middle" font-size="8">pressed</text>
-  <rect x="292" y="124" width="80" height="36" rx="18" fill="#f0f0f0"/>
-  <text x="332" y="147" fill="#aaa" text-anchor="middle" font-weight="600">Action</text>
-  <text x="332" y="171" fill="#aaa" text-anchor="middle" font-size="8">disabled</text>
-
-  <!-- === Outlined === -->
-  <text x="16" y="191" fill="#888" font-size="9">Outlined</text>
-  <rect x="16"  y="197" width="80" height="36" rx="18" fill="none" stroke="#4040ff" stroke-width="1.5"/>
-  <text x="56"  y="220" fill="#4040ff" text-anchor="middle" font-weight="600">Action</text>
-  <rect x="108" y="197" width="80" height="36" rx="18" fill="#f0f0ff" stroke="#4040ff" stroke-width="1.5"/>
-  <text x="148" y="220" fill="#4040ff" text-anchor="middle" font-weight="600">Action</text>
-  <text x="148" y="244" fill="#aaa" text-anchor="middle" font-size="8">hover</text>
-  <rect x="200" y="197" width="80" height="36" rx="18" fill="#e0e0ff" stroke="#4040ff" stroke-width="1.5"/>
-  <text x="240" y="220" fill="#4040ff" text-anchor="middle" font-weight="600">Action</text>
-  <text x="240" y="244" fill="#aaa" text-anchor="middle" font-size="8">pressed</text>
-  <rect x="292" y="197" width="80" height="36" rx="18" fill="none" stroke="#ccc" stroke-width="1.5"/>
-  <text x="332" y="220" fill="#aaa" text-anchor="middle" font-weight="600">Action</text>
-  <text x="332" y="244" fill="#aaa" text-anchor="middle" font-size="8">disabled</text>
-
-  <!-- Token legend -->
-  <text x="16"  y="268" fill="#4040ff" font-size="8">■ Primary</text>
-  <text x="76"  y="268" fill="#003a00" font-size="8">■ Primary.Container</text>
-  <text x="176" y="268" fill="#aaa"    font-size="8">■ Disabled state</text>
-</svg>
+![Button variants — Filled, Tonal, Outlined (all states)](design-system/05-button-variants.svg)
 
 #### 5.1.1 Button Group (Segment Control)
 
 Three or more buttons sharing a border, with one marked `IsActive`. The active button uses
 `Primary.Container` fill + `Primary.OnContainer` text; inactive buttons use `Surface.Container`:
 
-<svg viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="12">
-  <rect width="400" height="120" fill="#fafafa" rx="8"/>
-  <text x="16" y="20" fill="#444" font-size="10" font-weight="600">Button Group (Segment Control)</text>
-
-  <!-- Group border -->
-  <rect x="16" y="32" width="234" height="40" rx="20" fill="none" stroke="#c0c0c0" stroke-width="1.5"/>
-  <!-- Inactive left -->
-  <rect x="16" y="32" width="78" height="40" rx="20" fill="#f0f0f0"/>
-  <text x="55" y="57" fill="#444" text-anchor="middle" font-size="12">All</text>
-  <!-- Active middle (Primary.Container) -->
-  <rect x="94" y="32" width="78" height="40" rx="0" fill="#e0e0ff"/>
-  <text x="133" y="57" fill="#1a1aff" text-anchor="middle" font-size="12" font-weight="600">Music</text>
-  <!-- Inactive right -->
-  <rect x="172" y="32" width="78" height="40" rx="20" fill="#f0f0f0"/>
-  <text x="211" y="57" fill="#444" text-anchor="middle" font-size="12">Podcasts</text>
-
-  <!-- Annotation -->
-  <line x1="133" y1="80" x2="133" y2="94" stroke="#666" stroke-width=".8"/>
-  <text x="133" y="105" fill="#666" text-anchor="middle" font-size="9">IsActive → Primary.Container + Primary.OnContainer</text>
-
-  <!-- Dark mode variant -->
-  <rect x="268" y="32" width="114" height="40" rx="20" fill="#1a1a2e" stroke="#333" stroke-width="1"/>
-  <rect x="268" y="32" width="38" height="40" rx="20" fill="#1a1a2e"/>
-  <text x="287" y="57" fill="#888" text-anchor="middle" font-size="12">All</text>
-  <rect x="306" y="32" width="38" height="40" rx="0" fill="#3030a0"/>
-  <text x="325" y="57" fill="#9999ff" text-anchor="middle" font-size="12" font-weight="600">◉</text>
-  <rect x="344" y="32" width="38" height="40" rx="20" fill="#1a1a2e"/>
-  <text x="363" y="57" fill="#888" text-anchor="middle" font-size="12">Pod</text>
-  <text x="325" y="100" fill="#555" text-anchor="middle" font-size="9">dark mode</text>
-</svg>
+![Button Group / Segment Control](design-system/06-button-group-segment-control.svg)
 
 ---
 
@@ -1225,76 +949,13 @@ _errorColor                  = ds.Colors.Error.Background;
 _errorBgColor                = ds.Colors.Error.Container;
 ```
 
-<svg viewBox="0 0 480 240" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="12">
-  <rect width="480" height="240" fill="#fafafa" rx="8"/>
-  <text x="16" y="18" fill="#444" font-size="10" font-weight="600">TextBox states</text>
-
-  <!-- Default -->
-  <text x="16" y="40" fill="#888" font-size="9">Default</text>
-  <rect x="16" y="46" width="200" height="40" rx="4" fill="#fff" stroke="#b0b0b0" stroke-width="1.5"/>
-  <text x="28" y="71" fill="#999" font-size="12">Enter text…</text>
-
-  <!-- Focused -->
-  <text x="240" y="40" fill="#888" font-size="9">Focused</text>
-  <rect x="240" y="46" width="220" height="40" rx="4" fill="#fff" stroke="#4040ff" stroke-width="2"/>
-  <text x="252" y="71" fill="#222" font-size="12">Hello, world</text>
-  <line x1="326" y1="56" x2="326" y2="76" stroke="#4040ff" stroke-width="1.5"/>
-  <text x="350" y="96" fill="#4040ff" font-size="8">Focus ring → Colors.FocusRing</text>
-
-  <!-- Error -->
-  <text x="16" y="114" fill="#888" font-size="9">Error</text>
-  <rect x="16" y="120" width="200" height="40" rx="4" fill="#fff8f8" stroke="#cc0000" stroke-width="1.5"/>
-  <text x="28" y="145" fill="#222" font-size="12">invalid@</text>
-  <text x="16" y="170" fill="#cc0000" font-size="9">⚠  Please enter a valid email address</text>
-  <text x="16" y="182" fill="#aaa" font-size="8">BorderColor → Colors.Error.Background · Helper → Colors.Error.OnContainer</text>
-
-  <!-- Disabled -->
-  <text x="240" y="114" fill="#888" font-size="9">Disabled</text>
-  <rect x="240" y="120" width="220" height="40" rx="4" fill="#f5f5f5" stroke="#e0e0e0" stroke-width="1.5"/>
-  <text x="252" y="145" fill="#bbb" font-size="12">Disabled input</text>
-
-  <!-- Label float animation note -->
-  <rect x="16" y="196" width="440" height="30" rx="4" fill="#f0f0ff"/>
-  <text x="26" y="215" fill="#4040ff" font-size="9">Token path: CornerRadius ← Shape.Small · Padding ← Spacing.M/S · Label ← Typography.BodyMedium · FocusColor ← Colors.FocusRing</text>
-</svg>
+![TextBox states](design-system/07-textbox-states.svg)
 
 ---
 
 ### 5.3 SearchBox — Visual Size vs Hit-Test Area
 
-<svg viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="12">
-  <rect width="480" height="200" fill="#fafafa" rx="8"/>
-  <text x="16" y="18" fill="#444" font-size="10" font-weight="600">SearchBox — hit area expansion</text>
-
-  <!-- Full search bar (desktop) -->
-  <text x="16" y="40" fill="#888" font-size="9">Desktop: full-width search bar</text>
-  <rect x="16" y="46" width="320" height="36" rx="18" fill="#f0f0f0" stroke="#e0e0e0" stroke-width="1"/>
-  <text x="42" y="69" fill="#333" font-size="13">🔍</text>
-  <text x="60" y="69" fill="#888" font-size="12">Search…</text>
-
-  <!-- Icon-only mode (mobile dense header) -->
-  <text x="16" y="110" fill="#888" font-size="9">Mobile: icon-only — small visual (16pt) · large hit area (44pt)</text>
-  <!-- Hit area indicator -->
-  <rect x="28" y="118" width="44" height="44" rx="22" fill="#4040ff" opacity=".08" stroke="#4040ff" stroke-width=".8" stroke-dasharray="3,2"/>
-  <!-- Visual icon -->
-  <rect x="44" y="134" width="16" height="16" rx="4" fill="none" stroke="#444" stroke-width="1.5"/>
-  <line x1="57" y1="147" x2="63" y2="153" stroke="#444" stroke-width="1.5" stroke-linecap="round"/>
-  <circle cx="51" cy="141" r="5" fill="none" stroke="#444" stroke-width="1.5"/>
-  <!-- Label hit area -->
-  <text x="90" y="138" fill="#aaa" font-size="9">Hit area = 44 × 44 pt (MinimumHitTestRadius × 2)</text>
-  <text x="90" y="152" fill="#aaa" font-size="9">Visual icon = 16 × 16 pt</text>
-  <text x="90" y="166" fill="#aaa" font-size="9">Hit area is transparent, extends symmetrically</text>
-
-  <!-- Annotation lines -->
-  <line x1="28"  y1="140" x2="28"  y2="170" stroke="#4040ff" stroke-width=".5" stroke-dasharray="2,2"/>
-  <line x1="72"  y1="140" x2="72"  y2="170" stroke="#4040ff" stroke-width=".5" stroke-dasharray="2,2"/>
-  <line x1="44"  y1="185" x2="44"  y2="170" stroke="#aaa" stroke-width=".5"/>
-  <line x1="60"  y1="185" x2="60"  y2="170" stroke="#aaa" stroke-width=".5"/>
-  <line x1="28"  y1="175" x2="72"  y2="175" stroke="#4040ff" stroke-width=".8"/>
-  <text x="50"   y="188"  fill="#4040ff" text-anchor="middle" font-size="8">44 pt</text>
-  <line x1="44"  y1="180" x2="60"  y2="180" stroke="#aaa" stroke-width=".8"/>
-  <text x="52"   y="192"  fill="#aaa" text-anchor="middle" font-size="7">16 pt</text>
-</svg>
+![SearchBox — visual size vs hit-test area](design-system/08-searchbox-hit-area.svg)
 
 ---
 
@@ -1302,57 +963,7 @@ _errorBgColor                = ds.Colors.Error.Container;
 
 #### Bottom navigation (mobile) vs Navigation rail (desktop/tablet)
 
-<svg viewBox="0 0 560 300" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="11">
-  <!-- Mobile -->
-  <rect x="10" y="10" width="160" height="280" rx="16" fill="#fafafa" stroke="#ddd" stroke-width="1.5"/>
-  <!-- Content area placeholder -->
-  <rect x="18" y="18" width="144" height="210" rx="4" fill="#f5f5f5"/>
-  <text x="90" y="120" fill="#ccc" text-anchor="middle" font-size="9">Content</text>
-  <!-- Bottom nav -->
-  <rect x="10" y="228" width="160" height="62" rx="0" fill="#fff" stroke="#eee" stroke-width="1"/>
-  <rect x="10" y="252" width="160" height="38" rx="0" fill="#fff"/>
-  <!-- Icons -->
-  <text x="40"  y="248" fill="#4040ff" text-anchor="middle" font-size="16">⌂</text>
-  <text x="90"  y="248" fill="#aaa"    text-anchor="middle" font-size="16">♪</text>
-  <text x="140" y="248" fill="#aaa"    text-anchor="middle" font-size="16">☰</text>
-  <!-- Indicator pill -->
-  <rect x="22" y="252" width="36" height="4" rx="2" fill="#4040ff"/>
-  <!-- Labels -->
-  <text x="40"  y="268" fill="#4040ff" text-anchor="middle" font-size="8" font-weight="600">Home</text>
-  <text x="90"  y="268" fill="#aaa"    text-anchor="middle" font-size="8">Explore</text>
-  <text x="140" y="268" fill="#aaa"    text-anchor="middle" font-size="8">Library</text>
-  <text x="90"  y="294" fill="#888"    text-anchor="middle" font-size="8">Bottom nav — DeviceIdiom.Mobile</text>
-
-  <!-- Tablet -->
-  <rect x="196" y="10" width="220" height="280" rx="10" fill="#fafafa" stroke="#ddd" stroke-width="1.5"/>
-  <!-- Left rail -->
-  <rect x="196" y="10" width="72" height="280" rx="10" fill="#fff" stroke="#eee" stroke-width="1"/>
-  <!-- Active pill -->
-  <rect x="202" y="46" width="60" height="36" rx="18" fill="#e0e0ff"/>
-  <text x="232" y="68" fill="#1a1aff" text-anchor="middle" font-size="14">⌂</text>
-  <!-- Other items -->
-  <text x="232" y="108" fill="#aaa"    text-anchor="middle" font-size="14">♪</text>
-  <text x="232" y="148" fill="#aaa"    text-anchor="middle" font-size="14">☰</text>
-  <text x="232" y="188" fill="#aaa"    text-anchor="middle" font-size="14">⚙</text>
-  <!-- Content area -->
-  <rect x="276" y="18" width="130" height="264" rx="4" fill="#f5f5f5"/>
-  <text x="341" y="150" fill="#ccc" text-anchor="middle" font-size="9">Content</text>
-  <text x="306" y="294" fill="#888" text-anchor="middle" font-size="8">Nav rail — DeviceIdiom.Tablet</text>
-
-  <!-- Desktop -->
-  <rect x="440" y="10" width="110" height="280" rx="6" fill="#fafafa" stroke="#ddd" stroke-width="1.5"/>
-  <rect x="440" y="10" width="34" height="280" rx="6" fill="#fff" stroke="#eee" stroke-width="1"/>
-  <!-- Expanded rail with labels -->
-  <rect x="443" y="46" width="28" height="28" rx="14" fill="#e0e0ff"/>
-  <text x="457" y="64" fill="#1a1aff" text-anchor="middle" font-size="11">⌂</text>
-  <text x="457" y="88"  fill="#aaa" text-anchor="middle" font-size="11">♪</text>
-  <text x="457" y="116" fill="#aaa" text-anchor="middle" font-size="11">☰</text>
-  <text x="457" y="144" fill="#aaa" text-anchor="middle" font-size="11">⚙</text>
-  <!-- Content -->
-  <rect x="482" y="18" width="60" height="264" rx="3" fill="#f5f5f5"/>
-  <text x="512" y="150" fill="#ccc" text-anchor="middle" font-size="8">Content</text>
-  <text x="495" y="294" fill="#888" text-anchor="middle" font-size="8">Desktop</text>
-</svg>
+![Navigation patterns — Mobile bottom nav, Tablet rail, Desktop rail](design-system/09-navigation-patterns.svg)
 
 ---
 
@@ -1361,57 +972,7 @@ _errorBgColor                = ds.Colors.Error.Container;
 Cards are the primary container that elevates content above the `Application.Background`. They use
 `Surface.Background` as fill. Buttons inside the card use `Primary.Background`.
 
-<svg viewBox="0 0 540 320" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="11">
-  <rect width="540" height="320" fill="#f0f0f0" rx="8"/>
-  <text x="14" y="16" fill="#333" font-size="10" font-weight="700">Card variants — Surface.Background / Application.Background relationship</text>
-
-  <!-- App background -->
-  <rect x="14" y="24" width="512" height="288" rx="6" fill="#f8f8f8" stroke="#e0e0e0" stroke-width="1"/>
-  <text x="26" y="40" fill="#999" font-size="8">Application.Background (Neutral 0.99)</text>
-
-  <!-- Plain card -->
-  <rect x="26" y="48" width="150" height="180" rx="12" fill="#ffffff" stroke="#ececec" stroke-width="1"/>
-  <text x="40" y="68" fill="#888" font-size="8">Surface.Background</text>
-  <!-- image placeholder -->
-  <rect x="36" y="76" width="130" height="70" rx="6" fill="#e8e8ff"/>
-  <text x="101" y="116" fill="#9090cc" text-anchor="middle" font-size="18">♪</text>
-  <!-- text -->
-  <text x="36" y="162" fill="#222" font-size="11" font-weight="600">Song Title</text>
-  <text x="36" y="177" fill="#888" font-size="9">Artist Name</text>
-  <!-- button -->
-  <rect x="36" y="188" width="80" height="28" rx="14" fill="#4040ff"/>
-  <text x="76" y="206" fill="#fff" text-anchor="middle" font-size="9" font-weight="600">▶  Play</text>
-  <text x="26" y="240" fill="#4040ff" font-size="7">Primary.Background → btn fill</text>
-
-  <!-- Tonal/elevated card -->
-  <rect x="192" y="48" width="150" height="180" rx="12" fill="#eeeeff" stroke="#d8d8ff" stroke-width="1"/>
-  <text x="206" y="68" fill="#6666cc" font-size="8">Surface.Container (selected/active)</text>
-  <rect x="202" y="76" width="130" height="70" rx="6" fill="#d8d8ff"/>
-  <text x="267" y="116" fill="#4040aa" text-anchor="middle" font-size="18">♪</text>
-  <text x="202" y="162" fill="#1a1aff" font-size="11" font-weight="600">Song Title</text>
-  <text x="202" y="177" fill="#6666aa" font-size="9">Artist Name</text>
-  <rect x="202" y="188" width="80" height="28" rx="14" fill="#0a0a60"/>
-  <text x="242" y="206" fill="#e0e0ff" text-anchor="middle" font-size="9" font-weight="600">▶  Play</text>
-  <text x="192" y="240" fill="#4040ff" font-size="7">Primary.OnContainer → btn fill (on tinted surface)</text>
-
-  <!-- Error/warning card -->
-  <rect x="358" y="48" width="150" height="140" rx="12" fill="#fff8f8" stroke="#ffcccc" stroke-width="1.5"/>
-  <text x="372" y="68" fill="#cc0000" font-size="8">Error.Container</text>
-  <text x="372" y="86" fill="#880000" font-size="9" font-weight="600">⚠  Upload failed</text>
-  <text x="372" y="101" fill="#aa4444" font-size="8">File too large (max 10 MB).</text>
-  <text x="372" y="114" fill="#aa4444" font-size="8">Try compressing it first.</text>
-  <rect x="372" y="124" width="70" height="24" rx="12" fill="#cc0000"/>
-  <text x="407" y="140" fill="#fff" text-anchor="middle" font-size="8" font-weight="600">Retry</text>
-  <rect x="448" y="124" width="50" height="24" rx="12" fill="none" stroke="#cc0000" stroke-width="1.2"/>
-  <text x="473" y="140" fill="#cc0000" text-anchor="middle" font-size="8">Dismiss</text>
-  <text x="358" y="205" fill="#cc0000" font-size="7">Error.Container bg · Error.Background btn · Error.Foreground label</text>
-
-  <!-- Token guide strip -->
-  <rect x="14" y="272" width="512" height="36" rx="4" fill="#fffbe6" stroke="#f0c000" stroke-width=".8"/>
-  <text x="22" y="284" fill="#7a6000" font-size="8" font-weight="600">ColorGroup usage guide:</text>
-  <text x="22" y="296" fill="#7a6000" font-size="8">Application.Background = screen canvas  ·  Surface.Background = card  ·  Surface.Container = highlighted card  ·  Primary.Background = action button</text>
-  <text x="22" y="308" fill="#7a6000" font-size="8">Primary.Container = tonal chip/badge  ·  Error.Container = error card bg  ·  Error.Background = destructive button fill</text>
-</svg>
+![Cards — Surface ColorGroup in action](design-system/10-cards.svg)
 
 ---
 
@@ -1420,68 +981,7 @@ Cards are the primary container that elevates content above the `Application.Bac
 A form groups labels, inputs, and helper/error text. Every element resolves its color from the same
 `IDesignSystem` instance queried once in `OnAttach`.
 
-<svg viewBox="0 0 520 432" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="11">
-  <rect width="520" height="432" fill="#fafafa" rx="8"/>
-  <text x="14" y="16" fill="#333" font-size="10" font-weight="700">Form layout — design system token flow per element</text>
-
-  <!-- Labels -->
-  <text x="14" y="38" fill="#333" font-size="9" font-weight="600">Full name</text>
-  <text x="280" y="38" fill="#333" font-size="9" font-weight="600">Email address</text>
-
-  <!-- Input row 1 -->
-  <rect x="14" y="44" width="244" height="36" rx="4" fill="#fff" stroke="#b0b0b0" stroke-width="1.2"/>
-  <text x="26" y="67" fill="#222" font-size="11">Jane Appleseed</text>
-  <rect x="268" y="44" width="238" height="36" rx="4" fill="#fff" stroke="#4040ff" stroke-width="2"/>
-  <text x="280" y="67" fill="#222" font-size="11">jane@example.com</text>
-  <!-- focus cursor -->
-  <line x1="374" y1="52" x2="374" y2="72" stroke="#4040ff" stroke-width="1.5"/>
-
-  <!-- Token annotations row 1 -->
-  <text x="14"  y="92" fill="#999" font-size="8">Outline border  ·  Surface.Background fill  ·  Application.Foreground text</text>
-  <text x="268" y="92" fill="#4040ff" font-size="8">FocusRing border  ·  Accent.Background cursor</text>
-
-  <!-- Password row -->
-  <text x="14" y="112" fill="#333" font-size="9" font-weight="600">Password</text>
-  <rect x="14" y="118" width="492" height="36" rx="4" fill="#fff" stroke="#b0b0b0" stroke-width="1.2"/>
-  <text x="26" y="141" fill="#222" font-size="11">●●●●●●●●</text>
-  <text x="480" y="141" fill="#888" font-size="11">👁</text>
-  <text x="14" y="164" fill="#999" font-size="8">Outline border  ·  Surface.Background fill  ·  Application.Foreground placeholder  ·  icon from IIconSystem</text>
-
-  <!-- Error field -->
-  <text x="14" y="184" fill="#333" font-size="9" font-weight="600">Phone number</text>
-  <rect x="14" y="190" width="492" height="36" rx="4" fill="#fff8f8" stroke="#cc0000" stroke-width="1.5"/>
-  <text x="26" y="213" fill="#222" font-size="11">+1 (555) 000-BAD</text>
-  <text x="14" y="238" fill="#cc0000" font-size="8">⚠  Please enter a valid phone number</text>
-  <text x="14" y="250" fill="#999" font-size="8">Error.Background border  ·  Error.Container background  ·  Error.Foreground helper text</text>
-
-  <!-- Divider -->
-  <line x1="14" y1="262" x2="506" y2="262" stroke="#e0e0e0" stroke-width=".8"/>
-  <text x="14" y="276" fill="#555" font-size="9" font-weight="600">Notifications</text>
-
-  <!-- Toggle row 1 (on) -->
-  <text x="14" y="298" fill="#222" font-size="10">Email notifications</text>
-  <text x="14" y="311" fill="#888" font-size="8">Receive updates about activity</text>
-  <!-- Toggle ON -->
-  <rect x="454" y="288" width="44" height="24" rx="12" fill="#4040ff"/>
-  <circle cx="466" cy="300" r="9" fill="#fff"/>
-  <text x="480" y="316" fill="#4040ff" font-size="8" text-anchor="middle">ON</text>
-
-  <!-- Toggle row 2 (off) -->
-  <text x="14" y="335" fill="#222" font-size="10">Push notifications</text>
-  <text x="14" y="348" fill="#888" font-size="8">Require device permission</text>
-  <!-- Toggle OFF -->
-  <rect x="454" y="325" width="44" height="24" rx="12" fill="#c0c0c0"/>
-  <circle cx="490" cy="337" r="9" fill="#fff"/>
-  <text x="476" y="353" fill="#888" font-size="8" text-anchor="middle">OFF</text>
-
-  <!-- Token annotations toggle -->
-  <text x="14" y="368" fill="#4040ff" font-size="8">ON: Primary.Background track  ·  Surface.Background thumb</text>
-  <text x="14" y="380" fill="#888"    font-size="8">OFF: Surface.Container track  ·  Surface.Background thumb</text>
-
-  <!-- Submit button -->
-  <rect x="14" y="386" width="120" height="36" rx="18" fill="#4040ff"/>
-  <text x="74" y="409" fill="#fff" text-anchor="middle" font-size="11" font-weight="600">Save changes</text>
-</svg>
+![Form layout — token flow across grouped inputs](design-system/11-form-layout.svg)
 
 ---
 
@@ -1497,54 +997,7 @@ The toggle (on/off switch) demonstrates how a single `ColorGroup` drives all vis
 | On + hover | `Primary.Ramp[0.48f]` | `Primary.Foreground` |
 | Disabled | `OutlineVariant` | `Surface.Background` |
 
-<svg viewBox="0 0 480 160" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="11">
-  <rect width="480" height="160" fill="#fafafa" rx="8"/>
-  <text x="14" y="16" fill="#333" font-size="10" font-weight="700">Toggle states</text>
-
-  <!-- OFF -->
-  <text x="14" y="42" fill="#888" font-size="9">Off</text>
-  <rect x="14" y="50" width="44" height="24" rx="12" fill="#c8c8c8"/>
-  <circle cx="50" cy="62" r="9" fill="#fff"/>
-
-  <!-- OFF hover -->
-  <text x="72" y="42" fill="#888" font-size="9">Off hover</text>
-  <rect x="72" y="50" width="44" height="24" rx="12" fill="#b8b8b8"/>
-  <circle cx="108" cy="62" r="9" fill="#fff"/>
-
-  <!-- ON -->
-  <text x="130" y="42" fill="#888" font-size="9">On</text>
-  <rect x="130" y="50" width="44" height="24" rx="12" fill="#4040ff"/>
-  <circle cx="162" cy="62" r="9" fill="#fff"/>
-
-  <!-- ON hover -->
-  <text x="188" y="42" fill="#888" font-size="9">On hover</text>
-  <rect x="188" y="50" width="44" height="24" rx="12" fill="#5555ff"/>
-  <circle cx="220" cy="62" r="9" fill="#fff"/>
-
-  <!-- Disabled OFF -->
-  <text x="246" y="42" fill="#888" font-size="9">Disabled off</text>
-  <rect x="246" y="50" width="44" height="24" rx="12" fill="#e8e8e8"/>
-  <circle cx="282" cy="62" r="9" fill="#f8f8f8"/>
-
-  <!-- Disabled ON -->
-  <text x="304" y="42" fill="#888" font-size="9">Disabled on</text>
-  <rect x="304" y="50" width="44" height="24" rx="12" fill="#b0b0f0"/>
-  <circle cx="336" cy="62" r="9" fill="#f0f0ff"/>
-
-  <!-- Dark mode row -->
-  <rect x="14" y="90" width="450" height="58" rx="6" fill="#111"/>
-
-  <text x="22" y="107" fill="#888" font-size="8">dark mode</text>
-  <!-- OFF dark -->
-  <rect x="22" y="112" width="44" height="24" rx="12" fill="#444"/>
-  <circle cx="58" cy="124" r="9" fill="#999"/>
-  <!-- ON dark -->
-  <rect x="80" y="112" width="44" height="24" rx="12" fill="#9999ff"/>
-  <circle cx="112" cy="124" r="9" fill="#1a1aff"/>
-
-  <text x="140" y="120" fill="#555" font-size="8">OFF: Surface.Container(dark)  ·  thumb: Outline(dark)</text>
-  <text x="140" y="134" fill="#9999ff" font-size="8">ON:  Primary.Background(dark)  ·  thumb: Primary.OnContainer(dark)</text>
-</svg>
+![Toggle / Switch states](design-system/12-toggle-switch-states.svg)
 
 ---
 
@@ -1553,61 +1006,7 @@ The toggle (on/off switch) demonstrates how a single `ColorGroup` drives all vis
 Chips are the canonical use of `Container + OnContainer` within a `ColorGroup`. They show
 classification, filter state, or attribute labels.
 
-<svg viewBox="0 0 520 200" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="11">
-  <rect width="520" height="200" fill="#fafafa" rx="8"/>
-  <text x="14" y="16" fill="#333" font-size="10" font-weight="700">Chip / Tag variants</text>
-
-  <!-- Row 1: filter chips -->
-  <text x="14" y="38" fill="#888" font-size="9">Filter chips</text>
-
-  <!-- Primary container chip (selected) -->
-  <rect x="14" y="46" width="72" height="28" rx="14" fill="#e0e0ff"/>
-  <text x="50" y="64" fill="#1a1aff" text-anchor="middle" font-size="10" font-weight="600">✓  Music</text>
-
-  <!-- Surface chip (unselected) -->
-  <rect x="94" y="46" width="80" height="28" rx="14" fill="#f0f0f0" stroke="#c8c8c8" stroke-width="1"/>
-  <text x="134" y="64" fill="#444" text-anchor="middle" font-size="10">Podcasts</text>
-
-  <!-- Surface chip -->
-  <rect x="182" y="46" width="72" height="28" rx="14" fill="#f0f0f0" stroke="#c8c8c8" stroke-width="1"/>
-  <text x="218" y="64" fill="#444" text-anchor="middle" font-size="10">Video</text>
-
-  <!-- Secondary container chip -->
-  <rect x="262" y="46" width="76" height="28" rx="14" fill="#d9f9d9"/>
-  <text x="300" y="64" fill="#003a00" text-anchor="middle" font-size="10" font-weight="600">✓  Live</text>
-
-  <!-- Token note -->
-  <text x="14" y="90" fill="#4040ff" font-size="8">Selected: Primary.Container bg · Primary.OnContainer text</text>
-  <text x="14" y="102" fill="#888"   font-size="8">Unselected: Surface.Container bg · Application.Foreground text · Outline border</text>
-
-  <!-- Row 2: label tags -->
-  <text x="14" y="124" fill="#888" font-size="9">Status tags (read-only)</text>
-  <rect x="14"  y="132" width="56" height="22" rx="4" fill="#d9f9d9"/>
-  <text x="42"  y="147" fill="#003a00" text-anchor="middle" font-size="9" font-weight="600">Active</text>
-  <rect x="78"  y="132" width="60" height="22" rx="4" fill="#fff0dd"/>
-  <text x="108" y="147" fill="#7a4000" text-anchor="middle" font-size="9" font-weight="600">Pending</text>
-  <rect x="146" y="132" width="56" height="22" rx="4" fill="#ffe0e0"/>
-  <text x="174" y="147" fill="#880000" text-anchor="middle" font-size="9" font-weight="600">Error</text>
-  <rect x="210" y="132" width="64" height="22" rx="4" fill="#e8e8ff"/>
-  <text x="242" y="147" fill="#1a1aff" text-anchor="middle" font-size="9" font-weight="600">Featured</text>
-  <rect x="282" y="132" width="56" height="22" rx="4" fill="#f0f0f0"/>
-  <text x="310" y="147" fill="#666" text-anchor="middle" font-size="9">Inactive</text>
-
-  <!-- Token note row 2 -->
-  <text x="14" y="172" fill="#1DB954" font-size="8">Secondary.Container · Error.Container · Primary.Container (each with On-variant text)</text>
-  <text x="14" y="184" fill="#888"   font-size="8">Small radius → Shape.Small  ·  Larger radius (pill) → Shape.Full</text>
-
-  <!-- Chip with close icon -->
-  <rect x="14"  y="160" width="96" height="28" rx="14" fill="#e0e0ff"/>
-  <text x="50"  y="178" fill="#1a1aff" text-anchor="middle" font-size="10" font-weight="600">Music</text>
-  <circle cx="99" cy="174" r="8" fill="#c0c0f0"/>
-  <text x="99"  y="178" fill="#4040aa" text-anchor="middle" font-size="10">×</text>
-
-  <rect x="118" y="160" width="96" height="28" rx="14" fill="#d9f9d9"/>
-  <text x="154" y="178" fill="#003a00" text-anchor="middle" font-size="10" font-weight="600">Podcast</text>
-  <circle cx="203" cy="174" r="8" fill="#b0ebb0"/>
-  <text x="203" y="178" fill="#005000" text-anchor="middle" font-size="10">×</text>
-</svg>
+![Chips / Tags](design-system/13-chips-tags.svg)
 
 ---
 
@@ -1616,45 +1015,7 @@ classification, filter state, or attribute labels.
 A dialog sits above the application layer. Its scrim uses `Application.Background` at reduced opacity;
 the dialog surface uses `Surface.Background` elevated via a subtle shadow.
 
-<svg viewBox="0 0 520 300" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="11">
-  <rect width="520" height="300" fill="#e8e8e8" rx="8"/>
-
-  <!-- App content (dimmed) -->
-  <rect x="0" y="0" width="520" height="300" fill="#fafafa" rx="8" opacity=".3"/>
-
-  <!-- Scrim -->
-  <rect x="0" y="0" width="520" height="300" fill="#000" opacity=".35" rx="8"/>
-  <text x="260" y="290" fill="#ffffff" text-anchor="middle" font-size="8" opacity=".5">Scrim: Application.Background @ 35% opacity</text>
-
-  <!-- Dialog surface -->
-  <filter id="shadow"><feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#00000044"/></filter>
-  <rect x="110" y="40" width="300" height="216" rx="16" fill="#ffffff" filter="url(#shadow)"/>
-
-  <!-- Dialog header -->
-  <text x="130" y="72" fill="#111" font-size="13" font-weight="600">Discard changes?</text>
-
-  <!-- Dialog body -->
-  <text x="130" y="94"  fill="#555" font-size="10">You have unsaved changes. Leaving this</text>
-  <text x="130" y="108" fill="#555" font-size="10">page will discard them permanently.</text>
-
-  <!-- Divider -->
-  <line x1="110" y1="124" x2="410" y2="124" stroke="#e8e8e8" stroke-width=".8"/>
-
-  <!-- Checkbox row -->
-  <rect x="130" y="132" width="14" height="14" rx="3" fill="none" stroke="#b0b0b0" stroke-width="1.5"/>
-  <text x="152" y="144" fill="#555" font-size="10">Don't ask me again</text>
-
-  <!-- Action row -->
-  <rect x="130" y="174" width="100" height="34" rx="17" fill="none" stroke="#4040ff" stroke-width="1.5"/>
-  <text x="180" y="196" fill="#4040ff" text-anchor="middle" font-size="11" font-weight="600">Keep editing</text>
-
-  <rect x="244" y="174" width="100" height="34" rx="17" fill="#4040ff"/>
-  <text x="294" y="196" fill="#fff" text-anchor="middle" font-size="11" font-weight="600">Discard</text>
-
-  <!-- Token labels -->
-  <text x="130" y="230" fill="#999" font-size="8">Surface.Background fill  ·  Shape.ExtraLarge radius  ·  elevation via shadow</text>
-  <text x="130" y="242" fill="#4040ff" font-size="8">Primary.Background filled btn  ·  Primary.Background outlined btn</text>
-</svg>
+![Dialog / Modal](design-system/14-dialog-modal.svg)
 
 ---
 
@@ -1663,162 +1024,19 @@ the dialog surface uses `Surface.Background` elevated via a subtle shadow.
 List rows use `Application.Background` for the container and `Surface.Container` for hover/selection
 highlights. Density adapts via `Spacing` tokens driven by `DeviceIdiom`.
 
-<svg viewBox="0 0 520 300" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="11">
-  <rect width="520" height="300" fill="#fafafa" rx="8"/>
-  <text x="14" y="16" fill="#333" font-size="10" font-weight="700">List row density — Mobile (comfortable) vs Desktop (compact)</text>
-
-  <!-- === Mobile comfortable rows === -->
-  <text x="14" y="34" fill="#888" font-size="9">Mobile — comfortable density (Spacing.L padding, 56 pt row height)</text>
-
-  <!-- Row 1: default -->
-  <rect x="14" y="40" width="220" height="52" rx="0" fill="#fff" stroke="#f0f0f0" stroke-width=".8"/>
-  <rect x="24" y="52" width="28" height="28" rx="14" fill="#e0e0ff"/>
-  <text x="38" y="70" fill="#4040ff" text-anchor="middle" font-size="14">♪</text>
-  <text x="62" y="62" fill="#222" font-size="11" font-weight="600">Song Title</text>
-  <text x="62" y="76" fill="#888" font-size="9">Artist · 3:24</text>
-  <text x="218" y="66" fill="#bbb" text-anchor="end" font-size="14">⋮</text>
-
-  <!-- Row 2: hover / selected -->
-  <rect x="14" y="92" width="220" height="52" rx="0" fill="#eeeeff" stroke="#d0d0ff" stroke-width=".8"/>
-  <rect x="24" y="104" width="28" height="28" rx="14" fill="#c0c0ff"/>
-  <text x="38" y="122" fill="#1a1aff" text-anchor="middle" font-size="14">♪</text>
-  <text x="62" y="114" fill="#1a1aff" font-size="11" font-weight="600">Playing Now</text>
-  <text x="62" y="128" fill="#6666aa" font-size="9">Artist · 1:12 / 3:24</text>
-  <text x="218" y="118" fill="#4040ff" text-anchor="end" font-size="14">⏸</text>
-  <text x="14" y="156" fill="#4040ff" font-size="8">Selected: Surface.Container bg · Primary.Background icon</text>
-
-  <!-- === Desktop compact rows === -->
-  <text x="266" y="34" fill="#888" font-size="9">Desktop — compact density (Spacing.S padding, 28 pt row height)</text>
-
-  <rect x="266" y="40" width="240" height="28" rx="0" fill="#fff" stroke="#f0f0f0" stroke-width=".8"/>
-  <text x="278" y="59" fill="#444" font-size="11">♪</text>
-  <text x="298" y="59" fill="#222" font-size="11">Song Title</text>
-  <text x="440" y="59" fill="#888" text-anchor="end" font-size="9">Artist</text>
-  <text x="494" y="59" fill="#888" text-anchor="end" font-size="9">3:24</text>
-
-  <rect x="266" y="68" width="240" height="28" rx="0" fill="#eeeeff" stroke="#d0d0ff" stroke-width=".8"/>
-  <text x="278" y="87" fill="#4040ff" font-size="11">▶</text>
-  <text x="298" y="87" fill="#1a1aff" font-size="11" font-weight="600">Playing Now</text>
-  <text x="440" y="87" fill="#6666aa" text-anchor="end" font-size="9">Artist</text>
-  <text x="494" y="87" fill="#6666aa" text-anchor="end" font-size="9">1:12</text>
-
-  <rect x="266" y="96" width="240" height="28" rx="0" fill="#fff" stroke="#f0f0f0" stroke-width=".8"/>
-  <text x="278" y="115" fill="#444" font-size="11">♪</text>
-  <text x="298" y="115" fill="#222" font-size="11">Another Song</text>
-  <text x="440" y="115" fill="#888" text-anchor="end" font-size="9">Artist B</text>
-  <text x="494" y="115" fill="#888" text-anchor="end" font-size="9">4:05</text>
-
-  <text x="266" y="140" fill="#aaa" font-size="8">Row height: 52 pt (mobile) vs 28 pt (desktop)</text>
-  <text x="266" y="152" fill="#aaa" font-size="8">Spacing.L H-padding (mobile) vs Spacing.S (desktop)</text>
-
-  <!-- Divider -->
-  <line x1="14" y1="168" x2="506" y2="168" stroke="#e8e8e8" stroke-width=".8"/>
-
-  <!-- Token summary -->
-  <text x="14"  y="186" fill="#333" font-size="9" font-weight="600">Token flow for a list row:</text>
-  <text x="14"  y="200" fill="#888" font-size="8">background       = Application.Background (default) or Surface.Container (selected)</text>
-  <text x="14"  y="212" fill="#888" font-size="8">primary label    = Application.Foreground  ·  secondary label = Surface.Foreground</text>
-  <text x="14"  y="224" fill="#888" font-size="8">icon background  = Primary.Container       ·  icon tint      = Primary.OnContainer</text>
-  <text x="14"  y="236" fill="#888" font-size="8">selected icon    = Primary.Background      ·  playing tint   = Primary.Background</text>
-  <text x="14"  y="248" fill="#888" font-size="8">row height       = Spacing.XXXL (mobile) or Spacing.XXL (desktop) — driven by DeviceIdiom</text>
-  <text x="14"  y="260" fill="#888" font-size="8">h-padding        = Spacing.L (mobile) or Spacing.S (desktop)</text>
-</svg>
+![List rows — density comparison (Mobile vs Desktop)](design-system/15-list-rows-density.svg)
 
 ---
 
 ### 5.11 Data Visualization Color Series
 
-<svg viewBox="0 0 480 60" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="9">
-  <rect width="480" height="60" fill="#fafafa" rx="6"/>
-  <text x="12" y="14" fill="#444" font-size="10" font-weight="600">DataViz palette — 8 series colors</text>
-  <rect x="12"  y="22" width="44" height="28" rx="4" fill="#4040ff"/>
-  <rect x="62"  y="22" width="44" height="28" rx="4" fill="#1DB954"/>
-  <rect x="112" y="22" width="44" height="28" rx="4" fill="#ff7a1a"/>
-  <rect x="162" y="22" width="44" height="28" rx="4" fill="#e03060"/>
-  <rect x="212" y="22" width="44" height="28" rx="4" fill="#9b59b6"/>
-  <rect x="262" y="22" width="44" height="28" rx="4" fill="#00bcd4"/>
-  <rect x="312" y="22" width="44" height="28" rx="4" fill="#f0c040"/>
-  <rect x="362" y="22" width="44" height="28" rx="4" fill="#795548"/>
-  <text x="34"  y="58" fill="#666" text-anchor="middle">D[0]</text>
-  <text x="84"  y="58" fill="#666" text-anchor="middle">D[1]</text>
-  <text x="134" y="58" fill="#666" text-anchor="middle">D[2]</text>
-  <text x="184" y="58" fill="#666" text-anchor="middle">D[3]</text>
-  <text x="234" y="58" fill="#666" text-anchor="middle">D[4]</text>
-  <text x="284" y="58" fill="#666" text-anchor="middle">D[5]</text>
-  <text x="334" y="58" fill="#666" text-anchor="middle">D[6]</text>
-  <text x="384" y="58" fill="#666" text-anchor="middle">D[7]</text>
-</svg>
+![DataViz palette — 8 series colors](design-system/16-dataviz-palette.svg)
 
 ---
 
 ### 5.12 Full Component Anatomy
 
-<svg viewBox="0 0 480 340" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="10">
-  <rect width="480" height="340" fill="#f8f8f8" rx="8"/>
-  <text x="16" y="18" fill="#333" font-size="11" font-weight="700">Widget anatomy — design system token flow</text>
-
-  <!-- Card -->
-  <rect x="16" y="28" width="200" height="140" rx="12" fill="#fff" stroke="#e0e0e0" stroke-width="1.5"/>
-  <!-- Card content -->
-  <text x="28" y="52" fill="#1a1aff" font-size="9" font-weight="600">Colors.Surface.Background → fill</text>
-  <text x="28" y="66" fill="#888"    font-size="8">IShapeSystem.Large → rx="12"</text>
-  <!-- Title -->
-  <rect x="28" y="74" width="100" height="12" rx="2" fill="#e8e8ff"/>
-  <text x="28" y="85"  fill="#333" font-size="9">Typography.TitleMedium</text>
-  <!-- Body -->
-  <rect x="28" y="92"  width="170" height="8" rx="2" fill="#f0f0f0"/>
-  <rect x="28" y="104" width="140" height="8" rx="2" fill="#f0f0f0"/>
-  <!-- Button -->
-  <rect x="28" y="120" width="60" height="28" rx="14" fill="#4040ff"/>
-  <text x="58" y="139" fill="#fff" text-anchor="middle" font-weight="600" font-size="9">Action</text>
-  <text x="28" y="158" fill="#999" font-size="7">IColorSystem.Primary.Background → fill</text>
-
-  <!-- Arrows / token labels on right -->
-  <line x1="220" y1="38" x2="250" y2="38" stroke="#4040ff" stroke-width=".8" marker-end="url(#arrow)"/>
-  <text x="256" y="42" fill="#4040ff" font-size="9">Shape.Large (12 × RoundnessFactor)</text>
-
-  <line x1="220" y1="70" x2="250" y2="70" stroke="#1DB954" stroke-width=".8"/>
-  <text x="256" y="74" fill="#1DB954" font-size="9">Colors.Surface.Background</text>
-
-  <line x1="220" y1="100" x2="250" y2="100" stroke="#888" stroke-width=".8"/>
-  <text x="256" y="104" fill="#888" font-size="9">Typography.BodyMedium</text>
-
-  <line x1="220" y1="134" x2="250" y2="134" stroke="#ff7a1a" stroke-width=".8"/>
-  <text x="256" y="138" fill="#ff7a1a" font-size="9">Colors.Primary.Background (button fill)</text>
-
-  <!-- Spacing diagram -->
-  <text x="16" y="188" fill="#333" font-size="10" font-weight="600">Spacing token usage in a list row</text>
-  <rect x="16" y="196" width="440" height="56" rx="4" fill="#fff" stroke="#e0e0e0" stroke-width="1"/>
-  <!-- H padding indicators -->
-  <rect x="16" y="196" width="16" height="56" rx="0" fill="#4040ff" opacity=".12"/>
-  <rect x="440" y="196" width="16" height="56" rx="0" fill="#4040ff" opacity=".12"/>
-  <text x="24"  y="226" fill="#4040ff" font-size="7" text-anchor="middle">L</text>
-  <text x="448" y="226" fill="#4040ff" font-size="7" text-anchor="middle">L</text>
-  <!-- V padding indicators -->
-  <rect x="16" y="196" width="440" height="8" rx="0" fill="#1DB954" opacity=".12"/>
-  <rect x="16" y="244" width="440" height="8" rx="0" fill="#1DB954" opacity=".12"/>
-  <text x="230" y="203" fill="#1DB954" font-size="7" text-anchor="middle">S</text>
-  <text x="230" y="253" fill="#1DB954" font-size="7" text-anchor="middle">S</text>
-  <!-- Icon -->
-  <rect x="40" y="212" width="24" height="24" rx="12" fill="#e0e0ff"/>
-  <text x="52" y="229" fill="#4040ff" text-anchor="middle" font-size="12">♪</text>
-  <!-- Text content -->
-  <text x="74" y="222" fill="#222" font-size="11" font-weight="600">Song Title</text>
-  <text x="74" y="236" fill="#888" font-size="9">Artist Name</text>
-  <!-- Gap indicator -->
-  <rect x="64" y="218" width="10" height="12" rx="0" fill="#ff7a1a" opacity=".2"/>
-  <text x="69" y="226" fill="#ff7a1a" font-size="7" text-anchor="middle">S</text>
-
-  <!-- Legend -->
-  <rect x="16"  y="264" width="10" height="10" rx="1" fill="#4040ff" opacity=".3"/>
-  <text x="30"  y="273" fill="#333" font-size="8">Spacing.L (16 pt) — horizontal padding</text>
-  <rect x="16"  y="278" width="10" height="10" rx="1" fill="#1DB954" opacity=".3"/>
-  <text x="30"  y="287" fill="#333" font-size="8">Spacing.S  (8 pt) — vertical padding</text>
-  <rect x="16"  y="292" width="10" height="10" rx="1" fill="#ff7a1a" opacity=".3"/>
-  <text x="30"  y="301" fill="#333" font-size="8">Spacing.S  (8 pt) — gap between icon and text</text>
-  <text x="16"  y="316" fill="#555" font-size="8">MinimumHitTestRadius expands the transparent touch area of the icon to 44 pt (mobile) or 8 pt (desktop)</text>
-  <text x="16"  y="330" fill="#555" font-size="8">without changing its visual size or the row's layout.</text>
-</svg>
+![Widget anatomy — design system token flow](design-system/17-widget-anatomy.svg)
 
 ---
 

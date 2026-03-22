@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 480 160" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="11">
+  <rect width="480" height="160" fill="#fafafa" rx="8"/>
+  <text x="14" y="16" fill="#333" font-size="10" font-weight="700">Toggle states</text>
+
+  <!-- OFF -->
+  <text x="14" y="42" fill="#888" font-size="9">Off</text>
+  <rect x="14" y="50" width="44" height="24" rx="12" fill="#c8c8c8"/>
+  <circle cx="50" cy="62" r="9" fill="#fff"/>
+
+  <!-- OFF hover -->
+  <text x="72" y="42" fill="#888" font-size="9">Off hover</text>
+  <rect x="72" y="50" width="44" height="24" rx="12" fill="#b8b8b8"/>
+  <circle cx="108" cy="62" r="9" fill="#fff"/>
+
+  <!-- ON -->
+  <text x="130" y="42" fill="#888" font-size="9">On</text>
+  <rect x="130" y="50" width="44" height="24" rx="12" fill="#4040ff"/>
+  <circle cx="162" cy="62" r="9" fill="#fff"/>
+
+  <!-- ON hover -->
+  <text x="188" y="42" fill="#888" font-size="9">On hover</text>
+  <rect x="188" y="50" width="44" height="24" rx="12" fill="#5555ff"/>
+  <circle cx="220" cy="62" r="9" fill="#fff"/>
+
+  <!-- Disabled OFF -->
+  <text x="246" y="42" fill="#888" font-size="9">Disabled off</text>
+  <rect x="246" y="50" width="44" height="24" rx="12" fill="#e8e8e8"/>
+  <circle cx="282" cy="62" r="9" fill="#f8f8f8"/>
+
+  <!-- Disabled ON -->
+  <text x="304" y="42" fill="#888" font-size="9">Disabled on</text>
+  <rect x="304" y="50" width="44" height="24" rx="12" fill="#b0b0f0"/>
+  <circle cx="336" cy="62" r="9" fill="#f0f0ff"/>
+
+  <!-- Dark mode row -->
+  <rect x="14" y="90" width="450" height="58" rx="6" fill="#111"/>
+
+  <text x="22" y="107" fill="#888" font-size="8">dark mode</text>
+  <!-- OFF dark -->
+  <rect x="22" y="112" width="44" height="24" rx="12" fill="#444"/>
+  <circle cx="58" cy="124" r="9" fill="#999"/>
+  <!-- ON dark -->
+  <rect x="80" y="112" width="44" height="24" rx="12" fill="#9999ff"/>
+  <circle cx="112" cy="124" r="9" fill="#1a1aff"/>
+
+  <text x="140" y="120" fill="#555" font-size="8">OFF: Surface.Container(dark)  ·  thumb: Outline(dark)</text>
+  <text x="140" y="134" fill="#9999ff" font-size="8">ON:  Primary.Background(dark)  ·  thumb: Primary.OnContainer(dark)</text>
+</svg>

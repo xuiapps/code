@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 520 200" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="10">
+  <rect width="520" height="200" fill="#f0f0f0" rx="8"/>
+  <text x="12" y="16" fill="#333" font-size="10" font-weight="700">ColorGroup — four-color anatomy (light mode, Primary group)</text>
+
+  <!-- Background swatch -->
+  <rect x="12" y="26" width="110" height="54" rx="6" fill="#4040ff"/>
+  <text x="67" y="48" fill="#fff" text-anchor="middle" font-size="9" font-weight="600">Background</text>
+  <text x="67" y="62" fill="#d0d0ff" text-anchor="middle" font-size="8">Primary ramp @ 0.40</text>
+  <text x="67" y="74" fill="#d0d0ff" text-anchor="middle" font-size="8">→ filled button fill</text>
+
+  <!-- Foreground swatch -->
+  <rect x="132" y="26" width="110" height="54" rx="6" fill="#ffffff" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="187" y="44" fill="#4040ff" text-anchor="middle" font-size="9" font-weight="600">Foreground</text>
+  <text x="187" y="58" fill="#888" text-anchor="middle" font-size="8">Primary ramp @ 1.00</text>
+  <text x="187" y="70" fill="#888" text-anchor="middle" font-size="8">→ label on filled button</text>
+
+  <!-- Connector -->
+  <line x1="122" y1="53" x2="132" y2="53" stroke="#4040ff" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <text x="127" y="49" fill="#4040ff" text-anchor="middle" font-size="8">on</text>
+
+  <!-- Container swatch -->
+  <rect x="12" y="96" width="110" height="54" rx="6" fill="#e0e0ff"/>
+  <text x="67" y="118" fill="#1a1aff" text-anchor="middle" font-size="9" font-weight="600">Container</text>
+  <text x="67" y="132" fill="#4040aa" text-anchor="middle" font-size="8">Primary ramp @ 0.90</text>
+  <text x="67" y="144" fill="#4040aa" text-anchor="middle" font-size="8">→ tonal button / chip</text>
+
+  <!-- OnContainer swatch -->
+  <rect x="132" y="96" width="110" height="54" rx="6" fill="#0a0a60"/>
+  <text x="187" y="118" fill="#e0e0ff" text-anchor="middle" font-size="9" font-weight="600">OnContainer</text>
+  <text x="187" y="132" fill="#9090cc" text-anchor="middle" font-size="8">Primary ramp @ 0.10</text>
+  <text x="187" y="144" fill="#9090cc" text-anchor="middle" font-size="8">→ label on chip</text>
+
+  <!-- Connector -->
+  <line x1="122" y1="123" x2="132" y2="123" stroke="#4040ff" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <text x="127" y="119" fill="#4040ff" text-anchor="middle" font-size="8">on</text>
+
+  <!-- Ramp strip -->
+  <text x="260" y="38" fill="#555" font-size="9" font-weight="600">Underlying OKLCH Ramp (hue 240°)</text>
+  <rect x="260" y="44" width="22" height="100" rx="2" fill="#000080"/>
+  <rect x="284" y="44" width="22" height="100" rx="2" fill="#0000cd"/>
+  <rect x="308" y="44" width="22" height="100" rx="2" fill="#1a1aff"/>
+  <rect x="332" y="44" width="22" height="100" rx="2" fill="#4040ff"/>
+  <rect x="356" y="44" width="22" height="100" rx="2" fill="#8080ff"/>
+  <rect x="380" y="44" width="22" height="100" rx="2" fill="#b3b3ff"/>
+  <rect x="404" y="44" width="22" height="100" rx="2" fill="#e0e0ff"/>
+  <rect x="428" y="44" width="22" height="100" rx="2" fill="#f8f8ff"/>
+  <!-- tone markers -->
+  <line x1="332" y1="44"  x2="332" y2="32"  stroke="#4040ff" stroke-width=".8"/>
+  <text x="332" y="30"  fill="#4040ff" text-anchor="middle" font-size="8">0.40 → Background</text>
+  <line x1="404" y1="44"  x2="460" y2="158" stroke="#aaa" stroke-width=".8"/>
+  <text x="462" y="162" fill="#aaa" font-size="8">0.90 → Container</text>
+  <line x1="260" y1="44"  x2="248" y2="158" stroke="#333" stroke-width=".8"/>
+  <text x="150" y="162" fill="#333" font-size="8">0.10 → OnContainer  |  1.00 → Foreground</text>
+
+  <!-- Ramp index arrows -->
+  <text x="260" y="158" fill="#777" font-size="8">t=0</text>
+  <text x="442" y="158" fill="#777" font-size="8">t=1</text>
+  <text x="350" y="166" fill="#555" text-anchor="middle" font-size="8">Color.Oklch.Between(L=0, L=1)[t]</text>
+
+  <!-- Usage summary box -->
+  <rect x="260" y="172" width="248" height="24" rx="4" fill="#fffbe6" stroke="#f0c000" stroke-width=".8"/>
+  <text x="268" y="186" fill="#7a6000" font-size="8">Primary.Background → filled btn  ·  Primary.Container → chip / tonal btn</text>
+</svg>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 520 432" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="11">
+  <rect width="520" height="432" fill="#fafafa" rx="8"/>
+  <text x="14" y="16" fill="#333" font-size="10" font-weight="700">Form layout — design system token flow per element</text>
+
+  <!-- Labels -->
+  <text x="14" y="38" fill="#333" font-size="9" font-weight="600">Full name</text>
+  <text x="280" y="38" fill="#333" font-size="9" font-weight="600">Email address</text>
+
+  <!-- Input row 1 -->
+  <rect x="14" y="44" width="244" height="36" rx="4" fill="#fff" stroke="#b0b0b0" stroke-width="1.2"/>
+  <text x="26" y="67" fill="#222" font-size="11">Jane Appleseed</text>
+  <rect x="268" y="44" width="238" height="36" rx="4" fill="#fff" stroke="#4040ff" stroke-width="2"/>
+  <text x="280" y="67" fill="#222" font-size="11">jane@example.com</text>
+  <!-- focus cursor -->
+  <line x1="374" y1="52" x2="374" y2="72" stroke="#4040ff" stroke-width="1.5"/>
+
+  <!-- Token annotations row 1 -->
+  <text x="14"  y="92" fill="#999" font-size="8">Outline border  ·  Surface.Background fill  ·  Application.Foreground text</text>
+  <text x="268" y="92" fill="#4040ff" font-size="8">FocusRing border  ·  Accent.Background cursor</text>
+
+  <!-- Password row -->
+  <text x="14" y="112" fill="#333" font-size="9" font-weight="600">Password</text>
+  <rect x="14" y="118" width="492" height="36" rx="4" fill="#fff" stroke="#b0b0b0" stroke-width="1.2"/>
+  <text x="26" y="141" fill="#222" font-size="11">●●●●●●●●</text>
+  <text x="480" y="141" fill="#888" font-size="11">👁</text>
+  <text x="14" y="164" fill="#999" font-size="8">Outline border  ·  Surface.Background fill  ·  Application.Foreground placeholder  ·  icon from IIconSystem</text>
+
+  <!-- Error field -->
+  <text x="14" y="184" fill="#333" font-size="9" font-weight="600">Phone number</text>
+  <rect x="14" y="190" width="492" height="36" rx="4" fill="#fff8f8" stroke="#cc0000" stroke-width="1.5"/>
+  <text x="26" y="213" fill="#222" font-size="11">+1 (555) 000-BAD</text>
+  <text x="14" y="238" fill="#cc0000" font-size="8">⚠  Please enter a valid phone number</text>
+  <text x="14" y="250" fill="#999" font-size="8">Error.Background border  ·  Error.Container background  ·  Error.Foreground helper text</text>
+
+  <!-- Divider -->
+  <line x1="14" y1="262" x2="506" y2="262" stroke="#e0e0e0" stroke-width=".8"/>
+  <text x="14" y="276" fill="#555" font-size="9" font-weight="600">Notifications</text>
+
+  <!-- Toggle row 1 (on) -->
+  <text x="14" y="298" fill="#222" font-size="10">Email notifications</text>
+  <text x="14" y="311" fill="#888" font-size="8">Receive updates about activity</text>
+  <!-- Toggle ON -->
+  <rect x="454" y="288" width="44" height="24" rx="12" fill="#4040ff"/>
+  <circle cx="466" cy="300" r="9" fill="#fff"/>
+  <text x="480" y="316" fill="#4040ff" font-size="8" text-anchor="middle">ON</text>
+
+  <!-- Toggle row 2 (off) -->
+  <text x="14" y="335" fill="#222" font-size="10">Push notifications</text>
+  <text x="14" y="348" fill="#888" font-size="8">Require device permission</text>
+  <!-- Toggle OFF -->
+  <rect x="454" y="325" width="44" height="24" rx="12" fill="#c0c0c0"/>
+  <circle cx="490" cy="337" r="9" fill="#fff"/>
+  <text x="476" y="353" fill="#888" font-size="8" text-anchor="middle">OFF</text>
+
+  <!-- Token annotations toggle -->
+  <text x="14" y="368" fill="#4040ff" font-size="8">ON: Primary.Background track  ·  Surface.Background thumb</text>
+  <text x="14" y="380" fill="#888"    font-size="8">OFF: Surface.Container track  ·  Surface.Background thumb</text>
+
+  <!-- Submit button -->
+  <rect x="14" y="386" width="120" height="36" rx="18" fill="#4040ff"/>
+  <text x="74" y="409" fill="#fff" text-anchor="middle" font-size="11" font-weight="600">Save changes</text>
+</svg>

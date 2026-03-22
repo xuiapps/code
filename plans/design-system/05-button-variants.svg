@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 480 280" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="12">
+  <rect width="480" height="280" fill="#fafafa" rx="8"/>
+  <!-- Section label -->
+  <text x="16" y="20" fill="#444" font-size="10" font-weight="600">Button variants — light theme</text>
+
+  <!-- === Filled (Primary) === -->
+  <text x="16" y="44" fill="#888" font-size="9">Filled (Primary)</text>
+  <!-- Default -->
+  <rect x="16"  y="50" width="80" height="36" rx="18" fill="#4040ff"/>
+  <text x="56"  y="73" fill="#fff" text-anchor="middle" font-weight="600">Action</text>
+  <!-- Hover -->
+  <rect x="108" y="50" width="80" height="36" rx="18" fill="#5555ff"/>
+  <text x="148" y="73" fill="#fff" text-anchor="middle" font-weight="600">Action</text>
+  <text x="148" y="98" fill="#aaa" text-anchor="middle" font-size="8">hover</text>
+  <!-- Pressed -->
+  <rect x="200" y="50" width="80" height="36" rx="18" fill="#3030e0"/>
+  <text x="240" y="73" fill="#fff" text-anchor="middle" font-weight="600">Action</text>
+  <text x="240" y="98" fill="#aaa" text-anchor="middle" font-size="8">pressed</text>
+  <!-- Disabled -->
+  <rect x="292" y="50" width="80" height="36" rx="18" fill="#e0e0e0"/>
+  <text x="332" y="73" fill="#aaa" text-anchor="middle" font-weight="600">Action</text>
+  <text x="332" y="98" fill="#aaa" text-anchor="middle" font-size="8">disabled</text>
+
+  <!-- === Tonal (SecondaryContainer) === -->
+  <text x="16" y="118" fill="#888" font-size="9">Tonal (SecondaryContainer)</text>
+  <rect x="16"  y="124" width="80" height="36" rx="18" fill="#c0f5c0"/>
+  <text x="56"  y="147" fill="#003a00" text-anchor="middle" font-weight="600">Action</text>
+  <rect x="108" y="124" width="80" height="36" rx="18" fill="#d0f8d0"/>
+  <text x="148" y="147" fill="#003a00" text-anchor="middle" font-weight="600">Action</text>
+  <text x="148" y="171" fill="#aaa" text-anchor="middle" font-size="8">hover</text>
+  <rect x="200" y="124" width="80" height="36" rx="18" fill="#aaebaa"/>
+  <text x="240" y="147" fill="#003a00" text-anchor="middle" font-weight="600">Action</text>
+  <text x="240" y="171" fill="#aaa" text-anchor="middle" font-size="8">pressed</text>
+  <rect x="292" y="124" width="80" height="36" rx="18" fill="#f0f0f0"/>
+  <text x="332" y="147" fill="#aaa" text-anchor="middle" font-weight="600">Action</text>
+  <text x="332" y="171" fill="#aaa" text-anchor="middle" font-size="8">disabled</text>
+
+  <!-- === Outlined === -->
+  <text x="16" y="191" fill="#888" font-size="9">Outlined</text>
+  <rect x="16"  y="197" width="80" height="36" rx="18" fill="none" stroke="#4040ff" stroke-width="1.5"/>
+  <text x="56"  y="220" fill="#4040ff" text-anchor="middle" font-weight="600">Action</text>
+  <rect x="108" y="197" width="80" height="36" rx="18" fill="#f0f0ff" stroke="#4040ff" stroke-width="1.5"/>
+  <text x="148" y="220" fill="#4040ff" text-anchor="middle" font-weight="600">Action</text>
+  <text x="148" y="244" fill="#aaa" text-anchor="middle" font-size="8">hover</text>
+  <rect x="200" y="197" width="80" height="36" rx="18" fill="#e0e0ff" stroke="#4040ff" stroke-width="1.5"/>
+  <text x="240" y="220" fill="#4040ff" text-anchor="middle" font-weight="600">Action</text>
+  <text x="240" y="244" fill="#aaa" text-anchor="middle" font-size="8">pressed</text>
+  <rect x="292" y="197" width="80" height="36" rx="18" fill="none" stroke="#ccc" stroke-width="1.5"/>
+  <text x="332" y="220" fill="#aaa" text-anchor="middle" font-weight="600">Action</text>
+  <text x="332" y="244" fill="#aaa" text-anchor="middle" font-size="8">disabled</text>
+
+  <!-- Token legend -->
+  <text x="16"  y="268" fill="#4040ff" font-size="8">■ Primary</text>
+  <text x="76"  y="268" fill="#003a00" font-size="8">■ Primary.Container</text>
+  <text x="176" y="268" fill="#aaa"    font-size="8">■ Disabled state</text>
+</svg>
