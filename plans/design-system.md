@@ -345,35 +345,216 @@ Color-scheme relationships:
   <rect x="438" y="126" width="30" height="20" rx="2" fill="#fff8f0"/>
 </svg>
 
-#### 3.1.2 Color Roles
+#### 3.1.2 `Color.Oklch` — Perceptual Color Space and Ramps
 
-Each tonal palette maps to **semantic color roles**. The table below shows light-mode defaults:
+Interpolating between two colors straight in sRGB produces muddy, de-saturated midpoints. The
+solution is to work in a **perceptual color space** first. Xui extends `Color` with a nested
+`Color.Oklch` value type representing the standard **OKLCH** color space (Oklab-based Lightness,
+Chroma, Hue — the same space used by CSS Color Level 4 and Material Design 3's HCT):
 
-| Role | Token | Tonal stop (light) | Tonal stop (dark) | Purpose |
-|---|---|---|---|---|
-| Background | `Colors.Background` | Neutral 99 | Neutral 6 | Window / screen background |
-| OnBackground | `Colors.OnBackground` | Neutral 10 | Neutral 90 | Text on background |
-| Surface | `Colors.Surface` | Neutral 98 | Neutral 12 | Card / panel fill |
-| OnSurface | `Colors.OnSurface` | Neutral 10 | Neutral 90 | Text on surface |
-| SurfaceVariant | `Colors.SurfaceVariant` | Neutral 90 | Neutral 30 | Alternate panel fill |
-| Outline | `Colors.Outline` | Neutral 50 | Neutral 60 | Border, divider |
-| OutlineVariant | `Colors.OutlineVariant` | Neutral 80 | Neutral 30 | Subtle divider |
-| Primary | `Colors.Primary` | Primary 40 | Primary 80 | Brand / action color |
-| OnPrimary | `Colors.OnPrimary` | Primary 100 | Primary 20 | Text on primary |
-| PrimaryContainer | `Colors.PrimaryContainer` | Primary 90 | Primary 30 | Tinted container |
-| OnPrimaryContainer | `Colors.OnPrimaryContainer` | Primary 10 | Primary 90 | Text on container |
-| Secondary | `Colors.Secondary` | Secondary 40 | Secondary 80 | Supporting action |
-| OnSecondary | `Colors.OnSecondary` | Secondary 100 | Secondary 20 | Text on secondary |
-| SecondaryContainer | `Colors.SecondaryContainer` | Secondary 90 | Secondary 30 | Supporting container |
-| OnSecondaryContainer | `Colors.OnSecondaryContainer` | Secondary 10 | Secondary 90 | Text on sec. container |
-| Tertiary / Accent | `Colors.Accent` | Tertiary 40 | Tertiary 80 | Highlight / accent |
-| OnAccent | `Colors.OnAccent` | Tertiary 100 | Tertiary 20 | Text on accent |
-| Error | `Colors.Error` | Error 40 | Error 80 | Destructive / error |
-| OnError | `Colors.OnError` | Error 100 | Error 20 | Text on error |
-| DataViz[0..N] | `Colors.DataViz` | — | — | Chart series colors |
+- **Lightness** (0.0–1.0) — perceptual lightness (0 = black, 1 = white)
+- **Chroma** (0.0–~0.4) — colorfulness; 0 = neutral/gray, higher = fully saturated
+- **Hue** (0–360 °) — perceptual hue angle on the color wheel
 
-> **Implementation note**: `IColorSystem.GetTone(hue, saturation, tone)` converts HSL or OKLCH values
-> to `Xui.Core.Canvas.Color`. The tonal ramp functions are pure math with no lookup tables.
+Conversion to/from `Xui.Core.Canvas.Color` is implicit, so existing APIs are unaffected. The key
+addition is `Color.Oklch.Ramp` — a struct that **binds two `Color.Oklch` endpoints** and evaluates to
+any intermediate color via `[t]` indexing, exactly like how `Xui.Core.Curves2D` interpolates points
+along a Bezier curve.
+
+```csharp
+// In Xui.Core.Canvas (extends the existing Color struct):
+public partial struct Color
+{
+    /// <summary>
+    /// OKLCH perceptual color space (Oklab-based Lightness, Chroma, Hue).
+    /// Interpolation in OKLCH produces vivid, perceptually uniform color transitions.
+    /// See: https://bottosson.github.io/posts/oklab/
+    /// </summary>
+    public readonly struct Oklch
+    {
+        /// <summary>Perceptual lightness (0.0 = black, 1.0 = white).</summary>
+        public nfloat Lightness { get; init; }
+
+        /// <summary>Colorfulness (0.0 = neutral gray; typical max ~0.37 for sRGB gamut).</summary>
+        public nfloat Chroma    { get; init; }
+
+        /// <summary>Hue angle in degrees (0–360).</summary>
+        public nfloat Hue       { get; init; }
+
+        /// <summary>Converts an sRGB <see cref="Color"/> to OKLCH.</summary>
+        public Oklch(Color color) { /* sRGB → linear sRGB → Oklab → OKLCH */ }
+
+        /// <summary>Converts this OKLCH value back to sRGB <see cref="Color"/>.</summary>
+        public Color ToColor() { /* OKLCH → Oklab → linear sRGB → sRGB */ }
+
+        public static implicit operator Color(Oklch oklch)   => oklch.ToColor();
+        public static implicit operator Oklch(Color color) => new Oklch(color);
+
+        /// <summary>
+        /// Creates a <see cref="Ramp"/> between two Oklch colors.
+        /// Hue interpolation follows the shortest arc on the color wheel.
+        /// </summary>
+        public static Ramp Between(Oklch from, Oklch to) => new Ramp(from, to);
+
+        /// <summary>
+        /// A pair of Oklch endpoints that can be evaluated at any position t ∈ [0, 1].
+        /// Analogous to how <c>Xui.Core.Curves2D</c> evaluates a point on a Bezier curve.
+        /// t = 0 returns From; t = 1 returns To.
+        /// </summary>
+        public readonly struct Ramp
+        {
+            public Oklch From { get; init; }
+            public Oklch To   { get; init; }
+
+            public Ramp(Oklch from, Oklch to) { From = from; To = to; }
+
+            /// <summary>Evaluates the ramp at position t, returning a sRGB Color.</summary>
+            public Color this[nfloat t] => Lerp(From, To, t).ToColor();
+
+            /// <summary>Lerps two Oklch values along the shortest hue arc.</summary>
+            public static Oklch Lerp(Oklch from, Oklch to, nfloat t)
+            {
+                nfloat dHue = to.Hue - from.Hue;
+                if (dHue >  180) dHue -= 360;
+                if (dHue < -180) dHue += 360;
+                return new Oklch
+                {
+                    Lightness = from.Lightness + (to.Lightness - from.Lightness) * t,
+                    Chroma    = from.Chroma    + (to.Chroma    - from.Chroma)    * t,
+                    Hue       = from.Hue       + dHue                            * t,
+                };
+            }
+        }
+    }
+}
+```
+
+**Generating a tonal ramp** for any hue is then one expression:
+
+```csharp
+// Full tonal ramp for hue 240 ° (blue), chroma 0.3:
+var blueRamp = Color.Oklch.Between(
+    new Color.Oklch { Lightness = 0.0f, Chroma = 0.3f, Hue = 240 },  // L=0 → near black
+    new Color.Oklch { Lightness = 1.0f, Chroma = 0.0f, Hue = 240 }   // L=1 → near white
+);
+
+Color primary40 = blueRamp[0.40f];  // Filled button fill    (light mode)
+Color primary80 = blueRamp[0.80f];  // Filled button fill    (dark mode)
+Color primary90 = blueRamp[0.90f];  // Tonal button fill     (light mode)
+Color primary30 = blueRamp[0.30f];  // Tonal button fill     (dark mode)
+```
+
+`IColorSystem.GetTonalRamp(nfloat hueDegrees, nfloat chroma)` returns a pre-built `Color.Oklch.Ramp`
+for that hue. `ColorGroup` (see below) exposes the ramp for each semantic role so widgets can build
+hover/press overlays without hard-coding any color values.
+
+---
+
+#### 3.1.3 `ColorGroup` — Semantic Four-Color Bundle
+
+Traditional design tokens expose `Primary`, `OnPrimary`, `PrimaryContainer`, and
+`OnPrimaryContainer` as four independent properties. This is verbose and makes the relationship
+between them opaque. Xui wraps them into a **`ColorGroup`** — a single struct with four named roles
+and the underlying `Ramp`:
+
+```
+Background   ←→  Foreground    (strong pair — use for filled elements)
+Container    ←→  OnContainer   (light pair  — use for tinted/highlighted elements)
+```
+
+| Role | Light-mode tonal stop | Dark-mode tonal stop | Typical use |
+|---|---|---|---|
+| `Background` | Hue ramp @ 0.40 | Hue ramp @ 0.80 | Filled button fill, active tab indicator |
+| `Foreground` | Hue ramp @ 1.00 | Hue ramp @ 0.20 | Label inside a filled button or active icon |
+| `Container` | Hue ramp @ 0.90 | Hue ramp @ 0.30 | Tonal button fill, chip, selected segment |
+| `OnContainer` | Hue ramp @ 0.10 | Hue ramp @ 0.90 | Label inside a chip or tonal button |
+
+**Why two pairs?**
+
+- **`Background + Foreground`** → high-contrast, saturated pair. Use when the element *is* the call
+  to action: a filled primary button, the active indicator dot in a nav rail.
+- **`Container + OnContainer`** → lower-contrast, tinted pair. Use when the element *indicates* a
+  selected or important state without screaming: a tonal button in a button group, an active chip,
+  a highlighted list row.
+
+**`Application` and `Surface` groups** follow the same pattern but draw from the **Neutral** ramp:
+
+| Group | Background | Foreground | Container | OnContainer | Purpose |
+|---|---|---|---|---|---|
+| `Application` | Neutral 0.99 / 0.06 | Neutral 0.10 / 0.90 | Neutral 0.98 / 0.12 | Neutral 0.10 / 0.90 | Window canvas & body text |
+| `Surface` | Neutral 0.98 / 0.12 | Neutral 0.10 / 0.90 | Neutral 0.90 / 0.30 | Neutral 0.30 / 0.80 | Card / panel fill & text |
+
+`Application.Background` is the window/screen canvas. `Surface.Background` is a card resting on
+that canvas.  `Surface.Container` is a slightly differentiated alternate fill (e.g. alternating table
+rows, a hover highlight on a list item).
+
+<svg viewBox="0 0 520 200" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="10">
+  <rect width="520" height="200" fill="#f0f0f0" rx="8"/>
+  <text x="12" y="16" fill="#333" font-size="10" font-weight="700">ColorGroup — four-color anatomy (light mode, Primary group)</text>
+
+  <!-- Background swatch -->
+  <rect x="12" y="26" width="110" height="54" rx="6" fill="#4040ff"/>
+  <text x="67" y="48" fill="#fff" text-anchor="middle" font-size="9" font-weight="600">Background</text>
+  <text x="67" y="62" fill="#d0d0ff" text-anchor="middle" font-size="8">Primary ramp @ 0.40</text>
+  <text x="67" y="74" fill="#d0d0ff" text-anchor="middle" font-size="8">→ filled button fill</text>
+
+  <!-- Foreground swatch -->
+  <rect x="132" y="26" width="110" height="54" rx="6" fill="#ffffff" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="187" y="44" fill="#4040ff" text-anchor="middle" font-size="9" font-weight="600">Foreground</text>
+  <text x="187" y="58" fill="#888" text-anchor="middle" font-size="8">Primary ramp @ 1.00</text>
+  <text x="187" y="70" fill="#888" text-anchor="middle" font-size="8">→ label on filled button</text>
+
+  <!-- Connector -->
+  <line x1="122" y1="53" x2="132" y2="53" stroke="#4040ff" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <text x="127" y="49" fill="#4040ff" text-anchor="middle" font-size="8">on</text>
+
+  <!-- Container swatch -->
+  <rect x="12" y="96" width="110" height="54" rx="6" fill="#e0e0ff"/>
+  <text x="67" y="118" fill="#1a1aff" text-anchor="middle" font-size="9" font-weight="600">Container</text>
+  <text x="67" y="132" fill="#4040aa" text-anchor="middle" font-size="8">Primary ramp @ 0.90</text>
+  <text x="67" y="144" fill="#4040aa" text-anchor="middle" font-size="8">→ tonal button / chip</text>
+
+  <!-- OnContainer swatch -->
+  <rect x="132" y="96" width="110" height="54" rx="6" fill="#0a0a60"/>
+  <text x="187" y="118" fill="#e0e0ff" text-anchor="middle" font-size="9" font-weight="600">OnContainer</text>
+  <text x="187" y="132" fill="#9090cc" text-anchor="middle" font-size="8">Primary ramp @ 0.10</text>
+  <text x="187" y="144" fill="#9090cc" text-anchor="middle" font-size="8">→ label on chip</text>
+
+  <!-- Connector -->
+  <line x1="122" y1="123" x2="132" y2="123" stroke="#4040ff" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <text x="127" y="119" fill="#4040ff" text-anchor="middle" font-size="8">on</text>
+
+  <!-- Ramp strip -->
+  <text x="260" y="38" fill="#555" font-size="9" font-weight="600">Underlying OKLCH Ramp (hue 240°)</text>
+  <rect x="260" y="44" width="22" height="100" rx="2" fill="#000080"/>
+  <rect x="284" y="44" width="22" height="100" rx="2" fill="#0000cd"/>
+  <rect x="308" y="44" width="22" height="100" rx="2" fill="#1a1aff"/>
+  <rect x="332" y="44" width="22" height="100" rx="2" fill="#4040ff"/>
+  <rect x="356" y="44" width="22" height="100" rx="2" fill="#8080ff"/>
+  <rect x="380" y="44" width="22" height="100" rx="2" fill="#b3b3ff"/>
+  <rect x="404" y="44" width="22" height="100" rx="2" fill="#e0e0ff"/>
+  <rect x="428" y="44" width="22" height="100" rx="2" fill="#f8f8ff"/>
+  <!-- tone markers -->
+  <line x1="332" y1="44"  x2="332" y2="32"  stroke="#4040ff" stroke-width=".8"/>
+  <text x="332" y="30"  fill="#4040ff" text-anchor="middle" font-size="8">0.40 → Background</text>
+  <line x1="404" y1="44"  x2="460" y2="158" stroke="#aaa" stroke-width=".8"/>
+  <text x="462" y="162" fill="#aaa" font-size="8">0.90 → Container</text>
+  <line x1="260" y1="44"  x2="248" y2="158" stroke="#333" stroke-width=".8"/>
+  <text x="150" y="162" fill="#333" font-size="8">0.10 → OnContainer  |  1.00 → Foreground</text>
+
+  <!-- Ramp index arrows -->
+  <text x="260" y="158" fill="#777" font-size="8">t=0</text>
+  <text x="442" y="158" fill="#777" font-size="8">t=1</text>
+  <text x="350" y="166" fill="#555" text-anchor="middle" font-size="8">Color.Oklch.Between(L=0, L=1)[t]</text>
+
+  <!-- Usage summary box -->
+  <rect x="260" y="172" width="248" height="24" rx="4" fill="#fffbe6" stroke="#f0c000" stroke-width=".8"/>
+  <text x="268" y="186" fill="#7a6000" font-size="8">Primary.Background → filled btn  ·  Primary.Container → chip / tonal btn</text>
+</svg>
+
+> **Implementation note**: `IColorSystem.GetTonalRamp(hue, chroma)` returns a `Color.Oklch.Ramp`.
+> Each `ColorGroup` also exposes this ramp directly as a `Ramp` property, so widgets can build
+> hover/pressed overlays via `Primary.Ramp[pressedLightness]` without any hardcoded color values.
 
 ---
 
@@ -622,61 +803,97 @@ namespace Xui.Core.Design;
 using Xui.Core.Canvas;
 
 /// <summary>
-/// Provides color roles derived from a seed palette.
+/// A group of four semantically related colors derived from a single tonal palette,
+/// together with the underlying Oklch ramp that generated them.
+/// </summary>
+public readonly struct ColorGroup
+{
+    /// <summary>
+    /// Strong, saturated action color (ramp @ tone 0.40 light / 0.80 dark).
+    /// Use as fill for filled buttons, active indicators, primary UI elements.
+    /// </summary>
+    public Color Background  { get; init; }
+
+    /// <summary>
+    /// High-contrast text/icon color on top of Background (ramp @ tone 1.00 light / 0.20 dark).
+    /// </summary>
+    public Color Foreground  { get; init; }
+
+    /// <summary>
+    /// Light tinted fill from the same palette (ramp @ tone 0.90 light / 0.30 dark).
+    /// Use for tonal buttons, chips, selected segment items, highlighted list rows.
+    /// </summary>
+    public Color Container   { get; init; }
+
+    /// <summary>
+    /// Text/icon color on top of Container (ramp @ tone 0.10 light / 0.90 dark).
+    /// </summary>
+    public Color OnContainer { get; init; }
+
+    /// <summary>
+    /// The full tonal ramp for this palette entry (Lightness 0 → 1 at the group's hue).
+    /// Background is at Ramp[0.40f] in light mode / Ramp[0.80f] in dark mode.
+    /// Use IColorSystem.IsDark to pick the correct base Lightness, then offset:
+    ///   hover   = Ramp[baseLightness + 0.08f]
+    ///   pressed = Ramp[baseLightness - 0.06f]
+    /// </summary>
+    public Color.Oklch.Ramp Ramp { get; init; }
+}
+
+/// <summary>
+/// Provides color roles derived from a seed palette, grouped into semantic <see cref="ColorGroup"/>
+/// bundles and a set of neutral/structural colors.
 /// </summary>
 public interface IColorSystem
 {
-    // -- Application background / foreground --
-    Color Background { get; }
-    Color OnBackground { get; }
+    // -- Whole-application canvas (from the Neutral ramp) --
 
-    // -- Surface (cards, panels) --
-    Color Surface { get; }
-    Color OnSurface { get; }
-    Color SurfaceVariant { get; }
-    Color OnSurfaceVariant { get; }
+    /// <summary>
+    /// The application canvas color group.
+    /// Background = window/screen fill · Foreground = body text
+    /// Container  = card/panel fill    · OnContainer = card text
+    /// </summary>
+    ColorGroup Application { get; }
 
-    // -- Borders and dividers --
-    Color Outline { get; }
-    Color OutlineVariant { get; }
+    /// <summary>
+    /// The surface (card/panel) color group, slightly elevated from Application.
+    /// Background = card fill  · Foreground = card body text
+    /// Container  = alternate surface (e.g. alternating table row, hover bg)
+    /// OnContainer = secondary text on alternate surface
+    /// </summary>
+    ColorGroup Surface { get; }
 
-    // -- Primary action color --
-    Color Primary { get; }
-    Color OnPrimary { get; }
-    Color PrimaryContainer { get; }
-    Color OnPrimaryContainer { get; }
+    // -- Borders and dividers (from Neutral ramp at mid-tones) --
+    Color Outline        { get; }   // Neutral tone 0.50 light / 0.60 dark
+    Color OutlineVariant { get; }   // Neutral tone 0.80 light / 0.30 dark
 
-    // -- Secondary / supporting action --
-    Color Secondary { get; }
-    Color OnSecondary { get; }
-    Color SecondaryContainer { get; }
-    Color OnSecondaryContainer { get; }
+    // -- Semantic action groups --
 
-    // -- Accent / tertiary highlight --
-    Color Accent { get; }
-    Color OnAccent { get; }
+    /// <summary>Brand / primary action group (from the Primary tonal ramp).</summary>
+    ColorGroup Primary   { get; }
 
-    // -- Semantic error state --
-    Color Error { get; }
-    Color OnError { get; }
-    Color ErrorContainer { get; }
-    Color OnErrorContainer { get; }
+    /// <summary>Supporting / secondary action group (from the Secondary tonal ramp).</summary>
+    ColorGroup Secondary { get; }
 
-    // -- Focus ring color (typically Accent at full opacity) --
+    /// <summary>Tertiary highlight / accent group (from the Accent tonal ramp).</summary>
+    ColorGroup Accent    { get; }
+
+    /// <summary>Error / destructive state group (from the Error tonal ramp).</summary>
+    ColorGroup Error     { get; }
+
+    // -- Focus ring (typically Accent.Background at full opacity) --
     Color FocusRing { get; }
 
-    // -- Data-visualization series colors (at least 6) --
+    // -- Data-visualization series colors (at least 8, perceptually distinct) --
     ReadOnlySpan<Color> DataVizPalette { get; }
 
     /// <summary>
-    /// Interpolates a color at a given tone (0–100) for a specific hue/saturation.
-    /// Tone 0 = black, 100 = white; mid-tones vary by hue.
+    /// Returns a full tonal ramp for any hue/chroma combination.
+    /// Use to build custom ColorGroups or hover/press state colors.
     /// </summary>
-    Color GetTone(nfloat hueDegrees, nfloat saturation, nfloat tone);
+    Color.Oklch.Ramp GetTonalRamp(nfloat hueDegrees, nfloat chroma);
 
-    /// <summary>
-    /// Indicates if the current effective color scheme is dark.
-    /// </summary>
+    /// <summary>True if the current effective color scheme is dark.</summary>
     bool IsDark { get; }
 }
 ```
@@ -885,14 +1102,14 @@ public enum ColorScheme  { Light, Dark }
 
 ### 5.1 Buttons
 
-Three **importance levels** map to different color role usage:
+Three **importance levels** map to different `ColorGroup` properties:
 
 | Level | Fill | Text | Border | Use |
 |---|---|---|---|---|
-| `FilledButton` | `Primary` | `OnPrimary` | none | Primary CTA |
-| `TonalButton` | `SecondaryContainer` | `OnSecondaryContainer` | none | Secondary CTA |
-| `OutlinedButton` | transparent | `Primary` | `Outline` | Tertiary CTA |
-| `TextButton` | transparent | `Primary` | none | Low-prominence action |
+| `FilledButton` | `Primary.Background` | `Primary.Foreground` | none | Primary CTA |
+| `TonalButton` | `Primary.Container` | `Primary.OnContainer` | none | Secondary CTA |
+| `OutlinedButton` | transparent | `Primary.Background` | `Outline` | Tertiary CTA |
+| `TextButton` | transparent | `Primary.Background` | none | Low-prominence action |
 
 **Corner radius**: `Shape.Full` (pill) by default.
 
@@ -949,14 +1166,14 @@ Three **importance levels** map to different color role usage:
 
   <!-- Token legend -->
   <text x="16"  y="268" fill="#4040ff" font-size="8">■ Primary</text>
-  <text x="76"  y="268" fill="#003a00" font-size="8">■ OnSecContainer</text>
+  <text x="76"  y="268" fill="#003a00" font-size="8">■ Primary.Container</text>
   <text x="176" y="268" fill="#aaa"    font-size="8">■ Disabled state</text>
 </svg>
 
 #### 5.1.1 Button Group (Segment Control)
 
 Three or more buttons sharing a border, with one marked `IsActive`. The active button uses
-`PrimaryContainer` fill; inactive buttons use `SurfaceVariant`:
+`Primary.Container` fill + `Primary.OnContainer` text; inactive buttons use `Surface.Container`:
 
 <svg viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="12">
   <rect width="400" height="120" fill="#fafafa" rx="8"/>
@@ -967,7 +1184,7 @@ Three or more buttons sharing a border, with one marked `IsActive`. The active b
   <!-- Inactive left -->
   <rect x="16" y="32" width="78" height="40" rx="20" fill="#f0f0f0"/>
   <text x="55" y="57" fill="#444" text-anchor="middle" font-size="12">All</text>
-  <!-- Active middle (PrimaryContainer) -->
+  <!-- Active middle (Primary.Container) -->
   <rect x="94" y="32" width="78" height="40" rx="0" fill="#e0e0ff"/>
   <text x="133" y="57" fill="#1a1aff" text-anchor="middle" font-size="12" font-weight="600">Music</text>
   <!-- Inactive right -->
@@ -976,7 +1193,7 @@ Three or more buttons sharing a border, with one marked `IsActive`. The active b
 
   <!-- Annotation -->
   <line x1="133" y1="80" x2="133" y2="94" stroke="#666" stroke-width=".8"/>
-  <text x="133" y="105" fill="#666" text-anchor="middle" font-size="9">IsActive → PrimaryContainer + OnPrimaryContainer</text>
+  <text x="133" y="105" fill="#666" text-anchor="middle" font-size="9">IsActive → Primary.Container + Primary.OnContainer</text>
 
   <!-- Dark mode variant -->
   <rect x="268" y="32" width="114" height="40" rx="20" fill="#1a1a2e" stroke="#333" stroke-width="1"/>
@@ -998,10 +1215,14 @@ A `TextBox` queries design tokens at `OnAttach` and applies them to its `BorderL
 ```csharp
 // Inside a custom TextBox-style widget's OnAttach:
 var ds = GetService<IDesignSystem>()!;
-_borderLayer.CornerRadius = ds.Shape.Small;
-_borderLayer.BorderColor  = ds.Colors.Outline;
-_borderLayer.Padding      = new Frame(ds.Spacing.M, ds.Spacing.S);
-_labelStyle               = ds.Typography.BodyMedium;
+_borderLayer.CornerRadius    = ds.Shape.Small;
+_borderLayer.BorderColor     = ds.Colors.Outline;
+_borderLayer.BackgroundColor = ds.Colors.Surface.Background;
+_borderLayer.Padding         = new Frame(ds.Spacing.M, ds.Spacing.S);
+_labelStyle                  = ds.Typography.BodyMedium;
+_focusColor                  = ds.Colors.FocusRing;
+_errorColor                  = ds.Colors.Error.Background;
+_errorBgColor                = ds.Colors.Error.Container;
 ```
 
 <svg viewBox="0 0 480 240" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="12">
@@ -1025,7 +1246,7 @@ _labelStyle               = ds.Typography.BodyMedium;
   <rect x="16" y="120" width="200" height="40" rx="4" fill="#fff8f8" stroke="#cc0000" stroke-width="1.5"/>
   <text x="28" y="145" fill="#222" font-size="12">invalid@</text>
   <text x="16" y="170" fill="#cc0000" font-size="9">⚠  Please enter a valid email address</text>
-  <text x="16" y="182" fill="#aaa" font-size="8">BorderColor → Colors.Error · Helper → Colors.OnErrorContainer</text>
+  <text x="16" y="182" fill="#aaa" font-size="8">BorderColor → Colors.Error.Background · Helper → Colors.Error.OnContainer</text>
 
   <!-- Disabled -->
   <text x="240" y="114" fill="#888" font-size="9">Disabled</text>
@@ -1135,7 +1356,377 @@ _labelStyle               = ds.Typography.BodyMedium;
 
 ---
 
-### 5.5 Data Visualization Color Series
+### 5.5 Cards — `Surface` ColorGroup in Action
+
+Cards are the primary container that elevates content above the `Application.Background`. They use
+`Surface.Background` as fill. Buttons inside the card use `Primary.Background`.
+
+<svg viewBox="0 0 540 320" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="11">
+  <rect width="540" height="320" fill="#f0f0f0" rx="8"/>
+  <text x="14" y="16" fill="#333" font-size="10" font-weight="700">Card variants — Surface.Background / Application.Background relationship</text>
+
+  <!-- App background -->
+  <rect x="14" y="24" width="512" height="288" rx="6" fill="#f8f8f8" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="26" y="40" fill="#999" font-size="8">Application.Background (Neutral 0.99)</text>
+
+  <!-- Plain card -->
+  <rect x="26" y="48" width="150" height="180" rx="12" fill="#ffffff" stroke="#ececec" stroke-width="1"/>
+  <text x="40" y="68" fill="#888" font-size="8">Surface.Background</text>
+  <!-- image placeholder -->
+  <rect x="36" y="76" width="130" height="70" rx="6" fill="#e8e8ff"/>
+  <text x="101" y="116" fill="#9090cc" text-anchor="middle" font-size="18">♪</text>
+  <!-- text -->
+  <text x="36" y="162" fill="#222" font-size="11" font-weight="600">Song Title</text>
+  <text x="36" y="177" fill="#888" font-size="9">Artist Name</text>
+  <!-- button -->
+  <rect x="36" y="188" width="80" height="28" rx="14" fill="#4040ff"/>
+  <text x="76" y="206" fill="#fff" text-anchor="middle" font-size="9" font-weight="600">▶  Play</text>
+  <text x="26" y="240" fill="#4040ff" font-size="7">Primary.Background → btn fill</text>
+
+  <!-- Tonal/elevated card -->
+  <rect x="192" y="48" width="150" height="180" rx="12" fill="#eeeeff" stroke="#d8d8ff" stroke-width="1"/>
+  <text x="206" y="68" fill="#6666cc" font-size="8">Surface.Container (selected/active)</text>
+  <rect x="202" y="76" width="130" height="70" rx="6" fill="#d8d8ff"/>
+  <text x="267" y="116" fill="#4040aa" text-anchor="middle" font-size="18">♪</text>
+  <text x="202" y="162" fill="#1a1aff" font-size="11" font-weight="600">Song Title</text>
+  <text x="202" y="177" fill="#6666aa" font-size="9">Artist Name</text>
+  <rect x="202" y="188" width="80" height="28" rx="14" fill="#0a0a60"/>
+  <text x="242" y="206" fill="#e0e0ff" text-anchor="middle" font-size="9" font-weight="600">▶  Play</text>
+  <text x="192" y="240" fill="#4040ff" font-size="7">Primary.OnContainer → btn fill (on tinted surface)</text>
+
+  <!-- Error/warning card -->
+  <rect x="358" y="48" width="150" height="140" rx="12" fill="#fff8f8" stroke="#ffcccc" stroke-width="1.5"/>
+  <text x="372" y="68" fill="#cc0000" font-size="8">Error.Container</text>
+  <text x="372" y="86" fill="#880000" font-size="9" font-weight="600">⚠  Upload failed</text>
+  <text x="372" y="101" fill="#aa4444" font-size="8">File too large (max 10 MB).</text>
+  <text x="372" y="114" fill="#aa4444" font-size="8">Try compressing it first.</text>
+  <rect x="372" y="124" width="70" height="24" rx="12" fill="#cc0000"/>
+  <text x="407" y="140" fill="#fff" text-anchor="middle" font-size="8" font-weight="600">Retry</text>
+  <rect x="448" y="124" width="50" height="24" rx="12" fill="none" stroke="#cc0000" stroke-width="1.2"/>
+  <text x="473" y="140" fill="#cc0000" text-anchor="middle" font-size="8">Dismiss</text>
+  <text x="358" y="205" fill="#cc0000" font-size="7">Error.Container bg · Error.Background btn · Error.Foreground label</text>
+
+  <!-- Token guide strip -->
+  <rect x="14" y="272" width="512" height="36" rx="4" fill="#fffbe6" stroke="#f0c000" stroke-width=".8"/>
+  <text x="22" y="284" fill="#7a6000" font-size="8" font-weight="600">ColorGroup usage guide:</text>
+  <text x="22" y="296" fill="#7a6000" font-size="8">Application.Background = screen canvas  ·  Surface.Background = card  ·  Surface.Container = highlighted card  ·  Primary.Background = action button</text>
+  <text x="22" y="308" fill="#7a6000" font-size="8">Primary.Container = tonal chip/badge  ·  Error.Container = error card bg  ·  Error.Background = destructive button fill</text>
+</svg>
+
+---
+
+### 5.6 Form Layout — Token Flow Across Grouped Inputs
+
+A form groups labels, inputs, and helper/error text. Every element resolves its color from the same
+`IDesignSystem` instance queried once in `OnAttach`.
+
+<svg viewBox="0 0 520 432" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="11">
+  <rect width="520" height="432" fill="#fafafa" rx="8"/>
+  <text x="14" y="16" fill="#333" font-size="10" font-weight="700">Form layout — design system token flow per element</text>
+
+  <!-- Labels -->
+  <text x="14" y="38" fill="#333" font-size="9" font-weight="600">Full name</text>
+  <text x="280" y="38" fill="#333" font-size="9" font-weight="600">Email address</text>
+
+  <!-- Input row 1 -->
+  <rect x="14" y="44" width="244" height="36" rx="4" fill="#fff" stroke="#b0b0b0" stroke-width="1.2"/>
+  <text x="26" y="67" fill="#222" font-size="11">Jane Appleseed</text>
+  <rect x="268" y="44" width="238" height="36" rx="4" fill="#fff" stroke="#4040ff" stroke-width="2"/>
+  <text x="280" y="67" fill="#222" font-size="11">jane@example.com</text>
+  <!-- focus cursor -->
+  <line x1="374" y1="52" x2="374" y2="72" stroke="#4040ff" stroke-width="1.5"/>
+
+  <!-- Token annotations row 1 -->
+  <text x="14"  y="92" fill="#999" font-size="8">Outline border  ·  Surface.Background fill  ·  Application.Foreground text</text>
+  <text x="268" y="92" fill="#4040ff" font-size="8">FocusRing border  ·  Accent.Background cursor</text>
+
+  <!-- Password row -->
+  <text x="14" y="112" fill="#333" font-size="9" font-weight="600">Password</text>
+  <rect x="14" y="118" width="492" height="36" rx="4" fill="#fff" stroke="#b0b0b0" stroke-width="1.2"/>
+  <text x="26" y="141" fill="#222" font-size="11">●●●●●●●●</text>
+  <text x="480" y="141" fill="#888" font-size="11">👁</text>
+  <text x="14" y="164" fill="#999" font-size="8">Outline border  ·  Surface.Background fill  ·  Application.Foreground placeholder  ·  icon from IIconSystem</text>
+
+  <!-- Error field -->
+  <text x="14" y="184" fill="#333" font-size="9" font-weight="600">Phone number</text>
+  <rect x="14" y="190" width="492" height="36" rx="4" fill="#fff8f8" stroke="#cc0000" stroke-width="1.5"/>
+  <text x="26" y="213" fill="#222" font-size="11">+1 (555) 000-BAD</text>
+  <text x="14" y="238" fill="#cc0000" font-size="8">⚠  Please enter a valid phone number</text>
+  <text x="14" y="250" fill="#999" font-size="8">Error.Background border  ·  Error.Container background  ·  Error.Foreground helper text</text>
+
+  <!-- Divider -->
+  <line x1="14" y1="262" x2="506" y2="262" stroke="#e0e0e0" stroke-width=".8"/>
+  <text x="14" y="276" fill="#555" font-size="9" font-weight="600">Notifications</text>
+
+  <!-- Toggle row 1 (on) -->
+  <text x="14" y="298" fill="#222" font-size="10">Email notifications</text>
+  <text x="14" y="311" fill="#888" font-size="8">Receive updates about activity</text>
+  <!-- Toggle ON -->
+  <rect x="454" y="288" width="44" height="24" rx="12" fill="#4040ff"/>
+  <circle cx="466" cy="300" r="9" fill="#fff"/>
+  <text x="480" y="316" fill="#4040ff" font-size="8" text-anchor="middle">ON</text>
+
+  <!-- Toggle row 2 (off) -->
+  <text x="14" y="335" fill="#222" font-size="10">Push notifications</text>
+  <text x="14" y="348" fill="#888" font-size="8">Require device permission</text>
+  <!-- Toggle OFF -->
+  <rect x="454" y="325" width="44" height="24" rx="12" fill="#c0c0c0"/>
+  <circle cx="490" cy="337" r="9" fill="#fff"/>
+  <text x="476" y="353" fill="#888" font-size="8" text-anchor="middle">OFF</text>
+
+  <!-- Token annotations toggle -->
+  <text x="14" y="368" fill="#4040ff" font-size="8">ON: Primary.Background track  ·  Surface.Background thumb</text>
+  <text x="14" y="380" fill="#888"    font-size="8">OFF: Surface.Container track  ·  Surface.Background thumb</text>
+
+  <!-- Submit button -->
+  <rect x="14" y="386" width="120" height="36" rx="18" fill="#4040ff"/>
+  <text x="74" y="409" fill="#fff" text-anchor="middle" font-size="11" font-weight="600">Save changes</text>
+</svg>
+
+---
+
+### 5.7 Toggle / Switch — State via ColorGroup
+
+The toggle (on/off switch) demonstrates how a single `ColorGroup` drives all visual states:
+
+| State | Track fill | Thumb fill |
+|---|---|---|
+| Off | `Surface.Container` | `Surface.Background` |
+| Off + hover | `Surface.Container` + lightened via `Surface.Ramp` | `Surface.Background` |
+| On | `Primary.Background` | `Primary.Foreground` |
+| On + hover | `Primary.Ramp[0.48f]` | `Primary.Foreground` |
+| Disabled | `OutlineVariant` | `Surface.Background` |
+
+<svg viewBox="0 0 480 160" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="11">
+  <rect width="480" height="160" fill="#fafafa" rx="8"/>
+  <text x="14" y="16" fill="#333" font-size="10" font-weight="700">Toggle states</text>
+
+  <!-- OFF -->
+  <text x="14" y="42" fill="#888" font-size="9">Off</text>
+  <rect x="14" y="50" width="44" height="24" rx="12" fill="#c8c8c8"/>
+  <circle cx="50" cy="62" r="9" fill="#fff"/>
+
+  <!-- OFF hover -->
+  <text x="72" y="42" fill="#888" font-size="9">Off hover</text>
+  <rect x="72" y="50" width="44" height="24" rx="12" fill="#b8b8b8"/>
+  <circle cx="108" cy="62" r="9" fill="#fff"/>
+
+  <!-- ON -->
+  <text x="130" y="42" fill="#888" font-size="9">On</text>
+  <rect x="130" y="50" width="44" height="24" rx="12" fill="#4040ff"/>
+  <circle cx="162" cy="62" r="9" fill="#fff"/>
+
+  <!-- ON hover -->
+  <text x="188" y="42" fill="#888" font-size="9">On hover</text>
+  <rect x="188" y="50" width="44" height="24" rx="12" fill="#5555ff"/>
+  <circle cx="220" cy="62" r="9" fill="#fff"/>
+
+  <!-- Disabled OFF -->
+  <text x="246" y="42" fill="#888" font-size="9">Disabled off</text>
+  <rect x="246" y="50" width="44" height="24" rx="12" fill="#e8e8e8"/>
+  <circle cx="282" cy="62" r="9" fill="#f8f8f8"/>
+
+  <!-- Disabled ON -->
+  <text x="304" y="42" fill="#888" font-size="9">Disabled on</text>
+  <rect x="304" y="50" width="44" height="24" rx="12" fill="#b0b0f0"/>
+  <circle cx="336" cy="62" r="9" fill="#f0f0ff"/>
+
+  <!-- Dark mode row -->
+  <rect x="14" y="90" width="450" height="58" rx="6" fill="#111"/>
+
+  <text x="22" y="107" fill="#888" font-size="8">dark mode</text>
+  <!-- OFF dark -->
+  <rect x="22" y="112" width="44" height="24" rx="12" fill="#444"/>
+  <circle cx="58" cy="124" r="9" fill="#999"/>
+  <!-- ON dark -->
+  <rect x="80" y="112" width="44" height="24" rx="12" fill="#9999ff"/>
+  <circle cx="112" cy="124" r="9" fill="#1a1aff"/>
+
+  <text x="140" y="120" fill="#555" font-size="8">OFF: Surface.Container(dark)  ·  thumb: Outline(dark)</text>
+  <text x="140" y="134" fill="#9999ff" font-size="8">ON:  Primary.Background(dark)  ·  thumb: Primary.OnContainer(dark)</text>
+</svg>
+
+---
+
+### 5.8 Chips / Tags — `Container` + `OnContainer`
+
+Chips are the canonical use of `Container + OnContainer` within a `ColorGroup`. They show
+classification, filter state, or attribute labels.
+
+<svg viewBox="0 0 520 200" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="11">
+  <rect width="520" height="200" fill="#fafafa" rx="8"/>
+  <text x="14" y="16" fill="#333" font-size="10" font-weight="700">Chip / Tag variants</text>
+
+  <!-- Row 1: filter chips -->
+  <text x="14" y="38" fill="#888" font-size="9">Filter chips</text>
+
+  <!-- Primary container chip (selected) -->
+  <rect x="14" y="46" width="72" height="28" rx="14" fill="#e0e0ff"/>
+  <text x="50" y="64" fill="#1a1aff" text-anchor="middle" font-size="10" font-weight="600">✓  Music</text>
+
+  <!-- Surface chip (unselected) -->
+  <rect x="94" y="46" width="80" height="28" rx="14" fill="#f0f0f0" stroke="#c8c8c8" stroke-width="1"/>
+  <text x="134" y="64" fill="#444" text-anchor="middle" font-size="10">Podcasts</text>
+
+  <!-- Surface chip -->
+  <rect x="182" y="46" width="72" height="28" rx="14" fill="#f0f0f0" stroke="#c8c8c8" stroke-width="1"/>
+  <text x="218" y="64" fill="#444" text-anchor="middle" font-size="10">Video</text>
+
+  <!-- Secondary container chip -->
+  <rect x="262" y="46" width="76" height="28" rx="14" fill="#d9f9d9"/>
+  <text x="300" y="64" fill="#003a00" text-anchor="middle" font-size="10" font-weight="600">✓  Live</text>
+
+  <!-- Token note -->
+  <text x="14" y="90" fill="#4040ff" font-size="8">Selected: Primary.Container bg · Primary.OnContainer text</text>
+  <text x="14" y="102" fill="#888"   font-size="8">Unselected: Surface.Container bg · Application.Foreground text · Outline border</text>
+
+  <!-- Row 2: label tags -->
+  <text x="14" y="124" fill="#888" font-size="9">Status tags (read-only)</text>
+  <rect x="14"  y="132" width="56" height="22" rx="4" fill="#d9f9d9"/>
+  <text x="42"  y="147" fill="#003a00" text-anchor="middle" font-size="9" font-weight="600">Active</text>
+  <rect x="78"  y="132" width="60" height="22" rx="4" fill="#fff0dd"/>
+  <text x="108" y="147" fill="#7a4000" text-anchor="middle" font-size="9" font-weight="600">Pending</text>
+  <rect x="146" y="132" width="56" height="22" rx="4" fill="#ffe0e0"/>
+  <text x="174" y="147" fill="#880000" text-anchor="middle" font-size="9" font-weight="600">Error</text>
+  <rect x="210" y="132" width="64" height="22" rx="4" fill="#e8e8ff"/>
+  <text x="242" y="147" fill="#1a1aff" text-anchor="middle" font-size="9" font-weight="600">Featured</text>
+  <rect x="282" y="132" width="56" height="22" rx="4" fill="#f0f0f0"/>
+  <text x="310" y="147" fill="#666" text-anchor="middle" font-size="9">Inactive</text>
+
+  <!-- Token note row 2 -->
+  <text x="14" y="172" fill="#1DB954" font-size="8">Secondary.Container · Error.Container · Primary.Container (each with On-variant text)</text>
+  <text x="14" y="184" fill="#888"   font-size="8">Small radius → Shape.Small  ·  Larger radius (pill) → Shape.Full</text>
+
+  <!-- Chip with close icon -->
+  <rect x="14"  y="160" width="96" height="28" rx="14" fill="#e0e0ff"/>
+  <text x="50"  y="178" fill="#1a1aff" text-anchor="middle" font-size="10" font-weight="600">Music</text>
+  <circle cx="99" cy="174" r="8" fill="#c0c0f0"/>
+  <text x="99"  y="178" fill="#4040aa" text-anchor="middle" font-size="10">×</text>
+
+  <rect x="118" y="160" width="96" height="28" rx="14" fill="#d9f9d9"/>
+  <text x="154" y="178" fill="#003a00" text-anchor="middle" font-size="10" font-weight="600">Podcast</text>
+  <circle cx="203" cy="174" r="8" fill="#b0ebb0"/>
+  <text x="203" y="178" fill="#005000" text-anchor="middle" font-size="10">×</text>
+</svg>
+
+---
+
+### 5.9 Dialog / Modal — Elevation and Surface Hierarchy
+
+A dialog sits above the application layer. Its scrim uses `Application.Background` at reduced opacity;
+the dialog surface uses `Surface.Background` elevated via a subtle shadow.
+
+<svg viewBox="0 0 520 300" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="11">
+  <rect width="520" height="300" fill="#e8e8e8" rx="8"/>
+
+  <!-- App content (dimmed) -->
+  <rect x="0" y="0" width="520" height="300" fill="#fafafa" rx="8" opacity=".3"/>
+
+  <!-- Scrim -->
+  <rect x="0" y="0" width="520" height="300" fill="#000" opacity=".35" rx="8"/>
+  <text x="260" y="290" fill="#ffffff" text-anchor="middle" font-size="8" opacity=".5">Scrim: Application.Background @ 35% opacity</text>
+
+  <!-- Dialog surface -->
+  <filter id="shadow"><feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#00000044"/></filter>
+  <rect x="110" y="40" width="300" height="216" rx="16" fill="#ffffff" filter="url(#shadow)"/>
+
+  <!-- Dialog header -->
+  <text x="130" y="72" fill="#111" font-size="13" font-weight="600">Discard changes?</text>
+
+  <!-- Dialog body -->
+  <text x="130" y="94"  fill="#555" font-size="10">You have unsaved changes. Leaving this</text>
+  <text x="130" y="108" fill="#555" font-size="10">page will discard them permanently.</text>
+
+  <!-- Divider -->
+  <line x1="110" y1="124" x2="410" y2="124" stroke="#e8e8e8" stroke-width=".8"/>
+
+  <!-- Checkbox row -->
+  <rect x="130" y="132" width="14" height="14" rx="3" fill="none" stroke="#b0b0b0" stroke-width="1.5"/>
+  <text x="152" y="144" fill="#555" font-size="10">Don't ask me again</text>
+
+  <!-- Action row -->
+  <rect x="130" y="174" width="100" height="34" rx="17" fill="none" stroke="#4040ff" stroke-width="1.5"/>
+  <text x="180" y="196" fill="#4040ff" text-anchor="middle" font-size="11" font-weight="600">Keep editing</text>
+
+  <rect x="244" y="174" width="100" height="34" rx="17" fill="#4040ff"/>
+  <text x="294" y="196" fill="#fff" text-anchor="middle" font-size="11" font-weight="600">Discard</text>
+
+  <!-- Token labels -->
+  <text x="130" y="230" fill="#999" font-size="8">Surface.Background fill  ·  Shape.ExtraLarge radius  ·  elevation via shadow</text>
+  <text x="130" y="242" fill="#4040ff" font-size="8">Primary.Background filled btn  ·  Primary.Background outlined btn</text>
+</svg>
+
+---
+
+### 5.10 List Rows — Density and ColorGroup in Context
+
+List rows use `Application.Background` for the container and `Surface.Container` for hover/selection
+highlights. Density adapts via `Spacing` tokens driven by `DeviceIdiom`.
+
+<svg viewBox="0 0 520 300" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="11">
+  <rect width="520" height="300" fill="#fafafa" rx="8"/>
+  <text x="14" y="16" fill="#333" font-size="10" font-weight="700">List row density — Mobile (comfortable) vs Desktop (compact)</text>
+
+  <!-- === Mobile comfortable rows === -->
+  <text x="14" y="34" fill="#888" font-size="9">Mobile — comfortable density (Spacing.L padding, 56 pt row height)</text>
+
+  <!-- Row 1: default -->
+  <rect x="14" y="40" width="220" height="52" rx="0" fill="#fff" stroke="#f0f0f0" stroke-width=".8"/>
+  <rect x="24" y="52" width="28" height="28" rx="14" fill="#e0e0ff"/>
+  <text x="38" y="70" fill="#4040ff" text-anchor="middle" font-size="14">♪</text>
+  <text x="62" y="62" fill="#222" font-size="11" font-weight="600">Song Title</text>
+  <text x="62" y="76" fill="#888" font-size="9">Artist · 3:24</text>
+  <text x="218" y="66" fill="#bbb" text-anchor="end" font-size="14">⋮</text>
+
+  <!-- Row 2: hover / selected -->
+  <rect x="14" y="92" width="220" height="52" rx="0" fill="#eeeeff" stroke="#d0d0ff" stroke-width=".8"/>
+  <rect x="24" y="104" width="28" height="28" rx="14" fill="#c0c0ff"/>
+  <text x="38" y="122" fill="#1a1aff" text-anchor="middle" font-size="14">♪</text>
+  <text x="62" y="114" fill="#1a1aff" font-size="11" font-weight="600">Playing Now</text>
+  <text x="62" y="128" fill="#6666aa" font-size="9">Artist · 1:12 / 3:24</text>
+  <text x="218" y="118" fill="#4040ff" text-anchor="end" font-size="14">⏸</text>
+  <text x="14" y="156" fill="#4040ff" font-size="8">Selected: Surface.Container bg · Primary.Background icon</text>
+
+  <!-- === Desktop compact rows === -->
+  <text x="266" y="34" fill="#888" font-size="9">Desktop — compact density (Spacing.S padding, 28 pt row height)</text>
+
+  <rect x="266" y="40" width="240" height="28" rx="0" fill="#fff" stroke="#f0f0f0" stroke-width=".8"/>
+  <text x="278" y="59" fill="#444" font-size="11">♪</text>
+  <text x="298" y="59" fill="#222" font-size="11">Song Title</text>
+  <text x="440" y="59" fill="#888" text-anchor="end" font-size="9">Artist</text>
+  <text x="494" y="59" fill="#888" text-anchor="end" font-size="9">3:24</text>
+
+  <rect x="266" y="68" width="240" height="28" rx="0" fill="#eeeeff" stroke="#d0d0ff" stroke-width=".8"/>
+  <text x="278" y="87" fill="#4040ff" font-size="11">▶</text>
+  <text x="298" y="87" fill="#1a1aff" font-size="11" font-weight="600">Playing Now</text>
+  <text x="440" y="87" fill="#6666aa" text-anchor="end" font-size="9">Artist</text>
+  <text x="494" y="87" fill="#6666aa" text-anchor="end" font-size="9">1:12</text>
+
+  <rect x="266" y="96" width="240" height="28" rx="0" fill="#fff" stroke="#f0f0f0" stroke-width=".8"/>
+  <text x="278" y="115" fill="#444" font-size="11">♪</text>
+  <text x="298" y="115" fill="#222" font-size="11">Another Song</text>
+  <text x="440" y="115" fill="#888" text-anchor="end" font-size="9">Artist B</text>
+  <text x="494" y="115" fill="#888" text-anchor="end" font-size="9">4:05</text>
+
+  <text x="266" y="140" fill="#aaa" font-size="8">Row height: 52 pt (mobile) vs 28 pt (desktop)</text>
+  <text x="266" y="152" fill="#aaa" font-size="8">Spacing.L H-padding (mobile) vs Spacing.S (desktop)</text>
+
+  <!-- Divider -->
+  <line x1="14" y1="168" x2="506" y2="168" stroke="#e8e8e8" stroke-width=".8"/>
+
+  <!-- Token summary -->
+  <text x="14"  y="186" fill="#333" font-size="9" font-weight="600">Token flow for a list row:</text>
+  <text x="14"  y="200" fill="#888" font-size="8">background       = Application.Background (default) or Surface.Container (selected)</text>
+  <text x="14"  y="212" fill="#888" font-size="8">primary label    = Application.Foreground  ·  secondary label = Surface.Foreground</text>
+  <text x="14"  y="224" fill="#888" font-size="8">icon background  = Primary.Container       ·  icon tint      = Primary.OnContainer</text>
+  <text x="14"  y="236" fill="#888" font-size="8">selected icon    = Primary.Background      ·  playing tint   = Primary.Background</text>
+  <text x="14"  y="248" fill="#888" font-size="8">row height       = Spacing.XXXL (mobile) or Spacing.XXL (desktop) — driven by DeviceIdiom</text>
+  <text x="14"  y="260" fill="#888" font-size="8">h-padding        = Spacing.L (mobile) or Spacing.S (desktop)</text>
+</svg>
+
+---
+
+### 5.11 Data Visualization Color Series
 
 <svg viewBox="0 0 480 60" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="9">
   <rect width="480" height="60" fill="#fafafa" rx="6"/>
@@ -1160,7 +1751,7 @@ _labelStyle               = ds.Typography.BodyMedium;
 
 ---
 
-### 5.6 Full Component Anatomy
+### 5.12 Full Component Anatomy
 
 <svg viewBox="0 0 480 340" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif" font-size="10">
   <rect width="480" height="340" fill="#f8f8f8" rx="8"/>
@@ -1169,7 +1760,7 @@ _labelStyle               = ds.Typography.BodyMedium;
   <!-- Card -->
   <rect x="16" y="28" width="200" height="140" rx="12" fill="#fff" stroke="#e0e0e0" stroke-width="1.5"/>
   <!-- Card content -->
-  <text x="28" y="52" fill="#1a1aff" font-size="9" font-weight="600">IColorSystem.Surface → fill</text>
+  <text x="28" y="52" fill="#1a1aff" font-size="9" font-weight="600">Colors.Surface.Background → fill</text>
   <text x="28" y="66" fill="#888"    font-size="8">IShapeSystem.Large → rx="12"</text>
   <!-- Title -->
   <rect x="28" y="74" width="100" height="12" rx="2" fill="#e8e8ff"/>
@@ -1180,20 +1771,20 @@ _labelStyle               = ds.Typography.BodyMedium;
   <!-- Button -->
   <rect x="28" y="120" width="60" height="28" rx="14" fill="#4040ff"/>
   <text x="58" y="139" fill="#fff" text-anchor="middle" font-weight="600" font-size="9">Action</text>
-  <text x="28" y="158" fill="#999" font-size="7">IColorSystem.Primary → fill</text>
+  <text x="28" y="158" fill="#999" font-size="7">IColorSystem.Primary.Background → fill</text>
 
   <!-- Arrows / token labels on right -->
   <line x1="220" y1="38" x2="250" y2="38" stroke="#4040ff" stroke-width=".8" marker-end="url(#arrow)"/>
   <text x="256" y="42" fill="#4040ff" font-size="9">Shape.Large (12 × RoundnessFactor)</text>
 
   <line x1="220" y1="70" x2="250" y2="70" stroke="#1DB954" stroke-width=".8"/>
-  <text x="256" y="74" fill="#1DB954" font-size="9">Colors.Surface</text>
+  <text x="256" y="74" fill="#1DB954" font-size="9">Colors.Surface.Background</text>
 
   <line x1="220" y1="100" x2="250" y2="100" stroke="#888" stroke-width=".8"/>
   <text x="256" y="104" fill="#888" font-size="9">Typography.BodyMedium</text>
 
   <line x1="220" y1="134" x2="250" y2="134" stroke="#ff7a1a" stroke-width=".8"/>
-  <text x="256" y="138" fill="#ff7a1a" font-size="9">Colors.Primary (button fill)</text>
+  <text x="256" y="138" fill="#ff7a1a" font-size="9">Colors.Primary.Background (button fill)</text>
 
   <!-- Spacing diagram -->
   <text x="16" y="188" fill="#333" font-size="10" font-weight="600">Spacing token usage in a list row</text>
@@ -1266,13 +1857,16 @@ protected override void OnAttach()
         ?? throw new InvalidOperationException("IDesignSystem is required.");
 
     // Read tokens into cached fields for use during Render and Measure:
-    _background      = ds.Colors.Surface;
-    _foreground      = ds.Colors.OnSurface;
+    _background      = ds.Colors.Surface.Background;
+    _foreground      = ds.Colors.Surface.Foreground;
     _cornerRadius    = ds.Shape.Large;
     _padding         = new Frame(ds.Spacing.L, ds.Spacing.S);
     _titleStyle      = ds.Typography.TitleMedium;
     _hitRadius       = ds.Device.MinimumHitTestRadius;
     _enterAnimation  = ds.Motion.EmphasizedDecelerate;
+    _btnFill         = ds.Colors.Primary.Background;
+    _btnText         = ds.Colors.Primary.Foreground;
+    _btnHover        = ds.Colors.Primary.Ramp[0.48f]; // Background lightness (0.40) + hover offset (0.08)
 
     base.OnAttach();
 }
@@ -1321,15 +1915,19 @@ Triadic             → Secondary = H + 120°, Tertiary  = H + 240°
 Tetradic / Square   → Secondary = H + 90°,  Tertiary  = H + 180°, Quaternary = H + 270°
 ```
 
-### 7.2 From Hue to Full Palette
+### 7.2 From Hue to Full Palette using `Color.Oklch.Ramp`
 
 ```
 For each seed hue H:
-  1. Define a chroma level C (e.g. 0.3–0.5 in OKLCH, or 60–90 % in HSL)
-  2. Generate 13 tonal stops: tone ∈ { 0, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 99, 100 }
-     In OKLCH:  L = tone / 100 (perceptual lightness), C = chroma × sin(π × tone/100), H = seedHue
-     In HSL:    L = tone/100,   S = chroma × (1 - |2L - 1|) (no chroma at extremes)
-  3. Map named color roles to specific tonal stops (light scheme / dark scheme)
+  1. Define a chroma level C (e.g. 0.2–0.35 in OKLCH — typical sRGB-safe range)
+  2. Build a Color.Oklch.Ramp from (L=0, C=C, H=H) to (L=1, C=0, H=H)
+     This single ramp covers all tonal stops via ramp[lightness]:
+       L=0.00 → ramp[0.00f]   (near black)
+       L=0.40 → ramp[0.40f]   → ColorGroup.Background (light mode)
+       L=0.80 → ramp[0.80f]   → ColorGroup.Background (dark mode)
+       L=0.90 → ramp[0.90f]   → ColorGroup.Container  (light mode)
+       L=1.00 → ramp[1.00f]   → ColorGroup.Foreground (light mode, near white)
+  3. Map named color roles to ramp positions (see ColorGroup above)
 ```
 
 ### 7.3 Accessibility Contrast Check
@@ -1373,19 +1971,37 @@ contrastRatio(fg, bg) = (L_lighter + 0.05) / (L_darker + 0.05)
 ## Appendix A: Token Reference Quick-Sheet
 
 ```
+Color.Oklch (nested struct inside Xui.Core.Canvas.Color)
+├── Lightness : nfloat  (0.0 black … 1.0 white)
+├── Chroma    : nfloat  (0.0 gray  … ~0.37 max in sRGB)
+├── Hue       : nfloat  (0–360 °)
+├── implicit Color ↔ Oklch conversions
+└── static Between(Oklch from, Oklch to) → Oklch.Ramp
+         Oklch.Ramp[nfloat t] → Color     (t ∈ [0,1])
+
+ColorGroup (struct in Xui.Core.Design)
+├── Background  : Color  (strong action color — filled button fill)
+├── Foreground  : Color  (contrast text on Background — button label)
+├── Container   : Color  (light tinted fill — chip / tonal button)
+├── OnContainer : Color  (text on Container — chip label)
+└── Ramp        : Color.Oklch.Ramp  (full tonal range for hover/press states)
+
 IDesignSystem
 ├── Colors: IColorSystem
-│   ├── Background, OnBackground
-│   ├── Surface, OnSurface, SurfaceVariant, OnSurfaceVariant
-│   ├── Outline, OutlineVariant
-│   ├── Primary, OnPrimary, PrimaryContainer, OnPrimaryContainer
-│   ├── Secondary, OnSecondary, SecondaryContainer, OnSecondaryContainer
-│   ├── Accent, OnAccent
-│   ├── Error, OnError, ErrorContainer, OnErrorContainer
+│   ├── Application: ColorGroup   (Background=window bg, Foreground=body text,
+│   │                              Container=surface fill, OnContainer=card text)
+│   ├── Surface: ColorGroup       (Background=card fill, Foreground=card text,
+│   │                              Container=alt surface, OnContainer=secondary text)
+│   ├── Outline, OutlineVariant   (neutral borders)
+│   ├── Primary:   ColorGroup     (Background=filled btn, Foreground=btn label,
+│   │                              Container=tonal btn / chip, OnContainer=chip label)
+│   ├── Secondary: ColorGroup     (supporting action, same four-color structure)
+│   ├── Accent:    ColorGroup     (tertiary highlight)
+│   ├── Error:     ColorGroup     (destructive / error state)
 │   ├── FocusRing
 │   ├── DataVizPalette (span of 8+)
 │   ├── IsDark
-│   └── GetTone(hue, saturation, tone) → Color
+│   └── GetTonalRamp(hue, chroma) → Color.Oklch.Ramp
 │
 ├── Typography: ITypographySystem
 │   ├── Display, HeadlineLarge/Medium/Small
