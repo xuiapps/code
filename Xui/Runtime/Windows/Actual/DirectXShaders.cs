@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.InteropServices;
 using Xui.Runtime.Windows;
 using static Xui.Runtime.Windows.D3D11;
