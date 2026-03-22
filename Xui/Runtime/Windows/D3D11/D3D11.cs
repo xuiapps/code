@@ -52,7 +52,7 @@ public static partial class D3D11
                 Count = 1,
                 Quality = 0
             },
-            BufferUsage = Usage.RenderTargetOutput,
+            BufferUsage = DXGI.Usage.RenderTargetOutput,
             BufferCount = 1,
             OutputWindow = hWnd,
             Windowed = true,

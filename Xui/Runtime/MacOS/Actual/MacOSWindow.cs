@@ -74,6 +74,23 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
     private MacOSImageFactory ImageFactory =>
         _imageFactory ??= new MacOSImageFactory();
 
+    // GPU device pipeline (Metal hardware-accelerated 3D rendering)
+    private Xui.GPU.Hardware.Metal.MacOSGpuDevice? _gpuDevice;
+
+    private Xui.GPU.Hardware.IGpuDevice? GpuDevice
+    {
+        get
+        {
+            if (_gpuDevice == null || _gpuDevice.IsDisposed)
+            {
+                _gpuDevice = null;
+                try { _gpuDevice = new Xui.GPU.Hardware.Metal.MacOSGpuDevice(); }
+                catch { /* Metal not available; return null */ }
+            }
+            return _gpuDevice;
+        }
+    }
+
     // Active popups owned by this window
     private readonly List<MacOSPopup> activePopups = new();
 
@@ -84,6 +101,8 @@ public partial class MacOSWindow : NSWindow, Xui.Core.Actual.IWindow
         if (serviceType == typeof(IImage)) return ImageFactory.CreateImage();
         if (serviceType == typeof(IDeviceInfo)) return MacOSDeviceInfo.Instance;
         if (serviceType == typeof(Xui.Core.UI.IPopup)) return CreatePopup();
+        if (serviceType == typeof(Xui.GPU.Hardware.IGpuDevice)) return GpuDevice;
+        if (serviceType == typeof(Xui.GPU.Backends.IShaderBackend)) return new Xui.GPU.Backends.Metal.MslCodeGenerator();
         return null;
     }
 

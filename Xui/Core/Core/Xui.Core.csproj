@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>Xui.Core</RootNamespace>
     <IsPackable>true</IsPackable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup>

@@ -15,6 +15,9 @@
   href: images.md
 - name: Input Handling
   href: input.md
+- name: GPU Rendering
+  href: gpu/toc.yml
+  topicHref: gpu/index.md
 - name: Testing
   href: testing.md
 - name: State Evaluations
