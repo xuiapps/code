@@ -27,9 +27,9 @@ public enum BinaryOperator
     GreaterThan,
     /// <summary>Greater-than-or-equal comparison (&gt;=).</summary>
     GreaterThanOrEqual,
-    /// <summary>Logical AND (&&).</summary>
+    /// <summary>Logical AND.</summary>
     LogicalAnd,
-    /// <summary>Logical OR (||).</summary>
+    /// <summary>Logical OR.</summary>
     LogicalOr,
     /// <summary>Bitwise AND (&amp;).</summary>
     BitwiseAnd,
