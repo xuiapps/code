@@ -1,5 +1,5 @@
 using System.Runtime.CompilerServices;
-using Xui.Apps.BlankApp;
+using Xui.Apps.TestApp;
 using Xui.Core.Abstract.Events;
 using Xui.Core.Math2D;
 using Xui.Core.UI;

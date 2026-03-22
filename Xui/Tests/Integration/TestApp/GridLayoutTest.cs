@@ -1,4 +1,4 @@
-using Xui.Apps.BlankApp;
+using Xui.Apps.TestApp;
 using Xui.Core.Math2D;
 using Xui.Core.UI;
 using Xui.Runtime.Test;
