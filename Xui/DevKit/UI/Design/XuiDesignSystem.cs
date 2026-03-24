@@ -21,19 +21,9 @@ public class XuiDesignSystem : IDesignSystem
     {
         colors = new XuiColorSystem(options, device);
         typography = new XuiTypographySystem(options, device);
-        spacing = new XuiSpacingSystem();
+        spacing = new XuiSpacingSystem(options.Sizing);
         shape = new XuiShapeSystem(options);
         motion = new XuiMotionSystem(options, device);
-
-        MinimumHitTestRadius = device.PointerModel switch
-        {
-            PointerModel.Touch      => 22,
-            PointerModel.Stylus     => 10,
-            PointerModel.Mouse      => 4,
-            PointerModel.Controller => 0,
-            PointerModel.Eye        => 0,
-            _                       => 4,
-        };
     }
 
     /// <inheritdoc/>
@@ -50,9 +40,6 @@ public class XuiDesignSystem : IDesignSystem
 
     /// <inheritdoc/>
     public IMotionSystem Motion => motion;
-
-    /// <inheritdoc/>
-    public nfloat MinimumHitTestRadius { get; }
 
     /// <inheritdoc/>
     public event Action? Changed;
@@ -89,8 +76,20 @@ public class XuiDesignSystemOptions
     /// <summary>Global corner-radius multiplier (0.0 = square, 1.0 = default, 2.0 = very round). Default: 1.0.</summary>
     public nfloat RoundnessFactor { get; init; } = 1;
 
+    /// <summary>Shape preset controlling corner radius tokens. Default: Soft.</summary>
+    public ShapePreset Shape { get; init; } = ShapePreset.Soft;
+
+    /// <summary>Sizing preset controlling spacing and hit-test targets. Default: Mobile.</summary>
+    public SizingPreset Sizing { get; init; } = SizingPreset.Mobile;
+
+    /// <summary>Controls the hue relationship between Application and Surface backgrounds. Default: Monochrome.</summary>
+    public NeutralStyle NeutralStyle { get; init; } = NeutralStyle.Monochrome;
+
     /// <summary>Preferred animation style. Default: Curve.</summary>
     public MotionPreference MotionPreference { get; init; } = MotionPreference.Curve;
+
+    /// <summary>Animation timing preset. Default: Normal.</summary>
+    public MotionPreset Motion { get; init; } = MotionPreset.Normal;
 
     /// <summary>Default font family for all text styles. Default: system-ui.</summary>
     public string DefaultFontFamily { get; init; } = "Inter";

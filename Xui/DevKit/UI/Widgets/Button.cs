@@ -7,18 +7,28 @@ using Xui.DevKit.UI.Design;
 namespace Xui.DevKit.UI.Widgets;
 
 /// <summary>
-/// A filled button that consumes design system tokens for colors, shape, and typography.
-/// Supports hover and pressed visual states.
+/// A button that consumes design system tokens for colors, shape, and typography.
+/// Supports <see cref="ButtonVariant"/> (Filled, Outline, Text) and hover/pressed states.
 /// </summary>
 public class Button : View
 {
     private bool hover;
     private bool pressed;
 
+    /// <summary>Creates a new button with content-sized alignment.</summary>
+    public Button()
+    {
+        HorizontalAlignment = HorizontalAlignment.Left;
+        VerticalAlignment = VerticalAlignment.Top;
+    }
+
     private Color fillColor;
+    private Color outlineColor;
     private Color textColor;
-    private Color hoverColor;
-    private Color pressedColor;
+    private Color hoverFillColor;
+    private Color pressedFillColor;
+    private Color hoverTextBgColor;
+    private Color pressedTextBgColor;
     private CornerRadius cornerRadius;
     private nfloat paddingH;
     private nfloat paddingV;
@@ -26,6 +36,12 @@ public class Button : View
 
     /// <summary>The button label text.</summary>
     public string Text { get; set; } = "";
+
+    /// <summary>Which color group to use. Default is Primary.</summary>
+    public ColorRole Role { get; set; } = ColorRole.Primary;
+
+    /// <summary>Visual weight of the button. Default is Filled.</summary>
+    public ButtonVariant Variant { get; set; } = ButtonVariant.Filled;
 
     /// <summary>Invoked when the button is clicked.</summary>
     public Action? Clicked { get; set; }
@@ -43,25 +59,57 @@ public class Button : View
         ApplyDesignSystem();
     }
 
+    private ColorGroup ResolveGroup(IColorSystem colors) => Role switch
+    {
+        ColorRole.Secondary => colors.Secondary,
+        ColorRole.Tertiary => colors.Tertiary,
+        ColorRole.Warning => colors.Warning,
+        ColorRole.Error => colors.Error,
+        ColorRole.Neutral => colors.Neutral,
+        _ => colors.Primary,
+    };
+
     private void ApplyDesignSystem()
     {
         var ds = this.GetService(typeof(IDesignSystem)) as IDesignSystem;
         if (ds == null) return;
 
-        var primary = ds.Colors.Primary;
-        fillColor = primary.Background;
-        textColor = primary.Foreground;
-        hoverColor = primary.Ramp[0.48f];
-        pressedColor = primary.Ramp[0.35f];
+        var group = ResolveGroup(ds.Colors);
+        var isDark = ds.Colors.IsDark;
+
+        // Filled variant colors
+        fillColor = group.Background;
+        outlineColor = group.Background;
+        textColor = group.Foreground;
+        // Compute hover/pressed relative to the base lightness
+        var baseL = group.BackgroundLightness;
+        var hoverOffset = isDark ? 0.08f : -0.06f;
+        var pressedOffset = isDark ? 0.15f : -0.12f;
+        hoverFillColor = group.Ramp[nfloat.Clamp(baseL + hoverOffset, 0, 1)];
+        pressedFillColor = group.Ramp[nfloat.Clamp(baseL + pressedOffset, 0, 1)];
+        hoverTextBgColor = group.Container;
+        pressedTextBgColor = group.Ramp[nfloat.Clamp(baseL + (isDark ? -0.06f : 0.06f), 0, 1)];
+
+        // Override text/outline colors based on variant
+        if (Variant == ButtonVariant.Outline)
+        {
+            textColor = group.Background; // use the group's strong color for text
+        }
+        else if (Variant == ButtonVariant.Text)
+        {
+            textColor = group.Background;
+        }
+
         cornerRadius = ds.Shape.Full;
-        paddingH = ds.Spacing.L;
-        paddingV = ds.Spacing.S;
+        paddingH = ds.Spacing.Active.L;
+        paddingV = ds.Spacing.Active.S;
         textStyle = ds.Typography.Label.L;
     }
 
     /// <inheritdoc/>
     protected override Size MeasureCore(Size available, IMeasureContext context)
     {
+        ApplyDesignSystem();
         context.SetFont(new Font(
             textStyle.FontSize,
             [textStyle.FontFamily],
@@ -78,13 +126,79 @@ public class Button : View
     /// <inheritdoc/>
     protected override void RenderCore(IContext context)
     {
-        var fill = pressed ? pressedColor : hover ? hoverColor : fillColor;
+        ApplyDesignSystem();
 
+        switch (Variant)
+        {
+            case ButtonVariant.Filled:
+                RenderFilled(context);
+                break;
+            case ButtonVariant.Outline:
+                RenderOutline(context);
+                break;
+            case ButtonVariant.Text:
+                RenderText(context);
+                break;
+        }
+
+        RenderLabel(context);
+    }
+
+    private void RenderFilled(IContext context)
+    {
+        var fill = pressed ? pressedFillColor : hover ? hoverFillColor : fillColor;
         context.BeginPath();
         context.RoundRect(this.Frame, cornerRadius);
         context.SetFill(fill);
         context.Fill();
+    }
 
+    private void RenderOutline(IContext context)
+    {
+        if (pressed)
+        {
+            context.BeginPath();
+            context.RoundRect(this.Frame, cornerRadius);
+            context.SetFill(pressedTextBgColor);
+            context.Fill();
+        }
+        else if (hover)
+        {
+            context.BeginPath();
+            context.RoundRect(this.Frame, cornerRadius);
+            context.SetFill(hoverTextBgColor);
+            context.Fill();
+        }
+
+        // Always draw outline
+        context.BeginPath();
+        context.RoundRect(this.Frame, cornerRadius);
+        context.SetStroke(outlineColor);
+        context.LineWidth = 1;
+        context.Stroke();
+    }
+
+    private void RenderText(IContext context)
+    {
+        // Only show background on hover or press
+        if (pressed)
+        {
+            context.BeginPath();
+            context.RoundRect(this.Frame, cornerRadius);
+            context.SetFill(pressedTextBgColor);
+            context.Fill();
+        }
+        else if (hover)
+        {
+            context.BeginPath();
+            context.RoundRect(this.Frame, cornerRadius);
+            context.SetFill(hoverTextBgColor);
+            context.Fill();
+        }
+    }
+
+    private void RenderLabel(IContext context)
+    {
         context.SetFont(new Font(
             textStyle.FontSize,
             [textStyle.FontFamily],

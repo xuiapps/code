@@ -37,6 +37,12 @@ public readonly struct ColorGroup
     public OklchRamp Ramp { get; init; }
 
     /// <summary>
+    /// The lightness value (0–1) used to produce <see cref="Background"/> from the ramp.
+    /// Enables relative hover/press offset computation.
+    /// </summary>
+    public nfloat BackgroundLightness { get; init; }
+
+    /// <summary>
     /// Creates a <see cref="ColorGroup"/> from a tonal ramp and color scheme.
     /// </summary>
     public static ColorGroup FromRamp(OklchRamp ramp, bool isDark)
@@ -50,6 +56,7 @@ public readonly struct ColorGroup
                 Container   = ramp[0.30f],
                 OnContainer = ramp[0.90f],
                 Ramp        = ramp,
+                BackgroundLightness = 0.80f,
             };
         }
 
@@ -60,6 +67,7 @@ public readonly struct ColorGroup
             Container   = ramp[0.90f],
             OnContainer = ramp[0.10f],
             Ramp        = ramp,
+            BackgroundLightness = 0.40f,
         };
     }
 }

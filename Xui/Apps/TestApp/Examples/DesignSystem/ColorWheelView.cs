@@ -14,7 +14,6 @@ namespace Xui.Apps.TestApp.Examples.DesignSystem;
 /// </summary>
 internal class ColorWheelView : View
 {
-    private readonly DesignSystemDemoView owner;
     private IImage? wheelImage;
     private bool dragging;
 
@@ -22,8 +21,6 @@ internal class ColorWheelView : View
     private static readonly NFloat InnerFraction = 0.35f;
     private static readonly NFloat IndicatorRadius = 8;
     private static readonly NFloat SmallIndicatorRadius = 5;
-
-    public ColorWheelView(DesignSystemDemoView owner) => this.owner = owner;
 
     public override int Count => 0;
     public override View this[int index] => throw new IndexOutOfRangeException();
@@ -83,18 +80,21 @@ internal class ColorWheelView : View
 
     private void UpdateHue(NFloat dx, NFloat dy)
     {
+        var editor = this.GetService<IDesignSystemEditor>();
+        if (editor == null) return;
         var angle = NFloat.Atan2(dy, dx);
         var hue = (NFloat)(angle * (180.0 / Math.PI));
         if (hue < 0) hue += 360;
-        owner.SetHue(hue);
+        editor.SetHue(hue);
     }
 
-    protected override Size MeasureCore(Size available, IMeasureContext context) => available;
+    protected override Size MeasureCore(Size available, IMeasureContext context) => new Size(WheelSize + 16, WheelSize + 16);
 
     protected override void RenderCore(IContext context)
     {
-        var ds = owner.DesignSystem;
-        if (ds == null) return;
+        var ds = this.GetService<IDesignSystem>();
+        var editor = this.GetService<IDesignSystemEditor>();
+        if (ds == null || editor == null) return;
 
         var twoPi = (NFloat)(2 * Math.PI);
         var (center, outerR, innerR) = WheelGeometry();
@@ -134,14 +134,14 @@ internal class ColorWheelView : View
         // Hue indicators
         var indicatorDist = (outerR + innerR) / 2;
 
-        DrawHueIndicator(context, center, indicatorDist, owner.PrimaryHue,
+        DrawHueIndicator(context, center, indicatorDist, editor.PrimaryHue,
             IndicatorRadius, ds.Colors.Primary.Background, true);
 
-        var (secHue, tertHue) = GetDerivedHues(owner.PrimaryHue, owner.Harmony);
+        var (secHue, tertHue) = GetDerivedHues(editor.PrimaryHue, editor.Harmony);
         DrawHueIndicator(context, center, indicatorDist, secHue,
             SmallIndicatorRadius, ds.Colors.Secondary.Background, false);
         DrawHueIndicator(context, center, indicatorDist, tertHue,
-            SmallIndicatorRadius, ds.Colors.Accent.Background, false);
+            SmallIndicatorRadius, ds.Colors.Tertiary.Background, false);
     }
 
     private static void DrawHueIndicator(IContext context, Point center, NFloat dist,

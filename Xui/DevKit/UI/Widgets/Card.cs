@@ -6,15 +6,15 @@ using Xui.DevKit.UI.Design;
 namespace Xui.DevKit.UI.Widgets;
 
 /// <summary>
-/// A card container that uses Surface colors from the design system.
-/// Renders a rounded background and arranges a single child with padding.
+/// A card container that uses design system tokens for background, outline, shape, and padding.
+/// By default uses Surface colors. Set <see cref="Role"/> to use a specific color group.
 /// </summary>
 public class Card : View
 {
     private View? content;
 
     private Color backgroundColor;
-    private Color foregroundColor;
+    private Color outlineColor;
     private CornerRadius cornerRadius;
     private nfloat padding;
 
@@ -24,6 +24,12 @@ public class Card : View
         get => content;
         set => this.SetProtectedChild(ref content, value);
     }
+
+    /// <summary>
+    /// When null, the card uses Surface colors. When set, uses the specified color group's
+    /// Container/OnContainer as background/foreground.
+    /// </summary>
+    public ColorRole? Role { get; set; }
 
     /// <inheritdoc/>
     public override int Count => content is null ? 0 : 1;
@@ -44,15 +50,35 @@ public class Card : View
         var ds = this.GetService(typeof(IDesignSystem)) as IDesignSystem;
         if (ds == null) return;
 
-        backgroundColor = ds.Colors.Surface.Background;
-        foregroundColor = ds.Colors.Surface.Foreground;
+        if (Role.HasValue)
+        {
+            var group = Role.Value switch
+            {
+                ColorRole.Primary => ds.Colors.Primary,
+                ColorRole.Secondary => ds.Colors.Secondary,
+                ColorRole.Tertiary => ds.Colors.Tertiary,
+                ColorRole.Warning => ds.Colors.Warning,
+                ColorRole.Error => ds.Colors.Error,
+                ColorRole.Neutral => ds.Colors.Neutral,
+                _ => ds.Colors.Primary,
+            };
+            backgroundColor = group.Container;
+            outlineColor = group.Background;
+        }
+        else
+        {
+            backgroundColor = ds.Colors.Surface.Background;
+            outlineColor = ds.Colors.OutlineVariant;
+        }
+
         cornerRadius = ds.Shape.Large;
-        padding = ds.Spacing.L;
+        padding = ds.Spacing.Passive.L;
     }
 
     /// <inheritdoc/>
     protected override Size MeasureCore(Size available, IMeasureContext context)
     {
+        ApplyDesignSystem();
         if (content == null)
             return new Size(padding * 2, padding * 2);
 
@@ -84,10 +110,19 @@ public class Card : View
     /// <inheritdoc/>
     protected override void RenderCore(IContext context)
     {
+        ApplyDesignSystem();
+        // Fill
         context.BeginPath();
         context.RoundRect(this.Frame, cornerRadius);
         context.SetFill(backgroundColor);
         context.Fill();
+
+        // Outline
+        context.BeginPath();
+        context.RoundRect(this.Frame, cornerRadius);
+        context.SetStroke(outlineColor);
+        context.LineWidth = 1;
+        context.Stroke();
 
         if (content != null)
             content.Render(context);

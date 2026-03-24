@@ -21,12 +21,6 @@ public interface IDesignSystem
     /// <summary>Motion tokens (curves and springs).</summary>
     IMotionSystem Motion { get; }
 
-    /// <summary>
-    /// Minimum hit-test radius in points. A design choice derived from the device's pointer model.
-    /// Touch = 22 pt, Stylus = 10 pt, Mouse = 4 pt.
-    /// </summary>
-    nfloat MinimumHitTestRadius { get; }
-
     /// <summary>Raised when any design token has changed (e.g. dark mode toggle, font scale change).</summary>
     event Action? Changed;
 }

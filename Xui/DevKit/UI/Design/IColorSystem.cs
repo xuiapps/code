@@ -23,6 +23,13 @@ public interface IColorSystem
     /// </summary>
     ColorGroup Surface { get; }
 
+    /// <summary>
+    /// Low-chroma interactive group matching the surface tone.
+    /// Used for quiet buttons, toolbars, and controls that should not compete
+    /// with Primary/Secondary/Tertiary.
+    /// </summary>
+    ColorGroup Neutral { get; }
+
     /// <summary>Neutral border/divider color (mid-tone).</summary>
     Color Outline { get; }
 
@@ -35,13 +42,16 @@ public interface IColorSystem
     /// <summary>Supporting / secondary action group (from the Secondary tonal ramp).</summary>
     ColorGroup Secondary { get; }
 
-    /// <summary>Tertiary highlight / accent group (from the Accent tonal ramp).</summary>
-    ColorGroup Accent { get; }
+    /// <summary>Tertiary highlight / accent group (from the Tertiary tonal ramp).</summary>
+    ColorGroup Tertiary { get; }
+
+    /// <summary>Warning / caution state group (yellow-orange tonal ramp).</summary>
+    ColorGroup Warning { get; }
 
     /// <summary>Error / destructive state group (from the Error tonal ramp).</summary>
     ColorGroup Error { get; }
 
-    /// <summary>Focus ring color (typically Accent.Background at full opacity).</summary>
+    /// <summary>Focus ring color (typically Tertiary.Background at full opacity).</summary>
     Color FocusRing { get; }
 
     /// <summary>
