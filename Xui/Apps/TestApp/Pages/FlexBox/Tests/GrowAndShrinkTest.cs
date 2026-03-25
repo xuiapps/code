@@ -106,9 +106,38 @@ public class GrowAndShrinkTest : View
 
         protected override Size MeasureCore(Size availableSize, IMeasureContext context)
         {
-            var size = new Size(Width > 0 ? Width : availableSize.Width, Height > 0 ? Height : availableSize.Height);
-            _content?.Measure(size, context);
-            return size;
+            // When width/height is 0 or unset, measure content to get its size
+            // But clamp infinite available sizes to prevent returning infinity
+            if (Width > 0 && Height > 0)
+            {
+                // Both dimensions specified
+                _content?.Measure(new Size(Width, Height), context);
+                return new Size(Width, Height);
+            }
+            else if (Width > 0)
+            {
+                // Only width specified, get height from content
+                var contentSize = _content?.Measure(new Size(Width, NFloat.IsFinite(availableSize.Height) ? availableSize.Height : NFloat.PositiveInfinity), context) ?? Size.Empty;
+                return new Size(Width, NFloat.IsFinite(contentSize.Height) ? contentSize.Height : 0);
+            }
+            else if (Height > 0)
+            {
+                // Only height specified, get width from content
+                var contentSize = _content?.Measure(new Size(NFloat.IsFinite(availableSize.Width) ? availableSize.Width : NFloat.PositiveInfinity, Height), context) ?? Size.Empty;
+                return new Size(NFloat.IsFinite(contentSize.Width) ? contentSize.Width : 0, Height);
+            }
+            else
+            {
+                // No dimensions specified, measure content with clamped available size
+                var availWidth = NFloat.IsFinite(availableSize.Width) ? availableSize.Width : NFloat.PositiveInfinity;
+                var availHeight = NFloat.IsFinite(availableSize.Height) ? availableSize.Height : NFloat.PositiveInfinity;
+                var contentSize = _content?.Measure(new Size(availWidth, availHeight), context) ?? Size.Empty;
+                // Clamp infinity to 0 - don't return infinity from measurement
+                return new Size(
+                    NFloat.IsFinite(contentSize.Width) ? contentSize.Width : 0,
+                    NFloat.IsFinite(contentSize.Height) ? contentSize.Height : 0
+                );
+            }
         }
 
         protected override void ArrangeCore(Rect rect, IMeasureContext context)

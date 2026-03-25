@@ -117,11 +117,16 @@ public partial class FlexBox
             }
             else
             {
-                item.HypotheticalMainSize = isHorizontal ? childSize.Width : childSize.Height;
+                var mainSize = isHorizontal ? childSize.Width : childSize.Height;
+                // Clamp infinity to 0 - if a child returns infinity when measured with infinity,
+                // treat it as having no intrinsic size (similar to how Grid handles this)
+                item.HypotheticalMainSize = nfloat.IsFinite(mainSize) ? mainSize : 0;
             }
 
             // Store cross size
-            item.HypotheticalCrossSize = isHorizontal ? childSize.Height : childSize.Width;
+            var crossSize = isHorizontal ? childSize.Height : childSize.Width;
+            // Clamp infinity to 0 for cross size as well
+            item.HypotheticalCrossSize = nfloat.IsFinite(crossSize) ? crossSize : 0;
 
             items.Add(item);
         }
