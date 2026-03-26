@@ -112,7 +112,12 @@ Both SwiftUI (`NavigationStack`, `NavigationSplitView`) and Jetpack Compose (`Na
 ### 2.1 Context Provider — Services That Flow Down
 
 #### Problem
-Xui's current DI walks *up* the tree (child → parent → … → Window). This is good for platform/infrastructure services. However, app-level services — like the currently signed-in user, a navigation controller, the active design theme, or a data store — need to:
+Xui's current DI walks *up* the tree (child → parent → … → Window). This is good for platform/infrastructure services. However, app-level services — like the currently signed-in user, a navigation controller, the active design theme, or a data store — require a **bidirectional** model:
+
+- **Query direction (up):** a deep view asks its ancestor chain for the service value — the same pattern as `GetService`.
+- **Notification direction (down):** when the service value changes, all registered consumers below the provider are automatically invalidated (measure + render).
+
+The existing DI chain provides the *query* direction but has no *notification* direction. App-level services therefore additionally need to:
 
 1. Be **injected at a subtree root** (e.g. a page), not only at the Window level.
 2. **Notify all consumers** when the service state changes, triggering layout/render invalidation.
@@ -124,10 +129,19 @@ Xui's current DI walks *up* the tree (child → parent → … → Window). This
 /// Marks a view as a provider of a typed context value.
 /// Views below this node may call GetContext<T>() to receive the value.
 /// When the value changes, all attached consumers are invalidated.
+/// Implementing RegisterConsumer on the interface ensures that any
+/// custom provider (not only ContextProvider<T>) can participate in
+/// the change-notification protocol.
 /// </summary>
 public interface IContextProvider<T>
 {
     T ContextValue { get; }
+
+    /// <summary>
+    /// Registers a consumer view so it is invalidated when ContextValue changes.
+    /// Implementations should hold weak references to avoid keeping consumers alive.
+    /// </summary>
+    void RegisterConsumer(View consumer);
 }
 ```
 
@@ -136,7 +150,7 @@ public interface IContextProvider<T>
 /// A view that injects a typed context value into the subtree it contains.
 /// Analogous to React's <Context.Provider value={…}>.
 /// </summary>
-public class ContextProvider<T> : View
+public class ContextProvider<T> : View, IContextProvider<T>
 {
     private T value;
     private readonly List<WeakReference<View>> consumers = new();
@@ -152,6 +166,9 @@ public class ContextProvider<T> : View
         }
     }
 
+    // IContextProvider<T>
+    T IContextProvider<T>.ContextValue => Value;
+
     public override object? GetService(Type serviceType)
     {
         if (serviceType == typeof(IContextProvider<T>))
@@ -159,7 +176,7 @@ public class ContextProvider<T> : View
         return base.GetService(serviceType);
     }
 
-    internal void RegisterConsumer(View consumer)
+    public void RegisterConsumer(View consumer)
     {
         consumers.Add(new WeakReference<View>(consumer));
     }
@@ -193,10 +210,10 @@ public static class ViewContextExtensions
     public static T GetContext<T>(this View view, T defaultValue = default!)
     {
         var provider = view.GetService<IContextProvider<T>>();
-        if (provider is ContextProvider<T> cp)
+        if (provider is not null)
         {
-            cp.RegisterConsumer(view);
-            return cp.Value;
+            provider.RegisterConsumer(view);
+            return provider.ContextValue;
         }
         return defaultValue;
     }
@@ -402,7 +419,7 @@ public abstract class TemplatedView : View
 
     /// <inheritdoc/>
     public override View this[int index] =>
-        index == 0 && content is not null ? content : throw new IndexOutOfRangeException();
+        index == 0 && content is not null ? content : throw new ArgumentOutOfRangeException(nameof(index));
 
     /// <summary>
     /// Called once when the view is first attached to the visual tree.
@@ -465,7 +482,13 @@ public abstract class SlottedView : TemplatedView
     public View? SlotContent
     {
         get => slotContent;
-        set => slotContent = value; // Will be projected by BuildContent()
+        set
+        {
+            slotContent = value;
+            // If already attached, re-realize so the new slot content is projected.
+            if ((this.Flags & ViewFlags.Attached) != 0)
+                Realize();
+        }
     }
 }
 ```
@@ -601,9 +624,25 @@ public class NavigationStack : TemplatedView, INavigationController, IServicePro
         path.Add(root);
     }
 
+    /// <summary>
+    /// Push a new page onto the stack. Fires PathChanged and starts the
+    /// configured push transition. No-op if destination equals the current top.
+    /// </summary>
     public void Push(IDestination destination) { /* … */ }
+
+    /// <summary>
+    /// Pop the top page. Fires PathChanged and starts the configured pop transition.
+    /// No-op if the stack has only the root page.
+    /// </summary>
     public void Pop() { /* … */ }
+
+    /// <summary>Pop all pages back to the root. No-op if already at root.</summary>
     public void PopToRoot() { /* … */ }
+
+    /// <summary>
+    /// Replace the entire path. The router resolves each destination in order;
+    /// the last item becomes the active page. Fires PathChanged once.
+    /// </summary>
     public void Replace(IReadOnlyList<IDestination> newPath) { /* … */ }
 
     // Provide INavigationController to descendants
@@ -686,6 +725,11 @@ A container that presents multiple pages (tabs), each with an icon and label. On
 public class TabView : View, IServiceProvider
 {
     public IReadOnlyList<TabItem> Tabs { get; }
+
+    /// <summary>
+    /// Gets or sets the index of the active tab.
+    /// Setting an out-of-range value throws ArgumentOutOfRangeException.
+    /// </summary>
     public int SelectedIndex { get; set; }
     public TabBarPosition BarPosition { get; set; } = TabBarPosition.Bottom; // Bottom for mobile, Top for desktop
 
@@ -717,7 +761,7 @@ public interface ITabController
 - All tab pages are **attached** to the visual tree immediately (platform resources available).
 - Only the **active** tab is **activated** (receives events, renders, animates).
 - On tab switch: `DeactivateSubtree(outgoing)` → `ActivateSubtree(incoming)`.
-- If `PersistWhenInactive = false`, the inactive tab page is detached to free resources.
+- If `PersistWhenInactive = false`, the inactive tab page is **fully detached** (both deactivated and removed from the visual tree), freeing all platform resources (images, font caches). It will be re-attached and re-activated when the tab is selected again.
 
 ---
 
@@ -959,6 +1003,12 @@ public class ProfilePage : Page
     }
 
     protected override View BuildContent() => new Label { Text = auth.CurrentUser.Value?.DisplayName ?? "Guest" };
+    // Note: BuildContent() is called once on attach. It reads auth.CurrentUser.Value
+    // at that point. Subsequent changes are handled by the Watch() subscription in
+    // ConfigureBindings(), which triggers InvalidateRender(). If the AuthService
+    // *itself* is replaced in the DI container (not just its CurrentUser value),
+    // the page will not automatically update — the page should be re-attached or
+    // the application should navigate away and back to rebuild the page.
 }
 ```
 
@@ -1032,8 +1082,8 @@ public record ProductDetailDestination(string ProductId) : IDestination;
 **State restoration:**
 
 ```csharp
-// Persist
-var serialized = history.Path.Select(SerializeDestination).ToList();
+// Persist — navigationStack is the NavigationStack instance
+var serialized = navigationStack.Path.Select(SerializeDestination).ToList();
 prefs.Set("nav_path", serialized);
 
 // Restore
