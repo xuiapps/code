@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.IO.Pipes;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -27,6 +28,7 @@ public sealed class RealApp : IAsyncDisposable
     private readonly DevToolsClient client;
     private readonly List<string> log = [];
     private readonly object logLock = new();
+    private readonly CancellationTokenSource drainCts = new();
     private const int MaxLogLines = 200;
 
     private RealApp(Process process, DevToolsClient client)
@@ -81,6 +83,7 @@ public sealed class RealApp : IAsyncDisposable
         var startupLog = new List<string>();
 
         // Drain stderr concurrently so build errors and crash output are always captured.
+        // We await this task before throwing on failure so the log is fully populated.
         var stderrTask = Task.Run(async () =>
         {
             try
@@ -115,6 +118,8 @@ public sealed class RealApp : IAsyncDisposable
 
         if (pipeName == null)
         {
+            // Give stderr draining a moment to collect build/crash output before reporting.
+            await Task.WhenAny(stderrTask, Task.Delay(500));
             var exitInfo = process.HasExited ? $" Process exited with code {process.ExitCode}." : "";
             try { process.Kill(entireProcessTree: true); } catch { }
             process.Dispose();
@@ -139,8 +144,9 @@ public sealed class RealApp : IAsyncDisposable
         var app = new RealApp(process, client);
         app.SeedLog(startupLog);
 
-        // Continue draining stdout after DEVTOOLS_READY.
-        _ = app.DrainAsync(process.StandardOutput);
+        // Continue draining stdout and stderr after DEVTOOLS_READY.
+        _ = app.DrainAsync(process.StandardOutput, app.drainCts.Token);
+        _ = app.DrainAsync(process.StandardError, app.drainCts.Token);
 
         return app;
     }
@@ -154,13 +160,13 @@ public sealed class RealApp : IAsyncDisposable
         }
     }
 
-    private async Task DrainAsync(StreamReader reader)
+    private async Task DrainAsync(StreamReader reader, CancellationToken ct)
     {
         try
         {
-            while (true)
+            while (!ct.IsCancellationRequested)
             {
-                var line = await reader.ReadLineAsync();
+                var line = await reader.ReadLineAsync(ct);
                 if (line == null) break;
                 lock (logLock)
                 {
@@ -169,6 +175,7 @@ public sealed class RealApp : IAsyncDisposable
                 }
             }
         }
+        catch (OperationCanceledException) { }
         catch { }
     }
 
@@ -210,19 +217,19 @@ public sealed class RealApp : IAsyncDisposable
     }
 
     /// <summary>Sends a mouse click (down + up) at coordinates (<paramref name="x"/>, <paramref name="y"/>).</summary>
-    public Task ClickAsync(float x, float y)
-        => client.SendAsync("input.click", new { x, y });
+    public Task ClickAsync(NFloat x, NFloat y)
+        => client.SendAsync("input.click", new { x = (float)x, y = (float)y });
 
     /// <summary>Sends a tap at coordinates (<paramref name="x"/>, <paramref name="y"/>).</summary>
-    public Task TapAsync(float x, float y)
-        => client.SendAsync("input.tap", new { x, y });
+    public Task TapAsync(NFloat x, NFloat y)
+        => client.SendAsync("input.tap", new { x = (float)x, y = (float)y });
 
     /// <summary>
     /// Sends a pointer event. <paramref name="phase"/> must be one of
     /// <c>"start"</c>, <c>"move"</c>, <c>"end"</c>, or <c>"cancel"</c>.
     /// </summary>
-    public Task PointerAsync(string phase, float x, float y, int index = 0)
-        => client.SendAsync("input.pointer", new { phase, x, y, index });
+    public Task PointerAsync(string phase, NFloat x, NFloat y, int index = 0)
+        => client.SendAsync("input.pointer", new { phase, x = (float)x, y = (float)y, index });
 
     /// <summary>Forces an immediate redraw of the app window.</summary>
     public Task InvalidateAsync()
@@ -240,6 +247,7 @@ public sealed class RealApp : IAsyncDisposable
     /// </summary>
     public async ValueTask DisposeAsync()
     {
+        drainCts.Cancel();
         client.Dispose();
         if (!process.HasExited)
         {
@@ -247,6 +255,7 @@ public sealed class RealApp : IAsyncDisposable
         }
         await process.WaitForExitAsync().ConfigureAwait(false);
         process.Dispose();
+        drainCts.Dispose();
     }
 
     /// <summary>
@@ -274,6 +283,10 @@ public sealed class RealApp : IAsyncDisposable
 
 /// <summary>
 /// Represents a node in the Xui view hierarchy as returned by <c>ui.inspect</c>.
+/// Coordinates (<see cref="X"/>, <see cref="Y"/>, <see cref="CenterX"/>, <see cref="CenterY"/>,
+/// etc.) are <see cref="float"/> because they are deserialized directly from the JSON-RPC
+/// response. Pass them to <see cref="RealApp.ClickAsync"/> and related methods, which accept
+/// <see cref="NFloat"/> and handle the widening conversion automatically.
 /// </summary>
 public record ViewNode(
     string Type,
