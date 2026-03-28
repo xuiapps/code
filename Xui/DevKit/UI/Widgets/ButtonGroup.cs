@@ -302,6 +302,13 @@ public class ButtonGroupItem : View
             IsPressed = false;
             this.Parent?.InvalidateRender();
         }
+        else if (e.Type == PointerEventType.LostCapture)
+        {
+            pressed = false;
+            IsPressed = false;
+            IsHovered = false;
+            this.Parent?.InvalidateRender();
+        }
 
         base.OnPointerEvent(ref e, phase);
     }

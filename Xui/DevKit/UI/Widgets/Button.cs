@@ -241,6 +241,13 @@ public class Button : View
             pressed = false;
             this.InvalidateRender();
         }
+        else if (e.Type == PointerEventType.LostCapture)
+        {
+            // Another view (e.g. ScrollView) stole the pointer — cancel press.
+            pressed = false;
+            hover = false;
+            this.InvalidateRender();
+        }
 
         base.OnPointerEvent(ref e, phase);
     }
