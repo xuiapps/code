@@ -260,9 +260,16 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
         var className = view.ClassName.Count > 0 
             ? string.Join(" ", view.ClassName) 
             : null;
-        
+
+        // Strip generic arity suffix (e.g. "ViewCollection`1" -> "ViewCollection") so the
+        // type name can be used as a valid XML element name by the MCP InspectUi tool.
+        var typeName = view.GetType().Name;
+        var backtickIdx = typeName.IndexOf('`');
+        if (backtickIdx >= 0)
+            typeName = typeName[..backtickIdx];
+
         return new ViewNode(
-            view.GetType().Name,
+            typeName,
             (float)f.X, (float)f.Y,
             (float)f.Width, (float)f.Height,
             centerX, centerY,

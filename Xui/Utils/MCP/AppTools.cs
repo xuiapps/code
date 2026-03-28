@@ -314,7 +314,14 @@ public static class AppTools
 
     private static void WriteViewNode(XmlWriter writer, ViewNode node)
     {
-        writer.WriteStartElement(node.Type);
+        // Sanitize the type name: strip generic arity suffix (e.g. "ViewCollection`1" -> "ViewCollection")
+        // so the name is always a valid XML element name.
+        var elementName = node.Type;
+        var backtickIdx = elementName.IndexOf('`');
+        if (backtickIdx >= 0)
+            elementName = elementName[..backtickIdx];
+
+        writer.WriteStartElement(elementName);
 
         // Add id attribute if present
         if (!string.IsNullOrEmpty(node.Id))
