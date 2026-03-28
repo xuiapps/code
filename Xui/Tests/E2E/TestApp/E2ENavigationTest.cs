@@ -23,13 +23,13 @@ public class E2ENavigationTest
     [Fact]
     public async Task HomePage_Renders_And_Shows_Navigation_Buttons()
     {
+        await using var log = new TestLog(nameof(HomePage_Renders_And_Shows_Navigation_Buttons));
         await using var app = await RealApp.StartAsync(
             TestAppProject,
-            workingDirectory: SolutionRoot());
+            workingDirectory: SolutionRoot(),
+            testLog: log);
 
-        var root = await app.InspectAsync();
-
-        Assert.NotNull(root);
+        var root = await app.WaitForWindowAsync();
 
         // The home page should have navigation buttons for the examples.
         var gridButton = root.FindById("GridLayout");
@@ -40,13 +40,15 @@ public class E2ENavigationTest
     [Fact]
     public async Task Can_Navigate_To_GridLayout_And_Back()
     {
+        await using var log = new TestLog(nameof(Can_Navigate_To_GridLayout_And_Back));
         await using var app = await RealApp.StartAsync(
             TestAppProject,
-            workingDirectory: SolutionRoot());
+            workingDirectory: SolutionRoot(),
+            testLog: log);
 
-        // Inspect home page
-        var home = await app.InspectAsync();
-        Assert.NotNull(home);
+        // Wait for window to be ready, then inspect home page
+        var home = await app.WaitForWindowAsync();
+        await app.ScreenshotAsync();
 
         var gridButton = home.FindById("GridLayout");
         Assert.NotNull(gridButton);
@@ -59,6 +61,7 @@ public class E2ENavigationTest
 
         var gridPage = await app.InspectAsync();
         Assert.NotNull(gridPage);
+        await app.ScreenshotAsync();
 
         // The grid page should have scenario navigation buttons
         var basicGrid = gridPage.FindById("Basic fixed grid");

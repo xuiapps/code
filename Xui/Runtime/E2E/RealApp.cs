@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.IO.Pipes;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -26,15 +27,38 @@ public sealed class RealApp : IAsyncDisposable
 {
     private readonly Process process;
     private readonly DevToolsClient client;
+    private readonly TestLog? testLog;
     private readonly List<string> log = [];
     private readonly object logLock = new();
     private readonly CancellationTokenSource drainCts = new();
+    private Task? stdoutDrain;
+    private Task? stderrDrain;
     private const int MaxLogLines = 200;
 
-    private RealApp(Process process, DevToolsClient client)
+    private RealApp(Process process, DevToolsClient client, TestLog? testLog)
     {
         this.process = process;
         this.client = client;
+        this.testLog = testLog;
+    }
+
+    /// <summary>
+    /// Throws if the app process has crashed or a drain task has faulted.
+    /// Called before every DevTools operation so errors surface immediately.
+    /// </summary>
+    private void ThrowIfFaulted()
+    {
+        if (stdoutDrain?.IsFaulted == true)
+            throw new InvalidOperationException(
+                $"stdout drain faulted: {stdoutDrain.Exception!.InnerException!.Message}\n\n{GetLog()}",
+                stdoutDrain.Exception.InnerException);
+        if (stderrDrain?.IsFaulted == true)
+            throw new InvalidOperationException(
+                $"stderr drain faulted: {stderrDrain.Exception!.InnerException!.Message}\n\n{GetLog()}",
+                stderrDrain.Exception.InnerException);
+        if (process.HasExited)
+            throw new InvalidOperationException(
+                $"App process exited unexpectedly with code {process.ExitCode}.\n\n{GetLog()}");
     }
 
     /// <summary>
@@ -58,7 +82,8 @@ public sealed class RealApp : IAsyncDisposable
     public static async Task<RealApp> StartAsync(
         string projectPath,
         string? workingDirectory = null,
-        TimeSpan? timeout = null)
+        TimeSpan? timeout = null,
+        TestLog? testLog = null)
     {
         workingDirectory ??= Directory.GetCurrentDirectory();
 
@@ -82,23 +107,29 @@ public sealed class RealApp : IAsyncDisposable
 
         var startupLog = new List<string>();
 
+        using var cts = new CancellationTokenSource(timeout ?? TimeSpan.FromSeconds(90));
+
         // Drain stderr concurrently so build errors and crash output are always captured.
         // We await this task before throwing on failure so the log is fully populated.
+        // Uses the startup CTS so we can stop it before handing stderr to DrainAsync.
+        var stderrCts = CancellationTokenSource.CreateLinkedTokenSource(cts.Token);
         var stderrTask = Task.Run(async () =>
         {
             try
             {
-                while (true)
+                while (!stderrCts.Token.IsCancellationRequested)
                 {
-                    var line = await process.StandardError.ReadLineAsync();
+                    var line = await process.StandardError.ReadLineAsync(stderrCts.Token);
                     if (line == null) break;
                     lock (startupLog) startupLog.Add($"[err] {line}");
                 }
             }
-            catch { }
+            catch (OperationCanceledException) { }
+            catch (Exception ex)
+            {
+                lock (startupLog) startupLog.Add($"[err][drain] {ex.Message}");
+            }
         });
-
-        using var cts = new CancellationTokenSource(timeout ?? TimeSpan.FromSeconds(90));
         string? pipeName = null;
         try
         {
@@ -141,12 +172,19 @@ public sealed class RealApp : IAsyncDisposable
                 $"App started but could not connect to DevTools pipe '{pipeName}': {ex.Message}");
         }
 
-        var app = new RealApp(process, client);
+        // Stop the startup stderr drain before handing stderr to DrainAsync,
+        // otherwise two concurrent ReadLineAsync calls on the same stream will throw.
+        stderrCts.Cancel();
+        await stderrTask;
+        stderrCts.Dispose();
+
+        var app = new RealApp(process, client, testLog);
         app.SeedLog(startupLog);
+        testLog?.LogSection("App Started", $"Project: `{projectPath}`\nPipe: `{pipeName}`");
 
         // Continue draining stdout and stderr after DEVTOOLS_READY.
-        _ = app.DrainAsync(process.StandardOutput, app.drainCts.Token);
-        _ = app.DrainAsync(process.StandardError, app.drainCts.Token);
+        app.stdoutDrain = app.DrainAsync(process.StandardOutput, app.drainCts.Token);
+        app.stderrDrain = app.DrainAsync(process.StandardError, app.drainCts.Token);
 
         return app;
     }
@@ -176,7 +214,6 @@ public sealed class RealApp : IAsyncDisposable
             }
         }
         catch (OperationCanceledException) { }
-        catch { }
     }
 
     /// <summary>Returns the recent stdout/stderr output captured from the running app.</summary>
@@ -191,17 +228,44 @@ public sealed class RealApp : IAsyncDisposable
     public bool HasCrashed => process.HasExited;
 
     /// <summary>
+    /// Polls <see cref="InspectAsync"/> until the root node is a real window (not the
+    /// <c>no-window</c> fallback). This accounts for the delay between the DevTools pipe
+    /// becoming ready and the first window being fully created.
+    /// </summary>
+    /// <param name="timeout">Maximum wait time. Defaults to 10 seconds.</param>
+    public async Task<ViewNode> WaitForWindowAsync(TimeSpan? timeout = null)
+    {
+        using var cts = new CancellationTokenSource(timeout ?? TimeSpan.FromSeconds(10));
+        while (!cts.Token.IsCancellationRequested)
+        {
+            ThrowIfFaulted();
+            var root = await InspectAsync();
+            if (root != null && root.Type != "no-window")
+                return root;
+            await Task.Delay(100, cts.Token);
+        }
+        throw new TimeoutException(
+            $"Window did not become ready within the timeout period.\n\n{GetLog()}");
+    }
+
+    /// <summary>
     /// Inspects the visual UI tree of the running app and returns the root <see cref="ViewNode"/>.
     /// Returns <c>null</c> when the result cannot be parsed.
     /// </summary>
     public async Task<ViewNode?> InspectAsync()
     {
+        ThrowIfFaulted();
         var result = await client.SendAsync("ui.inspect");
         if (result is JsonElement el)
         {
             var inspectResult = el.Deserialize<InspectResult>(DevToolsClient.JsonOptions);
-            return inspectResult?.Root;
+            var root = inspectResult?.Root;
+            testLog?.LogSection("ui.inspect", root != null
+                ? $"```xml\n{root.ToXml()}\n```"
+                : "_Result was null_");
+            return root;
         }
+        testLog?.LogSection("ui.inspect", "_No JSON result returned_");
         return null;
     }
 
@@ -210,37 +274,60 @@ public sealed class RealApp : IAsyncDisposable
     /// </summary>
     public async Task<string> ScreenshotAsync()
     {
+        ThrowIfFaulted();
         var result = await client.SendAsync("ui.screenshot");
         if (result is JsonElement el && el.TryGetProperty("svg", out var svg))
-            return svg.GetString() ?? string.Empty;
+        {
+            var svgStr = svg.GetString() ?? string.Empty;
+            testLog?.LogSection("ui.screenshot", svgStr);
+            return svgStr;
+        }
+        testLog?.LogSection("ui.screenshot", "_No SVG returned_");
         return string.Empty;
     }
 
     /// <summary>Sends a mouse click (down + up) at coordinates (<paramref name="x"/>, <paramref name="y"/>).</summary>
     public Task ClickAsync(NFloat x, NFloat y)
-        => client.SendAsync("input.click", new { x = (float)x, y = (float)y });
+    {
+        ThrowIfFaulted();
+        testLog?.LogSection("input.click", $"x={x}, y={y}");
+        return client.SendAsync("input.click", new { x = (float)x, y = (float)y });
+    }
 
     /// <summary>Sends a tap at coordinates (<paramref name="x"/>, <paramref name="y"/>).</summary>
     public Task TapAsync(NFloat x, NFloat y)
-        => client.SendAsync("input.tap", new { x = (float)x, y = (float)y });
+    {
+        ThrowIfFaulted();
+        testLog?.LogSection("input.tap", $"x={x}, y={y}");
+        return client.SendAsync("input.tap", new { x = (float)x, y = (float)y });
+    }
 
     /// <summary>
     /// Sends a pointer event. <paramref name="phase"/> must be one of
     /// <c>"start"</c>, <c>"move"</c>, <c>"end"</c>, or <c>"cancel"</c>.
     /// </summary>
     public Task PointerAsync(string phase, NFloat x, NFloat y, int index = 0)
-        => client.SendAsync("input.pointer", new { phase, x = (float)x, y = (float)y, index });
+    {
+        ThrowIfFaulted();
+        return client.SendAsync("input.pointer", new { phase, x = (float)x, y = (float)y, index });
+    }
 
     /// <summary>Forces an immediate redraw of the app window.</summary>
     public Task InvalidateAsync()
-        => client.SendAsync("app.invalidate");
+    {
+        ThrowIfFaulted();
+        return client.SendAsync("app.invalidate");
+    }
 
     /// <summary>
     /// Sets the identity label shown next to the AI pointer overlay
     /// (e.g. <c>"Claude, VSCode"</c>). Pass an empty string to clear.
     /// </summary>
     public Task IdentifyAsync(string label)
-        => client.SendAsync("app.identify", new { label });
+    {
+        ThrowIfFaulted();
+        return client.SendAsync("app.identify", new { label });
+    }
 
     /// <summary>
     /// Stops the running app process and disposes all resources.
@@ -254,6 +341,12 @@ public sealed class RealApp : IAsyncDisposable
             try { process.Kill(entireProcessTree: true); } catch { }
         }
         await process.WaitForExitAsync().ConfigureAwait(false);
+
+        var appLog = GetLog();
+        testLog?.LogSection("App Log", string.IsNullOrWhiteSpace(appLog)
+            ? "_empty_"
+            : $"```\n{appLog}\n```");
+
         process.Dispose();
         drainCts.Dispose();
     }
@@ -323,6 +416,40 @@ public record ViewNode(
             foreach (var node in child.FindAllByType(typeName))
                 yield return node;
     }
+
+    /// <summary>
+    /// Returns an XML representation of this view subtree for diagnostic logging.
+    /// </summary>
+    public string ToXml(int indent = 0)
+    {
+        var sb = new StringBuilder();
+        WriteXml(sb, indent);
+        return sb.ToString();
+    }
+
+    private void WriteXml(StringBuilder sb, int indent)
+    {
+        var pad = new string(' ', indent * 2);
+        sb.Append(pad).Append('<').Append(Type);
+        if (Id != null) sb.Append($" id=\"{Id}\"");
+        if (ClassName != null) sb.Append($" class=\"{ClassName}\"");
+        sb.Append($" x=\"{X.ToString(CultureInfo.InvariantCulture)}\"");
+        sb.Append($" y=\"{Y.ToString(CultureInfo.InvariantCulture)}\"");
+        sb.Append($" w=\"{W.ToString(CultureInfo.InvariantCulture)}\"");
+        sb.Append($" h=\"{H.ToString(CultureInfo.InvariantCulture)}\"");
+        if (!Visible) sb.Append(" visible=\"false\"");
+        if (Children.Length == 0)
+        {
+            sb.AppendLine(" />");
+        }
+        else
+        {
+            sb.AppendLine(">");
+            foreach (var child in Children)
+                child.WriteXml(sb, indent + 1);
+            sb.Append(pad).Append("</").Append(Type).AppendLine(">");
+        }
+    }
 }
 
 file record InspectResult(ViewNode Root);
@@ -383,4 +510,54 @@ internal sealed class DevToolsClient : IDisposable
     }
 
     public void Dispose() => pipe.Dispose();
+}
+
+/// <summary>
+/// Records all E2E test operations and writes a diagnostic markdown file.
+/// <para>
+/// Usage:
+/// <code>
+/// await using var log = new TestLog("Can_Navigate_To_GridLayout_And_Back");
+/// await using var app = await RealApp.StartAsync(project, testLog: log);
+/// // ... test steps ...
+/// </code>
+/// The <c>.md</c> file is written to <c>Xui/Tests/E2E/TestResults/</c> on dispose,
+/// containing all DevTools commands, view tree XML, and the app's stdout/stderr log.
+/// </para>
+/// </summary>
+public sealed class TestLog : IAsyncDisposable
+{
+    private readonly string testName;
+    private readonly string outputDir;
+    private readonly StringBuilder content = new();
+    private readonly Stopwatch stopwatch = Stopwatch.StartNew();
+
+    public TestLog(string testName, [CallerFilePath] string callerPath = "")
+    {
+        this.testName = testName;
+        outputDir = Path.Combine(
+            Path.GetDirectoryName(callerPath) ?? ".",
+            "TestResults");
+        content.AppendLine($"# {testName}");
+        content.AppendLine();
+        content.AppendLine($"Run at: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+        content.AppendLine();
+    }
+
+    public void LogSection(string title, string body)
+    {
+        var elapsed = stopwatch.Elapsed;
+        content.AppendLine($"## [{elapsed.TotalSeconds:F2}s] {title}");
+        content.AppendLine();
+        content.AppendLine(body);
+        content.AppendLine();
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        Directory.CreateDirectory(outputDir);
+        var path = Path.Combine(outputDir, $"{testName}.md");
+        File.WriteAllText(path, content.ToString());
+        return default;
+    }
 }
