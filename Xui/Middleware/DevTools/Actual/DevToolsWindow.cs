@@ -19,6 +19,7 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
     // Screenshot state — written and read exclusively on the UI thread.
     private TaskCompletionSource<string>? pendingScreenshot;
     private MemoryStream? svgStream;
+    private SvgDrawingContext? pendingSvgContext;
     private Rect pendingRect;
 
     // Overlay state: last interaction point and identity label, shown on every frame until replaced.
@@ -73,6 +74,7 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
                 new Size(pendingRect.Width, pendingRect.Height),
                 svgStream,
                 keepOpen: true);
+            pendingSvgContext = svgCtx;
             ctx = new SplicingContext(realCtx, svgCtx);
         }
         else
@@ -132,8 +134,14 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
 
         Abstract!.Render(ref render);
 
-        // At this point the render is done and the SplicingContext (if any) has been
-        // disposed — SvgDrawingContext.Dispose() writes the closing SVG tags.
+        // Window.Render does not dispose the IContext, so we must dispose the
+        // SvgDrawingContext ourselves to flush the closing SVG tags to the stream.
+        if (pendingSvgContext != null)
+        {
+            pendingSvgContext.Dispose();
+            pendingSvgContext = null;
+        }
+
         if (pendingScreenshot != null && svgStream != null)
         {
             var tcs = pendingScreenshot;
@@ -260,9 +268,16 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
         var className = view.ClassName.Count > 0 
             ? string.Join(" ", view.ClassName) 
             : null;
-        
+
+        // Strip generic arity suffix (e.g. "ViewCollection`1" -> "ViewCollection") so the
+        // type name can be used as a valid XML element name by the MCP InspectUi tool.
+        var typeName = view.GetType().Name;
+        var backtickIdx = typeName.IndexOf('`');
+        if (backtickIdx >= 0)
+            typeName = typeName[..backtickIdx];
+
         return new ViewNode(
-            view.GetType().Name,
+            typeName,
             (float)f.X, (float)f.Y,
             (float)f.Width, (float)f.Height,
             centerX, centerY,
