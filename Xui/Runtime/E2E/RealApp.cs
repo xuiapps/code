@@ -249,6 +249,28 @@ public sealed class RealApp : IAsyncDisposable
     }
 
     /// <summary>
+    /// Polls the UI tree until an element with the given <paramref name="id"/> appears.
+    /// Returns the root <see cref="ViewNode"/> of the tree that contains the element.
+    /// Throws <see cref="TimeoutException"/> if the element does not appear in time.
+    /// </summary>
+    /// <param name="id">The element ID to wait for.</param>
+    /// <param name="timeout">Maximum wait time. Defaults to 10 seconds.</param>
+    public async Task<ViewNode> WaitForElementAsync(string id, TimeSpan? timeout = null)
+    {
+        using var cts = new CancellationTokenSource(timeout ?? TimeSpan.FromSeconds(10));
+        while (!cts.Token.IsCancellationRequested)
+        {
+            ThrowIfFaulted();
+            var root = await InspectAsync();
+            if (root != null && root.FindById(id) != null)
+                return root;
+            await Task.Delay(100, cts.Token);
+        }
+        throw new TimeoutException(
+            $"Element with id '{id}' did not appear within the timeout period.\n\n{GetLog()}");
+    }
+
+    /// <summary>
     /// Inspects the visual UI tree of the running app and returns the root <see cref="ViewNode"/>.
     /// Returns <c>null</c> when the result cannot be parsed.
     /// </summary>

@@ -56,11 +56,8 @@ public class E2ENavigationTest
         // Navigate to Grid Layout
         await app.ClickAsync(gridButton.CenterX, gridButton.CenterY);
 
-        // Give the app time to render the new page
-        await Task.Delay(300);
-
-        var gridPage = await app.InspectAsync();
-        Assert.NotNull(gridPage);
+        // Wait for the grid page to render (polls until the element appears)
+        var gridPage = await app.WaitForElementAsync("Basic fixed grid");
         await app.ScreenshotAsync();
 
         // The grid page should have scenario navigation buttons
@@ -72,11 +69,8 @@ public class E2ENavigationTest
         Assert.NotNull(back);
         await app.ClickAsync(back.CenterX, back.CenterY);
 
-        await Task.Delay(200);
-
-        // Home page should be visible again
-        var backHome = await app.InspectAsync();
-        Assert.NotNull(backHome);
+        // Wait for the home page to reappear
+        var backHome = await app.WaitForElementAsync("GridLayout");
         Assert.NotNull(backHome.FindById("GridLayout"));
     }
 }
