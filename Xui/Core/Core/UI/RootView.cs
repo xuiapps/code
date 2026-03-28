@@ -15,6 +15,7 @@ public class RootView : View, IContent, IFocus
     private View? content;
     private View? focusedView;
     private Point lastMousePosition;
+    private readonly List<PopupOverlay> overlays = new();
 
     /// <summary>The input event router for this view tree.</summary>
     public EventRouter EventRouter { get; }
@@ -73,6 +74,8 @@ public class RootView : View, IContent, IFocus
     void IContent.OnMouseDown(ref MouseDownEventRef e)
     {
         lastMousePosition = e.Position;
+        if (overlays.Count > 0)
+            DismissOverlaysOutside(e.Position);
         this.EventRouter.Dispatch(ref e);
     }
 
@@ -129,7 +132,7 @@ public class RootView : View, IContent, IFocus
         using var _ = instruments.Trace(Scope.Rendering, LevelOfDetail.Essential,
             $"RootView.Update Rect({rect.X:F1}, {rect.Y:F1}, {rect.Width:F1}, {rect.Height:F1})");
 
-        this.Update(new LayoutGuide()
+        var guide = new LayoutGuide()
         {
             Anchor = @event.Rect.TopLeft,
             PreviousTime = @event.Frame.Previous,
@@ -146,7 +149,12 @@ public class RootView : View, IContent, IFocus
             YSize = LayoutGuide.SizeTo.Exact,
             RenderContext = context,
             Instruments = instruments,
-        });
+        };
+        this.Update(guide);
+
+        // Render in-window popup overlays on top of all content
+        for (int i = 0; i < overlays.Count; i++)
+            overlays[i].Render(guide);
 
         instruments.DumpVisualTree(this, LevelOfDetail.Diagnostic);
     }
@@ -188,6 +196,27 @@ public class RootView : View, IContent, IFocus
 
     void IFocus.Next() => MoveFocus(+1);
     void IFocus.Previous() => MoveFocus(-1);
+
+    internal void AddOverlay(PopupOverlay overlay)
+    {
+        overlays.Add(overlay);
+        ((IContent)this).Invalidate();
+    }
+
+    internal void RemoveOverlay(PopupOverlay overlay)
+    {
+        overlays.Remove(overlay);
+        ((IContent)this).Invalidate();
+    }
+
+    private void DismissOverlaysOutside(Point point)
+    {
+        for (int i = overlays.Count - 1; i >= 0; i--)
+        {
+            if (!overlays[i].ContainsPoint(point))
+                overlays[i].Close();
+        }
+    }
 
     /// <inheritdoc/>
     public override object? GetService(Type serviceType)
