@@ -1,11 +1,9 @@
 using System.Diagnostics;
-using System.Globalization;
-using System.IO.Pipes;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using Xui.Middleware.DevTools.Client;
 
 namespace Xui.Runtime.E2E;
 
@@ -162,7 +160,7 @@ public sealed class RealApp : IAsyncDisposable
         var client = new DevToolsClient(pipeName);
         try
         {
-            await client.ConnectAsync();
+            await client.ConnectAsync("E2E Automation");
         }
         catch (Exception ex)
         {
@@ -316,6 +314,14 @@ public sealed class RealApp : IAsyncDisposable
         return client.SendAsync("input.click", new { x = (float)x, y = (float)y });
     }
 
+    /// <summary>Sends a mouse move event to coordinates (<paramref name="x"/>, <paramref name="y"/>).</summary>
+    public Task MouseMoveAsync(NFloat x, NFloat y)
+    {
+        ThrowIfFaulted();
+        testLog?.LogSection("input.mousemove", $"x={x}, y={y}");
+        return client.SendAsync("input.mousemove", new { x = (float)x, y = (float)y });
+    }
+
     /// <summary>Sends a tap at coordinates (<paramref name="x"/>, <paramref name="y"/>).</summary>
     public Task TapAsync(NFloat x, NFloat y)
     {
@@ -396,143 +402,6 @@ public sealed class RealApp : IAsyncDisposable
     }
 }
 
-/// <summary>
-/// Represents a node in the Xui view hierarchy as returned by <c>ui.inspect</c>.
-/// Coordinates (<see cref="X"/>, <see cref="Y"/>, <see cref="CenterX"/>, <see cref="CenterY"/>,
-/// etc.) are <see cref="float"/> because they are deserialized directly from the JSON-RPC
-/// response. Pass them to <see cref="RealApp.ClickAsync"/> and related methods, which accept
-/// <see cref="NFloat"/> and handle the widening conversion automatically.
-/// </summary>
-public record ViewNode(
-    string Type,
-    float X, float Y, float W, float H,
-    float CenterX, float CenterY,
-    bool Visible,
-    string? Id,
-    string? ClassName,
-    ViewNode[] Children)
-{
-    /// <summary>
-    /// Finds the first descendant (including self) whose <see cref="Id"/> matches
-    /// <paramref name="id"/>. Returns <c>null</c> when not found.
-    /// </summary>
-    public ViewNode? FindById(string id)
-    {
-        if (Id == id) return this;
-        foreach (var child in Children)
-        {
-            var found = child.FindById(id);
-            if (found != null) return found;
-        }
-        return null;
-    }
-
-    /// <summary>
-    /// Finds all descendants (including self) whose <see cref="Type"/> matches
-    /// <paramref name="typeName"/>.
-    /// </summary>
-    public IEnumerable<ViewNode> FindAllByType(string typeName)
-    {
-        if (Type == typeName) yield return this;
-        foreach (var child in Children)
-            foreach (var node in child.FindAllByType(typeName))
-                yield return node;
-    }
-
-    /// <summary>
-    /// Returns an XML representation of this view subtree for diagnostic logging.
-    /// </summary>
-    public string ToXml(int indent = 0)
-    {
-        var sb = new StringBuilder();
-        WriteXml(sb, indent);
-        return sb.ToString();
-    }
-
-    private void WriteXml(StringBuilder sb, int indent)
-    {
-        var pad = new string(' ', indent * 2);
-        sb.Append(pad).Append('<').Append(Type);
-        if (Id != null) sb.Append($" id=\"{Id}\"");
-        if (ClassName != null) sb.Append($" class=\"{ClassName}\"");
-        sb.Append($" x=\"{X.ToString(CultureInfo.InvariantCulture)}\"");
-        sb.Append($" y=\"{Y.ToString(CultureInfo.InvariantCulture)}\"");
-        sb.Append($" w=\"{W.ToString(CultureInfo.InvariantCulture)}\"");
-        sb.Append($" h=\"{H.ToString(CultureInfo.InvariantCulture)}\"");
-        if (!Visible) sb.Append(" visible=\"false\"");
-        if (Children.Length == 0)
-        {
-            sb.AppendLine(" />");
-        }
-        else
-        {
-            sb.AppendLine(">");
-            foreach (var child in Children)
-                child.WriteXml(sb, indent + 1);
-            sb.Append(pad).Append("</").Append(Type).AppendLine(">");
-        }
-    }
-}
-
-file record InspectResult(ViewNode Root);
-
-/// <summary>Named-pipe JSON-RPC client for the Xui DevTools protocol.</summary>
-internal sealed class DevToolsClient : IDisposable
-{
-    public static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-    };
-
-    private static readonly JsonSerializerOptions sendOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-    };
-
-    private readonly NamedPipeClientStream pipe;
-    private StreamWriter? writer;
-    private StreamReader? reader;
-    private int nextId = 1;
-
-    public DevToolsClient(string pipeName)
-        => this.pipe = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
-
-    public async Task ConnectAsync()
-    {
-        await pipe.ConnectAsync(10_000);
-        writer = new StreamWriter(pipe, new UTF8Encoding(false), bufferSize: 1024, leaveOpen: true) { AutoFlush = true };
-        reader = new StreamReader(pipe, new UTF8Encoding(false), detectEncodingFromByteOrderMarks: false, bufferSize: 1024, leaveOpen: true);
-    }
-
-    /// <summary>Sends a JSON-RPC request and returns the result element, or null on void responses.</summary>
-    public async Task<object?> SendAsync(string method, object? @params = null)
-    {
-        if (writer == null || reader == null)
-            throw new InvalidOperationException("Not connected.");
-
-        var id = nextId++;
-        var json = JsonSerializer.Serialize(new { method, id, @params }, sendOptions);
-        await writer.WriteLineAsync(json);
-
-        var line = await reader.ReadLineAsync();
-        if (line == null) throw new IOException("DevTools connection closed.");
-
-        using var doc = JsonDocument.Parse(line);
-        var root = doc.RootElement;
-
-        if (root.TryGetProperty("error", out var err))
-            throw new Exception($"RPC error {err.GetProperty("code").GetInt32()}: {err.GetProperty("message").GetString()}");
-
-        if (root.TryGetProperty("result", out var result) && result.ValueKind != JsonValueKind.Null)
-            return result.Clone();
-
-        return null;
-    }
-
-    public void Dispose() => pipe.Dispose();
-}
 
 /// <summary>
 /// Records all E2E test operations and writes a diagnostic markdown file.

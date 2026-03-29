@@ -47,6 +47,9 @@ public class E2ENavigationTest
             testLog: log);
 
         // Wait for window to be ready, then inspect home page
+        // The button somehow returns width of -6 initially as if window size was 0 the first layout.
+        Thread.Sleep(1500);
+
         var home = await app.WaitForWindowAsync();
         await app.ScreenshotAsync();
 
