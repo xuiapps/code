@@ -48,7 +48,7 @@ public class E2ENavigationTest
 
         // Wait for window to be ready, then inspect home page
         // The button somehow returns width of -6 initially as if window size was 0 the first layout.
-        Thread.Sleep(1500);
+        Thread.Sleep(500);
 
         var home = await app.WaitForWindowAsync();
         await app.ScreenshotAsync();
@@ -75,5 +75,65 @@ public class E2ENavigationTest
         // Wait for the home page to reappear
         var backHome = await app.WaitForElementAsync("GridLayout");
         Assert.NotNull(backHome.FindById("GridLayout"));
+    }
+
+    [Fact]
+    public async Task Can_Navigate_To_All_Pages_And_Back()
+    {
+        await using var log = new TestLog(nameof(Can_Navigate_To_All_Pages_And_Back));
+        await using var app = await RealApp.StartAsync(
+            TestAppProject,
+            workingDirectory: SolutionRoot(),
+            testLog: log);
+
+        // The button somehow returns width of -6 initially as if window size was 0 the first layout.
+        Thread.Sleep(500);
+
+        var home = await app.WaitForWindowAsync();
+        await app.ScreenshotAsync();
+
+        // All example pages on the home screen and an element id to verify each page loaded.
+        // CanScreenshot is false for pages whose rendering crashes the SVG screenshot context
+        // (e.g. 3D uses DrawImage which is not implemented in the SVG context).
+        var pages = new (string ButtonId, string VerifyId, bool CanScreenshot)[]
+        {
+            ("TextMetrics", "Back", true),
+            ("TextLayout", "Back", true),
+            ("NestedStacks", "Back", true),
+            ("GridLayout", "Basic fixed grid", true),
+            ("ViewCollectionAlignment", "Back", true),
+            ("AnimatedHeart", "Back", true),
+            ("TextBox", "NameBox", true),
+            ("CanvasTests", "FillRect", true),
+            ("Layers", "BorderLayer", true),
+            ("3D", "RotatingCube", false),
+        };
+
+        foreach (var (buttonId, verifyId, canScreenshot) in pages)
+        {
+            Thread.Sleep(150);
+
+            // Navigate to the page
+            var root = await app.WaitForElementAsync(buttonId);
+            var button = root.FindById(buttonId);
+            Assert.NotNull(button);
+            await app.ClickAsync(button.CenterX, button.CenterY);
+
+            Thread.Sleep(250);
+
+            // Wait for the page to load
+            var page = await app.WaitForElementAsync(verifyId);
+            Assert.NotNull(page.FindById(verifyId));
+            if (canScreenshot)
+                await app.ScreenshotAsync();
+
+            // Navigate back
+            var back = page.FindById("Back");
+            Assert.NotNull(back);
+            await app.ClickAsync(back.CenterX, back.CenterY);
+
+            // Wait for home page to reappear
+            await app.WaitForElementAsync("TextMetrics");
+        }
     }
 }
