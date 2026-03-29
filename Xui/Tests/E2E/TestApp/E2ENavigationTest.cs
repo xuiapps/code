@@ -136,4 +136,93 @@ public class E2ENavigationTest
             await app.WaitForElementAsync("TextMetrics");
         }
     }
+
+    [Fact]
+    public async Task Can_Navigate_Through_All_Canvas_Scenarios()
+    {
+        await using var log = new TestLog(nameof(Can_Navigate_Through_All_Canvas_Scenarios));
+        await using var app = await RealApp.StartAsync(
+            TestAppProject,
+            workingDirectory: SolutionRoot(),
+            testLog: log);
+
+        Thread.Sleep(500);
+
+        var home = await app.WaitForWindowAsync();
+
+        // Navigate to Canvas Tests page
+        var canvasButton = home.FindById("CanvasTests");
+        Assert.NotNull(canvasButton);
+        await app.ClickAsync(canvasButton.CenterX, canvasButton.CenterY);
+
+        var canvasPage = await app.WaitForElementAsync("FillRect");
+
+        // BitmapFill and DrawImage crash the app because the SVG context doesn't support
+        // image pattern fill / DrawImage. They trigger NotImplementedException during the
+        // regular render cycle (not just screenshot), so they must be excluded entirely.
+        var scenarios = new[]
+        {
+            "FillRect", "QuadraticCurve", "CubicCurve", "HeartCurve",
+            "Arc", "ArcFlower", "Ellipse", "ArcTo", "ArcToFlower",
+            "RoundRect", "LineCapJoin", "DashPattern", "FillRule",
+            "PathContinuation", "Clip", "Transform", "Star",
+            "GlobalAlpha",
+        };
+
+        foreach (var scenarioId in scenarios)
+        {
+            Thread.Sleep(250);
+
+            var root = await app.WaitForElementAsync(scenarioId);
+            var btn = root.FindById(scenarioId);
+            Assert.NotNull(btn);
+            await app.ClickAsync(btn.CenterX, btn.CenterY);
+
+            Thread.Sleep(250);
+
+            await app.ScreenshotAsync();
+        }
+    }
+
+    [Fact]
+    public async Task Can_Navigate_Through_All_3D_Scenarios()
+    {
+        await using var log = new TestLog(nameof(Can_Navigate_Through_All_3D_Scenarios));
+        await using var app = await RealApp.StartAsync(
+            TestAppProject,
+            workingDirectory: SolutionRoot(),
+            testLog: log);
+
+        Thread.Sleep(500);
+
+        var home = await app.WaitForWindowAsync();
+
+        // Navigate to 3D page
+        var threeDButton = home.FindById("3D");
+        Assert.NotNull(threeDButton);
+        await app.ClickAsync(threeDButton.CenterX, threeDButton.CenterY);
+
+        var threeDPage = await app.WaitForElementAsync("RotatingCube");
+
+        var scenarios = new[]
+        {
+            "RotatingCube",
+            "GPUHardwareCube",
+        };
+
+        foreach (var scenarioId in scenarios)
+        {
+            Thread.Sleep(250);
+
+            var root = await app.WaitForElementAsync(scenarioId);
+            var btn = root.FindById(scenarioId);
+            Assert.NotNull(btn);
+            await app.ClickAsync(btn.CenterX, btn.CenterY);
+
+            Thread.Sleep(250);
+
+            // No screenshot - 3D pages use DrawImage which crashes the SVG context
+            await app.InspectAsync();
+        }
+    }
 }
