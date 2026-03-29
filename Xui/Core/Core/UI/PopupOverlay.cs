@@ -40,6 +40,8 @@ internal sealed class PopupOverlay : IPopup
         IsVisible = false;
         rootView.RemoveOverlay(this);
         Closed?.Invoke();
+        Content = null;
+        Frame = default;
     }
 
     public void Dispose() => Close();
