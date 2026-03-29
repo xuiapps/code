@@ -33,7 +33,7 @@ public class PopupDemo : View
         // Center button
         var btnRect = ButtonRect();
         var bg = pressed ? new Color(0x0060C0FF)
-               : hover   ? new Color(0x0078D4FF)
+               : hover   ? new Color(0x0084E8FF)
                          : new Color(0x0078D4FF);
 
         ctx.BeginPath();
