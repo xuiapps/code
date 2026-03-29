@@ -27,7 +27,15 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard, IService
     /// platform window's own services (e.g. <see cref="Xui.Core.Actual.IImagePipeline"/> from Win32).
     public virtual object? GetService(Type serviceType)
     {
-        if (serviceType == typeof(IPopup)) return new PopupOverlay(this.RootView);
+        if (serviceType == typeof(IPopup))
+        {
+            var popup = new PopupOverlay(this.RootView);
+            if (popup is IDisposable disposable)
+            {
+                this.DisposeQueue.Add(disposable);
+            }
+            return popup;
+        }
         return this.Context.GetService(serviceType) ?? this.Actual?.GetService(serviceType);
     }
 
