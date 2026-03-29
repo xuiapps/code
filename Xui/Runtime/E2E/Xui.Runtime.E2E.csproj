@@ -8,4 +8,8 @@
     <AssemblyName>Xui.Runtime.E2E</AssemblyName>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Middleware\DevTools.Client\Xui.Middleware.DevTools.Client.csproj" />
+  </ItemGroup>
+
 </Project>

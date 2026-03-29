@@ -8,7 +8,12 @@ namespace Xui.Middleware.DevTools;
 /// or touch circle) on top of the frame content before disposing the underlying context.
 /// This makes AI-driven interactions visible in both the live window and SVG screenshots.
 /// </summary>
-internal sealed class OverlayContext(IContext inner, Point pos, bool isTouch, string? label = null) : IContext
+/// <summary>
+/// When <paramref name="pos"/> is null the overlay has no interaction point yet; only the
+/// <paramref name="label"/> badge is drawn in the top-left corner so the client identity is
+/// visible immediately on connect without requiring a prior click or tap.
+/// </summary>
+internal sealed class OverlayContext(IContext inner, Point? pos, bool isTouch, string? label = null) : IContext
 {
     public void Save() => inner.Save();
     public void Restore() => inner.Restore();
@@ -77,35 +82,42 @@ internal sealed class OverlayContext(IContext inner, Point pos, bool isTouch, st
     public void Dispose()
     {
         inner.Save();
-        if (isTouch)
-            DrawTouchIndicator();
-        else
-            DrawMouseCursor();
+        if (pos is { } p)
+        {
+            if (isTouch)
+                DrawTouchIndicator(p);
+            else
+                DrawMouseCursor(p);
+        }
+        else if (label != null)
+        {
+            // No interaction point yet — show identity badge in the top-left corner.
+            DrawLabel(new Point(8, 8));
+        }
         inner.Restore();
-        inner.Dispose();
     }
 
-    private void DrawTouchIndicator()
+    private void DrawTouchIndicator(Point p)
     {
         inner.BeginPath();
-        inner.Ellipse(pos, 15f, 15f, 0, 0, (nfloat)(System.Math.PI * 2), Winding.ClockWise);
+        inner.Ellipse(p, 15f, 15f, 0, 0, (nfloat)(System.Math.PI * 2), Winding.ClockWise);
         inner.SetFill(0x66888888);
         inner.Fill();
 
         inner.BeginPath();
-        inner.Ellipse(pos, 15f, 15f, 0, 0, (nfloat)(System.Math.PI * 2), Winding.ClockWise);
+        inner.Ellipse(p, 15f, 15f, 0, 0, (nfloat)(System.Math.PI * 2), Winding.ClockWise);
         inner.LineWidth = 3f;
         inner.SetStroke(0x88AAAAAA);
         inner.Stroke();
 
-        DrawLabel(new Point(pos.X + 18, pos.Y - 6));
+        DrawLabel(new Point(p.X + 18, p.Y - 6));
     }
 
-    private void DrawMouseCursor()
+    private void DrawMouseCursor(Point p)
     {
         // Arrow cursor polygon, drawn at absolute coordinates.
-        var x = pos.X;
-        var y = pos.Y;
+        var x = p.X;
+        var y = p.Y;
         inner.BeginPath();
         inner.MoveTo(new Point(x, y));
         inner.LineTo(new Point(x, y + 12));

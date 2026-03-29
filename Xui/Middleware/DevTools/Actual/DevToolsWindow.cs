@@ -22,6 +22,9 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
     private SvgDrawingContext? pendingSvgContext;
     private Rect pendingRect;
 
+    // Overlay context captured from GetService so Render() can dispose it after Abstract.Render.
+    private IContext? pendingOverlayCtx;
+
     // Overlay state: last interaction point and identity label, shown on every frame until replaced.
     private (Point pos, bool isTouch)? lastInputOverlay;
     private string? overlayLabel;
@@ -82,9 +85,19 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
             ctx = (Platform!.GetService(t) as IContext)!;
         }
 
-        // Wrap with OverlayContext to draw the last interaction point on every frame.
+        // Wrap with OverlayContext when there's an interaction point or a client label to show.
+        // Store it so Render() can call Dispose() after Abstract.Render to trigger the drawing.
         if (lastInputOverlay is { } overlay)
-            return new OverlayContext(ctx, overlay.pos, overlay.isTouch, overlayLabel);
+        {
+            pendingOverlayCtx = new OverlayContext(ctx, overlay.pos, overlay.isTouch, overlayLabel);
+            return pendingOverlayCtx;
+        }
+
+        if (overlayLabel != null)
+        {
+            pendingOverlayCtx = new OverlayContext(ctx, null, false, overlayLabel);
+            return pendingOverlayCtx;
+        }
 
         return ctx;
     }
@@ -132,7 +145,14 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
             pendingRect = render.Rect;
         }
 
+        pendingOverlayCtx = null;
         Abstract!.Render(ref render);
+
+        // Draw the overlay on top of the app content (and into the SVG stream if screenshotting).
+        // Dispose() triggers the drawing; inner.Dispose() is NOT called by OverlayContext so the
+        // underlying context (real or SplicingContext) remains valid for the screenshot read below.
+        pendingOverlayCtx?.Dispose();
+        pendingOverlayCtx = null;
 
         // Window.Render does not dispose the IContext, so we must dispose the
         // SvgDrawingContext ourselves to flush the closing SVG tags to the stream.
@@ -236,6 +256,19 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
         return Task.CompletedTask;
     }
 
+    internal Task HandleMouseMove(MouseMoveParams p)
+    {
+        platform.MainDispatcher.Post(() =>
+        {
+            var pos = new Point(p.X, p.Y);
+            lastInputOverlay = (pos, isTouch: false);
+            var move = new MouseMoveEventRef { Position = pos };
+            Abstract!.OnMouseMove(ref move);
+            Platform!.Invalidate();
+        });
+        return Task.CompletedTask;
+    }
+
     internal Task HandleInvalidate()
     {
         platform.MainDispatcher.Post(() => Platform!.Invalidate());
@@ -244,13 +277,14 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
 
     internal Task HandleIdentify(IdentifyParams p)
     {
+        var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         platform.MainDispatcher.Post(() =>
         {
             overlayLabel = string.IsNullOrWhiteSpace(p.Label) ? null : p.Label;
-            if (lastInputOverlay.HasValue)
-                Platform!.Invalidate();
+            Platform!.Invalidate();
+            tcs.SetResult();
         });
-        return Task.CompletedTask;
+        return tcs.Task;
     }
 
     private static ViewNode WalkView(Xui.Core.UI.View view)

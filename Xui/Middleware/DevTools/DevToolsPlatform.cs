@@ -65,6 +65,7 @@ file sealed class DevToolsHandler(DevToolsPlatform platform) : IDevToolsHandler
     public Task HandleTap(IO.TapParams p) => Window?.HandleTap(p) ?? Task.CompletedTask;
     public Task HandlePointer(IO.PointerParams p) => Window?.HandlePointer(p) ?? Task.CompletedTask;
     public Task HandleClick(IO.ClickParams p) => Window?.HandleClick(p) ?? Task.CompletedTask;
+    public Task HandleMouseMove(IO.MouseMoveParams p) => Window?.HandleMouseMove(p) ?? Task.CompletedTask;
     public Task HandleInvalidate() => Window?.HandleInvalidate() ?? Task.CompletedTask;
     public Task HandleIdentify(IO.IdentifyParams p) => Window?.HandleIdentify(p) ?? Task.CompletedTask;
 }
