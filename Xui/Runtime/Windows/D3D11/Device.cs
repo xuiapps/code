@@ -133,7 +133,7 @@ public static partial class D3D11
 
         /// <summary>
         /// Creates a depth-stencil state object.
-        /// Wraps <c>ID3D11Device::CreateDepthStencilState</c> (vtable [26]).
+        /// Wraps <c>ID3D11Device::CreateDepthStencilState</c> (vtable [21]).
         /// </summary>
         public void* CreateDepthStencilState(in DepthStencilDesc desc)
         {
@@ -141,7 +141,7 @@ public static partial class D3D11
             fixed (DepthStencilDesc* descPtr = &desc)
             {
                 Marshal.ThrowExceptionForHR(
-                    ((delegate* unmanaged[MemberFunction]<void*, DepthStencilDesc*, void**, int>)this[26])
+                    ((delegate* unmanaged[MemberFunction]<void*, DepthStencilDesc*, void**, int>)this[21])
                     (this, descPtr, &state));
             }
             return state;
@@ -149,7 +149,7 @@ public static partial class D3D11
 
         /// <summary>
         /// Creates a rasterizer state object.
-        /// Wraps <c>ID3D11Device::CreateRasterizerState</c> (vtable [27]).
+        /// Wraps <c>ID3D11Device::CreateRasterizerState</c> (vtable [22]).
         /// </summary>
         public void* CreateRasterizerState(in RasterizerDesc desc)
         {
@@ -157,7 +157,7 @@ public static partial class D3D11
             fixed (RasterizerDesc* descPtr = &desc)
             {
                 Marshal.ThrowExceptionForHR(
-                    ((delegate* unmanaged[MemberFunction]<void*, RasterizerDesc*, void**, int>)this[27])
+                    ((delegate* unmanaged[MemberFunction]<void*, RasterizerDesc*, void**, int>)this[22])
                     (this, descPtr, &state));
             }
             return state;
