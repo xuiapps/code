@@ -39,7 +39,7 @@ public class HlslCodeGeneratorTests
         
         // Verify vertex shader
         Assert.Contains("TriangleVaryings VSMain(TriangleVertex input)", hlsl);
-        Assert.Contains("float4(input.Position, 0f, 1f)", hlsl);
+        Assert.Contains("float4(input.Position, 0.0f, 1.0f)", hlsl);
     }
 
     [Fact]
