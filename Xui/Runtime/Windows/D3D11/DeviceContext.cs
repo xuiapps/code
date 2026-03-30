@@ -100,10 +100,10 @@ public static unsafe partial class D3D11
 
         /// <summary>
         /// Sets the depth-stencil state.
-        /// Wraps <c>ID3D11DeviceContext::OMSetDepthStencilState</c> (vtable [35]).
+        /// Wraps <c>ID3D11DeviceContext::OMSetDepthStencilState</c> (vtable [36]).
         /// </summary>
         public void OMSetDepthStencilState(void* pDepthStencilState, uint stencilRef) =>
-            ((delegate* unmanaged[MemberFunction]<void*, void*, uint, void>)this[35])
+            ((delegate* unmanaged[MemberFunction]<void*, void*, uint, void>)this[36])
             (this, pDepthStencilState, stencilRef);
 
         /// <summary>
@@ -148,18 +148,18 @@ public static unsafe partial class D3D11
 
         /// <summary>
         /// Updates a subresource.
-        /// Wraps <c>ID3D11DeviceContext::UpdateSubresource</c> (vtable [68]).
+        /// Wraps <c>ID3D11DeviceContext::UpdateSubresource</c> (vtable [48]).
         /// </summary>
         public void UpdateSubresource(void* pDstResource, uint dstSubresource, void* pDstBox, void* pSrcData, uint srcRowPitch, uint srcDepthPitch) =>
-            ((delegate* unmanaged[MemberFunction]<void*, void*, uint, void*, void*, uint, uint, void>)this[68])
+            ((delegate* unmanaged[MemberFunction]<void*, void*, uint, void*, void*, uint, uint, void>)this[48])
             (this, pDstResource, dstSubresource, pDstBox, pSrcData, srcRowPitch, srcDepthPitch);
 
         /// <summary>
         /// Draws non-indexed, non-instanced primitives.
-        /// Wraps <c>ID3D11DeviceContext::Draw</c> (vtable [73]).
+        /// Wraps <c>ID3D11DeviceContext::Draw</c> (vtable [13]).
         /// </summary>
         public void DrawPrimitive(uint vertexCount, uint startVertexLocation) =>
-            ((delegate* unmanaged[MemberFunction]<void*, uint, uint, void>)this[73])
+            ((delegate* unmanaged[MemberFunction]<void*, uint, uint, void>)this[13])
             (this, vertexCount, startVertexLocation);
 
         /// <summary>
@@ -171,9 +171,9 @@ public static unsafe partial class D3D11
 
         /// <summary>
         /// Sends queued commands to the GPU.
-        /// Wraps <c>ID3D11DeviceContext::Flush</c> (vtable [114]).
+        /// Wraps <c>ID3D11DeviceContext::Flush</c> (vtable [111]).
         /// </summary>
         public void Flush() =>
-            ((delegate* unmanaged[MemberFunction]<void*, void>)this[114])(this);
+            ((delegate* unmanaged[MemberFunction]<void*, void>)this[111])(this);
     }
 }

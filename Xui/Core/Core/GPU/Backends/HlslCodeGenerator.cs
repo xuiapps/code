@@ -29,10 +29,28 @@ public class HlslCodeGenerator : IShaderBackend
         WriteLine($"// Module: {module.Name}");
         WriteLine();
 
+        // Fragment output fields need SV_Target semantics, not TEXCOORD
+        var fragmentOutputType = module.FragmentStage?.OutputType;
+
         // Generate struct declarations
         foreach (var structDecl in module.Structs)
         {
-            GenerateStructDecl(structDecl);
+            bool isFragmentOutput = structDecl.Type == fragmentOutputType;
+            GenerateStructDecl(structDecl, isFragmentOutput);
+            WriteLine();
+        }
+
+        // Generate constant buffer declaration if any stage uses bindings.
+        // Use cbuffer (HLSL 5.0) rather than ConstantBuffer<T> (5.1+).
+        var bindingsType = module.VertexStage?.BindingsType ?? module.FragmentStage?.BindingsType;
+        if (bindingsType != null)
+        {
+            WriteLine($"cbuffer BindingsCBuffer : register(b0)");
+            WriteLine("{");
+            _indentLevel++;
+            WriteLine($"{bindingsType.Name} bindings;");
+            _indentLevel--;
+            WriteLine("};");
             WriteLine();
         }
 
@@ -53,7 +71,7 @@ public class HlslCodeGenerator : IShaderBackend
         return _output.ToString();
     }
 
-    private void GenerateStructDecl(IrStructDecl structDecl)
+    private void GenerateStructDecl(IrStructDecl structDecl, bool isFragmentOutput = false)
     {
         var structType = structDecl.Type;
         WriteLine($"struct {structType.Name}");
@@ -64,7 +82,7 @@ public class HlslCodeGenerator : IShaderBackend
         {
             var typeStr = GetHlslType(field.Type);
             var interpolation = GetInterpolationModifier(field.Decorations);
-            var semantic = GetSemanticString(field.Decorations);
+            var semantic = GetSemanticString(field.Decorations, isFragmentOutput);
             WriteLine($"{interpolation}{typeStr} {field.Name}{semantic};");
         }
 
@@ -215,7 +233,7 @@ public class HlslCodeGenerator : IShaderBackend
     {
         return constant.Value switch
         {
-            float f => f.ToString("R") + "f",  // Round-trip format preserves exact value
+            float f => FloatLiteral(f),
             double d => d.ToString("R"),       // Round-trip format preserves exact value
             int i => i.ToString(),
             uint u => u.ToString() + "u",
@@ -225,10 +243,30 @@ public class HlslCodeGenerator : IShaderBackend
         };
     }
 
+    private static string FloatLiteral(float f)
+    {
+        var s = f.ToString("R");
+        if (!s.Contains('.') && !s.Contains('e') && !s.Contains('E')
+            && !s.Contains('N') && !s.Contains('n'))
+        {
+            s += ".0";
+        }
+        return s + "f";
+    }
+
     private string GenerateBinaryOp(IrBinaryOp binaryOp)
     {
         var left = GenerateExpression(binaryOp.Left);
         var right = GenerateExpression(binaryOp.Right);
+
+        // In HLSL, * between a matrix and a vector/matrix is component-wise, not linear algebra.
+        // Matrix-vector and matrix-matrix multiplication requires mul().
+        if (binaryOp.Operator == BinaryOperator.Multiply &&
+            (binaryOp.Left.Type is IrMatrixType || binaryOp.Right.Type is IrMatrixType))
+        {
+            return $"mul({left}, {right})";
+        }
+
         var op = binaryOp.Operator switch
         {
             BinaryOperator.Add => "+",
@@ -342,7 +380,7 @@ public class HlslCodeGenerator : IShaderBackend
         return $"{baseType}{matrix.Rows}x{matrix.Columns}";
     }
 
-    private string GetSemanticString(List<IrDecoration> decorations)
+    private string GetSemanticString(List<IrDecoration> decorations, bool isFragmentOutput = false)
     {
         foreach (var decoration in decorations)
         {
@@ -360,7 +398,9 @@ public class HlslCodeGenerator : IShaderBackend
             }
             else if (decoration is IrLocationDecoration location)
             {
-                return $" : TEXCOORD{location.Location}";
+                return isFragmentOutput
+                    ? $" : SV_Target{location.Location}"
+                    : $" : TEXCOORD{location.Location}";
             }
         }
         return "";
