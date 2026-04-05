@@ -8,7 +8,7 @@ using Xui.Core.UI.Input;
 namespace Xui.Apps.TestApp.Pages.Layers.Tests;
 
 /// <summary>
-/// Demo for IPopup — shows a cross-platform in-window overlay anchored below a button.
+/// Demo for IOverlay — shows a cross-platform in-window overlay anchored below a button.
 /// </summary>
 public class PopupDemo : View
 {
@@ -17,7 +17,7 @@ public class PopupDemo : View
 
     private bool hover;
     private bool pressed;
-    private IPopup? popup;
+    private IOverlay? overlay;
 
     protected override Size MeasureCore(Size available, IMeasureContext ctx)
         => new Size(available.Width, available.Height);
@@ -45,7 +45,7 @@ public class PopupDemo : View
         ctx.TextAlign = TextAlign.Center;
         ctx.TextBaseline = TextBaseline.Middle;
         ctx.SetFill(Colors.White);
-        ctx.FillText(popup?.IsVisible == true ? "Close Popup" : "Open Popup",
+        ctx.FillText(overlay?.IsVisible == true ? "Close Overlay" : "Open Overlay",
             new Point(btnRect.X + btnRect.Width / 2, btnRect.Y + btnRect.Height / 2));
 
         // Hint
@@ -53,7 +53,7 @@ public class PopupDemo : View
         ctx.TextAlign = TextAlign.Center;
         ctx.TextBaseline = TextBaseline.Top;
         ctx.SetFill(new Color(0x808080FF));
-        ctx.FillText("IPopup — cross-platform overlay, auto-dismiss on outside click",
+        ctx.FillText("IOverlay — cross-platform in-window overlay, auto-dismiss on outside click",
             new Point(rect.X + rect.Width / 2, btnRect.Y + btnRect.Height + 16));
     }
 
@@ -96,33 +96,33 @@ public class PopupDemo : View
             case PointerEventType.Up when pressed:
                 pressed = false;
                 ReleasePointer(e.PointerId);
-                if (inBtn) TogglePopup();
+                if (inBtn) ToggleOverlay();
                 InvalidateRender();
                 break;
         }
     }
 
-    private void TogglePopup()
+    private void ToggleOverlay()
     {
-        if (popup?.IsVisible == true)
+        if (overlay?.IsVisible == true)
         {
-            popup.Close();
+            overlay.Close();
             return;
         }
 
-        if (popup == null)
+        if (overlay == null)
         {
-            popup = (IPopup)this.GetService(typeof(IPopup))!;
-            popup.Closed += () => InvalidateRender();
+            overlay = (IOverlay)this.GetService(typeof(IOverlay))!;
+            overlay.Closed += () => InvalidateRender();
         }
 
         var anchor = ButtonRect();
-        popup.Show(new PopupContent(), anchor, PopupPlacement.Below, new Size(anchor.Width, 120));
+        overlay.Show(new OverlayContent(), anchor, PopupPlacement.Below, new Size(anchor.Width, 120));
         InvalidateRender();
     }
 
-    /// <summary>Simple popup content — renders a card with some text inside the overlay.</summary>
-    private class PopupContent : View
+    /// <summary>Simple overlay content — renders a card with some text inside the overlay.</summary>
+    private class OverlayContent : View
     {
         protected override Size MeasureCore(Size available, IMeasureContext ctx)
             => available;
@@ -149,7 +149,7 @@ public class PopupDemo : View
             ctx.TextBaseline = TextBaseline.Top;
             ctx.TextAlign = TextAlign.Left;
             ctx.SetFill(new Color(0x1A1A1AFF));
-            ctx.FillText("Popup content", new Point(rect.X + 16, rect.Y + 16));
+            ctx.FillText("Overlay content", new Point(rect.X + 16, rect.Y + 16));
 
             ctx.SetFont(new Font(13, ["Segoe UI"]));
             ctx.SetFill(new Color(0x606060FF));

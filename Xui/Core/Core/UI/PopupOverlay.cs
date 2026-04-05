@@ -4,11 +4,11 @@ using Xui.Core.Math2D;
 namespace Xui.Core.UI;
 
 /// <summary>
-/// Cross-platform popup implementation rendered as an in-window overlay inside <see cref="RootView"/>.
+/// Cross-platform overlay implementation rendered as an in-window surface inside <see cref="RootView"/>.
 /// Works on every platform (Windows, macOS, iOS, Android, Browser) with no platform-specific code.
-/// Acquired via <c>GetService&lt;IPopup&gt;()</c> from any <see cref="View"/>.
+/// Acquired via <c>GetService&lt;IOverlay&gt;()</c> from any <see cref="View"/>.
 /// </summary>
-internal sealed class PopupOverlay : IPopup
+internal sealed class PopupOverlay : IOverlay
 {
     private readonly RootView rootView;
 

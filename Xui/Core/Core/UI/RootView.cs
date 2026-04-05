@@ -77,10 +77,7 @@ public class RootView : View, IContent, IFocus
 
         // If the click is inside any visible overlay, prevent it from reaching the underlying UI.
         if (overlays.Count > 0 && IsPointInsideAnyOverlay(e.Position))
-        {
-            e.Handled = true;
             return;
-        }
 
         if (overlays.Count > 0)
             DismissOverlaysOutside(e.Position);
@@ -96,11 +93,10 @@ public class RootView : View, IContent, IFocus
     {
         foreach (var overlay in overlays)
         {
-            // Skip overlays that are not currently visible.
             if (!overlay.IsVisible)
                 continue;
 
-            if (overlay.Bounds.Contains(position))
+            if (overlay.Frame.Contains(position))
                 return true;
         }
 

@@ -25,18 +25,25 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard, IService
     /// <inheritdoc/>
     /// Checks the window's DI service provider first; if not found, falls back to the
     /// platform window's own services (e.g. <see cref="Xui.Core.Actual.IImagePipeline"/> from Win32).
+    /// For <see cref="IOverlay"/>, falls back to the cross-platform in-window overlay
+    /// when neither DI nor the platform provide one.
     public virtual object? GetService(Type serviceType)
     {
-        if (serviceType == typeof(IPopup))
+        // Resolve from the window's DI context and then the platform window.
+        var service = this.Context.GetService(serviceType) ?? this.Actual?.GetService(serviceType);
+
+        if (service is not null)
+            return service;
+
+        // Provide in-window overlay fallback when no platform implementation is registered.
+        if (serviceType == typeof(IOverlay))
         {
-            var popup = new PopupOverlay(this.RootView);
-            if (popup is IDisposable disposable)
-            {
-                this.DisposeQueue.Add(disposable);
-            }
-            return popup;
+            var overlay = new PopupOverlay(this.RootView);
+            this.DisposeQueue.Add(overlay);
+            return overlay;
         }
-        return this.Context.GetService(serviceType) ?? this.Actual?.GetService(serviceType);
+
+        return null;
     }
 
     /// <summary>A list of disposables disposed when the window closes.</summary>
