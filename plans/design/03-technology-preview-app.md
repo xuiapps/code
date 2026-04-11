@@ -3,11 +3,11 @@
 ## Overview
 
 The Xui Technology Preview App is a single desktop/mobile application that showcases the
-SDK's capabilities across **six real-world verticals**.  It is not a finished product — it is
+SDK's capabilities across **ten real-world verticals**.  It is not a finished product — it is
 an interactive SDK preview that explains the technology, demonstrates its potential, and
 invites early-access developers to explore each vertical in depth.
 
-This document is an RFQ for the **visual design** of the app shell, the six demo modules,
+This document is an RFQ for the **visual design** of the app shell, the ten demo modules,
 and the transitions between them.
 
 ---
@@ -27,7 +27,8 @@ and the transitions between them.
 
 ### 2.1 Home / Selection Screen
 
-The home screen shows **six vertical tiles** arranged in a 2 × 3 or 3 × 2 grid (responsive).
+The home screen shows **ten vertical tiles** arranged in a 2 × 5 or 5 × 2 grid (responsive;
+collapses to a single scrollable column on narrow screens).
 
 Each tile:
 - Full-bleed background — a looping micro-animation specific to the vertical (e.g. the CAD
@@ -61,7 +62,7 @@ Moving from demo → home:
 
 ---
 
-## 3. Six Demo Modules
+## 3. Six Core Demo Modules
 
 ### 3.1 Desktop CAD — "Precision Canvas"
 
@@ -198,7 +199,155 @@ Design notes:
 
 ---
 
-## 4. Shared Component Patterns
+## 4. Four Lifestyle & Vertical-Specific Demo Modules
+
+### 4.1 Coffee Machine — "Barista Control"
+
+**What it shows:** Bespoke appliance UI, animated progress arcs, touch-optimised controls.
+
+Screen layout (shown inside the emulator frame — phone portrait):
+- **Top**: current brew mode selector (Espresso · Lungo · Americano · Cappuccino) as a
+  segmented control with icon + label
+- **Centre**: large circular **brew progress arc** (empty → fills over the brew duration);
+  inside the arc, animated steam wisps rise from a coffee cup illustration
+- **Bottom row**: three parameter sliders — Water temperature (°C), Grind strength (1–5),
+  Cup size (ml) — each with live numeric readout
+- **"Start brew"** CTA button — large, full-width, warm amber accent
+- **Status strip**: boiler warm-up indicator, water tank level, bean hopper level
+
+Demo interaction:
+- Tap a brew mode → segmented control animates to new selection, arc resets
+- Tap "Start brew" → button shrinks to a pulsing progress ring; arc fills over ~8 s (simulated);
+  steam animation intensifies; on completion a "Done ☕" state appears with a subtle particle burst
+- Drag temperature slider → arc accent colour shifts warm (red) to cool (blue) in real time
+
+Design notes:
+- Warm material palette: deep espresso brown (`#1a0e07`), cream (`#f5e6c8`), amber accent (`#d97706`)
+- Icons from the Xui icon library (see `05-iconography.md`): `Coffee / Cup`, `Temperature`,
+  `Power / On-Off`; use **Soft** radius variant
+- All interactive targets ≥ 44 × 44 pt (appliance context = gloved or wet hands)
+
+---
+
+### 4.2 Retail Loyalty App — "My Rewards"
+
+**What it shows:** QR code generation, list rendering, progress / tier visualisation, dynamic
+promo content — a complete consumer loyalty-card experience.
+
+Screen layout (shown inside the emulator frame — phone portrait, two main tabs):
+
+**Tab 1 — My Card:**
+- Top half: animated QR code (the code itself animates in with a square-by-square reveal over
+  200 ms); below the QR, the member name and current-points balance in large type
+- Points progress bar towards next tier (Bronze → Silver → Gold → Platinum) with labelled
+  milestones and a glowing gradient fill
+
+**Tab 2 — Promotions:**
+- Horizontal promo banner carousel (auto-advances every 4 s, spring bounce on swipe)
+- Vertical scrollable list of active promotions, each as a card with:
+  - Brand / category icon
+  - Offer headline (e.g. "Buy 3 pairs of shoes, get 50% off your 4th")
+  - Discount badge (e.g. "50% OFF")
+  - Points cost or qualifying threshold
+  - Expiry date pill
+  - "Redeem" button (disabled until qualifying purchase is detected)
+
+Demo interaction:
+- Tap "Redeem" → QR code updates to a single-use redemption code with a countdown timer
+- Swipe promo card right → "Saved" checkmark animates; card moves to "Saved offers" section
+- Points balance ticks up (simulated) → tier progress bar animates, milestone label pulses
+- Reaching a new tier → full-screen confetti particle burst, tier badge morphs with a scale
+  spring (0.6 → 1.1 → 1.0)
+
+Design notes:
+- Two-tone palette: rich black background with a brand-accent colour switcher in the demo
+  toolbar (lets developer try different retailer colour schemes)
+- QR code rendered entirely via `IContext.FillRect` calls — demonstrates canvas primitives
+  composing into a recognisable graphic
+- Tier badges use the circular gauge component from §5 shared components
+
+---
+
+### 4.3 Vacuum Robot — "Clean Schedule & Monitor"
+
+**What it shows:** Floor-plan canvas, real-time path animation, schedule UI, sensor state.
+
+Screen layout (shown inside the emulator frame — phone portrait, three tabs):
+
+**Tab 1 — Map:**
+- Full-bleed canvas floor-plan of a two-room apartment (grey walls, room labels)
+- Robot icon positioned and animated along a cleaning path in real time (simulated)
+- Cleaned area shaded progressively as the robot passes (alpha-filled rectangles)
+- Obstacle indicators (small red dots that appear randomly to simulate dynamic obstacles)
+- Mini-legend: battery %, area cleaned (m²), time elapsed
+
+**Tab 2 — Schedule:**
+- Weekly grid (Mon–Sun, 24-hour slots) showing scheduled clean sessions as coloured blocks
+- Tap an empty slot → popover to set start time, duration, room selection, repeat
+- Tap an existing session → edit / delete
+- "Next clean" countdown pill at the top of the tab
+
+**Tab 3 — History:**
+- List of past cleaning sessions: date, duration, area covered, map thumbnail
+- Tap a session → expand to show full cleaned-area map with path replay (scrubable timeline)
+
+Demo interaction:
+- Tap "Start clean" → robot begins animated path; battery depletes in simulated time
+- Battery reaches 20% → robot returns to dock with a curved path animation; dock icon pulses
+- Swipe a history card → delete with a snap animation
+
+Design notes:
+- Muted teal/grey palette (`#0a1a1a` background, `#00c8a0` robot accent) — functional, calm
+- Floor-plan rendered with `IContext.Stroke` (walls) and `IContext.Fill` (room fills, cleaned shading)
+- Robot path uses `IContext.BezierCurveTo` — a direct showcase of the Canvas curve API
+- Icons: `Robot / Vacuum`, `Schedule / Clock`, `Map / Floor Plan` from `05-iconography.md`;
+  use **Sharp** radius variant (industrial feel)
+
+---
+
+### 4.4 Museum Tour — "Audio Guide"
+
+**What it shows:** Multilingual UI, audio playback controls, rich content cards, map integration.
+
+Screen layout (shown inside the emulator frame — phone portrait):
+
+**Onboarding screen:**
+- Museum logo / name at top
+- Language picker: horizontally scrollable list of flag + language-name pills
+  (English, Español, Français, Deutsch, 日本語, 中文, العربية, …; 12 languages)
+- "Start tour" CTA (disabled until a language is selected)
+- Subtle animated background: soft overlapping arcs in gold/cream suggesting architectural detail
+
+**Tour home:**
+- Current exhibit card (full-bleed image + title + room number)
+- **Audio player bar** (fixed bottom): artwork thumbnail, track title, scrub bar, play/pause,
+  previous/next exhibit, speed selector (0.75× / 1× / 1.25× / 1.5×), CC toggle
+- Exhibit list: vertically scrollable cards — thumbnail, exhibit name, room, duration pill,
+  "Visited" checkmark overlay once played past 80%
+
+**Exhibit detail screen:**
+- Full-screen exhibit image with parallax scroll
+- Audio player (same bar) transitions upward to centre
+- Description text (rendered via `IContext.FillText` with the Xui font engine)
+- "Related exhibits" horizontal scroll strip at the bottom
+
+Demo interaction:
+- Tap a language → pill animates to selected state (fills with accent); "Start tour" activates
+- Tap "Start tour" → hero transition to tour home (see §2.3 transitions)
+- Tap play → audio progress bar animates (simulated); exhibit cards highlight as audio reaches them
+- Complete 80% of an exhibit → "Visited" checkmark draws in on the card; progress ring on home
+  screen increments
+
+Design notes:
+- Warm cultural palette: deep midnight blue (`#0d0d20`), gold accent (`#c9a84c`), parchment text (`#f0e8d0`)
+- Typography is prominent — this is a reading/listening experience; use the Inter font already
+  bundled in `Xui.Core.Fonts`
+- Language pill selection demonstrates the icon library's `Language / Globe` icon at **Rounded** variant
+- Audio scrub bar rendered as a `LinearGradient` + `RoundRect` — a clean canvas primitive showcase
+
+---
+
+## 5. Shared Component Patterns
 
 These components appear in multiple demo modules and should be designed as a reusable system:
 
@@ -207,15 +356,22 @@ These components appear in multiple demo modules and should be designed as a reu
 | Circular gauge | Dashboard, Health, 3D |
 | Sparkline chart | Dashboard, Health |
 | Line chart | Health |
-| Floor-plan canvas | IoT (robot), 3D (building) |
+| Floor-plan canvas | Vacuum robot (4.3), CAD, 3D |
 | Data card | All |
 | Alert strip | Dashboard, IoT |
 | Tab bar (bottom, mobile) | All mobile layouts |
 | Expanded detail overlay | All |
+| Brew progress arc | Coffee machine (4.1) |
+| QR code canvas render | Retail loyalty (4.2) |
+| Points / tier progress bar | Retail loyalty (4.2) |
+| Promo card list | Retail loyalty (4.2) |
+| Robot path canvas | Vacuum robot (4.3) |
+| Audio player bar | Museum tour (4.4) |
+| Language picker pills | Museum tour (4.4) |
 
 ---
 
-## 5. Xui Capability Callouts
+## 6. Xui Capability Callouts
 
 Each demo module should have an optional **"How Xui does this"** overlay that the developer
 can toggle.  It shows:
@@ -229,24 +385,28 @@ left-border accent.
 
 ---
 
-## 6. Performance Indicator
+## 7. Performance Indicator
 
 A persistent but subtle FPS + memory badge in the app chrome (similar to the emulator
 toolbar) that stays visible across all demos.  This is a deliberate signal that Xui is fast.
 
 ---
 
-## 7. Deliverables Requested from Design Studio
+## 8. Deliverables Requested from Design Studio
 
 1. **Figma / Sketch file** with:
-   - Home selection screen (all 6 tiles, hover states, mobile responsive layout)
-   - All 6 demo module screens (primary view + one expanded detail state each)
+   - Home selection screen (all 10 tiles, hover states, mobile responsive layout)
+   - All 10 demo module screens (primary view + one expanded detail state each)
    - App shell chrome (header, nav, FPS badge, capability callout overlay)
    - Navigation transition storyboards (home → demo → detail → back)
 2. **Motion specification**:
    - Hero tile expand/collapse (timing, easing, spring parameters)
    - Gauge needle animation curve
    - Chart data-arrival animation
+   - Brew progress arc fill animation
+   - QR code reveal animation
+   - Robot path drawing animation
+   - Audio scrub bar animation
    - Capability callout slide-in
 3. **Asset list** — every SVG, icon, and illustration needed; placeholder or real
 4. **Token mapping** — how site tokens (§6 of `02-website.md`) map to in-app tokens
@@ -254,7 +414,7 @@ toolbar) that stays visible across all demos.  This is a deliberate signal that 
 
 ---
 
-## 8. Out of Scope
+## 9. Out of Scope
 
 - Actual data sources / BLE / hardware integration (simulated data only for V1)
 - App Store / Play Store submission packaging
