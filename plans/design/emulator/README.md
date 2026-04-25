@@ -35,6 +35,9 @@ With the move from developers to AI, the consumers for frameworks like this will
 Use the stores for inspiration of how they convey the feel of a phone:
 ![](./assets/store.png)
 
+Colors should work well with the Xui logo (unless we redesign it as well...)
+![](./assets/logo.svg)
+
 Key visual principles:
 
 - **Phone Body** visually appealing. 
