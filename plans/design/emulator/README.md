@@ -38,6 +38,9 @@ Use the stores for inspiration of how they convey the feel of a phone:
 Colors should work well with the Xui logo (unless we redesign it as well...)
 ![](./assets/logo.svg)
 
+For gradients also consider the color wheel from the Xui design-system that is in development.
+![](./assets/colorwheel.png)
+
 Key visual principles:
 
 - **Phone Body** visually appealing. 
