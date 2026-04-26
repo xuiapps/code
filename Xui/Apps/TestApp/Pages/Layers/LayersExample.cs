@@ -46,7 +46,7 @@ public class LayersExample : Example
             AddTest<BorderLayerTest>("BorderLayer");
             AddTest<TextBoxLayerTest>("TextBox (layered)");
             AddTest<DockLayerTest>("DockLayer widgets");
-            AddTest<PopupDemo>("Popup (IPopup)");
+            AddTest<PopupDemo>("Overlay (IOverlay)");
 
             Preview = new BorderLayerTest();
         }

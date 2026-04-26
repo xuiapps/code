@@ -4,10 +4,15 @@ using Xui.Core.Math2D;
 namespace Xui.Core.UI;
 
 /// <summary>
-/// A transient popup surface acquired via <c>GetService&lt;IPopup&gt;()</c>.
-/// Each call returns a new instance backed by a platform-specific child window.
+/// A transient native popup surface acquired via <c>GetService&lt;IPopup&gt;()</c>.
+/// Each call returns a new instance backed by a platform-specific child window,
+/// which can extend beyond the parent window bounds.
 /// </summary>
 /// <remarks>
+/// Available on platforms that support native popups (Windows, macOS).
+/// For cross-platform in-window overlays that work on all platforms including
+/// mobile, web, and simulators, use <see cref="IOverlay"/> instead.
+/// <para>
 /// Usage pattern (similar to <see cref="Xui.Core.Canvas.IImage"/>):
 /// <code>
 /// var popup = this.GetService&lt;IPopup&gt;();
@@ -15,6 +20,7 @@ namespace Xui.Core.UI;
 /// </code>
 /// The popup auto-dismisses when the user clicks outside.
 /// Disposing the popup closes it if still visible.
+/// </para>
 /// </remarks>
 public interface IPopup : IDisposable
 {

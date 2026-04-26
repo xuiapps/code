@@ -74,11 +74,34 @@ public class RootView : View, IContent, IFocus
     void IContent.OnMouseDown(ref MouseDownEventRef e)
     {
         lastMousePosition = e.Position;
+
+        // If the click is inside any visible overlay, prevent it from reaching the underlying UI.
+        if (overlays.Count > 0 && IsPointInsideAnyOverlay(e.Position))
+            return;
+
         if (overlays.Count > 0)
             DismissOverlaysOutside(e.Position);
+
         this.EventRouter.Dispatch(ref e);
     }
 
+    /// <summary>
+    /// Returns true if the given position is inside any visible popup overlay.
+    /// This prevents mouse events from "clicking through" overlays into underlying views.
+    /// </summary>
+    private bool IsPointInsideAnyOverlay(Point position)
+    {
+        foreach (var overlay in overlays)
+        {
+            if (!overlay.IsVisible)
+                continue;
+
+            if (overlay.Frame.Contains(position))
+                return true;
+        }
+
+        return false;
+    }
     void IContent.OnMouseMove(ref MouseMoveEventRef e)
     {
         lastMousePosition = e.Position;
