@@ -75,6 +75,7 @@ public sealed class PipeServer
                     Methods.InputTap => await HandleTap(req, handler).ConfigureAwait(false),
                     Methods.InputPointer => await HandlePointer(req, handler).ConfigureAwait(false),
                     Methods.InputClick => await HandleClick(req, handler).ConfigureAwait(false),
+                    Methods.InputMouseMove => await HandleMouseMove(req, handler).ConfigureAwait(false),
                     Methods.AppInvalidate => await HandleInvalidate(handler).ConfigureAwait(false),
                     Methods.AppIdentify => await HandleIdentify(req, handler).ConfigureAwait(false),
                     _ => null,
@@ -111,6 +112,13 @@ public sealed class PipeServer
         return null;
     }
 
+    private static async Task<object?> HandleMouseMove(RpcRequest req, IDevToolsHandler handler)
+    {
+        var p = req.Params?.Deserialize<MouseMoveParams>(opts) ?? new MouseMoveParams(0, 0);
+        await handler.HandleMouseMove(p).ConfigureAwait(false);
+        return null;
+    }
+
     private static async Task<object?> HandleInvalidate(IDevToolsHandler handler)
     {
         await handler.HandleInvalidate().ConfigureAwait(false);
@@ -133,6 +141,7 @@ public interface IDevToolsHandler
     Task HandleTap(TapParams p);
     Task HandlePointer(PointerParams p);
     Task HandleClick(ClickParams p);
+    Task HandleMouseMove(MouseMoveParams p);
     Task HandleInvalidate();
     Task HandleIdentify(IdentifyParams p);
 }

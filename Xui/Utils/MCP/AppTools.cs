@@ -1,11 +1,8 @@
 using ModelContextProtocol.Server;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO.Pipes;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Xml;
+using Xui.Middleware.DevTools.Client;
 
 namespace Xui.MCP;
 
@@ -84,7 +81,7 @@ public static class AppTools
         try
         {
             client = new DevToolsClient(pipeName);
-            await client.ConnectAsync();
+            await client.ConnectAsync(GetClientName());
         }
         catch (Exception ex)
         {
@@ -111,7 +108,7 @@ public static class AppTools
         try
         {
             client = new DevToolsClient(pipeName);
-            await client.ConnectAsync();
+            await client.ConnectAsync(GetClientName());
         }
         catch (Exception ex)
         {
@@ -165,7 +162,7 @@ public static class AppTools
             {
                 var inspectResult = el.Deserialize<InspectResult>(DevToolsClient.JsonOptions);
                 if (inspectResult?.Root != null)
-                    return ViewNodeToXml(inspectResult.Root);
+                    return inspectResult.Root.ToXml();
             }
             catch (Exception ex)
             {
@@ -198,6 +195,17 @@ public static class AppTools
         if (client == null) return "No app connected. Call StartApp first.";
         await client.SendAsync("input.click", new { x, y });
         return $"Clicked ({x}, {y})";
+    }
+
+    [McpServerTool]
+    [Description("Move the mouse cursor to coordinates (x, y) in the running Xui app. Updates the overlay indicator and fires OnMouseMove.")]
+    public static async Task<string> MouseMove(float x, float y)
+    {
+        var crash = CrashReport();
+        if (crash != null) return crash;
+        if (client == null) return "No app connected. Call StartApp first.";
+        await client.SendAsync("input.mousemove", new { x, y });
+        return $"MouseMove ({x}, {y})";
     }
 
     [McpServerTool]
@@ -268,6 +276,24 @@ public static class AppTools
     /// Returns a crash description if the managed process has exited unexpectedly, otherwise null.
     /// Each interactive tool calls this first so the AI sees the crash on the very next call.
     /// </summary>
+    /// <summary>
+    /// Returns a display name for the connecting MCP client.
+    /// Checks for known environment variables set by Claude Code; falls back to "Claude".
+    /// </summary>
+    private static string GetClientName()
+    {
+        // Claude Code sets CLAUDE_CODE_VERSION when running MCP servers.
+        var version = Environment.GetEnvironmentVariable("CLAUDE_CODE_VERSION");
+        if (!string.IsNullOrEmpty(version))
+            return $"Claude {version}";
+
+        // Anthropic API key present → likely a Claude-based tool.
+        if (Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY") != null)
+            return "Claude";
+
+        return "Claude";
+    }
+
     private static string? CrashReport()
     {
         if (process == null || !process.HasExited) return null;
@@ -288,123 +314,4 @@ public static class AppTools
         catch { }
     }
 
-    /// <summary>
-    /// Converts a ViewNode tree to XML format for better human readability.
-    /// </summary>
-    private static string ViewNodeToXml(ViewNode node)
-    {
-        var sb = new StringBuilder();
-        var settings = new XmlWriterSettings
-        {
-            Indent = true,
-            IndentChars = "  ",
-            OmitXmlDeclaration = false,
-            Encoding = Encoding.UTF8
-        };
-
-        using (var writer = XmlWriter.Create(sb, settings))
-        {
-            writer.WriteStartDocument();
-            WriteViewNode(writer, node);
-            writer.WriteEndDocument();
-        }
-
-        return sb.ToString();
-    }
-
-    private static void WriteViewNode(XmlWriter writer, ViewNode node)
-    {
-        writer.WriteStartElement(node.Type);
-
-        // Add id attribute if present
-        if (!string.IsNullOrEmpty(node.Id))
-            writer.WriteAttributeString("id", node.Id);
-
-        // Add class attribute if present
-        if (!string.IsNullOrEmpty(node.ClassName))
-            writer.WriteAttributeString("class", node.ClassName);
-
-        // Add position and size attributes
-        writer.WriteAttributeString("x", node.X.ToString("F2"));
-        writer.WriteAttributeString("y", node.Y.ToString("F2"));
-        writer.WriteAttributeString("w", node.W.ToString("F2"));
-        writer.WriteAttributeString("h", node.H.ToString("F2"));
-
-        // Add center point for clicking
-        writer.WriteAttributeString("centerX", node.CenterX.ToString("F2"));
-        writer.WriteAttributeString("centerY", node.CenterY.ToString("F2"));
-
-        // Add visible attribute
-        writer.WriteAttributeString("visible", node.Visible.ToString().ToLower());
-
-        // Recursively write children
-        foreach (var child in node.Children)
-            WriteViewNode(writer, child);
-
-        writer.WriteEndElement();
-    }
-
-    // Records matching the DevTools protocol
-    private record InspectResult(ViewNode Root);
-    
-    private record ViewNode(
-        string Type,
-        float X, float Y, float W, float H,
-        float CenterX, float CenterY,
-        bool Visible,
-        string? Id,
-        string? ClassName,
-        ViewNode[] Children);
-}
-
-/// <summary>Named-pipe JSON-RPC client for the Xui DevTools protocol.</summary>
-internal sealed class DevToolsClient : IDisposable
-{
-    public static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-    };
-
-    private readonly NamedPipeClientStream pipe;
-    private StreamWriter? writer;
-    private StreamReader? reader;
-    private int nextId = 1;
-
-    public DevToolsClient(string pipeName)
-        => this.pipe = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
-
-    public async Task ConnectAsync()
-    {
-        await pipe.ConnectAsync(10_000);
-        writer = new StreamWriter(pipe, new UTF8Encoding(false), bufferSize: 1024, leaveOpen: true) { AutoFlush = true };
-        reader = new StreamReader(pipe, new UTF8Encoding(false), detectEncodingFromByteOrderMarks: false, bufferSize: 1024, leaveOpen: true);
-    }
-
-    /// <summary>Sends a JSON-RPC request and returns the result element (may be null).</summary>
-    public async Task<object?> SendAsync(string method, object? @params = null)
-    {
-        if (writer == null || reader == null)
-            throw new InvalidOperationException("Not connected.");
-
-        var id = nextId++;
-        var json = JsonSerializer.Serialize(new { method, id, @params }, JsonOptions);
-        await writer.WriteLineAsync(json);
-
-        var line = await reader.ReadLineAsync();
-        if (line == null) throw new IOException("DevTools connection closed.");
-
-        using var doc = JsonDocument.Parse(line);
-        var root = doc.RootElement;
-
-        if (root.TryGetProperty("error", out var err))
-            throw new Exception($"RPC error {err.GetProperty("code").GetInt32()}: {err.GetProperty("message").GetString()}");
-
-        if (root.TryGetProperty("result", out var result) && result.ValueKind != JsonValueKind.Null)
-            return result.Clone();
-
-        return null;
-    }
-
-    public void Dispose() => pipe.Dispose();
 }
