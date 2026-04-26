@@ -56,6 +56,7 @@ Key visual principles:
   buttons looking stretched.
 - **Not only desktop** The Xui framework also supports browser emulation. Through WebAssembly, can show the emulator in a webpage with compromised performance, but still functional. The Xui framework also natively supports SVG as render targets - for preview of apps, demos, docs etc. The emulator body design should also support switching off the rendering of the utility tools and appear static for embedding as still image, but convey the Xui as a brand.
 
+![](./assets/xui-soft-sim.svg)
 ---
 
 ## Dynamic Aspects
