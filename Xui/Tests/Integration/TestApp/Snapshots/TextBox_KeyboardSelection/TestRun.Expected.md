@@ -1,0 +1,266 @@
+# Integration Test Run
+
+## Snapshot summary
+
+- ✅ 01. Typed
+- ✅ 02. AfterLeftLeft
+- ✅ 03. ShiftSelected
+- ✅ 04. AfterReplace
+
+## Timeline
+
+## Scenario
+
+Use keyboard selection and replacement inside NameBox.
+
+### 01. Typed
+
+Status: ✅ Match
+
+#### Expected
+
+<div style="overflow:auto; border:1px solid #ddd; padding:8px; background:#fff;">
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
+  <text x="2" y="28" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Name:</text>
+  <rect x="3" y="55.15" width="594" height="24.15" fill="#FFFFFF" />
+  <text x="6" y="58.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Hello World!</text>
+  <rect x="92.4" y="58.15" width="1" height="18.15" fill="#000000" />
+  <rect x="2.5" y="54.65" width="595" height="25.15" fill="none" stroke="#0000FF" />
+  <text x="2" y="88.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Password:</text>
+  <rect x="3" y="115.45" width="594" height="24.15" fill="#FFFFFF" />
+  <rect x="2.5" y="114.95" width="595" height="25.15" fill="none" stroke="#808080" />
+  <text x="2" y="148.6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Number:</text>
+  <rect x="3" y="175.75" width="594" height="24.15" fill="#FFFFFF" />
+  <text x="6" y="178.75" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">0</text>
+  <rect x="2.5" y="175.25" width="595" height="25.15" fill="none" stroke="#808080" />
+  <text x="2" y="208.9" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Color (hex):</text>
+  <rect x="3" y="236.05" width="594" height="24.15" fill="#FFFFFF" />
+  <text x="6" y="239.05" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">#FF0000</text>
+  <rect x="2.5" y="235.55" width="595" height="25.15" fill="none" stroke="#808080" />
+  <rect x="0" y="0" width="600" height="24" fill="#FFFFFF" />
+  <text x="0" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+  <text x="73.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">TextBox MVP</text>
+  <g transform="translate(300 186.01025390625)" opacity="0.9">
+    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
+  </g>
+</svg>
+</div>
+
+#### Actual
+
+<div style="overflow:auto; border:1px solid #ddd; padding:8px; background:#fff;">
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
+  <text x="2" y="28" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Name:</text>
+  <rect x="3" y="55.15" width="594" height="24.15" fill="#FFFFFF" />
+  <text x="6" y="58.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Hello World!</text>
+  <rect x="92.4" y="58.15" width="1" height="18.15" fill="#000000" />
+  <rect x="2.5" y="54.65" width="595" height="25.15" fill="none" stroke="#0000FF" />
+  <text x="2" y="88.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Password:</text>
+  <rect x="3" y="115.45" width="594" height="24.15" fill="#FFFFFF" />
+  <rect x="2.5" y="114.95" width="595" height="25.15" fill="none" stroke="#808080" />
+  <text x="2" y="148.6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Number:</text>
+  <rect x="3" y="175.75" width="594" height="24.15" fill="#FFFFFF" />
+  <text x="6" y="178.75" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">0</text>
+  <rect x="2.5" y="175.25" width="595" height="25.15" fill="none" stroke="#808080" />
+  <text x="2" y="208.9" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Color (hex):</text>
+  <rect x="3" y="236.05" width="594" height="24.15" fill="#FFFFFF" />
+  <text x="6" y="239.05" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">#FF0000</text>
+  <rect x="2.5" y="235.55" width="595" height="25.15" fill="none" stroke="#808080" />
+  <rect x="0" y="0" width="600" height="24" fill="#FFFFFF" />
+  <text x="0" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+  <text x="73.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">TextBox MVP</text>
+  <g transform="translate(300 186.01025390625)" opacity="0.9">
+    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
+  </g>
+</svg>
+</div>
+
+### 02. AfterLeftLeft
+
+Status: ✅ Match
+
+#### Expected
+
+<div style="overflow:auto; border:1px solid #ddd; padding:8px; background:#fff;">
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
+  <text x="2" y="28" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Name:</text>
+  <rect x="3" y="55.15" width="594" height="24.15" fill="#FFFFFF" />
+  <text x="6" y="58.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Hello World!</text>
+  <rect x="78.9" y="58.15" width="1" height="18.15" fill="#000000" />
+  <rect x="2.5" y="54.65" width="595" height="25.15" fill="none" stroke="#0000FF" />
+  <text x="2" y="88.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Password:</text>
+  <rect x="3" y="115.45" width="594" height="24.15" fill="#FFFFFF" />
+  <rect x="2.5" y="114.95" width="595" height="25.15" fill="none" stroke="#808080" />
+  <text x="2" y="148.6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Number:</text>
+  <rect x="3" y="175.75" width="594" height="24.15" fill="#FFFFFF" />
+  <text x="6" y="178.75" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">0</text>
+  <rect x="2.5" y="175.25" width="595" height="25.15" fill="none" stroke="#808080" />
+  <text x="2" y="208.9" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Color (hex):</text>
+  <rect x="3" y="236.05" width="594" height="24.15" fill="#FFFFFF" />
+  <text x="6" y="239.05" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">#FF0000</text>
+  <rect x="2.5" y="235.55" width="595" height="25.15" fill="none" stroke="#808080" />
+  <rect x="0" y="0" width="600" height="24" fill="#FFFFFF" />
+  <text x="0" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+  <text x="73.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">TextBox MVP</text>
+  <g transform="translate(300 186.01025390625)" opacity="0.9">
+    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
+  </g>
+</svg>
+</div>
+
+#### Actual
+
+<div style="overflow:auto; border:1px solid #ddd; padding:8px; background:#fff;">
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
+  <text x="2" y="28" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Name:</text>
+  <rect x="3" y="55.15" width="594" height="24.15" fill="#FFFFFF" />
+  <text x="6" y="58.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Hello World!</text>
+  <rect x="78.9" y="58.15" width="1" height="18.15" fill="#000000" />
+  <rect x="2.5" y="54.65" width="595" height="25.15" fill="none" stroke="#0000FF" />
+  <text x="2" y="88.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Password:</text>
+  <rect x="3" y="115.45" width="594" height="24.15" fill="#FFFFFF" />
+  <rect x="2.5" y="114.95" width="595" height="25.15" fill="none" stroke="#808080" />
+  <text x="2" y="148.6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Number:</text>
+  <rect x="3" y="175.75" width="594" height="24.15" fill="#FFFFFF" />
+  <text x="6" y="178.75" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">0</text>
+  <rect x="2.5" y="175.25" width="595" height="25.15" fill="none" stroke="#808080" />
+  <text x="2" y="208.9" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Color (hex):</text>
+  <rect x="3" y="236.05" width="594" height="24.15" fill="#FFFFFF" />
+  <text x="6" y="239.05" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">#FF0000</text>
+  <rect x="2.5" y="235.55" width="595" height="25.15" fill="none" stroke="#808080" />
+  <rect x="0" y="0" width="600" height="24" fill="#FFFFFF" />
+  <text x="0" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+  <text x="73.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">TextBox MVP</text>
+  <g transform="translate(300 186.01025390625)" opacity="0.9">
+    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
+  </g>
+</svg>
+</div>
+
+### 03. ShiftSelected
+
+Status: ✅ Match
+
+#### Expected
+
+<div style="overflow:auto; border:1px solid #ddd; padding:8px; background:#fff;">
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
+  <text x="2" y="28" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Name:</text>
+  <rect x="3" y="55.15" width="594" height="24.15" fill="#FFFFFF" />
+  <path d="M 69.38 58.15 H 78.9 A 0 0 0 0 1 78.9 58.15 V 76.3 A 0 0 0 0 1 78.9 76.3 H 69.38 A 0 0 0 0 1 69.38 76.3 V 58.15 A 0 0 0 0 1 69.38 58.15 Z " fill="#0000FF" fill-rule="nonzero" />
+  <text x="6" y="58.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Hello Wo</text>
+  <text x="69.38" y="58.15" fill="#FFFFFF" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">rl</text>
+  <text x="78.9" y="58.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">d!</text>
+  <rect x="2.5" y="54.65" width="595" height="25.15" fill="none" stroke="#0000FF" />
+  <text x="2" y="88.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Password:</text>
+  <rect x="3" y="115.45" width="594" height="24.15" fill="#FFFFFF" />
+  <rect x="2.5" y="114.95" width="595" height="25.15" fill="none" stroke="#808080" />
+  <text x="2" y="148.6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Number:</text>
+  <rect x="3" y="175.75" width="594" height="24.15" fill="#FFFFFF" />
+  <text x="6" y="178.75" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">0</text>
+  <rect x="2.5" y="175.25" width="595" height="25.15" fill="none" stroke="#808080" />
+  <text x="2" y="208.9" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Color (hex):</text>
+  <rect x="3" y="236.05" width="594" height="24.15" fill="#FFFFFF" />
+  <text x="6" y="239.05" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">#FF0000</text>
+  <rect x="2.5" y="235.55" width="595" height="25.15" fill="none" stroke="#808080" />
+  <rect x="0" y="0" width="600" height="24" fill="#FFFFFF" />
+  <text x="0" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+  <text x="73.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">TextBox MVP</text>
+  <g transform="translate(300 186.01025390625)" opacity="0.9">
+    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
+  </g>
+</svg>
+</div>
+
+#### Actual
+
+<div style="overflow:auto; border:1px solid #ddd; padding:8px; background:#fff;">
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
+  <text x="2" y="28" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Name:</text>
+  <rect x="3" y="55.15" width="594" height="24.15" fill="#FFFFFF" />
+  <path d="M 69.38 58.15 H 78.9 A 0 0 0 0 1 78.9 58.15 V 76.3 A 0 0 0 0 1 78.9 76.3 H 69.38 A 0 0 0 0 1 69.38 76.3 V 58.15 A 0 0 0 0 1 69.38 58.15 Z " fill="#0000FF" fill-rule="nonzero" />
+  <text x="6" y="58.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Hello Wo</text>
+  <text x="69.38" y="58.15" fill="#FFFFFF" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">rl</text>
+  <text x="78.9" y="58.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">d!</text>
+  <rect x="2.5" y="54.65" width="595" height="25.15" fill="none" stroke="#0000FF" />
+  <text x="2" y="88.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Password:</text>
+  <rect x="3" y="115.45" width="594" height="24.15" fill="#FFFFFF" />
+  <rect x="2.5" y="114.95" width="595" height="25.15" fill="none" stroke="#808080" />
+  <text x="2" y="148.6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Number:</text>
+  <rect x="3" y="175.75" width="594" height="24.15" fill="#FFFFFF" />
+  <text x="6" y="178.75" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">0</text>
+  <rect x="2.5" y="175.25" width="595" height="25.15" fill="none" stroke="#808080" />
+  <text x="2" y="208.9" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Color (hex):</text>
+  <rect x="3" y="236.05" width="594" height="24.15" fill="#FFFFFF" />
+  <text x="6" y="239.05" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">#FF0000</text>
+  <rect x="2.5" y="235.55" width="595" height="25.15" fill="none" stroke="#808080" />
+  <rect x="0" y="0" width="600" height="24" fill="#FFFFFF" />
+  <text x="0" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+  <text x="73.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">TextBox MVP</text>
+  <g transform="translate(300 186.01025390625)" opacity="0.9">
+    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
+  </g>
+</svg>
+</div>
+
+### 04. AfterReplace
+
+Status: ✅ Match
+
+#### Expected
+
+<div style="overflow:auto; border:1px solid #ddd; padding:8px; background:#fff;">
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
+  <text x="2" y="28" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Name:</text>
+  <rect x="3" y="55.15" width="594" height="24.15" fill="#FFFFFF" />
+  <text x="6" y="58.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Hello Woyepd!</text>
+  <rect x="95.16" y="58.15" width="1" height="18.15" fill="#000000" />
+  <rect x="2.5" y="54.65" width="595" height="25.15" fill="none" stroke="#0000FF" />
+  <text x="2" y="88.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Password:</text>
+  <rect x="3" y="115.45" width="594" height="24.15" fill="#FFFFFF" />
+  <rect x="2.5" y="114.95" width="595" height="25.15" fill="none" stroke="#808080" />
+  <text x="2" y="148.6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Number:</text>
+  <rect x="3" y="175.75" width="594" height="24.15" fill="#FFFFFF" />
+  <text x="6" y="178.75" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">0</text>
+  <rect x="2.5" y="175.25" width="595" height="25.15" fill="none" stroke="#808080" />
+  <text x="2" y="208.9" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Color (hex):</text>
+  <rect x="3" y="236.05" width="594" height="24.15" fill="#FFFFFF" />
+  <text x="6" y="239.05" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">#FF0000</text>
+  <rect x="2.5" y="235.55" width="595" height="25.15" fill="none" stroke="#808080" />
+  <rect x="0" y="0" width="600" height="24" fill="#FFFFFF" />
+  <text x="0" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+  <text x="73.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">TextBox MVP</text>
+  <g transform="translate(300 186.01025390625)" opacity="0.9">
+    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
+  </g>
+</svg>
+</div>
+
+#### Actual
+
+<div style="overflow:auto; border:1px solid #ddd; padding:8px; background:#fff;">
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
+  <text x="2" y="28" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Name:</text>
+  <rect x="3" y="55.15" width="594" height="24.15" fill="#FFFFFF" />
+  <text x="6" y="58.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Hello Woyepd!</text>
+  <rect x="95.16" y="58.15" width="1" height="18.15" fill="#000000" />
+  <rect x="2.5" y="54.65" width="595" height="25.15" fill="none" stroke="#0000FF" />
+  <text x="2" y="88.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Password:</text>
+  <rect x="3" y="115.45" width="594" height="24.15" fill="#FFFFFF" />
+  <rect x="2.5" y="114.95" width="595" height="25.15" fill="none" stroke="#808080" />
+  <text x="2" y="148.6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Number:</text>
+  <rect x="3" y="175.75" width="594" height="24.15" fill="#FFFFFF" />
+  <text x="6" y="178.75" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">0</text>
+  <rect x="2.5" y="175.25" width="595" height="25.15" fill="none" stroke="#808080" />
+  <text x="2" y="208.9" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Color (hex):</text>
+  <rect x="3" y="236.05" width="594" height="24.15" fill="#FFFFFF" />
+  <text x="6" y="239.05" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">#FF0000</text>
+  <rect x="2.5" y="235.55" width="595" height="25.15" fill="none" stroke="#808080" />
+  <rect x="0" y="0" width="600" height="24" fill="#FFFFFF" />
+  <text x="0" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+  <text x="73.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">TextBox MVP</text>
+  <g transform="translate(300 186.01025390625)" opacity="0.9">
+    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
+  </g>
+</svg>
+</div>

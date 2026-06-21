@@ -348,8 +348,6 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         var markdown = new StringBuilder();
         markdown.AppendLine("# Integration Test Run");
         markdown.AppendLine();
-        markdown.AppendLine($"Snapshots directory: `{this.snapshotsDir}`");
-        markdown.AppendLine();
         markdown.AppendLine("## Snapshot summary");
         markdown.AppendLine();
         foreach (var snapshot in this.snapshots)
