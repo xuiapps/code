@@ -17,6 +17,8 @@ public class SdkNavigationTest
     public void HomePage_Renders()
     {
         using var app = new TestSinglePageApp<Application, MainWindow>(WindowSize);
+        app.MarkdownHeading("Scenario");
+        app.MarkdownParagraph("Render the app home page as the baseline state.");
         app.Snapshot("HomePage");
     }
 
@@ -24,12 +26,15 @@ public class SdkNavigationTest
     public void Navigate_To_TextMetrics()
     {
         using var app = new TestSinglePageApp<Application, MainWindow>(WindowSize);
+        app.MarkdownHeading("Scenario");
+        app.MarkdownParagraph("Navigate from home to the TextMetrics example and capture hover/press transitions.");
         app.Snapshot("HomePage");
 
         var button = app.Window.RootView.FindViewById("TextMetrics");
         Assert.NotNull(button);
 
         app.MouseMove(button);
+        app.MarkdownList(["Hover TextMetrics button", "Press TextMetrics button", "Release to navigate"]);
         app.Snapshot("Hover");
         app.MouseDown(button);
         app.Snapshot("Pressed");
@@ -41,12 +46,15 @@ public class SdkNavigationTest
     public void Navigate_Through_All()
     {
         using var app = new TestSinglePageApp<Application, MainWindow>(WindowSize);
+        app.MarkdownHeading("Scenario");
+        app.MarkdownParagraph("Visit each example page from home, snapshot it, then return to home.");
         app.Snapshot("HomePage");
 
         string[] pages = ["TextMetrics", "TextLayout", "NestedStacks", "ViewCollectionAlignment", "AnimatedHeart", "TextBox"];
 
         foreach (var page in pages)
         {
+            app.MarkdownHeading($"Navigate: {page}", level: 3);
             var button = app.Window.RootView.FindViewById(page);
             Assert.NotNull(button);
             app.MouseMove(button);
@@ -73,6 +81,8 @@ public class SdkNavigationTest
     public void Pending_Hover_After_Navigation()
     {
         using var app = new TestSinglePageApp<Application, MainWindow>(WindowSize);
+        app.MarkdownHeading("Scenario");
+        app.MarkdownParagraph("Reproduce stale hover state after navigating to NestedStacks and back.");
         app.Snapshot("HomePage");
 
         // Hover and click the NestedStacks button
@@ -99,6 +109,10 @@ public class SdkNavigationTest
         // Bug: NestedStacks button still shows hover despite being re-created
         // Move mouse away from any button to a neutral position
         app.MouseMove(new Point(10, 10));
+        app.MarkdownCode("""
+            Expected: returning home should clear hover state from removed views.
+            Validation: move mouse to a neutral position and snapshot visual state.
+            """);
         app.Snapshot("MouseMovedAway");
     }
 
@@ -111,6 +125,8 @@ public class SdkNavigationTest
     public void Heartbeat_Stops_After_Mouse_Over_Back()
     {
         using var app = new TestSinglePageApp<Application, MainWindow>(WindowSize);
+        app.MarkdownHeading("Scenario");
+        app.MarkdownParagraph("Verify that heart animation keeps ticking after pointer hover on Back.");
 
         // Navigate to AnimatedHeart
         var button = app.Window.RootView.FindViewById("AnimatedHeart");
@@ -138,6 +154,11 @@ public class SdkNavigationTest
         app.AnimationFrame(TimeSpan.FromSeconds(0.10), TimeSpan.FromSeconds(0.833));
         app.Snapshot("Heart.Rest.AfterMouseOver");
         app.AnimationFrame(TimeSpan.FromSeconds(0.833), TimeSpan.FromSeconds(0.933));
+        app.MarkdownList(
+        [
+            "Heart.Rest vs Heart.PrimaryPeak should differ before hover.",
+            "Heart.Rest.AfterMouseOver vs Heart.PrimaryPeak.AfterMouseOver should also differ."
+        ]);
         app.Snapshot("Heart.PrimaryPeak.AfterMouseOver");
     }
 }

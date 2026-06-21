@@ -64,6 +64,11 @@ The harness:
 | `Render()` | Runs a full layout + render pass and returns the SVG |
 | `Snapshot(name)` | Renders, saves actual/expected SVGs, and records the comparison |
 | `AnimationFrame(prev, next)` | Advances the animation clock to test animated views |
+| `MarkdownHeading(text, level)` | Adds a heading to the generated markdown report |
+| `MarkdownParagraph(text)` | Adds a paragraph to the generated markdown report |
+| `MarkdownList(items, ordered)` | Adds a bullet/numbered list to the generated markdown report |
+| `MarkdownCode(code, language)` | Adds a fenced code block to the generated markdown report |
+| `MarkdownRaw(markdown)` | Adds raw markdown to the generated markdown report |
 
 ## Example: navigating and snapshotting
 
@@ -95,19 +100,19 @@ public void Navigate_To_Settings_And_Back()
 }
 ```
 
-## Snapshot comparison and HTML report
+## Snapshot comparison and markdown report
 
 On `Dispose()`, the harness:
 
-1. Generates a `TestRun.html` with a side-by-side wipe-comparison viewer for all snapshots.
+1. Generates a `TestRun.Expected.md` baseline report and (when changed) a `TestRun.Actual.md`.
 2. Asserts that every snapshot matches its `.Expected.svg` baseline.
 3. Reports all failures with step numbers and names.
 
 The workflow:
 
-1. **First run** — `.Actual.svg` files are written and copied as `.Expected.svg` baselines. The test fails (no prior baseline).
-2. **Review** the `TestRun.html` in a browser. If the renders are correct, commit the `.Expected.svg` files.
-3. **Subsequent runs** — actual output is compared to expected. Mismatches fail the test and update the `.Actual.svg` for review.
+1. **First run** — `.Actual.svg` files are written and copied as `.Expected.svg` baselines. A markdown report baseline is created as `TestRun.Expected.md`.
+2. **Review** `TestRun.Expected.md` (and `TestRun.Actual.md` when present). If the renders are correct, commit `.Expected.svg` and `TestRun.Expected.md`.
+3. **Subsequent runs** — output is compared to expected. Mismatches fail the test and write/update `.Actual.svg` plus `TestRun.Actual.md` for review.
 
 ## Input-driven testing
 

@@ -36,6 +36,9 @@ public class GridLayoutTest
     public void Grid_Scenarios()
     {
         using var app = new TestSinglePageApp<Application, MainWindow>(WindowSize);
+        app.MarkdownHeading("Scenario");
+        app.MarkdownParagraph("Navigate to Grid Layout and capture each scenario variant.");
+        app.MarkdownList(Scenarios);
 
         // Render first so the home page is laid out and buttons are hit-testable
         app.Render();
@@ -52,6 +55,7 @@ public class GridLayoutTest
         // Snapshot each scenario by clicking its nav button
         foreach (var scenario in Scenarios)
         {
+            app.MarkdownHeading($"Grid Scenario: {scenario}", level: 3);
             var navButton = app.Window.RootView.FindViewById(scenario);
             Assert.NotNull(navButton);
             app.MouseMove(navButton);

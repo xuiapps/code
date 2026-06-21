@@ -25,6 +25,13 @@ public class OverlayTest
     public void Overlay_OpenAndDismiss()
     {
         using var app = new TestSinglePageApp<Application, MainWindow>(WindowSize);
+        app.MarkdownHeading("Scenario");
+        app.MarkdownParagraph("Open the Layers overlay demo, display overlay popup, and dismiss by outside click.");
+        app.MarkdownCode("""
+            Interaction points:
+            - Open Overlay button: (500, 262)
+            - Outside click dismiss point: (220, 40)
+            """);
 
         // Navigate to Layers section
         app.Render();

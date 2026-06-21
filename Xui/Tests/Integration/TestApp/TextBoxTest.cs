@@ -41,6 +41,8 @@ public class TextBoxTest
     public void TextBox_Focus()
     {
         using var app = NavigateToTextBox();
+        app.MarkdownHeading("Scenario");
+        app.MarkdownParagraph("Focus the Name text box and verify focus visuals.");
         app.Snapshot("TextBoxPage");
 
         // Click the Name TextBox to focus it
@@ -56,6 +58,8 @@ public class TextBoxTest
     public void TextBox_Type()
     {
         using var app = NavigateToTextBox();
+        app.MarkdownHeading("Scenario");
+        app.MarkdownParagraph("Type incrementally in NameBox and verify content growth.");
 
         // Click the Name TextBox to focus it
         var nameBox = app.Window.RootView.FindViewById("NameBox");
@@ -76,6 +80,8 @@ public class TextBoxTest
     public void TextBox_Backspace()
     {
         using var app = NavigateToTextBox();
+        app.MarkdownHeading("Scenario");
+        app.MarkdownParagraph("Type text, backspace twice, then type replacement character.");
 
         // Click the Name TextBox to focus it
         var nameBox = app.Window.RootView.FindViewById("NameBox");
@@ -100,6 +106,8 @@ public class TextBoxTest
     public void TextBox_Password()
     {
         using var app = NavigateToTextBox();
+        app.MarkdownHeading("Scenario");
+        app.MarkdownParagraph("Type into PasswordBox and verify masked rendering.");
 
         // Click the Password TextBox to focus it
         var passwordBox = app.Window.RootView.FindViewById("PasswordBox");
@@ -116,6 +124,8 @@ public class TextBoxTest
     public void TextBox_SwitchFocus()
     {
         using var app = NavigateToTextBox();
+        app.MarkdownHeading("Scenario");
+        app.MarkdownParagraph("Move focus from NameBox to PasswordBox and verify independent values.");
 
         // Focus and type in the Name box
         var nameBox = app.Window.RootView.FindViewById("NameBox");
@@ -141,6 +151,14 @@ public class TextBoxTest
     public void TextBox_TabNavigation()
     {
         using var app = NavigateToTextBox();
+        app.MarkdownHeading("Scenario");
+        app.MarkdownParagraph("Traverse editable controls with Tab and Shift+Tab.");
+        app.MarkdownList(
+        [
+            "Tab to NameBox, then PasswordBox, NumberBox, ColorBox.",
+            "Tab wraps to NameBox.",
+            "Shift+Tab moves focus backward."
+        ]);
 
         // Tab into the first TextBox (NameBox)
         app.KeyDown(VirtualKey.Tab);
@@ -173,6 +191,8 @@ public class TextBoxTest
     public void TextBox_KeyboardSelection()
     {
         using var app = NavigateToTextBox();
+        app.MarkdownHeading("Scenario");
+        app.MarkdownParagraph("Use keyboard selection and replacement inside NameBox.");
 
         // Tab to focus the first TextBox (NameBox)
         app.KeyDown(VirtualKey.Tab);
@@ -200,6 +220,8 @@ public class TextBoxTest
     public void TextBox_MouseSelection()
     {
         using var app = NavigateToTextBox();
+        app.MarkdownHeading("Scenario");
+        app.MarkdownParagraph("Drag-select text range in NameBox with mouse.");
 
         // Tab to focus NameBox and type some text
         app.KeyDown(VirtualKey.Tab);
