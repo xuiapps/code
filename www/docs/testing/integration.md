@@ -104,15 +104,15 @@ public void Navigate_To_Settings_And_Back()
 
 On `Dispose()`, the harness:
 
-1. Generates a `TestRun.Expected.md` baseline report and (when changed) a `TestRun.Actual.md`.
-2. Asserts that every snapshot matches its `.Expected.svg` baseline.
+1. Generates a `README.md` baseline report and (when changed) a `README.DIFF.md`.
+2. Asserts that every snapshot matches its `.svg` baseline.
 3. Reports all failures with step numbers and names.
 
 The workflow:
 
-1. **First run** — `.Actual.svg` files are written and copied as `.Expected.svg` baselines. A markdown report baseline is created as `TestRun.Expected.md`.
-2. **Review** `TestRun.Expected.md` (and `TestRun.Actual.md` when present). If the renders are correct, commit `.Expected.svg` and `TestRun.Expected.md`.
-3. **Subsequent runs** — output is compared to expected. Mismatches fail the test and write/update `.Actual.svg` plus `TestRun.Actual.md` for review.
+1. **First run** — `.svg` baselines are created for each snapshot. A markdown baseline is created as `README.md`.
+2. **Review** `README.md`. If the renders are correct, commit `README.md` and the `.svg` snapshot files.
+3. **Subsequent runs** — output is compared to expected. Mismatches fail the test and write/update `.DIFF.svg` plus `README.DIFF.md` for review.
 
 ## Input-driven testing
 
