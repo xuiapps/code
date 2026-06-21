@@ -202,8 +202,8 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
 
     /// <summary>
     /// Renders the window, injects a virtual cursor (if mouse events have been sent),
-    /// saves the result as <c>{NN}.{name}.Render.Actual.svg</c>, and compares against
-    /// the corresponding <c>.Expected.svg</c>. Failures are collected and reported on
+    /// saves the result as <c>{NN}.{name}.Render.DIFF.svg</c>, and compares against
+    /// the corresponding expected SVG. Failures are collected and reported on
     /// <see cref="Dispose"/>, along with a markdown report.
     /// </summary>
     public string Snapshot(string name)
@@ -215,26 +215,53 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
 
         this.snapshotCounter++;
         var prefix = $"{this.snapshotCounter:D2}.{name}.Render";
-        var actualPath = Path.Combine(this.snapshotsDir, $"{prefix}.Actual.svg");
-        var expectedPath = Path.Combine(this.snapshotsDir, $"{prefix}.Expected.svg");
-
-        File.WriteAllText(actualPath, svg);
+        var expectedFileName = $"{prefix}.svg";
+        var diffFileName = $"{prefix}.DIFF.svg";
+        var expectedPath = Path.Combine(this.snapshotsDir, expectedFileName);
+        var legacyExpectedPath = Path.Combine(this.snapshotsDir, $"{prefix}.Expected.svg");
+        var diffPath = Path.Combine(this.snapshotsDir, diffFileName);
+        var legacyDiffPath = Path.Combine(this.snapshotsDir, $"{prefix}.Actual.svg");
 
         string? expectedSvg = null;
+        string expectedImageFileName = expectedFileName;
         bool passed;
         if (File.Exists(expectedPath))
         {
             expectedSvg = File.ReadAllText(expectedPath);
             passed = NormalizeLineEndings(expectedSvg) == NormalizeLineEndings(svg);
         }
+        else if (File.Exists(legacyExpectedPath))
+        {
+            expectedSvg = File.ReadAllText(legacyExpectedPath);
+            expectedImageFileName = Path.GetFileName(legacyExpectedPath);
+            passed = NormalizeLineEndings(expectedSvg) == NormalizeLineEndings(svg);
+        }
         else
         {
-            File.Copy(actualPath, expectedPath);
+            File.WriteAllText(expectedPath, svg);
             expectedSvg = svg;
+            expectedImageFileName = expectedFileName;
             passed = false;
         }
 
-        var entry = new SnapshotEntry(this.snapshotCounter, name, svg, expectedSvg, passed);
+        if (!passed)
+            File.WriteAllText(diffPath, svg);
+        else
+        {
+            if (File.Exists(diffPath))
+                File.Delete(diffPath);
+            if (File.Exists(legacyDiffPath))
+                File.Delete(legacyDiffPath);
+        }
+
+        var entry = new SnapshotEntry(
+            this.snapshotCounter,
+            name,
+            svg,
+            expectedSvg,
+            passed,
+            expectedImageFileName,
+            diffFileName);
         this.snapshots.Add(entry);
         this.reportEntries.Add(new SnapshotReportEntry(entry));
         return svg;
@@ -320,39 +347,40 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         if (this.snapshots.Count == 0)
             return true;
 
-        var markdown = BuildTestRunMarkdown();
-        var expectedPath = Path.Combine(this.snapshotsDir, "TestRun.Expected.md");
-        var actualPath = Path.Combine(this.snapshotsDir, "TestRun.Actual.md");
+        var expectedMarkdown = BuildExpectedMarkdown();
+        var diffMarkdown = BuildDiffMarkdown();
+        var expectedPath = Path.Combine(this.snapshotsDir, "README.md");
+        var diffPath = Path.Combine(this.snapshotsDir, "README.DIFF.md");
+        var legacyExpectedPath = Path.Combine(this.snapshotsDir, "TestRun.Expected.md");
+
+        if (!File.Exists(expectedPath) && File.Exists(legacyExpectedPath))
+            File.WriteAllText(expectedPath, expectedMarkdown);
 
         if (!File.Exists(expectedPath))
         {
-            File.WriteAllText(expectedPath, markdown);
-            File.WriteAllText(actualPath, markdown);
+            File.WriteAllText(expectedPath, expectedMarkdown);
+            File.WriteAllText(diffPath, diffMarkdown);
             return false;
         }
 
         var expected = File.ReadAllText(expectedPath);
-        if (NormalizeLineEndings(expected) == NormalizeLineEndings(markdown))
+        var markdownMatches = NormalizeLineEndings(expected) == NormalizeLineEndings(expectedMarkdown);
+        var hasSnapshotDiff = this.snapshots.Any(s => !s.Passed);
+        if (markdownMatches && !hasSnapshotDiff)
         {
-            if (File.Exists(actualPath))
-                File.Delete(actualPath);
+            if (File.Exists(diffPath))
+                File.Delete(diffPath);
             return true;
         }
 
-        File.WriteAllText(actualPath, markdown);
-        return false;
+        File.WriteAllText(diffPath, diffMarkdown);
+        return markdownMatches;
     }
 
-    private string BuildTestRunMarkdown()
+    private string BuildExpectedMarkdown()
     {
         var markdown = new StringBuilder();
         markdown.AppendLine("# Integration Test Run");
-        markdown.AppendLine();
-        markdown.AppendLine("## Snapshot summary");
-        markdown.AppendLine();
-        foreach (var snapshot in this.snapshots)
-            markdown.AppendLine($"- {(snapshot.Passed ? "✅" : "❌")} {snapshot.Index:D2}. {snapshot.Name}");
-
         markdown.AppendLine();
         markdown.AppendLine("## Timeline");
         markdown.AppendLine();
@@ -366,7 +394,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
                     markdown.AppendLine();
                     break;
                 case SnapshotReportEntry snap:
-                    AppendSnapshotMarkdown(markdown, snap.Snapshot);
+                    AppendExpectedSnapshotMarkdown(markdown, snap.Snapshot);
                     break;
             }
         }
@@ -374,30 +402,60 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         return markdown.ToString().TrimEnd() + Environment.NewLine;
     }
 
-    private static void AppendSnapshotMarkdown(StringBuilder markdown, SnapshotEntry snapshot)
+    private string BuildDiffMarkdown()
+    {
+        var markdown = new StringBuilder();
+        markdown.AppendLine("# Integration Test Run (Diff)");
+        markdown.AppendLine();
+        markdown.AppendLine("## Snapshot summary");
+        markdown.AppendLine();
+        foreach (var snapshot in this.snapshots)
+            markdown.AppendLine($"- {(snapshot.Passed ? "✅" : "❌")} {snapshot.Index:D2}. {snapshot.Name}");
+        markdown.AppendLine();
+        markdown.AppendLine("## Timeline");
+        markdown.AppendLine();
+
+        foreach (var entry in this.reportEntries)
+        {
+            switch (entry)
+            {
+                case MarkdownReportEntry md:
+                    markdown.AppendLine(md.Markdown.TrimEnd());
+                    markdown.AppendLine();
+                    break;
+                case SnapshotReportEntry snap:
+                    AppendDiffSnapshotMarkdown(markdown, snap.Snapshot);
+                    break;
+            }
+        }
+
+        return markdown.ToString().TrimEnd() + Environment.NewLine;
+    }
+
+    private static void AppendExpectedSnapshotMarkdown(StringBuilder markdown, SnapshotEntry snapshot)
     {
         markdown.AppendLine($"### {snapshot.Index:D2}. {snapshot.Name}");
         markdown.AppendLine();
-        markdown.AppendLine($"Status: {(snapshot.Passed ? "✅ Match" : "❌ Diff")}");
-        markdown.AppendLine();
-        if (snapshot.ExpectedSvg is not null)
-        {
-            markdown.AppendLine("#### Expected");
-            markdown.AppendLine();
-            markdown.AppendLine(WrapSvg(snapshot.ExpectedSvg));
-            markdown.AppendLine();
-        }
-
-        markdown.AppendLine("#### Actual");
-        markdown.AppendLine();
-        markdown.AppendLine(WrapSvg(snapshot.ActualSvg));
+        markdown.AppendLine($"<img src=\"./{snapshot.ExpectedImageFileName}\" alt=\"{snapshot.Index:D2}. {snapshot.Name} expected\" />");
         markdown.AppendLine();
     }
 
-    private static string WrapSvg(string svg) =>
-        "<div style=\"overflow:auto; border:1px solid #ddd; padding:8px; background:#fff;\">\n"
-        + svg.Trim()
-        + "\n</div>";
+    private static void AppendDiffSnapshotMarkdown(StringBuilder markdown, SnapshotEntry snapshot)
+    {
+        markdown.AppendLine($"### {snapshot.Index:D2}. {snapshot.Name}");
+        markdown.AppendLine();
+        markdown.AppendLine("#### Expected");
+        markdown.AppendLine();
+        markdown.AppendLine($"<img src=\"./{snapshot.ExpectedImageFileName}\" alt=\"{snapshot.Index:D2}. {snapshot.Name} expected\" />");
+        markdown.AppendLine();
+        markdown.AppendLine("#### Actual");
+        markdown.AppendLine();
+        if (snapshot.Passed)
+            markdown.AppendLine($"<img src=\"./{snapshot.ExpectedImageFileName}\" alt=\"{snapshot.Index:D2}. {snapshot.Name} actual (matches expected)\" />");
+        else
+            markdown.AppendLine($"<img src=\"./{snapshot.DiffImageFileName}\" alt=\"{snapshot.Index:D2}. {snapshot.Name} actual\" />");
+        markdown.AppendLine();
+    }
 
     private static string NormalizeLineEndings(string text) =>
         text.ReplaceLineEndings("\n");
@@ -446,7 +504,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
                     sb.AppendLine();
                 }
 
-                sb.AppendLine($"Review: {Path.Combine(this.snapshotsDir, "TestRun.Actual.md")}");
+                sb.AppendLine($"Review: {Path.Combine(this.snapshotsDir, "README.DIFF.md")}");
                 throw new Exception(sb.ToString());
             }
         }
@@ -457,5 +515,11 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     private sealed record SnapshotReportEntry(SnapshotEntry Snapshot) : ReportEntry;
 
     private record SnapshotEntry(
-        int Index, string Name, string ActualSvg, string? ExpectedSvg, bool Passed);
+        int Index,
+        string Name,
+        string ActualSvg,
+        string? ExpectedSvg,
+        bool Passed,
+        string ExpectedImageFileName,
+        string DiffImageFileName);
 }
