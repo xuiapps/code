@@ -233,7 +233,8 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         else if (File.Exists(legacyExpectedPath))
         {
             expectedSvg = File.ReadAllText(legacyExpectedPath);
-            expectedImageFileName = Path.GetFileName(legacyExpectedPath);
+            File.WriteAllText(expectedPath, expectedSvg);
+            expectedImageFileName = expectedFileName;
             passed = NormalizeLineEndings(expectedSvg) == NormalizeLineEndings(svg);
         }
         else
@@ -245,7 +246,11 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         }
 
         if (!passed)
+        {
             File.WriteAllText(diffPath, svg);
+            if (File.Exists(legacyDiffPath))
+                File.Delete(legacyDiffPath);
+        }
         else
         {
             if (File.Exists(diffPath))
