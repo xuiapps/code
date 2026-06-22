@@ -15,11 +15,18 @@ public class TextBoxTest
 {
     private static Size WindowSize = (600, 400);
 
+    private static void AddTestAppIntro(TestSinglePageApp<Application, MainWindow> app)
+    {
+        app.MarkdownHeading("TestApp", level: 1);
+        app.MarkdownParagraph("Open the test app to see the menu with SDK examples.");
+    }
+
     private static TestSinglePageApp<Application, MainWindow> NavigateToTextBox(
         [CallerFilePath] string callerPath = "",
         [CallerMemberName] string testName = "")
     {
         var app = new TestSinglePageApp<Application, MainWindow>(WindowSize, callerPath: callerPath, testName: testName);
+        AddTestAppIntro(app);
 
         // Render first so all home page buttons have valid Frames for hit-testing.
         // Without this, all views have zero frames and the hit-test hits the last

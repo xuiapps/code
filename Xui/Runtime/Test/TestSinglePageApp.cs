@@ -53,7 +53,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     /// <see cref="TestPlatform"/> registered as <see cref="Xui.Core.Actual.IRuntime"/>.
     /// <typeparamref name="TApplication"/> and <typeparamref name="TWindow"/> are registered
     /// automatically as scoped services.
-    /// Snapshot artifacts are written to a <c>Snapshots/{testName}/</c> folder next to the
+    /// Snapshot artifacts are written to a <c>Snapshots/Scenarios/{testName}/</c> folder next to the
     /// calling test file.
     /// </summary>
     public TestSinglePageApp(
@@ -84,7 +84,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         this.Window.SafeArea = this.Window.DisplayArea;
 
         this.snapshotsDir = Path.Combine(
-            Path.GetDirectoryName(callerPath)!, "Snapshots", testName);
+            Path.GetDirectoryName(callerPath)!, "Snapshots", "Scenarios", testName);
         Directory.CreateDirectory(this.snapshotsDir);
 
         // Provide a software text measure context so pointer events can hit-test text positions.

@@ -13,6 +13,12 @@ public class GridLayoutTest
 {
     private static Size WindowSize = (800, 560);
 
+    private static void AddTestAppIntro(TestSinglePageApp<Application, MainWindow> app)
+    {
+        app.MarkdownHeading("TestApp", level: 1);
+        app.MarkdownParagraph("Open the test app to see the menu with SDK examples.");
+    }
+
     private static readonly string[] Scenarios =
     [
         "Basic fixed grid",
@@ -36,6 +42,7 @@ public class GridLayoutTest
     public void Grid_Scenarios()
     {
         using var app = new TestSinglePageApp<Application, MainWindow>(WindowSize);
+        AddTestAppIntro(app);
         app.MarkdownHeading("Scenario");
         app.MarkdownParagraph("Navigate to Grid Layout and capture each scenario variant.");
         app.MarkdownList(Scenarios);
