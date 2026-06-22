@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Xui.Core.Abstract.Events;
 using Xui.Core.Debug;
 using static Xui.Runtime.Windows.Win32.User32.Types;

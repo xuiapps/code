@@ -29,6 +29,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     private readonly IHost host;
     private readonly string snapshotsDir;
     private readonly List<SnapshotEntry> snapshots = new();
+    private readonly List<ReportEntry> reportEntries = new();
     private int snapshotCounter;
     private Point mousePosition;
     private bool mouseLeftPressed;
@@ -52,7 +53,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     /// <see cref="TestPlatform"/> registered as <see cref="Xui.Core.Actual.IRuntime"/>.
     /// <typeparamref name="TApplication"/> and <typeparamref name="TWindow"/> are registered
     /// automatically as scoped services.
-    /// Snapshot artifacts are written to a <c>Snapshots/{testName}/</c> folder next to the
+    /// Snapshot artifacts are written to a <c>Scenarios/{testName}/</c> folder next to the
     /// calling test file.
     /// </summary>
     public TestSinglePageApp(
@@ -83,7 +84,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         this.Window.SafeArea = this.Window.DisplayArea;
 
         this.snapshotsDir = Path.Combine(
-            Path.GetDirectoryName(callerPath)!, "Snapshots", testName);
+            Path.GetDirectoryName(callerPath)!, "Scenarios", testName);
         Directory.CreateDirectory(this.snapshotsDir);
 
         // Provide a software text measure context so pointer events can hit-test text positions.
@@ -201,9 +202,9 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
 
     /// <summary>
     /// Renders the window, injects a virtual cursor (if mouse events have been sent),
-    /// saves the result as <c>{NN}.{name}.Render.Actual.svg</c>, and compares against
-    /// the corresponding <c>.Expected.svg</c>. Failures are collected and reported on
-    /// <see cref="Dispose"/>, along with an interactive <c>TestRun.html</c>.
+    /// saves the result as <c>{NN}.{name}.Render.DIFF.svg</c>, and compares against
+    /// the corresponding expected SVG. Failures are collected and reported on
+    /// <see cref="Dispose"/>, along with a markdown report.
     /// </summary>
     public string Snapshot(string name)
     {
@@ -214,27 +215,116 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
 
         this.snapshotCounter++;
         var prefix = $"{this.snapshotCounter:D2}.{name}.Render";
-        var actualPath = Path.Combine(this.snapshotsDir, $"{prefix}.Actual.svg");
-        var expectedPath = Path.Combine(this.snapshotsDir, $"{prefix}.Expected.svg");
-
-        File.WriteAllText(actualPath, svg);
+        var expectedFileName = $"{prefix}.svg";
+        var diffFileName = $"{prefix}.DIFF.svg";
+        var expectedPath = Path.Combine(this.snapshotsDir, expectedFileName);
+        var legacyExpectedPath = Path.Combine(this.snapshotsDir, $"{prefix}.Expected.svg");
+        var diffPath = Path.Combine(this.snapshotsDir, diffFileName);
+        var legacyDiffPath = Path.Combine(this.snapshotsDir, $"{prefix}.Actual.svg");
 
         string? expectedSvg = null;
+        string expectedImageFileName = expectedFileName;
         bool passed;
         if (File.Exists(expectedPath))
         {
             expectedSvg = File.ReadAllText(expectedPath);
             passed = NormalizeLineEndings(expectedSvg) == NormalizeLineEndings(svg);
         }
+        else if (File.Exists(legacyExpectedPath))
+        {
+            expectedSvg = File.ReadAllText(legacyExpectedPath);
+            File.WriteAllText(expectedPath, expectedSvg);
+            expectedImageFileName = expectedFileName;
+            passed = NormalizeLineEndings(expectedSvg) == NormalizeLineEndings(svg);
+        }
         else
         {
-            File.Copy(actualPath, expectedPath);
+            File.WriteAllText(expectedPath, svg);
             expectedSvg = svg;
+            expectedImageFileName = expectedFileName;
             passed = false;
         }
 
-        this.snapshots.Add(new SnapshotEntry(this.snapshotCounter, name, svg, expectedSvg, passed));
+        if (!passed)
+        {
+            File.WriteAllText(diffPath, svg);
+            if (File.Exists(legacyDiffPath))
+                File.Delete(legacyDiffPath);
+        }
+        else
+        {
+            if (File.Exists(diffPath))
+                File.Delete(diffPath);
+            if (File.Exists(legacyDiffPath))
+                File.Delete(legacyDiffPath);
+        }
+
+        var entry = new SnapshotEntry(
+            this.snapshotCounter,
+            name,
+            svg,
+            expectedSvg,
+            passed,
+            expectedImageFileName,
+            diffFileName);
+        this.snapshots.Add(entry);
+        this.reportEntries.Add(new SnapshotReportEntry(entry));
         return svg;
+    }
+
+    /// <summary>
+    /// Appends a markdown heading to the test report.
+    /// </summary>
+    public void MarkdownHeading(string text, int level = 2)
+    {
+        level = Math.Clamp(level, 1, 6);
+        this.reportEntries.Add(new MarkdownReportEntry($"{new string('#', level)} {text}"));
+    }
+
+    /// <summary>
+    /// Appends a markdown paragraph to the test report.
+    /// </summary>
+    public void MarkdownParagraph(string text)
+    {
+        this.reportEntries.Add(new MarkdownReportEntry(text));
+    }
+
+    /// <summary>
+    /// Appends a markdown list to the test report.
+    /// </summary>
+    public void MarkdownList(IEnumerable<string> items, bool ordered = false)
+    {
+        var sb = new StringBuilder();
+        int index = 1;
+        foreach (var item in items)
+        {
+            var prefix = ordered ? $"{index}. " : "- ";
+            sb.AppendLine($"{prefix}{item}");
+            index++;
+        }
+
+        this.reportEntries.Add(new MarkdownReportEntry(sb.ToString().TrimEnd()));
+    }
+
+    /// <summary>
+    /// Appends a fenced code block to the test report.
+    /// </summary>
+    public void MarkdownCode(string code, string language = "")
+    {
+        var lang = string.IsNullOrWhiteSpace(language) ? string.Empty : language.Trim();
+        var markdown = new StringBuilder();
+        markdown.AppendLine($"```{lang}");
+        markdown.AppendLine(code);
+        markdown.AppendLine("```");
+        this.reportEntries.Add(new MarkdownReportEntry(markdown.ToString().TrimEnd()));
+    }
+
+    /// <summary>
+    /// Appends raw markdown content to the test report.
+    /// </summary>
+    public void MarkdownRaw(string markdown)
+    {
+        this.reportEntries.Add(new MarkdownReportEntry(markdown));
     }
 
     private string InjectCursor(string svg)
@@ -255,193 +345,125 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         return svg;
     }
 
-    // ── HTML Report ──────────────────────────────────────────────
+    // ── Markdown Report ──────────────────────────────────────────
 
-    private void GenerateTestRunHtml()
+    private bool GenerateTestRunMarkdown()
     {
         if (this.snapshots.Count == 0)
-            return;
+            return true;
 
-        var html = new StringBuilder();
-        html.AppendLine("<!DOCTYPE html>");
-        html.AppendLine("<html lang=\"en\">");
-        html.AppendLine("<head><meta charset=\"utf-8\"><title>Test Run</title>");
-        html.AppendLine("<style>");
-        html.AppendLine(HtmlStyles);
-        html.AppendLine("</style></head>");
-        html.AppendLine("<body>");
+        var expectedMarkdown = BuildExpectedMarkdown();
+        var diffMarkdown = BuildDiffMarkdown();
+        var expectedPath = Path.Combine(this.snapshotsDir, "README.md");
+        var diffPath = Path.Combine(this.snapshotsDir, "README.DIFF.md");
+        var legacyExpectedPath = Path.Combine(this.snapshotsDir, "TestRun.Expected.md");
 
-        // Grid root
-        html.AppendLine("<div class=\"root\">");
+        if (!File.Exists(expectedPath) && File.Exists(legacyExpectedPath))
+            File.WriteAllText(expectedPath, expectedMarkdown);
 
-        // Sidebar
-        html.AppendLine("  <div class=\"sidebar\">");
-        html.AppendLine("    <div class=\"sidebar-title\">Snapshots</div>");
-        for (int i = 0; i < this.snapshots.Count; i++)
+        if (!File.Exists(expectedPath))
         {
-            var s = this.snapshots[i];
-            var cls = s.Passed ? "pass" : "fail";
-            var icon = s.Passed ? "&#10003;" : "&#10007;";
-            var active = i == 0 ? " active" : "";
-            html.AppendLine($"    <div class=\"step {cls}{active}\" onclick=\"selectStep({i})\">");
-            html.AppendLine($"      <span class=\"badge\">{icon}</span>");
-            html.AppendLine($"      <span class=\"label\">{HtmlEncode(s.Name)}</span>");
-            html.AppendLine("    </div>");
+            File.WriteAllText(expectedPath, expectedMarkdown);
+            File.WriteAllText(diffPath, diffMarkdown);
+            return false;
         }
-        html.AppendLine("  </div>");
 
-        // Compare (wipe) view — outer div scrolls, inner grid stacks layers
-        html.AppendLine("  <div class=\"compare\" id=\"compare\">");
-        html.AppendLine("    <div class=\"compare-content\" id=\"compare-content\">");
-        html.AppendLine("      <div class=\"layer\" id=\"expected-layer\"></div>");
-        html.AppendLine("      <div class=\"layer\" id=\"actual-layer\"></div>");
-        html.AppendLine("      <div class=\"separator\" id=\"separator\"></div>");
-        html.AppendLine("      <div class=\"sep-handle\" id=\"sep-handle\"></div>");
-        html.AppendLine("      <span class=\"sep-label\" id=\"label-left\">Actual</span>");
-        html.AppendLine("      <span class=\"sep-label\" id=\"label-right\">Expected</span>");
-        html.AppendLine("    </div>");
-        html.AppendLine("  </div>");
-
-        html.AppendLine("</div>");
-
-        // Embed snapshot data as base64 in a JSON script block
-        html.AppendLine("<script id=\"snapshot-data\" type=\"application/json\">[");
-        for (int i = 0; i < this.snapshots.Count; i++)
+        var expected = File.ReadAllText(expectedPath);
+        var markdownMatches = NormalizeLineEndings(expected) == NormalizeLineEndings(expectedMarkdown);
+        var hasSnapshotDiff = this.snapshots.Any(s => !s.Passed);
+        if (markdownMatches && !hasSnapshotDiff)
         {
-            var s = this.snapshots[i];
-            if (i > 0) html.AppendLine(",");
-            html.Append($"  {{\"index\":{s.Index},\"name\":\"{JsonEscape(s.Name)}\",\"passed\":{(s.Passed ? "true" : "false")}");
-            html.Append($",\"actual\":\"{Base64Encode(s.ActualSvg)}\"");
-            if (s.ExpectedSvg is not null)
-                html.Append($",\"expected\":\"{Base64Encode(s.ExpectedSvg)}\"");
-            html.Append('}');
+            if (File.Exists(diffPath))
+                File.Delete(diffPath);
+            return true;
         }
-        html.AppendLine("\n]</script>");
 
-        // JavaScript
-        html.AppendLine("<script>");
-        html.AppendLine(HtmlScript);
-        html.AppendLine("</script>");
-        html.AppendLine("</body></html>");
-
-        File.WriteAllText(Path.Combine(this.snapshotsDir, "TestRun.html"), html.ToString());
+        File.WriteAllText(diffPath, diffMarkdown);
+        return markdownMatches;
     }
 
-    private static string HtmlEncode(string text) =>
-        text.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");
+    private string BuildExpectedMarkdown()
+    {
+        var markdown = new StringBuilder();
+        markdown.AppendLine("# Integration Test Run");
+        markdown.AppendLine();
+        markdown.AppendLine("## Timeline");
+        markdown.AppendLine();
 
-    private static string JsonEscape(string text) =>
-        text.Replace("\\", "\\\\").Replace("\"", "\\\"");
+        foreach (var entry in this.reportEntries)
+        {
+            switch (entry)
+            {
+                case MarkdownReportEntry md:
+                    markdown.AppendLine(md.Markdown.TrimEnd());
+                    markdown.AppendLine();
+                    break;
+                case SnapshotReportEntry snap:
+                    AppendExpectedSnapshotMarkdown(markdown, snap.Snapshot);
+                    break;
+            }
+        }
 
-    private static string Base64Encode(string text) =>
-        Convert.ToBase64String(Encoding.UTF8.GetBytes(text));
+        return markdown.ToString().TrimEnd() + Environment.NewLine;
+    }
+
+    private string BuildDiffMarkdown()
+    {
+        var markdown = new StringBuilder();
+        markdown.AppendLine("# Integration Test Run (Diff)");
+        markdown.AppendLine();
+        markdown.AppendLine("## Snapshot summary");
+        markdown.AppendLine();
+        foreach (var snapshot in this.snapshots)
+            markdown.AppendLine($"- {(snapshot.Passed ? "✅" : "❌")} {snapshot.Index:D2}. {snapshot.Name}");
+        markdown.AppendLine();
+        markdown.AppendLine("## Timeline");
+        markdown.AppendLine();
+
+        foreach (var entry in this.reportEntries)
+        {
+            switch (entry)
+            {
+                case MarkdownReportEntry md:
+                    markdown.AppendLine(md.Markdown.TrimEnd());
+                    markdown.AppendLine();
+                    break;
+                case SnapshotReportEntry snap:
+                    AppendDiffSnapshotMarkdown(markdown, snap.Snapshot);
+                    break;
+            }
+        }
+
+        return markdown.ToString().TrimEnd() + Environment.NewLine;
+    }
+
+    private static void AppendExpectedSnapshotMarkdown(StringBuilder markdown, SnapshotEntry snapshot)
+    {
+        markdown.AppendLine($"### {snapshot.Index:D2}. {snapshot.Name}");
+        markdown.AppendLine();
+        markdown.AppendLine($"<img src=\"./{snapshot.ExpectedImageFileName}\" alt=\"{snapshot.Index:D2}. {snapshot.Name} expected\" />");
+        markdown.AppendLine();
+    }
+
+    private static void AppendDiffSnapshotMarkdown(StringBuilder markdown, SnapshotEntry snapshot)
+    {
+        markdown.AppendLine($"### {snapshot.Index:D2}. {snapshot.Name}");
+        markdown.AppendLine();
+        markdown.AppendLine("#### Expected");
+        markdown.AppendLine();
+        markdown.AppendLine($"<img src=\"./{snapshot.ExpectedImageFileName}\" alt=\"{snapshot.Index:D2}. {snapshot.Name} expected\" />");
+        markdown.AppendLine();
+        markdown.AppendLine("#### Actual");
+        markdown.AppendLine();
+        if (snapshot.Passed)
+            markdown.AppendLine($"<img src=\"./{snapshot.ExpectedImageFileName}\" alt=\"{snapshot.Index:D2}. {snapshot.Name} actual (matches expected)\" />");
+        else
+            markdown.AppendLine($"<img src=\"./{snapshot.DiffImageFileName}\" alt=\"{snapshot.Index:D2}. {snapshot.Name} actual\" />");
+        markdown.AppendLine();
+    }
 
     private static string NormalizeLineEndings(string text) =>
         text.ReplaceLineEndings("\n");
-
-    private const string HtmlStyles = """
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: system-ui, sans-serif; height: 100vh; }
-        .root { display: grid; grid-template-columns: 200px 1fr; height: 100vh; }
-        .sidebar { border-right: 1px solid #ddd; overflow-y: auto; padding: 8px 0; }
-        .sidebar-title { padding: 8px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #999; }
-        .step { display: flex; align-items: center; padding: 6px 16px; cursor: pointer; font-size: 13px; }
-        .step:hover { background: #f0f0f0; }
-        .step.active { background: #e0e0e0; }
-        .badge { width: 20px; flex-shrink: 0; }
-        .pass .badge { color: green; }
-        .fail .badge { color: red; }
-        .label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .compare { overflow: auto; }
-        .compare-content { display: grid; position: relative; min-height: 100%; }
-        .layer { grid-area: 1 / 1; display: flex; justify-content: center; align-items: start; padding: 24px 250px; pointer-events: none; user-select: none; }
-        .layer svg { border: 1px solid #ddd; }
-        .separator { position: absolute; top: 0; bottom: 0; width: 2px; background: #000; z-index: 10; pointer-events: none; }
-        .sep-handle { position: absolute; top: 0; bottom: 0; width: 20px; transform: translateX(-50%); z-index: 12; cursor: ew-resize; }
-        .sep-label { position: absolute; top: 8px; font-size: 11px; color: #666; z-index: 11; pointer-events: none; user-select: none; }
-        #label-left { transform: translateX(-100%); padding-right: 8px; }
-        #label-right { padding-left: 8px; }
-    """;
-
-    private const string HtmlScript = """
-        const snapshots = JSON.parse(document.getElementById('snapshot-data').textContent);
-        const compare = document.getElementById('compare');
-        const compareContent = document.getElementById('compare-content');
-        const actualLayer = document.getElementById('actual-layer');
-        const expectedLayer = document.getElementById('expected-layer');
-        const separator = document.getElementById('separator');
-        const sepHandle = document.getElementById('sep-handle');
-        const labelLeft = document.getElementById('label-left');
-        const labelRight = document.getElementById('label-right');
-        let currentStep = 0;
-        let separatorRatio = 1;
-
-        function decodeBase64(b64) {
-            const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-            return new TextDecoder().decode(bytes);
-        }
-
-        function selectStep(index) {
-            currentStep = index;
-            const w = compareContent.offsetWidth;
-            const maxRatio = w > 0 ? (w - 250 + 50) / w : 1;
-            separatorRatio = maxRatio;
-            document.querySelectorAll('.step').forEach((el, i) => el.classList.toggle('active', i === index));
-            updateView();
-        }
-
-        function updateView() {
-            const step = snapshots[currentStep];
-            actualLayer.innerHTML = step.actual ? decodeBase64(step.actual) : '';
-            const has = !!step.expected;
-            expectedLayer.innerHTML = has ? decodeBase64(step.expected) : '';
-            separator.style.display = has ? '' : 'none';
-            sepHandle.style.display = has ? '' : 'none';
-            labelLeft.style.display = has ? '' : 'none';
-            labelRight.style.display = has ? '' : 'none';
-            if (has) { updateSeparator(); } else { actualLayer.style.clipPath = 'none'; expectedLayer.style.clipPath = 'none'; }
-        }
-
-        function updateSeparator() {
-            const w = compareContent.offsetWidth;
-            const margin = 250;
-            const allowance = 50;
-            const minX = margin - allowance;
-            const maxX = w - margin + allowance;
-            const x = Math.round(Math.max(minX, Math.min(maxX, separatorRatio * w)));
-            actualLayer.style.clipPath = `inset(0 ${w - x}px 0 0)`;
-            expectedLayer.style.clipPath = `inset(0 0 0 ${x}px)`;
-            separator.style.left = x + 'px';
-            sepHandle.style.left = x + 'px';
-            labelLeft.style.left = x + 'px';
-            labelRight.style.left = x + 'px';
-        }
-
-        let dragging = false;
-        sepHandle.addEventListener('mousedown', (e) => { e.preventDefault(); dragging = true; });
-        document.addEventListener('mousemove', (e) => { if (dragging) { e.preventDefault(); moveSeparator(e); } });
-        document.addEventListener('mouseup', () => { dragging = false; });
-
-        function moveSeparator(e) {
-            const rect = compare.getBoundingClientRect();
-            const w = compareContent.offsetWidth;
-            const x = e.clientX - rect.left + compare.scrollLeft;
-            const margin = 250;
-            const allowance = 50;
-            const minX = margin - allowance;
-            const maxX = w - margin + allowance;
-            separatorRatio = Math.max(minX / w, Math.min(maxX / w, x / w));
-            updateSeparator();
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp' && currentStep > 0) { selectStep(currentStep - 1); e.preventDefault(); }
-            if (e.key === 'ArrowDown' && currentStep < snapshots.length - 1) { selectStep(currentStep + 1); e.preventDefault(); }
-        });
-
-        window.addEventListener('resize', () => { if (snapshots[currentStep].expected) updateSeparator(); });
-        selectStep(0);
-    """;
 
     // ── Cleanup ──────────────────────────────────────────────────
 
@@ -459,30 +481,50 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         if (!disposed)
         {
             disposed = true;
-            GenerateTestRunHtml();
+            var markdownPassed = GenerateTestRunMarkdown();
             Quit();
 
             this.host.Dispose();
 
             var failures = this.snapshots.Where(s => !s.Passed).ToList();
-            if (failures.Count > 0)
+            if (failures.Count > 0 || !markdownPassed)
             {
                 var sb = new StringBuilder();
-                sb.AppendLine($"Snapshot assertion failed ({failures.Count} of {this.snapshots.Count}):");
-                foreach (var f in failures)
+                if (failures.Count > 0)
                 {
-                    var reason = f.ExpectedSvg is null
-                        ? "no expected baseline"
-                        : "differs from expected";
-                    sb.AppendLine($"  {f.Index:D2}. {f.Name} — {reason}");
+                    sb.AppendLine($"Snapshot assertion failed ({failures.Count} of {this.snapshots.Count}):");
+                    foreach (var f in failures)
+                    {
+                        var reason = f.ExpectedSvg is null
+                            ? "no expected baseline"
+                            : "differs from expected";
+                        sb.AppendLine($"  {f.Index:D2}. {f.Name} — {reason}");
+                    }
+                    sb.AppendLine();
                 }
-                sb.AppendLine();
-                sb.AppendLine($"Review: {Path.Combine(this.snapshotsDir, "TestRun.html")}");
+
+                if (!markdownPassed)
+                {
+                    sb.AppendLine("Markdown report differs from expected baseline.");
+                    sb.AppendLine();
+                }
+
+                sb.AppendLine($"Review: {Path.Combine(this.snapshotsDir, "README.DIFF.md")}");
                 throw new Exception(sb.ToString());
             }
         }
     }
 
+    private abstract record ReportEntry;
+    private sealed record MarkdownReportEntry(string Markdown) : ReportEntry;
+    private sealed record SnapshotReportEntry(SnapshotEntry Snapshot) : ReportEntry;
+
     private record SnapshotEntry(
-        int Index, string Name, string ActualSvg, string? ExpectedSvg, bool Passed);
+        int Index,
+        string Name,
+        string ActualSvg,
+        string? ExpectedSvg,
+        bool Passed,
+        string ExpectedImageFileName,
+        string DiffImageFileName);
 }
