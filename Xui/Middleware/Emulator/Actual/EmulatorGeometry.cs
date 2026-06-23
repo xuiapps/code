@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Xui.Core.Math2D;
 using Xui.Middleware.Emulator.Devices;
 
@@ -61,7 +62,9 @@ internal readonly struct EmulatorGeometry
         emulatorPoint + EmulatorRect.TopLeft;
 
     public Point MapHostToEmulator(Point hostPoint) =>
-        hostPoint - EmulatorRect.TopLeft;
+        new Point(
+            hostPoint.X - EmulatorRect.X,
+            hostPoint.Y - EmulatorRect.Y);
 
     public bool TryMapHostToEmulator(Point hostPoint, out Point emulatorPoint)
     {

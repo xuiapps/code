@@ -1,3 +1,5 @@
+using System;
+using System.Runtime.InteropServices;
 using Xui.Core.Abstract.Events;
 using Xui.Core.Canvas;
 using Xui.Core.DI;
@@ -13,14 +15,12 @@ namespace Xui.Middleware.Emulator.Actual;
 /// </summary>
 public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow, Xui.Core.Abstract.IWindow.IDesktopStyle
 {
-    private readonly EmulatorPlatform platform;
     private readonly LinkedEmulatorWindow emulator;
     private readonly EmulatorChromeRenderer chromeRenderer = new();
     private EmulatorGeometry lastGeometry = EmulatorGeometry.Create(new Rect(0, 0, 430, 940), DeviceCatalog.All[0]);
 
     public EmulatorWindow(EmulatorPlatform platform, Xui.Core.Abstract.IWindow appWindow)
     {
-        this.platform = platform;
         this.emulator = new LinkedEmulatorWindow(appWindow);
     }
 
@@ -29,6 +29,12 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
 
     /// <summary>The wrapped app window abstraction.</summary>
     public Xui.Core.Abstract.IWindow AppWindow => emulator.AppWindow;
+
+    public Rect DisplayArea { get => emulator.DisplayArea; set => emulator.DisplayArea = value; }
+
+    public Rect SafeArea { get => emulator.SafeArea; set => emulator.SafeArea = value; }
+
+    public NFloat ScreenCornerRadius { get => emulator.ScreenCornerRadius; set => emulator.ScreenCornerRadius = value; }
 
     /// <summary>The underlying platform window from the base runtime.</summary>
     public Xui.Core.Actual.IWindow? Platform { get; set; }

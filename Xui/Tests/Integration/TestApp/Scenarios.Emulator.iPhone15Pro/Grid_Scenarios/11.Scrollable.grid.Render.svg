@@ -1,0 +1,239 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="980" viewBox="0 0 800 980">
+  <defs>
+    <clipPath id="clip0">
+      <path d="M 247.5 60 H 552.5 A 44 44 0 0 1 596.5 104 V 868 A 44 44 0 0 1 552.5 912 H 247.5 A 44 44 0 0 1 203.5 868 V 104 A 44 44 0 0 1 247.5 60 Z " clip-rule="nonzero" />
+    </clipPath>
+    <clipPath id="clip1">
+      <path d="M 254 44 H 314 V 832 H 254 Z " clip-rule="nonzero" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip0)">
+    <g transform="translate(203.5,60)">
+      <rect x="0" y="0" width="393" height="852" fill="#FFFFFF" />
+      <rect x="234" y="24" width="1" height="828" fill="#E0E0E0" />
+      <text x="37" y="27" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Basic fixed grid</text>
+      <text x="37" y="51.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Grid with gaps</text>
+      <text x="37" y="75.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Fractional units</text>
+      <text x="37" y="99.45" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Auto tracks</text>
+      <text x="37" y="123.6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Spanning cells</text>
+      <text x="37" y="147.75" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Named areas</text>
+      <text x="37" y="171.9" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Auto flow</text>
+      <text x="37" y="196.05" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Alignment</text>
+      <text x="37" y="220.2" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Fixed container</text>
+      <rect x="37" y="244.34" width="194" height="18.15" fill="#D3D3D3" />
+      <text x="37" y="244.34" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Scrollable grid</text>
+      <text x="37" y="268.49" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Nested grids</text>
+      <text x="37" y="292.64" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">MinMax tracks</text>
+      <rect x="234" y="24" width="100" height="828" fill="#F5F5F5" />
+      <g clip-path="url(#clip1)">
+        <path d="M 258 45 H 264.67 A 3 3 0 0 1 267.67 48 V 88 A 3 3 0 0 1 264.67 91 H 258 A 3 3 0 0 1 255 88 V 48 A 3 3 0 0 1 258 45 Z " fill="#4A90D9" fill-rule="nonzero" />
+        <text x="230.83" y="61.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 1, Col 1</text>
+        <path d="M 258 44.5 H 264.67 A 3.5 3.5 0 0 1 268.17 48 V 88 A 3.5 3.5 0 0 1 264.67 91.5 H 258 A 3.5 3.5 0 0 1 254.5 88 V 48 A 3.5 3.5 0 0 1 258 44.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 280.67 45 H 287.33 A 3 3 0 0 1 290.33 48 V 88 A 3 3 0 0 1 287.33 91 H 280.67 A 3 3 0 0 1 277.67 88 V 48 A 3 3 0 0 1 280.67 45 Z " fill="#52BE80" fill-rule="nonzero" />
+        <text x="252.38" y="61.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 1, Col 2</text>
+        <path d="M 280.67 44.5 H 287.33 A 3.5 3.5 0 0 1 290.83 48 V 88 A 3.5 3.5 0 0 1 287.33 91.5 H 280.67 A 3.5 3.5 0 0 1 277.17 88 V 48 A 3.5 3.5 0 0 1 280.67 44.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 303.33 45 H 310 A 3 3 0 0 1 313 48 V 88 A 3 3 0 0 1 310 91 H 303.33 A 3 3 0 0 1 300.33 88 V 48 A 3 3 0 0 1 303.33 45 Z " fill="#AF7AC5" fill-rule="nonzero" />
+        <text x="275" y="61.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 1, Col 3</text>
+        <path d="M 303.33 44.5 H 310 A 3.5 3.5 0 0 1 313.5 48 V 88 A 3.5 3.5 0 0 1 310 91.5 H 303.33 A 3.5 3.5 0 0 1 299.83 88 V 48 A 3.5 3.5 0 0 1 303.33 44.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 258 99 H 264.67 A 3 3 0 0 1 267.67 102 V 142 A 3 3 0 0 1 264.67 145 H 258 A 3 3 0 0 1 255 142 V 102 A 3 3 0 0 1 258 99 Z " fill="#52BE80" fill-rule="nonzero" />
+        <text x="229.71" y="115.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 2, Col 1</text>
+        <path d="M 258 98.5 H 264.67 A 3.5 3.5 0 0 1 268.17 102 V 142 A 3.5 3.5 0 0 1 264.67 145.5 H 258 A 3.5 3.5 0 0 1 254.5 142 V 102 A 3.5 3.5 0 0 1 258 98.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 280.67 99 H 287.33 A 3 3 0 0 1 290.33 102 V 142 A 3 3 0 0 1 287.33 145 H 280.67 A 3 3 0 0 1 277.67 142 V 102 A 3 3 0 0 1 280.67 99 Z " fill="#AF7AC5" fill-rule="nonzero" />
+        <text x="251.26" y="115.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 2, Col 2</text>
+        <path d="M 280.67 98.5 H 287.33 A 3.5 3.5 0 0 1 290.83 102 V 142 A 3.5 3.5 0 0 1 287.33 145.5 H 280.67 A 3.5 3.5 0 0 1 277.17 142 V 102 A 3.5 3.5 0 0 1 280.67 98.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 303.33 99 H 310 A 3 3 0 0 1 313 102 V 142 A 3 3 0 0 1 310 145 H 303.33 A 3 3 0 0 1 300.33 142 V 102 A 3 3 0 0 1 303.33 99 Z " fill="#F0B27A" fill-rule="nonzero" />
+        <text x="273.88" y="115.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 2, Col 3</text>
+        <path d="M 303.33 98.5 H 310 A 3.5 3.5 0 0 1 313.5 102 V 142 A 3.5 3.5 0 0 1 310 145.5 H 303.33 A 3.5 3.5 0 0 1 299.83 142 V 102 A 3.5 3.5 0 0 1 303.33 98.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 258 153 H 264.67 A 3 3 0 0 1 267.67 156 V 196 A 3 3 0 0 1 264.67 199 H 258 A 3 3 0 0 1 255 196 V 156 A 3 3 0 0 1 258 153 Z " fill="#AF7AC5" fill-rule="nonzero" />
+        <text x="229.67" y="169.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 3, Col 1</text>
+        <path d="M 258 152.5 H 264.67 A 3.5 3.5 0 0 1 268.17 156 V 196 A 3.5 3.5 0 0 1 264.67 199.5 H 258 A 3.5 3.5 0 0 1 254.5 196 V 156 A 3.5 3.5 0 0 1 258 152.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 280.67 153 H 287.33 A 3 3 0 0 1 290.33 156 V 196 A 3 3 0 0 1 287.33 199 H 280.67 A 3 3 0 0 1 277.67 196 V 156 A 3 3 0 0 1 280.67 153 Z " fill="#F0B27A" fill-rule="nonzero" />
+        <text x="251.22" y="169.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 3, Col 2</text>
+        <path d="M 280.67 152.5 H 287.33 A 3.5 3.5 0 0 1 290.83 156 V 196 A 3.5 3.5 0 0 1 287.33 199.5 H 280.67 A 3.5 3.5 0 0 1 277.17 196 V 156 A 3.5 3.5 0 0 1 280.67 152.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 303.33 153 H 310 A 3 3 0 0 1 313 156 V 196 A 3 3 0 0 1 310 199 H 303.33 A 3 3 0 0 1 300.33 196 V 156 A 3 3 0 0 1 303.33 153 Z " fill="#85C1E9" fill-rule="nonzero" />
+        <text x="273.84" y="169.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 3, Col 3</text>
+        <path d="M 303.33 152.5 H 310 A 3.5 3.5 0 0 1 313.5 156 V 196 A 3.5 3.5 0 0 1 310 199.5 H 303.33 A 3.5 3.5 0 0 1 299.83 196 V 156 A 3.5 3.5 0 0 1 303.33 152.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 258 207 H 264.67 A 3 3 0 0 1 267.67 210 V 250 A 3 3 0 0 1 264.67 253 H 258 A 3 3 0 0 1 255 250 V 210 A 3 3 0 0 1 258 207 Z " fill="#F0B27A" fill-rule="nonzero" />
+        <text x="229.7" y="223.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 4, Col 1</text>
+        <path d="M 258 206.5 H 264.67 A 3.5 3.5 0 0 1 268.17 210 V 250 A 3.5 3.5 0 0 1 264.67 253.5 H 258 A 3.5 3.5 0 0 1 254.5 250 V 210 A 3.5 3.5 0 0 1 258 206.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 280.67 207 H 287.33 A 3 3 0 0 1 290.33 210 V 250 A 3 3 0 0 1 287.33 253 H 280.67 A 3 3 0 0 1 277.67 250 V 210 A 3 3 0 0 1 280.67 207 Z " fill="#85C1E9" fill-rule="nonzero" />
+        <text x="251.25" y="223.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 4, Col 2</text>
+        <path d="M 280.67 206.5 H 287.33 A 3.5 3.5 0 0 1 290.83 210 V 250 A 3.5 3.5 0 0 1 287.33 253.5 H 280.67 A 3.5 3.5 0 0 1 277.17 250 V 210 A 3.5 3.5 0 0 1 280.67 206.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 303.33 207 H 310 A 3 3 0 0 1 313 210 V 250 A 3 3 0 0 1 310 253 H 303.33 A 3 3 0 0 1 300.33 250 V 210 A 3 3 0 0 1 303.33 207 Z " fill="#4A90D9" fill-rule="nonzero" />
+        <text x="273.87" y="223.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 4, Col 3</text>
+        <path d="M 303.33 206.5 H 310 A 3.5 3.5 0 0 1 313.5 210 V 250 A 3.5 3.5 0 0 1 310 253.5 H 303.33 A 3.5 3.5 0 0 1 299.83 250 V 210 A 3.5 3.5 0 0 1 303.33 206.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 258 261 H 264.67 A 3 3 0 0 1 267.67 264 V 304 A 3 3 0 0 1 264.67 307 H 258 A 3 3 0 0 1 255 304 V 264 A 3 3 0 0 1 258 261 Z " fill="#85C1E9" fill-rule="nonzero" />
+        <text x="229.95" y="277.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 5, Col 1</text>
+        <path d="M 258 260.5 H 264.67 A 3.5 3.5 0 0 1 268.17 264 V 304 A 3.5 3.5 0 0 1 264.67 307.5 H 258 A 3.5 3.5 0 0 1 254.5 304 V 264 A 3.5 3.5 0 0 1 258 260.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 280.67 261 H 287.33 A 3 3 0 0 1 290.33 264 V 304 A 3 3 0 0 1 287.33 307 H 280.67 A 3 3 0 0 1 277.67 304 V 264 A 3 3 0 0 1 280.67 261 Z " fill="#4A90D9" fill-rule="nonzero" />
+        <text x="251.5" y="277.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 5, Col 2</text>
+        <path d="M 280.67 260.5 H 287.33 A 3.5 3.5 0 0 1 290.83 264 V 304 A 3.5 3.5 0 0 1 287.33 307.5 H 280.67 A 3.5 3.5 0 0 1 277.17 304 V 264 A 3.5 3.5 0 0 1 280.67 260.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 303.33 261 H 310 A 3 3 0 0 1 313 264 V 304 A 3 3 0 0 1 310 307 H 303.33 A 3 3 0 0 1 300.33 304 V 264 A 3 3 0 0 1 303.33 261 Z " fill="#52BE80" fill-rule="nonzero" />
+        <text x="274.12" y="277.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 5, Col 3</text>
+        <path d="M 303.33 260.5 H 310 A 3.5 3.5 0 0 1 313.5 264 V 304 A 3.5 3.5 0 0 1 310 307.5 H 303.33 A 3.5 3.5 0 0 1 299.83 304 V 264 A 3.5 3.5 0 0 1 303.33 260.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 258 315 H 264.67 A 3 3 0 0 1 267.67 318 V 358 A 3 3 0 0 1 264.67 361 H 258 A 3 3 0 0 1 255 358 V 318 A 3 3 0 0 1 258 315 Z " fill="#4A90D9" fill-rule="nonzero" />
+        <text x="229.84" y="331.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 6, Col 1</text>
+        <path d="M 258 314.5 H 264.67 A 3.5 3.5 0 0 1 268.17 318 V 358 A 3.5 3.5 0 0 1 264.67 361.5 H 258 A 3.5 3.5 0 0 1 254.5 358 V 318 A 3.5 3.5 0 0 1 258 314.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 280.67 315 H 287.33 A 3 3 0 0 1 290.33 318 V 358 A 3 3 0 0 1 287.33 361 H 280.67 A 3 3 0 0 1 277.67 358 V 318 A 3 3 0 0 1 280.67 315 Z " fill="#52BE80" fill-rule="nonzero" />
+        <text x="251.39" y="331.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 6, Col 2</text>
+        <path d="M 280.67 314.5 H 287.33 A 3.5 3.5 0 0 1 290.83 318 V 358 A 3.5 3.5 0 0 1 287.33 361.5 H 280.67 A 3.5 3.5 0 0 1 277.17 358 V 318 A 3.5 3.5 0 0 1 280.67 314.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 303.33 315 H 310 A 3 3 0 0 1 313 318 V 358 A 3 3 0 0 1 310 361 H 303.33 A 3 3 0 0 1 300.33 358 V 318 A 3 3 0 0 1 303.33 315 Z " fill="#AF7AC5" fill-rule="nonzero" />
+        <text x="274.01" y="331.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 6, Col 3</text>
+        <path d="M 303.33 314.5 H 310 A 3.5 3.5 0 0 1 313.5 318 V 358 A 3.5 3.5 0 0 1 310 361.5 H 303.33 A 3.5 3.5 0 0 1 299.83 358 V 318 A 3.5 3.5 0 0 1 303.33 314.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 258 369 H 264.67 A 3 3 0 0 1 267.67 372 V 412 A 3 3 0 0 1 264.67 415 H 258 A 3 3 0 0 1 255 412 V 372 A 3 3 0 0 1 258 369 Z " fill="#52BE80" fill-rule="nonzero" />
+        <text x="229.95" y="385.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 7, Col 1</text>
+        <path d="M 258 368.5 H 264.67 A 3.5 3.5 0 0 1 268.17 372 V 412 A 3.5 3.5 0 0 1 264.67 415.5 H 258 A 3.5 3.5 0 0 1 254.5 412 V 372 A 3.5 3.5 0 0 1 258 368.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 280.67 369 H 287.33 A 3 3 0 0 1 290.33 372 V 412 A 3 3 0 0 1 287.33 415 H 280.67 A 3 3 0 0 1 277.67 412 V 372 A 3 3 0 0 1 280.67 369 Z " fill="#AF7AC5" fill-rule="nonzero" />
+        <text x="251.5" y="385.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 7, Col 2</text>
+        <path d="M 280.67 368.5 H 287.33 A 3.5 3.5 0 0 1 290.83 372 V 412 A 3.5 3.5 0 0 1 287.33 415.5 H 280.67 A 3.5 3.5 0 0 1 277.17 412 V 372 A 3.5 3.5 0 0 1 280.67 368.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 303.33 369 H 310 A 3 3 0 0 1 313 372 V 412 A 3 3 0 0 1 310 415 H 303.33 A 3 3 0 0 1 300.33 412 V 372 A 3 3 0 0 1 303.33 369 Z " fill="#F0B27A" fill-rule="nonzero" />
+        <text x="274.13" y="385.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 7, Col 3</text>
+        <path d="M 303.33 368.5 H 310 A 3.5 3.5 0 0 1 313.5 372 V 412 A 3.5 3.5 0 0 1 310 415.5 H 303.33 A 3.5 3.5 0 0 1 299.83 412 V 372 A 3.5 3.5 0 0 1 303.33 368.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 258 423 H 264.67 A 3 3 0 0 1 267.67 426 V 466 A 3 3 0 0 1 264.67 469 H 258 A 3 3 0 0 1 255 466 V 426 A 3 3 0 0 1 258 423 Z " fill="#AF7AC5" fill-rule="nonzero" />
+        <text x="229.66" y="439.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 8, Col 1</text>
+        <path d="M 258 422.5 H 264.67 A 3.5 3.5 0 0 1 268.17 426 V 466 A 3.5 3.5 0 0 1 264.67 469.5 H 258 A 3.5 3.5 0 0 1 254.5 466 V 426 A 3.5 3.5 0 0 1 258 422.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 280.67 423 H 287.33 A 3 3 0 0 1 290.33 426 V 466 A 3 3 0 0 1 287.33 469 H 280.67 A 3 3 0 0 1 277.67 466 V 426 A 3 3 0 0 1 280.67 423 Z " fill="#F0B27A" fill-rule="nonzero" />
+        <text x="251.21" y="439.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 8, Col 2</text>
+        <path d="M 280.67 422.5 H 287.33 A 3.5 3.5 0 0 1 290.83 426 V 466 A 3.5 3.5 0 0 1 287.33 469.5 H 280.67 A 3.5 3.5 0 0 1 277.17 466 V 426 A 3.5 3.5 0 0 1 280.67 422.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 303.33 423 H 310 A 3 3 0 0 1 313 426 V 466 A 3 3 0 0 1 310 469 H 303.33 A 3 3 0 0 1 300.33 466 V 426 A 3 3 0 0 1 303.33 423 Z " fill="#85C1E9" fill-rule="nonzero" />
+        <text x="273.84" y="439.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 8, Col 3</text>
+        <path d="M 303.33 422.5 H 310 A 3.5 3.5 0 0 1 313.5 426 V 466 A 3.5 3.5 0 0 1 310 469.5 H 303.33 A 3.5 3.5 0 0 1 299.83 466 V 426 A 3.5 3.5 0 0 1 303.33 422.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 258 477 H 264.67 A 3 3 0 0 1 267.67 480 V 520 A 3 3 0 0 1 264.67 523 H 258 A 3 3 0 0 1 255 520 V 480 A 3 3 0 0 1 258 477 Z " fill="#F0B27A" fill-rule="nonzero" />
+        <text x="229.65" y="493.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 9, Col 1</text>
+        <path d="M 258 476.5 H 264.67 A 3.5 3.5 0 0 1 268.17 480 V 520 A 3.5 3.5 0 0 1 264.67 523.5 H 258 A 3.5 3.5 0 0 1 254.5 520 V 480 A 3.5 3.5 0 0 1 258 476.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 280.67 477 H 287.33 A 3 3 0 0 1 290.33 480 V 520 A 3 3 0 0 1 287.33 523 H 280.67 A 3 3 0 0 1 277.67 520 V 480 A 3 3 0 0 1 280.67 477 Z " fill="#85C1E9" fill-rule="nonzero" />
+        <text x="251.2" y="493.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 9, Col 2</text>
+        <path d="M 280.67 476.5 H 287.33 A 3.5 3.5 0 0 1 290.83 480 V 520 A 3.5 3.5 0 0 1 287.33 523.5 H 280.67 A 3.5 3.5 0 0 1 277.17 520 V 480 A 3.5 3.5 0 0 1 280.67 476.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 303.33 477 H 310 A 3 3 0 0 1 313 480 V 520 A 3 3 0 0 1 310 523 H 303.33 A 3 3 0 0 1 300.33 520 V 480 A 3 3 0 0 1 303.33 477 Z " fill="#4A90D9" fill-rule="nonzero" />
+        <text x="273.83" y="493.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 9, Col 3</text>
+        <path d="M 303.33 476.5 H 310 A 3.5 3.5 0 0 1 313.5 480 V 520 A 3.5 3.5 0 0 1 310 523.5 H 303.33 A 3.5 3.5 0 0 1 299.83 520 V 480 A 3.5 3.5 0 0 1 303.33 476.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 258 531 H 264.67 A 3 3 0 0 1 267.67 534 V 574 A 3 3 0 0 1 264.67 577 H 258 A 3 3 0 0 1 255 574 V 534 A 3 3 0 0 1 258 531 Z " fill="#85C1E9" fill-rule="nonzero" />
+        <text x="227.36" y="547.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 10, Col 1</text>
+        <path d="M 258 530.5 H 264.67 A 3.5 3.5 0 0 1 268.17 534 V 574 A 3.5 3.5 0 0 1 264.67 577.5 H 258 A 3.5 3.5 0 0 1 254.5 574 V 534 A 3.5 3.5 0 0 1 258 530.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 280.67 531 H 287.33 A 3 3 0 0 1 290.33 534 V 574 A 3 3 0 0 1 287.33 577 H 280.67 A 3 3 0 0 1 277.67 574 V 534 A 3 3 0 0 1 280.67 531 Z " fill="#4A90D9" fill-rule="nonzero" />
+        <text x="248.91" y="547.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 10, Col 2</text>
+        <path d="M 280.67 530.5 H 287.33 A 3.5 3.5 0 0 1 290.83 534 V 574 A 3.5 3.5 0 0 1 287.33 577.5 H 280.67 A 3.5 3.5 0 0 1 277.17 574 V 534 A 3.5 3.5 0 0 1 280.67 530.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 303.33 531 H 310 A 3 3 0 0 1 313 534 V 574 A 3 3 0 0 1 310 577 H 303.33 A 3 3 0 0 1 300.33 574 V 534 A 3 3 0 0 1 303.33 531 Z " fill="#52BE80" fill-rule="nonzero" />
+        <text x="271.53" y="547.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 10, Col 3</text>
+        <path d="M 303.33 530.5 H 310 A 3.5 3.5 0 0 1 313.5 534 V 574 A 3.5 3.5 0 0 1 310 577.5 H 303.33 A 3.5 3.5 0 0 1 299.83 574 V 534 A 3.5 3.5 0 0 1 303.33 530.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 258 585 H 264.67 A 3 3 0 0 1 267.67 588 V 628 A 3 3 0 0 1 264.67 631 H 258 A 3 3 0 0 1 255 628 V 588 A 3 3 0 0 1 258 585 Z " fill="#4A90D9" fill-rule="nonzero" />
+        <text x="228.59" y="601.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 11, Col 1</text>
+        <path d="M 258 584.5 H 264.67 A 3.5 3.5 0 0 1 268.17 588 V 628 A 3.5 3.5 0 0 1 264.67 631.5 H 258 A 3.5 3.5 0 0 1 254.5 628 V 588 A 3.5 3.5 0 0 1 258 584.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 280.67 585 H 287.33 A 3 3 0 0 1 290.33 588 V 628 A 3 3 0 0 1 287.33 631 H 280.67 A 3 3 0 0 1 277.67 628 V 588 A 3 3 0 0 1 280.67 585 Z " fill="#52BE80" fill-rule="nonzero" />
+        <text x="250.14" y="601.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 11, Col 2</text>
+        <path d="M 280.67 584.5 H 287.33 A 3.5 3.5 0 0 1 290.83 588 V 628 A 3.5 3.5 0 0 1 287.33 631.5 H 280.67 A 3.5 3.5 0 0 1 277.17 628 V 588 A 3.5 3.5 0 0 1 280.67 584.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 303.33 585 H 310 A 3 3 0 0 1 313 588 V 628 A 3 3 0 0 1 310 631 H 303.33 A 3 3 0 0 1 300.33 628 V 588 A 3 3 0 0 1 303.33 585 Z " fill="#AF7AC5" fill-rule="nonzero" />
+        <text x="272.76" y="601.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 11, Col 3</text>
+        <path d="M 303.33 584.5 H 310 A 3.5 3.5 0 0 1 313.5 588 V 628 A 3.5 3.5 0 0 1 310 631.5 H 303.33 A 3.5 3.5 0 0 1 299.83 628 V 588 A 3.5 3.5 0 0 1 303.33 584.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 258 639 H 264.67 A 3 3 0 0 1 267.67 642 V 682 A 3 3 0 0 1 264.67 685 H 258 A 3 3 0 0 1 255 682 V 642 A 3 3 0 0 1 258 639 Z " fill="#52BE80" fill-rule="nonzero" />
+        <text x="227.47" y="655.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 12, Col 1</text>
+        <path d="M 258 638.5 H 264.67 A 3.5 3.5 0 0 1 268.17 642 V 682 A 3.5 3.5 0 0 1 264.67 685.5 H 258 A 3.5 3.5 0 0 1 254.5 682 V 642 A 3.5 3.5 0 0 1 258 638.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 280.67 639 H 287.33 A 3 3 0 0 1 290.33 642 V 682 A 3 3 0 0 1 287.33 685 H 280.67 A 3 3 0 0 1 277.67 682 V 642 A 3 3 0 0 1 280.67 639 Z " fill="#AF7AC5" fill-rule="nonzero" />
+        <text x="249.02" y="655.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 12, Col 2</text>
+        <path d="M 280.67 638.5 H 287.33 A 3.5 3.5 0 0 1 290.83 642 V 682 A 3.5 3.5 0 0 1 287.33 685.5 H 280.67 A 3.5 3.5 0 0 1 277.17 682 V 642 A 3.5 3.5 0 0 1 280.67 638.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 303.33 639 H 310 A 3 3 0 0 1 313 642 V 682 A 3 3 0 0 1 310 685 H 303.33 A 3 3 0 0 1 300.33 682 V 642 A 3 3 0 0 1 303.33 639 Z " fill="#F0B27A" fill-rule="nonzero" />
+        <text x="271.65" y="655.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 12, Col 3</text>
+        <path d="M 303.33 638.5 H 310 A 3.5 3.5 0 0 1 313.5 642 V 682 A 3.5 3.5 0 0 1 310 685.5 H 303.33 A 3.5 3.5 0 0 1 299.83 682 V 642 A 3.5 3.5 0 0 1 303.33 638.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 258 693 H 264.67 A 3 3 0 0 1 267.67 696 V 736 A 3 3 0 0 1 264.67 739 H 258 A 3 3 0 0 1 255 736 V 696 A 3 3 0 0 1 258 693 Z " fill="#AF7AC5" fill-rule="nonzero" />
+        <text x="227.43" y="709.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 13, Col 1</text>
+        <path d="M 258 692.5 H 264.67 A 3.5 3.5 0 0 1 268.17 696 V 736 A 3.5 3.5 0 0 1 264.67 739.5 H 258 A 3.5 3.5 0 0 1 254.5 736 V 696 A 3.5 3.5 0 0 1 258 692.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 280.67 693 H 287.33 A 3 3 0 0 1 290.33 696 V 736 A 3 3 0 0 1 287.33 739 H 280.67 A 3 3 0 0 1 277.67 736 V 696 A 3 3 0 0 1 280.67 693 Z " fill="#F0B27A" fill-rule="nonzero" />
+        <text x="248.98" y="709.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 13, Col 2</text>
+        <path d="M 280.67 692.5 H 287.33 A 3.5 3.5 0 0 1 290.83 696 V 736 A 3.5 3.5 0 0 1 287.33 739.5 H 280.67 A 3.5 3.5 0 0 1 277.17 736 V 696 A 3.5 3.5 0 0 1 280.67 692.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 303.33 693 H 310 A 3 3 0 0 1 313 696 V 736 A 3 3 0 0 1 310 739 H 303.33 A 3 3 0 0 1 300.33 736 V 696 A 3 3 0 0 1 303.33 693 Z " fill="#85C1E9" fill-rule="nonzero" />
+        <text x="271.6" y="709.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 13, Col 3</text>
+        <path d="M 303.33 692.5 H 310 A 3.5 3.5 0 0 1 313.5 696 V 736 A 3.5 3.5 0 0 1 310 739.5 H 303.33 A 3.5 3.5 0 0 1 299.83 736 V 696 A 3.5 3.5 0 0 1 303.33 692.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 258 747 H 264.67 A 3 3 0 0 1 267.67 750 V 790 A 3 3 0 0 1 264.67 793 H 258 A 3 3 0 0 1 255 790 V 750 A 3 3 0 0 1 258 747 Z " fill="#F0B27A" fill-rule="nonzero" />
+        <text x="227.46" y="763.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 14, Col 1</text>
+        <path d="M 258 746.5 H 264.67 A 3.5 3.5 0 0 1 268.17 750 V 790 A 3.5 3.5 0 0 1 264.67 793.5 H 258 A 3.5 3.5 0 0 1 254.5 790 V 750 A 3.5 3.5 0 0 1 258 746.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 280.67 747 H 287.33 A 3 3 0 0 1 290.33 750 V 790 A 3 3 0 0 1 287.33 793 H 280.67 A 3 3 0 0 1 277.67 790 V 750 A 3 3 0 0 1 280.67 747 Z " fill="#85C1E9" fill-rule="nonzero" />
+        <text x="249.01" y="763.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 14, Col 2</text>
+        <path d="M 280.67 746.5 H 287.33 A 3.5 3.5 0 0 1 290.83 750 V 790 A 3.5 3.5 0 0 1 287.33 793.5 H 280.67 A 3.5 3.5 0 0 1 277.17 790 V 750 A 3.5 3.5 0 0 1 280.67 746.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 303.33 747 H 310 A 3 3 0 0 1 313 750 V 790 A 3 3 0 0 1 310 793 H 303.33 A 3 3 0 0 1 300.33 790 V 750 A 3 3 0 0 1 303.33 747 Z " fill="#4A90D9" fill-rule="nonzero" />
+        <text x="271.63" y="763.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 14, Col 3</text>
+        <path d="M 303.33 746.5 H 310 A 3.5 3.5 0 0 1 313.5 750 V 790 A 3.5 3.5 0 0 1 310 793.5 H 303.33 A 3.5 3.5 0 0 1 299.83 790 V 750 A 3.5 3.5 0 0 1 303.33 746.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 258 801 H 264.67 A 3 3 0 0 1 267.67 804 V 844 A 3 3 0 0 1 264.67 847 H 258 A 3 3 0 0 1 255 844 V 804 A 3 3 0 0 1 258 801 Z " fill="#85C1E9" fill-rule="nonzero" />
+        <text x="227.71" y="817.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 15, Col 1</text>
+        <path d="M 258 800.5 H 264.67 A 3.5 3.5 0 0 1 268.17 804 V 844 A 3.5 3.5 0 0 1 264.67 847.5 H 258 A 3.5 3.5 0 0 1 254.5 844 V 804 A 3.5 3.5 0 0 1 258 800.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 280.67 801 H 287.33 A 3 3 0 0 1 290.33 804 V 844 A 3 3 0 0 1 287.33 847 H 280.67 A 3 3 0 0 1 277.67 844 V 804 A 3 3 0 0 1 280.67 801 Z " fill="#4A90D9" fill-rule="nonzero" />
+        <text x="249.26" y="817.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 15, Col 2</text>
+        <path d="M 280.67 800.5 H 287.33 A 3.5 3.5 0 0 1 290.83 804 V 844 A 3.5 3.5 0 0 1 287.33 847.5 H 280.67 A 3.5 3.5 0 0 1 277.17 844 V 804 A 3.5 3.5 0 0 1 280.67 800.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 303.33 801 H 310 A 3 3 0 0 1 313 804 V 844 A 3 3 0 0 1 310 847 H 303.33 A 3 3 0 0 1 300.33 844 V 804 A 3 3 0 0 1 303.33 801 Z " fill="#52BE80" fill-rule="nonzero" />
+        <text x="271.89" y="817.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 15, Col 3</text>
+        <path d="M 303.33 800.5 H 310 A 3.5 3.5 0 0 1 313.5 804 V 844 A 3.5 3.5 0 0 1 310 847.5 H 303.33 A 3.5 3.5 0 0 1 299.83 844 V 804 A 3.5 3.5 0 0 1 303.33 800.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 258 855 H 264.67 A 3 3 0 0 1 267.67 858 V 898 A 3 3 0 0 1 264.67 901 H 258 A 3 3 0 0 1 255 898 V 858 A 3 3 0 0 1 258 855 Z " fill="#4A90D9" fill-rule="nonzero" />
+        <text x="227.6" y="871.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 16, Col 1</text>
+        <path d="M 258 854.5 H 264.67 A 3.5 3.5 0 0 1 268.17 858 V 898 A 3.5 3.5 0 0 1 264.67 901.5 H 258 A 3.5 3.5 0 0 1 254.5 898 V 858 A 3.5 3.5 0 0 1 258 854.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 280.67 855 H 287.33 A 3 3 0 0 1 290.33 858 V 898 A 3 3 0 0 1 287.33 901 H 280.67 A 3 3 0 0 1 277.67 898 V 858 A 3 3 0 0 1 280.67 855 Z " fill="#52BE80" fill-rule="nonzero" />
+        <text x="249.15" y="871.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 16, Col 2</text>
+        <path d="M 280.67 854.5 H 287.33 A 3.5 3.5 0 0 1 290.83 858 V 898 A 3.5 3.5 0 0 1 287.33 901.5 H 280.67 A 3.5 3.5 0 0 1 277.17 898 V 858 A 3.5 3.5 0 0 1 280.67 854.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 303.33 855 H 310 A 3 3 0 0 1 313 858 V 898 A 3 3 0 0 1 310 901 H 303.33 A 3 3 0 0 1 300.33 898 V 858 A 3 3 0 0 1 303.33 855 Z " fill="#AF7AC5" fill-rule="nonzero" />
+        <text x="271.78" y="871.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 16, Col 3</text>
+        <path d="M 303.33 854.5 H 310 A 3.5 3.5 0 0 1 313.5 858 V 898 A 3.5 3.5 0 0 1 310 901.5 H 303.33 A 3.5 3.5 0 0 1 299.83 898 V 858 A 3.5 3.5 0 0 1 303.33 854.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 258 909 H 264.67 A 3 3 0 0 1 267.67 912 V 952 A 3 3 0 0 1 264.67 955 H 258 A 3 3 0 0 1 255 952 V 912 A 3 3 0 0 1 258 909 Z " fill="#52BE80" fill-rule="nonzero" />
+        <text x="227.72" y="925.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 17, Col 1</text>
+        <path d="M 258 908.5 H 264.67 A 3.5 3.5 0 0 1 268.17 912 V 952 A 3.5 3.5 0 0 1 264.67 955.5 H 258 A 3.5 3.5 0 0 1 254.5 952 V 912 A 3.5 3.5 0 0 1 258 908.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 280.67 909 H 287.33 A 3 3 0 0 1 290.33 912 V 952 A 3 3 0 0 1 287.33 955 H 280.67 A 3 3 0 0 1 277.67 952 V 912 A 3 3 0 0 1 280.67 909 Z " fill="#AF7AC5" fill-rule="nonzero" />
+        <text x="249.27" y="925.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 17, Col 2</text>
+        <path d="M 280.67 908.5 H 287.33 A 3.5 3.5 0 0 1 290.83 912 V 952 A 3.5 3.5 0 0 1 287.33 955.5 H 280.67 A 3.5 3.5 0 0 1 277.17 952 V 912 A 3.5 3.5 0 0 1 280.67 908.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 303.33 909 H 310 A 3 3 0 0 1 313 912 V 952 A 3 3 0 0 1 310 955 H 303.33 A 3 3 0 0 1 300.33 952 V 912 A 3 3 0 0 1 303.33 909 Z " fill="#F0B27A" fill-rule="nonzero" />
+        <text x="271.89" y="925.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 17, Col 3</text>
+        <path d="M 303.33 908.5 H 310 A 3.5 3.5 0 0 1 313.5 912 V 952 A 3.5 3.5 0 0 1 310 955.5 H 303.33 A 3.5 3.5 0 0 1 299.83 952 V 912 A 3.5 3.5 0 0 1 303.33 908.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 258 963 H 264.67 A 3 3 0 0 1 267.67 966 V 1006 A 3 3 0 0 1 264.67 1009 H 258 A 3 3 0 0 1 255 1006 V 966 A 3 3 0 0 1 258 963 Z " fill="#AF7AC5" fill-rule="nonzero" />
+        <text x="227.43" y="979.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 18, Col 1</text>
+        <path d="M 258 962.5 H 264.67 A 3.5 3.5 0 0 1 268.17 966 V 1006 A 3.5 3.5 0 0 1 264.67 1009.5 H 258 A 3.5 3.5 0 0 1 254.5 1006 V 966 A 3.5 3.5 0 0 1 258 962.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 280.67 963 H 287.33 A 3 3 0 0 1 290.33 966 V 1006 A 3 3 0 0 1 287.33 1009 H 280.67 A 3 3 0 0 1 277.67 1006 V 966 A 3 3 0 0 1 280.67 963 Z " fill="#F0B27A" fill-rule="nonzero" />
+        <text x="248.98" y="979.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 18, Col 2</text>
+        <path d="M 280.67 962.5 H 287.33 A 3.5 3.5 0 0 1 290.83 966 V 1006 A 3.5 3.5 0 0 1 287.33 1009.5 H 280.67 A 3.5 3.5 0 0 1 277.17 1006 V 966 A 3.5 3.5 0 0 1 280.67 962.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 303.33 963 H 310 A 3 3 0 0 1 313 966 V 1006 A 3 3 0 0 1 310 1009 H 303.33 A 3 3 0 0 1 300.33 1006 V 966 A 3 3 0 0 1 303.33 963 Z " fill="#85C1E9" fill-rule="nonzero" />
+        <text x="271.6" y="979.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 18, Col 3</text>
+        <path d="M 303.33 962.5 H 310 A 3.5 3.5 0 0 1 313.5 966 V 1006 A 3.5 3.5 0 0 1 310 1009.5 H 303.33 A 3.5 3.5 0 0 1 299.83 1006 V 966 A 3.5 3.5 0 0 1 303.33 962.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 258 1017 H 264.67 A 3 3 0 0 1 267.67 1020 V 1060 A 3 3 0 0 1 264.67 1063 H 258 A 3 3 0 0 1 255 1060 V 1020 A 3 3 0 0 1 258 1017 Z " fill="#F0B27A" fill-rule="nonzero" />
+        <text x="227.42" y="1033.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 19, Col 1</text>
+        <path d="M 258 1016.5 H 264.67 A 3.5 3.5 0 0 1 268.17 1020 V 1060 A 3.5 3.5 0 0 1 264.67 1063.5 H 258 A 3.5 3.5 0 0 1 254.5 1060 V 1020 A 3.5 3.5 0 0 1 258 1016.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 280.67 1017 H 287.33 A 3 3 0 0 1 290.33 1020 V 1060 A 3 3 0 0 1 287.33 1063 H 280.67 A 3 3 0 0 1 277.67 1060 V 1020 A 3 3 0 0 1 280.67 1017 Z " fill="#85C1E9" fill-rule="nonzero" />
+        <text x="248.97" y="1033.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 19, Col 2</text>
+        <path d="M 280.67 1016.5 H 287.33 A 3.5 3.5 0 0 1 290.83 1020 V 1060 A 3.5 3.5 0 0 1 287.33 1063.5 H 280.67 A 3.5 3.5 0 0 1 277.17 1060 V 1020 A 3.5 3.5 0 0 1 280.67 1016.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 303.33 1017 H 310 A 3 3 0 0 1 313 1020 V 1060 A 3 3 0 0 1 310 1063 H 303.33 A 3 3 0 0 1 300.33 1060 V 1020 A 3 3 0 0 1 303.33 1017 Z " fill="#4A90D9" fill-rule="nonzero" />
+        <text x="271.59" y="1033.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 19, Col 3</text>
+        <path d="M 303.33 1016.5 H 310 A 3.5 3.5 0 0 1 313.5 1020 V 1060 A 3.5 3.5 0 0 1 310 1063.5 H 303.33 A 3.5 3.5 0 0 1 299.83 1060 V 1020 A 3.5 3.5 0 0 1 303.33 1016.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 258 1071 H 264.67 A 3 3 0 0 1 267.67 1074 V 1114 A 3 3 0 0 1 264.67 1117 H 258 A 3 3 0 0 1 255 1114 V 1074 A 3 3 0 0 1 258 1071 Z " fill="#85C1E9" fill-rule="nonzero" />
+        <text x="226.24" y="1087.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 20, Col 1</text>
+        <path d="M 258 1070.5 H 264.67 A 3.5 3.5 0 0 1 268.17 1074 V 1114 A 3.5 3.5 0 0 1 264.67 1117.5 H 258 A 3.5 3.5 0 0 1 254.5 1114 V 1074 A 3.5 3.5 0 0 1 258 1070.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 280.67 1071 H 287.33 A 3 3 0 0 1 290.33 1074 V 1114 A 3 3 0 0 1 287.33 1117 H 280.67 A 3 3 0 0 1 277.67 1114 V 1074 A 3 3 0 0 1 280.67 1071 Z " fill="#4A90D9" fill-rule="nonzero" />
+        <text x="247.79" y="1087.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 20, Col 2</text>
+        <path d="M 280.67 1070.5 H 287.33 A 3.5 3.5 0 0 1 290.83 1074 V 1114 A 3.5 3.5 0 0 1 287.33 1117.5 H 280.67 A 3.5 3.5 0 0 1 277.17 1114 V 1074 A 3.5 3.5 0 0 1 280.67 1070.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 303.33 1071 H 310 A 3 3 0 0 1 313 1074 V 1114 A 3 3 0 0 1 310 1117 H 303.33 A 3 3 0 0 1 300.33 1114 V 1074 A 3 3 0 0 1 303.33 1071 Z " fill="#52BE80" fill-rule="nonzero" />
+        <text x="270.41" y="1087.35" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="11" font-family="Inter" xml:space="preserve">Row 20, Col 3</text>
+        <path d="M 303.33 1070.5 H 310 A 3.5 3.5 0 0 1 313.5 1074 V 1114 A 3.5 3.5 0 0 1 310 1117.5 H 303.33 A 3.5 3.5 0 0 1 299.83 1114 V 1074 A 3.5 3.5 0 0 1 303.33 1070.5 Z " fill="none" stroke="#000000" stroke-opacity="0.13" />
+        <path d="M 310.5 58.67 H 310.5 A 1.5 1.5 0 0 1 312 60.17 V 613.8 A 1.5 1.5 0 0 1 310.5 615.3 H 310.5 A 1.5 1.5 0 0 1 309 613.8 V 60.17 A 1.5 1.5 0 0 1 310.5 58.67 Z " fill="#000000" fill-rule="nonzero" fill-opacity="0.35" />
+      </g>
+      <rect x="34" y="0" width="300" height="24" fill="#FFFFFF" />
+      <text x="34" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+      <text x="107.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Grid Layout</text>
+    </g>
+  </g>
+  <path d="M 247.5 56 H 552.5 A 48 48 0 0 1 600.5 104 V 868 A 48 48 0 0 1 552.5 916 H 247.5 A 48 48 0 0 1 199.5 868 V 104 A 48 48 0 0 1 247.5 56 Z " fill="none" stroke="#111111" stroke-width="8" />
+  <path d="M 245.38 53.25 H 554.63 A 48.63 48.63 0 0 1 603.25 101.88 V 870.13 A 48.63 48.63 0 0 1 554.63 918.75 H 245.38 A 48.63 48.63 0 0 1 196.75 870.13 V 101.88 A 48.63 48.63 0 0 1 245.38 53.25 Z " fill="none" stroke="#444444" stroke-width="2.5" />
+  <path d="M 368 72 H 432 A 13 13 0 0 1 445 85 V 85 A 13 13 0 0 1 432 98 H 368 A 13 13 0 0 1 355 85 V 85 A 13 13 0 0 1 368 72 Z " fill="#111111" fill-rule="nonzero" />
+  <g transform="translate(64,78)">
+    <text x="0" y="0" fill="#000000" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">15:06</text>
+  </g>
+  <g transform="translate(700,91.5)">
+    <path d="M 1.77 -1.77 A 2.5 2.5 0 0 0 -1.77 -1.77 " fill="none" stroke="#000000" stroke-width="4" />
+    <path d="M 5.3 -5.3 A 7.5 7.5 0 0 0 -5.3 -5.3 " fill="none" stroke="#000000" stroke-width="2" />
+    <path d="M 8.13 -8.13 A 11.5 11.5 0 0 0 -8.13 -8.13 " fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.33" />
+  </g>
+  <g transform="translate(712,80.5)">
+    <path d="M 3 0 H 17 A 3 3 0 0 1 20 3 V 7 A 3 3 0 0 1 17 10 H 3 A 3 3 0 0 1 0 7 V 3 A 3 3 0 0 1 3 0 Z " fill="none" stroke="#000000" />
+    <path d="M 3.5 1.5 H 11.5 A 2 2 0 0 1 13.5 3.5 V 6.5 A 2 2 0 0 1 11.5 8.5 H 3.5 A 2 2 0 0 1 1.5 6.5 V 3.5 A 2 2 0 0 1 3.5 1.5 Z " fill="#000000" fill-rule="nonzero" />
+  </g>
+  <g transform="translate(748,78)">
+    <text x="0" y="0" fill="#000000" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">5G</text>
+  </g>
+  <path d="M 346.5 905 H 453.5 A 1.5 1.5 0 0 1 455 906.5 V 907.5 A 1.5 1.5 0 0 1 453.5 909 H 346.5 A 1.5 1.5 0 0 1 345 907.5 V 906.5 A 1.5 1.5 0 0 1 346.5 905 Z " fill="#111111" fill-rule="nonzero" />
+  <path d="M 10 0 H 790 A 10 10 0 0 1 800 10 V 42 A 10 10 0 0 1 790 52 H 10 A 10 10 0 0 1 0 42 V 10 A 10 10 0 0 1 10 0 Z " fill="#333333" fill-rule="nonzero" />
+  <g transform="translate(337.5 313.41943359375)" opacity="0.9">
+    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
+  </g>
+</svg>

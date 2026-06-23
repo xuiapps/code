@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Xui.Core.Abstract;
 using Xui.Core.Math2D;
 using Xui.Runtime.Test;
@@ -24,7 +25,7 @@ public static class IntegrationRuntimeVariants
         where TWindow : Window
     {
         var size = runtimeVariant == TestRuntimeVariant.IPhoneEmulator
-            ? new Size(NFloat.Max(desktopSize.Width, 460), NFloat.Max(desktopSize.Height, 980))
+            ? new Size(nfloat.Max(desktopSize.Width, 460), nfloat.Max(desktopSize.Height, 980))
             : desktopSize;
 
         var snapshotSet = runtimeVariant == TestRuntimeVariant.IPhoneEmulator

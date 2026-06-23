@@ -1,3 +1,5 @@
+using System;
+using System.Runtime.InteropServices;
 using Xui.Core.Abstract;
 using Xui.Core.Abstract.Events;
 using Xui.Core.Canvas;
@@ -24,7 +26,7 @@ internal sealed class LinkedEmulatorWindow : Xui.Core.Abstract.IWindow
 
     public Rect SafeArea { get; set; }
 
-    public nfloat ScreenCornerRadius { get; set; }
+    public NFloat ScreenCornerRadius { get; set; }
 
     public void Closed() => AppWindow.Closed();
 
@@ -113,12 +115,12 @@ internal sealed class LinkedEmulatorWindow : Xui.Core.Abstract.IWindow
             return;
 
         ctx.BeginPath();
-        ctx.Ellipse(leftMouseButtonTouch.Value, 15f, 15f, 0, 0, nfloat.Pi * 2, Winding.ClockWise);
+        ctx.Ellipse(leftMouseButtonTouch.Value, 15f, 15f, 0, 0, NFloat.Pi * 2, Winding.ClockWise);
         ctx.SetFill(0x66888888);
         ctx.Fill();
 
         ctx.BeginPath();
-        ctx.Ellipse(leftMouseButtonTouch.Value, 15f, 15f, 0, 0, nfloat.Pi * 2, Winding.ClockWise);
+        ctx.Ellipse(leftMouseButtonTouch.Value, 15f, 15f, 0, 0, NFloat.Pi * 2, Winding.ClockWise);
         ctx.LineWidth = 3f;
         ctx.SetStroke(0x88AAAAAA);
         ctx.Stroke();
