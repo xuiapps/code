@@ -43,8 +43,7 @@ public class EmulatorPlatform : IRuntime
     /// <returns>An actual window with emulator middleware applied.</returns>
     public Xui.Core.Actual.IWindow CreateWindow(Xui.Core.Abstract.IWindow windowAbstract)
     {
-        var middleware = new EmulatorWindow(this);
-        middleware.Abstract = windowAbstract;
+        var middleware = new EmulatorWindow(this, windowAbstract);
         var window = this.BasePlatform.CreateWindow(middleware);
         middleware.Platform = window;
         return middleware;
