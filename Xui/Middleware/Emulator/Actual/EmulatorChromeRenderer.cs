@@ -8,7 +8,12 @@ namespace Xui.Middleware.Emulator.Actual;
 
 internal sealed class EmulatorChromeRenderer
 {
-    public void Render(IContext ctx, in EmulatorGeometry geometry, in Rect hostRect, DeviceProfile device)
+    public void Render(
+        IContext ctx,
+        in EmulatorGeometry geometry,
+        in Rect hostRect,
+        DeviceProfile device,
+        in EmulatorStatusBarStyle statusBarStyle)
     {
         // Outer device frame stroke
         ctx.BeginPath();
@@ -39,16 +44,25 @@ internal sealed class EmulatorChromeRenderer
             (geometry.EmulatorRect.Center.X - 22f) / 2,
             (300 / 2f - 22f) / 2,
             Easing.EaseInOutSine(phoneToTabletT));
-        EmulatorWindow.ClockIcon.Instance.Render(ctx, (clockX, iconTop + 6f));
+        EmulatorWindow.ClockIcon.Instance.Render(ctx, (clockX, iconTop + 6f), statusBarStyle.TimeText);
 
         NFloat instrumentsX = NFloat.Lerp(
             geometry.EmulatorRect.Center.X + 45f + (geometry.EmulatorRect.Center.X - 45f - 22f) / 2f,
             hostRect.Width - 80f,
             Easing.EaseInOutSine(phoneToTabletT));
 
-        EmulatorWindow.SignalStrengthIcon.Instance.Render(ctx, (instrumentsX - 12f - 8f, iconTop + 19.5f));
-        EmulatorWindow.BatteryIcon.Instance.Render(ctx, (instrumentsX - 8f, iconTop + 8.5f));
-        EmulatorWindow.FiveGIcon.Instance.Render(ctx, (instrumentsX + 36f - 8f, iconTop + 6f));
+        EmulatorWindow.SignalStrengthIcon.Instance.Render(
+            ctx,
+            (instrumentsX - 12f - 8f, iconTop + 19.5f),
+            statusBarStyle.SignalStrength ?? 0.67f);
+        EmulatorWindow.BatteryIcon.Instance.Render(
+            ctx,
+            (instrumentsX - 8f, iconTop + 8.5f),
+            statusBarStyle.BatteryLevel ?? 0.65f);
+        EmulatorWindow.FiveGIcon.Instance.Render(
+            ctx,
+            (instrumentsX + 36f - 8f, iconTop + 6f),
+            statusBarStyle.NetworkText ?? "5G");
 
         // Menu Handle
         EmulatorWindow.MenuHandle.Instance.Render(ctx, (
@@ -56,10 +70,13 @@ internal sealed class EmulatorChromeRenderer
             geometry.EmulatorRect.Bottom - 3f
         ));
 
-        // Title background
-        ctx.BeginPath();
-        ctx.RoundRect(geometry.TitleRect, 10f);
-        ctx.SetFill(new Color(0x333333FF));
-        ctx.Fill();
+        if (geometry.HasHostTitle)
+        {
+            // Title background
+            ctx.BeginPath();
+            ctx.RoundRect(geometry.TitleRect, 10f);
+            ctx.SetFill(new Color(0x333333FF));
+            ctx.Fill();
+        }
     }
 }

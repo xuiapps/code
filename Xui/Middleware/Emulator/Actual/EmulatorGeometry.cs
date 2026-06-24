@@ -13,6 +13,7 @@ internal readonly struct EmulatorGeometry
     public readonly NFloat ScreenCornerRadius;
     public readonly Rect TitleRect;
     public readonly Rect EmulatorRect;
+    public readonly bool HasHostTitle;
 
     private EmulatorGeometry(
         NFloat titleHeight,
@@ -21,7 +22,8 @@ internal readonly struct EmulatorGeometry
         NFloat borderOutline,
         NFloat screenCornerRadius,
         Rect titleRect,
-        Rect emulatorRect)
+        Rect emulatorRect,
+        bool hasHostTitle)
     {
         TitleHeight = titleHeight;
         Gap = gap;
@@ -30,6 +32,7 @@ internal readonly struct EmulatorGeometry
         ScreenCornerRadius = screenCornerRadius;
         TitleRect = titleRect;
         EmulatorRect = emulatorRect;
+        HasHostTitle = hasHostTitle;
     }
 
     public static EmulatorGeometry Create(Rect hostRect, DeviceProfile device)
@@ -55,7 +58,35 @@ internal readonly struct EmulatorGeometry
             borderOutline,
             corner,
             titleRect,
-            emulatorRect);
+            emulatorRect,
+            hasHostTitle: true);
+    }
+
+    public static EmulatorGeometry CreateSnapshot(DeviceProfile device)
+    {
+        NFloat borderWidth = 8f;
+        NFloat borderOutline = 2.5f;
+        NFloat titleHeight = 0f;
+        NFloat gap = 0f;
+        NFloat corner = device.ScreenCornerRadius;
+        NFloat margin = borderWidth;
+
+        var emulatorRect = new Rect(
+            margin,
+            margin,
+            device.LogicalResolution.Width,
+            device.LogicalResolution.Height);
+        var titleRect = new Rect(0, 0, 0, 0);
+
+        return new EmulatorGeometry(
+            titleHeight,
+            gap,
+            borderWidth,
+            borderOutline,
+            corner,
+            titleRect,
+            emulatorRect,
+            hasHostTitle: false);
     }
 
     public Point MapEmulatorToHost(Point emulatorPoint) =>

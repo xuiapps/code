@@ -18,6 +18,7 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
     private readonly LinkedEmulatorWindow emulator;
     private readonly EmulatorChromeRenderer chromeRenderer = new();
     private EmulatorGeometry lastGeometry = EmulatorGeometry.Create(new Rect(0, 0, 430, 940), DeviceCatalog.All[0]);
+    private EmulatorStatusBarStyle? statusBarStyleOverride;
 
     public EmulatorWindow(EmulatorPlatform platform, Xui.Core.Abstract.IWindow appWindow)
     {
@@ -29,6 +30,12 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
 
     /// <summary>The wrapped app window abstraction.</summary>
     public Xui.Core.Abstract.IWindow AppWindow => emulator.AppWindow;
+
+    public EmulatorStatusBarStyle? StatusBarStyleOverride
+    {
+        get => statusBarStyleOverride;
+        set => statusBarStyleOverride = value;
+    }
 
     public Rect DisplayArea { get => emulator.DisplayArea; set => emulator.DisplayArea = value; }
 
@@ -82,6 +89,17 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
 
     public Point MapEmulatorToHost(Point emulatorPoint) =>
         lastGeometry.MapEmulatorToHost(emulatorPoint);
+
+    public Point MapEmulatorToHost(Point emulatorPoint, Size hostSize) =>
+        UpdateHostGeometry(hostSize).MapEmulatorToHost(emulatorPoint);
+
+    public Point MapEmulatorToSnapshot(Point emulatorPoint) =>
+        EmulatorGeometry.CreateSnapshot(CurrentDevice).MapEmulatorToHost(emulatorPoint);
+
+    public Size SnapshotSize =>
+        new Size(
+            CurrentDevice.LogicalResolution.Width + 16f,
+            CurrentDevice.LogicalResolution.Height + 16f);
 
     private Point MapHostToEmulator(Point hostPoint) =>
         lastGeometry.MapHostToEmulator(hostPoint);
@@ -165,7 +183,36 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
 
         ctx.Restore();
 
-        chromeRenderer.Render(ctx, in lastGeometry, render.Rect, CurrentDevice);
+        chromeRenderer.Render(ctx, in lastGeometry, render.Rect, CurrentDevice, ResolveStatusBarStyle());
+    }
+
+    public void RenderSnapshot(ref RenderEventRef render)
+    {
+        var geometry = EmulatorGeometry.CreateSnapshot(CurrentDevice);
+        var ctx = this.GetRequiredService<IContext>();
+
+        ctx.Save();
+        ctx.BeginPath();
+        ctx.RoundRect(geometry.EmulatorRect, geometry.ScreenCornerRadius);
+        ctx.Clip();
+        ctx.Translate(geometry.EmulatorRect.TopLeft);
+
+        RenderEventRef emulatorRender = new RenderEventRef(
+            rect: new Rect(0, 0, geometry.EmulatorRect.Width, geometry.EmulatorRect.Height),
+            frame: render.Frame);
+
+        ctx.SetFill(Colors.White);
+        ctx.FillRect(emulatorRender.Rect);
+
+        emulator.DisplayArea = emulatorRender.Rect;
+        emulator.SafeArea = emulatorRender.Rect - CurrentDevice.SafeAreaInsetsPortrait;
+        emulator.ScreenCornerRadius = CurrentDevice.ScreenCornerRadius;
+        emulator.Render(ref emulatorRender);
+        emulator.RenderTouchIndicator(ctx);
+
+        ctx.Restore();
+
+        chromeRenderer.Render(ctx, in geometry, render.Rect, CurrentDevice, ResolveStatusBarStyle());
     }
 
     void Xui.Core.Abstract.IWindow.WindowHitTest(ref WindowHitTestEventRef evRef)
@@ -248,6 +295,15 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
     /// </summary>
     public object? GetLinkedService(Type serviceType) =>
         (AppWindow as IServiceProvider)?.GetService(serviceType);
+
+    private EmulatorStatusBarStyle ResolveStatusBarStyle() =>
+        statusBarStyleOverride ?? default;
+
+    private EmulatorGeometry UpdateHostGeometry(Size hostSize)
+    {
+        lastGeometry = EmulatorGeometry.Create(new Rect(0, 0, hostSize.Width, hostSize.Height), CurrentDevice);
+        return lastGeometry;
+    }
 
 #endregion
 }

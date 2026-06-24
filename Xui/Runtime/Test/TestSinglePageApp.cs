@@ -64,6 +64,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         Size windowSize,
         Action<IServiceCollection>? configure = null,
         TestRuntimeVariant runtimeVariant = TestRuntimeVariant.Desktop,
+        EmulatorStatusBarStyle? emulatorStatusBarStyleOverride = null,
         string? snapshotSet = null,
         [CallerFilePath] string callerPath = "",
         [CallerMemberName] string testName = "")
@@ -92,6 +93,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         if (createdWindow.Abstract is EmulatorWindow emulator)
         {
             this.emulatorWindow = emulator;
+            this.emulatorWindow.StatusBarStyleOverride = emulatorStatusBarStyleOverride ?? EmulatorStatusBarStyle.Deterministic;
             this.renderWindow = emulator;
             this.Window = (Window)emulator.AppWindow;
         }
@@ -204,16 +206,20 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     public string Render()
     {
         using var stream = new MemoryStream();
+        var renderSize = emulatorWindow?.SnapshotSize ?? this.Size;
 
         using (var context = new SvgDrawingContext(
-            this.Size, stream, Xui.Core.Fonts.Inter.URIs, keepOpen: true))
+            renderSize, stream, Xui.Core.Fonts.Inter.URIs, keepOpen: true))
         {
             this.platform.CurrentDrawingContext = context;
 
             var frame = new FrameEventRef(this.lastFramePrevious, this.lastFrameNext);
-            var rect = new Rect(0, 0, this.Size.Width, this.Size.Height);
+            var rect = new Rect(0, 0, renderSize.Width, renderSize.Height);
             var render = new RenderEventRef(rect, frame);
-            renderWindow.Render(ref render);
+            if (emulatorWindow is null)
+                renderWindow.Render(ref render);
+            else
+                emulatorWindow.RenderSnapshot(ref render);
 
             this.platform.CurrentDrawingContext = null;
         } // Dispose flushes SVG footer before we read the stream
@@ -352,11 +358,13 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     }
 
     private Point MapInputPoint(Point appPoint) =>
-        emulatorWindow is null ? appPoint : emulatorWindow.MapEmulatorToHost(appPoint);
+        emulatorWindow is null ? appPoint : emulatorWindow.MapEmulatorToHost(appPoint, this.Size);
 
     private string InjectCursor(string svg)
     {
-        var cursorPosition = MapInputPoint(this.mousePosition);
+        var cursorPosition = emulatorWindow is null
+            ? this.mousePosition
+            : emulatorWindow.MapEmulatorToSnapshot(this.mousePosition);
         var x = ((double)cursorPosition.X).ToString(CultureInfo.InvariantCulture);
         var y = ((double)cursorPosition.Y).ToString(CultureInfo.InvariantCulture);
         var fill = this.mouseLeftPressed ? "#FFCC00" : "white";
