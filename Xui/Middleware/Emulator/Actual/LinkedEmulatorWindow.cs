@@ -41,6 +41,9 @@ internal sealed class LinkedEmulatorWindow : Xui.Core.Abstract.IWindow
     public void OnMouseDown(ref MouseDownEventRef evRef)
     {
         AppWindow.OnMouseDown(ref evRef);
+        if (evRef.Button != MouseButton.Left)
+            return;
+
         leftMouseButtonTouch = evRef.Position;
         var touchEventRef = new TouchEventRef([new()
         {
@@ -72,6 +75,9 @@ internal sealed class LinkedEmulatorWindow : Xui.Core.Abstract.IWindow
     public void OnMouseUp(ref MouseUpEventRef evRef)
     {
         AppWindow.OnMouseUp(ref evRef);
+        if (evRef.Button != MouseButton.Left)
+            return;
+
         if (!leftMouseButtonTouch.HasValue)
             return;
 

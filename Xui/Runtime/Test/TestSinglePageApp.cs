@@ -30,6 +30,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     private readonly TestPlatform platform;
     private readonly Xui.Core.Abstract.IWindow renderWindow;
     private readonly EmulatorWindow? emulatorWindow;
+    private readonly FixedClock? fixedClock;
     private readonly IHost host;
     private readonly string snapshotsDir;
     private readonly List<SnapshotEntry> snapshots = new();
@@ -51,6 +52,10 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     /// The window size used for rendering.
     /// </summary>
     public Size Size { get; }
+
+    public IClock Clock => host.Services.GetRequiredService<IClock>();
+
+    public IRandom Random => host.Services.GetRequiredService<IRandom>();
 
     /// <summary>
     /// Creates a test harness that boots <typeparamref name="TApplication"/> via a host with
@@ -75,10 +80,20 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         if (runtimeVariant == TestRuntimeVariant.IPhoneEmulator)
             runtime = new EmulatorPlatform(this.platform);
 
+        if (runtimeVariant == TestRuntimeVariant.IPhoneEmulator)
+            this.fixedClock = new FixedClock(new DateTime(2025, 4, 1, 9, 41, 0));
+
+        IRandom? random = runtimeVariant == TestRuntimeVariant.IPhoneEmulator
+            ? new SeededRandom(41)
+            : null;
+        IClock clock = (IClock?)this.fixedClock ?? SystemClock.Default;
+
         this.host = new HostBuilder()
             .ConfigureServices(services =>
             {
                 services.AddSingleton(runtime);
+                services.AddSingleton<IClock>(clock);
+                services.AddSingleton<IRandom>(random ?? SystemRandom.Default);
                 services.AddScoped<TApplication>();
                 services.AddScoped<TWindow>();
                 configure?.Invoke(services);
@@ -355,6 +370,22 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     public void MarkdownRaw(string markdown)
     {
         this.reportEntries.Add(new MarkdownReportEntry(markdown));
+    }
+
+    public void SetClockNow(DateTime now)
+    {
+        if (fixedClock is null)
+            throw new InvalidOperationException("Fixed clock is only available for emulator runtime variant.");
+
+        fixedClock.Set(now);
+    }
+
+    public void AdvanceClock(TimeSpan delta)
+    {
+        if (fixedClock is null)
+            throw new InvalidOperationException("Fixed clock is only available for emulator runtime variant.");
+
+        fixedClock.Advance(delta);
     }
 
     private Point MapInputPoint(Point appPoint) =>

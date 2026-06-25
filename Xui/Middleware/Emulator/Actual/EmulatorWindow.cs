@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using Xui.Core.Abstract;
 using Xui.Core.Abstract.Events;
 using Xui.Core.Canvas;
 using Xui.Core.DI;
@@ -16,11 +17,12 @@ namespace Xui.Middleware.Emulator.Actual;
 public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow, Xui.Core.Abstract.IWindow.IDesktopStyle
 {
     private readonly LinkedEmulatorWindow emulator;
+    private readonly EmulatorControlRootView controls = new();
     private readonly EmulatorChromeRenderer chromeRenderer = new();
     private EmulatorGeometry lastGeometry = EmulatorGeometry.Create(new Rect(0, 0, 430, 940), DeviceCatalog.All[0]);
     private EmulatorStatusBarStyle? statusBarStyleOverride;
 
-    public EmulatorWindow(EmulatorPlatform platform, Xui.Core.Abstract.IWindow appWindow)
+    public EmulatorWindow(Xui.Core.Abstract.IWindow appWindow)
     {
         this.emulator = new LinkedEmulatorWindow(appWindow);
     }
@@ -68,9 +70,14 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
 
     public object? GetService(Type serviceType)
     {
-        if (Platform == null)
-            return (AppWindow as IServiceProvider)?.GetService(serviceType);
-        return Platform.GetService(serviceType);
+        var platformService = Platform?.GetService(serviceType);
+        if (platformService != null)
+            return platformService;
+
+        if (AppWindow is Window window)
+            return window.Context.GetService(serviceType);
+
+        return (AppWindow as IServiceProvider)?.GetService(serviceType);
     }
 
     /// <summary>The device profile currently shown by the emulator.</summary>
@@ -106,6 +113,12 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
 
     void Xui.Core.Abstract.IWindow.OnMouseDown(ref MouseDownEventRef evRef)
     {
+        if (lastGeometry.HasHostTitle && lastGeometry.TitleRect.Contains(evRef.Position))
+        {
+            controls.OnMouseDown(ref evRef);
+            return;
+        }
+
         if (!lastGeometry.TryMapHostToEmulator(evRef.Position, out var mapped))
             return;
 
@@ -119,6 +132,9 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
 
     void Xui.Core.Abstract.IWindow.OnMouseMove(ref MouseMoveEventRef evRef)
     {
+        if (!emulator.HasActiveTouch)
+            controls.OnMouseMove(ref evRef);
+
         var mapped = MapHostToEmulator(evRef.Position);
         if (!lastGeometry.EmulatorRect.Contains(evRef.Position) && !emulator.HasActiveTouch)
             return;
@@ -132,6 +148,9 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
 
     void Xui.Core.Abstract.IWindow.OnMouseUp(ref MouseUpEventRef evRef)
     {
+        if (!emulator.HasActiveTouch)
+            controls.OnMouseUp(ref evRef);
+
         var mapped = MapHostToEmulator(evRef.Position);
         if (!lastGeometry.EmulatorRect.Contains(evRef.Position) && !emulator.HasActiveTouch)
             return;
@@ -183,7 +202,9 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
 
         ctx.Restore();
 
-        chromeRenderer.Render(ctx, in lastGeometry, render.Rect, CurrentDevice, ResolveStatusBarStyle());
+        chromeRenderer.Render(ctx, in lastGeometry, render.Rect, CurrentDevice, ResolveStatusBarStyle(), ResolveClock());
+        controls.UpdateLayout(lastGeometry.TitleRect);
+        controls.Render(ctx);
     }
 
     public void RenderSnapshot(ref RenderEventRef render)
@@ -212,7 +233,7 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
 
         ctx.Restore();
 
-        chromeRenderer.Render(ctx, in geometry, render.Rect, CurrentDevice, ResolveStatusBarStyle());
+        chromeRenderer.Render(ctx, in geometry, render.Rect, CurrentDevice, ResolveStatusBarStyle(), ResolveClock());
     }
 
     void Xui.Core.Abstract.IWindow.WindowHitTest(ref WindowHitTestEventRef evRef)
@@ -221,6 +242,12 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
 
         if (point.Y < lastGeometry.TitleHeight)
         {
+            if (controls.IsInteractive(point))
+            {
+                evRef.Area = WindowHitTestEventRef.WindowArea.Client;
+                return;
+            }
+
             evRef.Area = WindowHitTestEventRef.WindowArea.Title;
             return;
         }
@@ -299,9 +326,13 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
     private EmulatorStatusBarStyle ResolveStatusBarStyle() =>
         statusBarStyleOverride ?? default;
 
+    private IClock ResolveClock() =>
+        GetService(typeof(IClock)) as IClock ?? SystemClock.Default;
+
     private EmulatorGeometry UpdateHostGeometry(Size hostSize)
     {
         lastGeometry = EmulatorGeometry.Create(new Rect(0, 0, hostSize.Width, hostSize.Height), CurrentDevice);
+        controls.UpdateLayout(lastGeometry.TitleRect);
         return lastGeometry;
     }
 

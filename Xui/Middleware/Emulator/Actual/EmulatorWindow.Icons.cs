@@ -54,7 +54,7 @@ public partial class EmulatorWindow
 
         private ClockIcon() { }
 
-        public void Render(IContext ctx, Point position, string? timeText = null)
+        public void Render(IContext ctx, Point position, DateTime now)
         {
             ctx.Save();
             ctx.Translate(position);
@@ -69,7 +69,7 @@ public partial class EmulatorWindow
                 FontStyle = FontStyle.Normal,
                 LineHeight = 16
             });
-            ctx.FillText(timeText ?? DateTime.Now.ToString("H:mm"), (0, 0));
+            ctx.FillText(now.ToString("H:mm"), (0, 0));
             ctx.Restore();
         }
     }

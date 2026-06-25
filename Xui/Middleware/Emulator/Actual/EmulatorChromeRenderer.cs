@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using Xui.Core.Abstract;
 using Xui.Core.Animation;
 using Xui.Core.Canvas;
 using Xui.Core.Math2D;
@@ -13,7 +14,8 @@ internal sealed class EmulatorChromeRenderer
         in EmulatorGeometry geometry,
         in Rect hostRect,
         DeviceProfile device,
-        in EmulatorStatusBarStyle statusBarStyle)
+        in EmulatorStatusBarStyle statusBarStyle,
+        IClock clock)
     {
         // Outer device frame stroke
         ctx.BeginPath();
@@ -44,7 +46,7 @@ internal sealed class EmulatorChromeRenderer
             (geometry.EmulatorRect.Center.X - 22f) / 2,
             (300 / 2f - 22f) / 2,
             Easing.EaseInOutSine(phoneToTabletT));
-        EmulatorWindow.ClockIcon.Instance.Render(ctx, (clockX, iconTop + 6f), statusBarStyle.TimeText);
+        EmulatorWindow.ClockIcon.Instance.Render(ctx, (clockX, iconTop + 6f), clock.Now);
 
         NFloat instrumentsX = NFloat.Lerp(
             geometry.EmulatorRect.Center.X + 45f + (geometry.EmulatorRect.Center.X - 45f - 22f) / 2f,
@@ -69,14 +71,5 @@ internal sealed class EmulatorChromeRenderer
             geometry.EmulatorRect.Center.X,
             geometry.EmulatorRect.Bottom - 3f
         ));
-
-        if (geometry.HasHostTitle)
-        {
-            // Title background
-            ctx.BeginPath();
-            ctx.RoundRect(geometry.TitleRect, 10f);
-            ctx.SetFill(new Color(0x333333FF));
-            ctx.Fill();
-        }
     }
 }
