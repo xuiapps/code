@@ -178,6 +178,7 @@ public partial class TrueTypeFont
     {
         uint sum = 0;
         int paddedLength = Align4(data.Length);
+        Span<byte> tail = stackalloc byte[4];
 
         for (int i = 0; i < paddedLength; i += 4)
         {
@@ -188,7 +189,7 @@ public partial class TrueTypeFont
             }
             else
             {
-                Span<byte> tail = stackalloc byte[4];
+                tail.Clear();
                 int remaining = data.Length - i;
                 if (remaining > 0)
                     data.Slice(i, remaining).CopyTo(tail);
