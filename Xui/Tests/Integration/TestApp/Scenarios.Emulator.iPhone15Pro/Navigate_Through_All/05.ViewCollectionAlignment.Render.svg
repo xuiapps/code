@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="409" height="868" viewBox="0 0 409 868">
+  <defs>
+    <clipPath id="clip0">
+      <path d="M 52 8 H 357 A 44 44 0 0 1 401 52 V 816 A 44 44 0 0 1 357 860 H 52 A 44 44 0 0 1 8 816 V 52 A 44 44 0 0 1 52 8 Z " clip-rule="nonzero" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip0)">
+    <g transform="translate(8,8)">
+      <rect x="0" y="0" width="393" height="852" fill="#FFFFFF" />
+      <path d="M 39 25 H 52.74 A 4 4 0 0 1 56.74 29 V 847 A 4 4 0 0 1 52.74 851 H 39 A 4 4 0 0 1 35 847 V 29 A 4 4 0 0 1 39 25 Z " fill="#FFFFFF" fill-rule="nonzero" />
+      <text x="35" y="430.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Left</text>
+      <path d="M 39 24.5 H 52.74 A 4.5 4.5 0 0 1 57.24 29 V 847 A 4.5 4.5 0 0 1 52.74 851.5 H 39 A 4.5 4.5 0 0 1 34.5 847 V 29 A 4.5 4.5 0 0 1 39 24.5 Z " fill="none" stroke="#000000" />
+      <path d="M 168.91 25 H 199.09 A 4 4 0 0 1 203.09 29 V 847 A 4 4 0 0 1 199.09 851 H 168.91 A 4 4 0 0 1 164.91 847 V 29 A 4 4 0 0 1 168.91 25 Z " fill="#FFFFFF" fill-rule="nonzero" />
+      <text x="164.91" y="430.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Center</text>
+      <path d="M 168.91 24.5 H 199.09 A 4.5 4.5 0 0 1 203.59 29 V 847 A 4.5 4.5 0 0 1 199.09 851.5 H 168.91 A 4.5 4.5 0 0 1 164.41 847 V 29 A 4.5 4.5 0 0 1 168.91 24.5 Z " fill="none" stroke="#000000" />
+      <path d="M 307.99 25 H 329 A 4 4 0 0 1 333 29 V 847 A 4 4 0 0 1 329 851 H 307.99 A 4 4 0 0 1 303.99 847 V 29 A 4 4 0 0 1 307.99 25 Z " fill="#FFFFFF" fill-rule="nonzero" />
+      <text x="303.99" y="430.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Right</text>
+      <path d="M 307.99 24.5 H 329 A 4.5 4.5 0 0 1 333.5 29 V 847 A 4.5 4.5 0 0 1 329 851.5 H 307.99 A 4.5 4.5 0 0 1 303.49 847 V 29 A 4.5 4.5 0 0 1 307.99 24.5 Z " fill="none" stroke="#000000" />
+      <path d="M 39 25 H 329 A 4 4 0 0 1 333 29 V 35.52 A 4 4 0 0 1 329 39.52 H 39 A 4 4 0 0 1 35 35.52 V 29 A 4 4 0 0 1 39 25 Z " fill="#FFFFFF" fill-rule="nonzero" />
+      <text x="173.32" y="25" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Top</text>
+      <path d="M 39 24.5 H 329 A 4.5 4.5 0 0 1 333.5 29 V 35.52 A 4.5 4.5 0 0 1 329 40.02 H 39 A 4.5 4.5 0 0 1 34.5 35.52 V 29 A 4.5 4.5 0 0 1 39 24.5 Z " fill="none" stroke="#000000" />
+      <path d="M 39 430.74 H 329 A 4 4 0 0 1 333 434.74 V 441.26 A 4 4 0 0 1 329 445.26 H 39 A 4 4 0 0 1 35 441.26 V 434.74 A 4 4 0 0 1 39 430.74 Z " fill="#FFFFFF" fill-rule="nonzero" />
+      <text x="164.83" y="430.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Middle</text>
+      <path d="M 39 430.24 H 329 A 4.5 4.5 0 0 1 333.5 434.74 V 441.26 A 4.5 4.5 0 0 1 329 445.76 H 39 A 4.5 4.5 0 0 1 34.5 441.26 V 434.74 A 4.5 4.5 0 0 1 39 430.24 Z " fill="none" stroke="#000000" />
+      <path d="M 39 836.48 H 329 A 4 4 0 0 1 333 840.48 V 847 A 4 4 0 0 1 329 851 H 39 A 4 4 0 0 1 35 847 V 840.48 A 4 4 0 0 1 39 836.48 Z " fill="#FFFFFF" fill-rule="nonzero" />
+      <text x="163.76" y="836.48" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Bottom</text>
+      <path d="M 39 835.98 H 329 A 4.5 4.5 0 0 1 333.5 840.48 V 847 A 4.5 4.5 0 0 1 329 851.5 H 39 A 4.5 4.5 0 0 1 34.5 847 V 840.48 A 4.5 4.5 0 0 1 39 835.98 Z " fill="none" stroke="#000000" />
+      <path d="M 63 49 H 101.46 A 4 4 0 0 1 105.46 53 V 59.52 A 4 4 0 0 1 101.46 63.52 H 63 A 4 4 0 0 1 59 59.52 V 53 A 4 4 0 0 1 63 49 Z " fill="#FFFFFF" fill-rule="nonzero" />
+      <text x="59" y="49" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Top Left</text>
+      <path d="M 63 48.5 H 101.46 A 4.5 4.5 0 0 1 105.96 53 V 59.52 A 4.5 4.5 0 0 1 101.46 64.02 H 63 A 4.5 4.5 0 0 1 58.5 59.52 V 53 A 4.5 4.5 0 0 1 63 48.5 Z " fill="none" stroke="#000000" />
+      <path d="M 156.55 49 H 211.45 A 4 4 0 0 1 215.45 53 V 59.52 A 4 4 0 0 1 211.45 63.52 H 156.55 A 4 4 0 0 1 152.55 59.52 V 53 A 4 4 0 0 1 156.55 49 Z " fill="#FFFFFF" fill-rule="nonzero" />
+      <text x="152.55" y="49" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Top Center</text>
+      <path d="M 156.55 48.5 H 211.45 A 4.5 4.5 0 0 1 215.95 53 V 59.52 A 4.5 4.5 0 0 1 211.45 64.02 H 156.55 A 4.5 4.5 0 0 1 152.05 59.52 V 53 A 4.5 4.5 0 0 1 156.55 48.5 Z " fill="none" stroke="#000000" />
+      <path d="M 259.26 49 H 305 A 4 4 0 0 1 309 53 V 59.52 A 4 4 0 0 1 305 63.52 H 259.26 A 4 4 0 0 1 255.26 59.52 V 53 A 4 4 0 0 1 259.26 49 Z " fill="#FFFFFF" fill-rule="nonzero" />
+      <text x="255.26" y="49" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Top Right</text>
+      <path d="M 259.26 48.5 H 305 A 4.5 4.5 0 0 1 309.5 53 V 59.52 A 4.5 4.5 0 0 1 305 64.02 H 259.26 A 4.5 4.5 0 0 1 254.76 59.52 V 53 A 4.5 4.5 0 0 1 259.26 48.5 Z " fill="none" stroke="#000000" />
+      <path d="M 63 430.74 H 118.46 A 4 4 0 0 1 122.46 434.74 V 441.26 A 4 4 0 0 1 118.46 445.26 H 63 A 4 4 0 0 1 59 441.26 V 434.74 A 4 4 0 0 1 63 430.74 Z " fill="#FFFFFF" fill-rule="nonzero" />
+      <text x="59" y="430.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Middle Left</text>
+      <path d="M 63 430.24 H 118.46 A 4.5 4.5 0 0 1 122.96 434.74 V 441.26 A 4.5 4.5 0 0 1 118.46 445.76 H 63 A 4.5 4.5 0 0 1 58.5 441.26 V 434.74 A 4.5 4.5 0 0 1 63 430.24 Z " fill="none" stroke="#000000" />
+      <path d="M 148.05 430.74 H 219.95 A 4 4 0 0 1 223.95 434.74 V 441.26 A 4 4 0 0 1 219.95 445.26 H 148.05 A 4 4 0 0 1 144.05 441.26 V 434.74 A 4 4 0 0 1 148.05 430.74 Z " fill="#FFFFFF" fill-rule="nonzero" />
+      <text x="144.05" y="430.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Middle Center</text>
+      <path d="M 148.05 430.24 H 219.95 A 4.5 4.5 0 0 1 224.45 434.74 V 441.26 A 4.5 4.5 0 0 1 219.95 445.76 H 148.05 A 4.5 4.5 0 0 1 143.55 441.26 V 434.74 A 4.5 4.5 0 0 1 148.05 430.24 Z " fill="none" stroke="#000000" />
+      <path d="M 242.27 430.74 H 305 A 4 4 0 0 1 309 434.74 V 441.26 A 4 4 0 0 1 305 445.26 H 242.27 A 4 4 0 0 1 238.27 441.26 V 434.74 A 4 4 0 0 1 242.27 430.74 Z " fill="#FFFFFF" fill-rule="nonzero" />
+      <text x="238.27" y="430.74" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Middle Right</text>
+      <path d="M 242.27 430.24 H 305 A 4.5 4.5 0 0 1 309.5 434.74 V 441.26 A 4.5 4.5 0 0 1 305 445.76 H 242.27 A 4.5 4.5 0 0 1 237.77 441.26 V 434.74 A 4.5 4.5 0 0 1 242.27 430.24 Z " fill="none" stroke="#000000" />
+      <path d="M 63 812.48 H 120.6 A 4 4 0 0 1 124.6 816.48 V 823 A 4 4 0 0 1 120.6 827 H 63 A 4 4 0 0 1 59 823 V 816.48 A 4 4 0 0 1 63 812.48 Z " fill="#FFFFFF" fill-rule="nonzero" />
+      <text x="59" y="812.48" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Bottom Left</text>
+      <path d="M 63 811.98 H 120.6 A 4.5 4.5 0 0 1 125.1 816.48 V 823 A 4.5 4.5 0 0 1 120.6 827.5 H 63 A 4.5 4.5 0 0 1 58.5 823 V 816.48 A 4.5 4.5 0 0 1 63 811.98 Z " fill="none" stroke="#000000" />
+      <path d="M 146.98 812.48 H 221.02 A 4 4 0 0 1 225.02 816.48 V 823 A 4 4 0 0 1 221.02 827 H 146.98 A 4 4 0 0 1 142.98 823 V 816.48 A 4 4 0 0 1 146.98 812.48 Z " fill="#FFFFFF" fill-rule="nonzero" />
+      <text x="142.98" y="812.48" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Bottom Center</text>
+      <path d="M 146.98 811.98 H 221.02 A 4.5 4.5 0 0 1 225.52 816.48 V 823 A 4.5 4.5 0 0 1 221.02 827.5 H 146.98 A 4.5 4.5 0 0 1 142.48 823 V 816.48 A 4.5 4.5 0 0 1 146.98 811.98 Z " fill="none" stroke="#000000" />
+      <path d="M 240.13 812.48 H 305 A 4 4 0 0 1 309 816.48 V 823 A 4 4 0 0 1 305 827 H 240.13 A 4 4 0 0 1 236.13 823 V 816.48 A 4 4 0 0 1 240.13 812.48 Z " fill="#FFFFFF" fill-rule="nonzero" />
+      <text x="236.13" y="812.48" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">Bottom Right</text>
+      <path d="M 240.13 811.98 H 305 A 4.5 4.5 0 0 1 309.5 816.48 V 823 A 4.5 4.5 0 0 1 305 827.5 H 240.13 A 4.5 4.5 0 0 1 235.63 823 V 816.48 A 4.5 4.5 0 0 1 240.13 811.98 Z " fill="none" stroke="#000000" />
+      <rect x="34" y="0" width="300" height="24" fill="#FFFFFF" />
+      <text x="34" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+      <text x="107.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">ViewCollection Alignment</text>
+    </g>
+  </g>
+  <path d="M 52 4 H 357 A 48 48 0 0 1 405 52 V 816 A 48 48 0 0 1 357 864 H 52 A 48 48 0 0 1 4 816 V 52 A 48 48 0 0 1 52 4 Z " fill="none" stroke="#111111" stroke-width="8" />
+  <path d="M 49.88 1.25 H 359.13 A 48.63 48.63 0 0 1 407.75 49.88 V 818.13 A 48.63 48.63 0 0 1 359.13 866.75 H 49.88 A 48.63 48.63 0 0 1 1.25 818.13 V 49.88 A 48.63 48.63 0 0 1 49.88 1.25 Z " fill="none" stroke="#444444" stroke-width="2.5" />
+  <path d="M 172.5 20 H 236.5 A 13 13 0 0 1 249.5 33 V 33 A 13 13 0 0 1 236.5 46 H 172.5 A 13 13 0 0 1 159.5 33 V 33 A 13 13 0 0 1 172.5 20 Z " fill="#111111" fill-rule="nonzero" />
+  <g transform="translate(91.25,26)">
+    <text x="0" y="0" fill="#000000" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">9:41</text>
+  </g>
+  <g transform="translate(298.25,39.5)">
+    <path d="M 1.77 -1.77 A 2.5 2.5 0 0 0 -1.77 -1.77 " fill="none" stroke="#000000" stroke-width="4" />
+    <path d="M 5.3 -5.3 A 7.5 7.5 0 0 0 -5.3 -5.3 " fill="none" stroke="#000000" stroke-width="2" />
+    <path d="M 8.13 -8.13 A 11.5 11.5 0 0 0 -8.13 -8.13 " fill="none" stroke="#000000" stroke-width="2" />
+    <path d="M 10.96 -10.96 A 15.5 15.5 0 0 0 -10.96 -10.96 " fill="none" stroke="#000000" stroke-width="2" />
+  </g>
+  <g transform="translate(310.25,28.5)">
+    <path d="M 3 0 H 17 A 3 3 0 0 1 20 3 V 7 A 3 3 0 0 1 17 10 H 3 A 3 3 0 0 1 0 7 V 3 A 3 3 0 0 1 3 0 Z " fill="none" stroke="#000000" />
+    <path d="M 3.5 1.5 H 8.5 A 2 2 0 0 1 10.5 3.5 V 6.5 A 2 2 0 0 1 8.5 8.5 H 3.5 A 2 2 0 0 1 1.5 6.5 V 3.5 A 2 2 0 0 1 3.5 1.5 Z " fill="#000000" fill-rule="nonzero" />
+  </g>
+  <g transform="translate(346.25,26)">
+    <text x="0" y="0" fill="#000000" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">5G</text>
+  </g>
+  <path d="M 151 853 H 258 A 1.5 1.5 0 0 1 259.5 854.5 V 855.5 A 1.5 1.5 0 0 1 258 857 H 151 A 1.5 1.5 0 0 1 149.5 855.5 V 854.5 A 1.5 1.5 0 0 1 151 853 Z " fill="#111111" fill-rule="nonzero" />
+  <g transform="translate(192 145.71142578125)" opacity="0.9">
+    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
+  </g>
+</svg>

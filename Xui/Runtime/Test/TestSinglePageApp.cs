@@ -5,8 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Xui.Core.Abstract;
 using Xui.Core.Abstract.Events;
+using Xui.Core.Actual;
 using Xui.Core.Math2D;
 using Xui.Core.UI;
+using Xui.Middleware.Emulator.Actual;
 using Xui.Runtime.Software.Actual;
 using Xui.Runtime.Software.Font;
 using Xui.Runtime.Test.Actual;
@@ -26,6 +28,9 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     where TWindow : Window
 {
     private readonly TestPlatform platform;
+    private readonly Xui.Core.Abstract.IWindow renderWindow;
+    private readonly EmulatorWindow? emulatorWindow;
+    private readonly FixedClock? fixedClock;
     private readonly IHost host;
     private readonly string snapshotsDir;
     private readonly List<SnapshotEntry> snapshots = new();
@@ -48,6 +53,10 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     /// </summary>
     public Size Size { get; }
 
+    public IClock Clock => host.Services.GetRequiredService<IClock>();
+
+    public IRandom Random => host.Services.GetRequiredService<IRandom>();
+
     /// <summary>
     /// Creates a test harness that boots <typeparamref name="TApplication"/> via a host with
     /// <see cref="TestPlatform"/> registered as <see cref="Xui.Core.Actual.IRuntime"/>.
@@ -59,16 +68,32 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     public TestSinglePageApp(
         Size windowSize,
         Action<IServiceCollection>? configure = null,
+        TestRuntimeVariant runtimeVariant = TestRuntimeVariant.Desktop,
+        EmulatorStatusBarStyle? emulatorStatusBarStyleOverride = null,
+        string? snapshotSet = null,
         [CallerFilePath] string callerPath = "",
         [CallerMemberName] string testName = "")
     {
         this.Size = windowSize;
         this.platform = new TestPlatform();
+        IRuntime runtime = this.platform;
+        if (runtimeVariant == TestRuntimeVariant.IPhoneEmulator)
+            runtime = new EmulatorPlatform(this.platform);
+
+        if (runtimeVariant == TestRuntimeVariant.IPhoneEmulator)
+            this.fixedClock = new FixedClock(new DateTime(2025, 4, 1, 9, 41, 0));
+
+        IRandom? random = runtimeVariant == TestRuntimeVariant.IPhoneEmulator
+            ? new SeededRandom(41)
+            : null;
+        IClock clock = (IClock?)this.fixedClock ?? SystemClock.Default;
 
         this.host = new HostBuilder()
             .ConfigureServices(services =>
             {
-                services.AddSingleton<Xui.Core.Actual.IRuntime>(this.platform);
+                services.AddSingleton(runtime);
+                services.AddSingleton<IClock>(clock);
+                services.AddSingleton<IRandom>(random ?? SystemRandom.Default);
                 services.AddScoped<TApplication>();
                 services.AddScoped<TWindow>();
                 configure?.Invoke(services);
@@ -79,12 +104,25 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         var application = this.host.Services.GetRequiredService<TApplication>();
         application.Run();
 
-        this.Window = (Window)this.platform.Windows[this.platform.Windows.Count - 1].Abstract;
-        this.Window.DisplayArea = new Rect(0, 0, windowSize.Width, windowSize.Height);
-        this.Window.SafeArea = this.Window.DisplayArea;
+        var createdWindow = this.platform.Windows[this.platform.Windows.Count - 1];
+        if (createdWindow.Abstract is EmulatorWindow emulator)
+        {
+            this.emulatorWindow = emulator;
+            this.emulatorWindow.StatusBarStyleOverride = emulatorStatusBarStyleOverride ?? EmulatorStatusBarStyle.Deterministic;
+            this.renderWindow = emulator;
+            this.Window = (Window)emulator.AppWindow;
+        }
+        else
+        {
+            this.Window = (Window)createdWindow.Abstract;
+            this.Window.DisplayArea = new Rect(0, 0, windowSize.Width, windowSize.Height);
+            this.Window.SafeArea = this.Window.DisplayArea;
+            this.renderWindow = this.Window;
+        }
 
-        this.snapshotsDir = Path.Combine(
-            Path.GetDirectoryName(callerPath)!, "Scenarios", testName);
+        this.snapshotsDir = snapshotSet is null
+            ? Path.Combine(Path.GetDirectoryName(callerPath)!, "Scenarios", testName)
+            : Path.Combine(Path.GetDirectoryName(callerPath)!, snapshotSet, testName);
         Directory.CreateDirectory(this.snapshotsDir);
 
         // Provide a software text measure context so pointer events can hit-test text positions.
@@ -99,8 +137,9 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     {
         this.mousePosition = position;
         this.hasMouseInteraction = true;
-        var e = new MouseMoveEventRef { Position = position };
-        this.Window.OnMouseMove(ref e);
+        var runtimePosition = MapInputPoint(position);
+        var e = new MouseMoveEventRef { Position = runtimePosition };
+        renderWindow.OnMouseMove(ref e);
     }
 
     public void MouseDown(Point position, MouseButton button = MouseButton.Left)
@@ -108,8 +147,9 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         this.mousePosition = position;
         this.hasMouseInteraction = true;
         if (button == MouseButton.Left) this.mouseLeftPressed = true;
-        var e = new MouseDownEventRef { Position = position, Button = button };
-        this.Window.OnMouseDown(ref e);
+        var runtimePosition = MapInputPoint(position);
+        var e = new MouseDownEventRef { Position = runtimePosition, Button = button };
+        renderWindow.OnMouseDown(ref e);
     }
 
     public void MouseUp(Point position, MouseButton button = MouseButton.Left)
@@ -117,8 +157,9 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         this.mousePosition = position;
         this.hasMouseInteraction = true;
         if (button == MouseButton.Left) this.mouseLeftPressed = false;
-        var e = new MouseUpEventRef { Position = position, Button = button };
-        this.Window.OnMouseUp(ref e);
+        var runtimePosition = MapInputPoint(position);
+        var e = new MouseUpEventRef { Position = runtimePosition, Button = button };
+        renderWindow.OnMouseUp(ref e);
     }
 
     public void MouseMove(View view) => MouseMove(view.Frame.Center);
@@ -128,13 +169,13 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     public void KeyDown(VirtualKey key, bool shift = false)
     {
         var e = new KeyEventRef { Key = key, Shift = shift };
-        this.Window.OnKeyDown(ref e);
+        renderWindow.OnKeyDown(ref e);
     }
 
     public void Char(char character)
     {
         var e = new KeyEventRef { Character = character };
-        this.Window.OnChar(ref e);
+        renderWindow.OnChar(ref e);
     }
 
     /// <summary>
@@ -168,7 +209,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         this.lastFramePrevious = previous;
         this.lastFrameNext = next;
         var frame = new FrameEventRef(previous, next);
-        ((Xui.Core.Abstract.IWindow)this.Window).OnAnimationFrame(ref frame);
+        renderWindow.OnAnimationFrame(ref frame);
     }
 
     // ── Render ───────────────────────────────────────────────────
@@ -180,16 +221,20 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     public string Render()
     {
         using var stream = new MemoryStream();
+        var renderSize = emulatorWindow?.SnapshotSize ?? this.Size;
 
         using (var context = new SvgDrawingContext(
-            this.Size, stream, Xui.Core.Fonts.Inter.URIs, keepOpen: true))
+            renderSize, stream, Xui.Core.Fonts.Inter.URIs, keepOpen: true))
         {
             this.platform.CurrentDrawingContext = context;
 
             var frame = new FrameEventRef(this.lastFramePrevious, this.lastFrameNext);
-            var rect = new Rect(0, 0, this.Size.Width, this.Size.Height);
+            var rect = new Rect(0, 0, renderSize.Width, renderSize.Height);
             var render = new RenderEventRef(rect, frame);
-            ((Xui.Core.Abstract.IWindow)this.Window).Render(ref render);
+            if (emulatorWindow is null)
+                renderWindow.Render(ref render);
+            else
+                emulatorWindow.RenderSnapshot(ref render);
 
             this.platform.CurrentDrawingContext = null;
         } // Dispose flushes SVG footer before we read the stream
@@ -327,10 +372,32 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         this.reportEntries.Add(new MarkdownReportEntry(markdown));
     }
 
+    public void SetClockNow(DateTime now)
+    {
+        if (fixedClock is null)
+            throw new InvalidOperationException("Fixed clock is only available for emulator runtime variant.");
+
+        fixedClock.Set(now);
+    }
+
+    public void AdvanceClock(TimeSpan delta)
+    {
+        if (fixedClock is null)
+            throw new InvalidOperationException("Fixed clock is only available for emulator runtime variant.");
+
+        fixedClock.Advance(delta);
+    }
+
+    private Point MapInputPoint(Point appPoint) =>
+        emulatorWindow is null ? appPoint : emulatorWindow.MapEmulatorToHost(appPoint, this.Size);
+
     private string InjectCursor(string svg)
     {
-        var x = ((double)this.mousePosition.X).ToString(CultureInfo.InvariantCulture);
-        var y = ((double)this.mousePosition.Y).ToString(CultureInfo.InvariantCulture);
+        var cursorPosition = emulatorWindow is null
+            ? this.mousePosition
+            : emulatorWindow.MapEmulatorToSnapshot(this.mousePosition);
+        var x = ((double)cursorPosition.X).ToString(CultureInfo.InvariantCulture);
+        var y = ((double)cursorPosition.Y).ToString(CultureInfo.InvariantCulture);
         var fill = this.mouseLeftPressed ? "#FFCC00" : "white";
 
         var cursorSvg =
@@ -473,7 +540,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     public void Quit()
     {
         HandlePostActions();
-        this.Window.Closed();
+        renderWindow.Closed();
     }
 
     public void Dispose()

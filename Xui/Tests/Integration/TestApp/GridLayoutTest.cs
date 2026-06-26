@@ -2,6 +2,7 @@ using Xui.Apps.TestApp;
 using Xui.Core.Math2D;
 using Xui.Core.UI;
 using Xui.Runtime.Test;
+using System.Runtime.CompilerServices;
 
 namespace Xui.Tests.Integration.TestApp;
 
@@ -12,6 +13,12 @@ namespace Xui.Tests.Integration.TestApp;
 public class GridLayoutTest
 {
     private static Size WindowSize = (800, 560);
+    private static TestSinglePageApp<Application, MainWindow> CreateApp(
+        TestRuntimeVariant runtimeVariant,
+        [CallerFilePath] string callerPath = "",
+        [CallerMemberName] string testName = "") =>
+        IntegrationRuntimeVariants.CreateApp<Application, MainWindow>(
+            WindowSize, runtimeVariant, callerPath, testName);
 
     private static void AddTestAppIntro(TestSinglePageApp<Application, MainWindow> app)
     {
@@ -38,10 +45,11 @@ public class GridLayoutTest
     /// <summary>
     /// Navigates to the Grid Layout example and snapshots each scenario in sequence.
     /// </summary>
-    [Fact]
-    public void Grid_Scenarios()
+    [Theory]
+    [MemberData(nameof(IntegrationRuntimeVariants.All), MemberType = typeof(IntegrationRuntimeVariants))]
+    public void Grid_Scenarios(TestRuntimeVariant runtimeVariant)
     {
-        using var app = new TestSinglePageApp<Application, MainWindow>(WindowSize);
+        using var app = CreateApp(runtimeVariant);
         AddTestAppIntro(app);
         app.MarkdownHeading("Scenario");
         app.MarkdownParagraph("Navigate to Grid Layout and capture each scenario variant.");

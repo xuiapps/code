@@ -22,10 +22,12 @@ public class TextBoxTest
     }
 
     private static TestSinglePageApp<Application, MainWindow> NavigateToTextBox(
+        TestRuntimeVariant runtimeVariant,
         [CallerFilePath] string callerPath = "",
         [CallerMemberName] string testName = "")
     {
-        var app = new TestSinglePageApp<Application, MainWindow>(WindowSize, callerPath: callerPath, testName: testName);
+        var app = IntegrationRuntimeVariants.CreateApp<Application, MainWindow>(
+            WindowSize, runtimeVariant, callerPath, testName);
         AddTestAppIntro(app);
 
         // Render first so all home page buttons have valid Frames for hit-testing.
@@ -44,10 +46,11 @@ public class TextBoxTest
         return app;
     }
 
-    [Fact]
-    public void TextBox_Focus()
+    [Theory]
+    [MemberData(nameof(IntegrationRuntimeVariants.All), MemberType = typeof(IntegrationRuntimeVariants))]
+    public void TextBox_Focus(TestRuntimeVariant runtimeVariant)
     {
-        using var app = NavigateToTextBox();
+        using var app = NavigateToTextBox(runtimeVariant);
         app.MarkdownHeading("Scenario");
         app.MarkdownParagraph("Focus the Name text box and verify focus visuals.");
         app.Snapshot("TextBoxPage");
@@ -61,10 +64,11 @@ public class TextBoxTest
         app.Snapshot("NameBoxFocused");
     }
 
-    [Fact]
-    public void TextBox_Type()
+    [Theory]
+    [MemberData(nameof(IntegrationRuntimeVariants.All), MemberType = typeof(IntegrationRuntimeVariants))]
+    public void TextBox_Type(TestRuntimeVariant runtimeVariant)
     {
-        using var app = NavigateToTextBox();
+        using var app = NavigateToTextBox(runtimeVariant);
         app.MarkdownHeading("Scenario");
         app.MarkdownParagraph("Type incrementally in NameBox and verify content growth.");
 
@@ -83,10 +87,11 @@ public class TextBoxTest
         app.Snapshot("Typed.HelloWorld");
     }
 
-    [Fact]
-    public void TextBox_Backspace()
+    [Theory]
+    [MemberData(nameof(IntegrationRuntimeVariants.All), MemberType = typeof(IntegrationRuntimeVariants))]
+    public void TextBox_Backspace(TestRuntimeVariant runtimeVariant)
     {
-        using var app = NavigateToTextBox();
+        using var app = NavigateToTextBox(runtimeVariant);
         app.MarkdownHeading("Scenario");
         app.MarkdownParagraph("Type text, backspace twice, then type replacement character.");
 
@@ -109,10 +114,11 @@ public class TextBoxTest
         app.Snapshot("AfterRetype");
     }
 
-    [Fact]
-    public void TextBox_Password()
+    [Theory]
+    [MemberData(nameof(IntegrationRuntimeVariants.All), MemberType = typeof(IntegrationRuntimeVariants))]
+    public void TextBox_Password(TestRuntimeVariant runtimeVariant)
     {
-        using var app = NavigateToTextBox();
+        using var app = NavigateToTextBox(runtimeVariant);
         app.MarkdownHeading("Scenario");
         app.MarkdownParagraph("Type into PasswordBox and verify masked rendering.");
 
@@ -127,10 +133,11 @@ public class TextBoxTest
         app.Snapshot("PasswordTyped");
     }
 
-    [Fact]
-    public void TextBox_SwitchFocus()
+    [Theory]
+    [MemberData(nameof(IntegrationRuntimeVariants.All), MemberType = typeof(IntegrationRuntimeVariants))]
+    public void TextBox_SwitchFocus(TestRuntimeVariant runtimeVariant)
     {
-        using var app = NavigateToTextBox();
+        using var app = NavigateToTextBox(runtimeVariant);
         app.MarkdownHeading("Scenario");
         app.MarkdownParagraph("Move focus from NameBox to PasswordBox and verify independent values.");
 
@@ -154,10 +161,11 @@ public class TextBoxTest
         app.Snapshot("PasswordFilled");
     }
 
-    [Fact]
-    public void TextBox_TabNavigation()
+    [Theory]
+    [MemberData(nameof(IntegrationRuntimeVariants.All), MemberType = typeof(IntegrationRuntimeVariants))]
+    public void TextBox_TabNavigation(TestRuntimeVariant runtimeVariant)
     {
-        using var app = NavigateToTextBox();
+        using var app = NavigateToTextBox(runtimeVariant);
         app.MarkdownHeading("Scenario");
         app.MarkdownParagraph("Traverse editable controls with Tab and Shift+Tab.");
         app.MarkdownList(
@@ -194,10 +202,11 @@ public class TextBoxTest
         app.Snapshot("ShiftTab.ColorBox");
     }
 
-    [Fact]
-    public void TextBox_KeyboardSelection()
+    [Theory]
+    [MemberData(nameof(IntegrationRuntimeVariants.All), MemberType = typeof(IntegrationRuntimeVariants))]
+    public void TextBox_KeyboardSelection(TestRuntimeVariant runtimeVariant)
     {
-        using var app = NavigateToTextBox();
+        using var app = NavigateToTextBox(runtimeVariant);
         app.MarkdownHeading("Scenario");
         app.MarkdownParagraph("Use keyboard selection and replacement inside NameBox.");
 
@@ -223,10 +232,11 @@ public class TextBoxTest
         app.Snapshot("AfterReplace");
     }
 
-    [Fact]
-    public void TextBox_MouseSelection()
+    [Theory]
+    [MemberData(nameof(IntegrationRuntimeVariants.All), MemberType = typeof(IntegrationRuntimeVariants))]
+    public void TextBox_MouseSelection(TestRuntimeVariant runtimeVariant)
     {
-        using var app = NavigateToTextBox();
+        using var app = NavigateToTextBox(runtimeVariant);
         app.MarkdownHeading("Scenario");
         app.MarkdownParagraph("Drag-select text range in NameBox with mouse.");
 

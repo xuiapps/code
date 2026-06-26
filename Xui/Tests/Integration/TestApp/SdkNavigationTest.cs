@@ -2,6 +2,7 @@ using Xui.Apps.TestApp;
 using Xui.Core.Math2D;
 using Xui.Core.UI;
 using Xui.Runtime.Test;
+using System.Runtime.CompilerServices;
 
 namespace Xui.Tests.Integration.TestApp;
 
@@ -12,26 +13,35 @@ namespace Xui.Tests.Integration.TestApp;
 public class SdkNavigationTest
 {
     private static Size WindowSize = (600, 400);
+    private static TestSinglePageApp<Application, MainWindow> CreateApp(
+        TestRuntimeVariant runtimeVariant,
+        [CallerFilePath] string callerPath = "",
+        [CallerMemberName] string testName = "") =>
+        IntegrationRuntimeVariants.CreateApp<Application, MainWindow>(
+            WindowSize, runtimeVariant, callerPath, testName);
+
     private static void AddTestAppIntro(TestSinglePageApp<Application, MainWindow> app)
     {
         app.MarkdownHeading("TestApp", level: 1);
         app.MarkdownParagraph("Open the test app to see the menu with SDK examples.");
     }
 
-    [Fact]
-    public void HomePage_Renders()
+    [Theory]
+    [MemberData(nameof(IntegrationRuntimeVariants.All), MemberType = typeof(IntegrationRuntimeVariants))]
+    public void HomePage_Renders(TestRuntimeVariant runtimeVariant)
     {
-        using var app = new TestSinglePageApp<Application, MainWindow>(WindowSize);
+        using var app = CreateApp(runtimeVariant);
         AddTestAppIntro(app);
         app.MarkdownHeading("Scenario");
         app.MarkdownParagraph("Render the app home page as the baseline state.");
         app.Snapshot("HomePage");
     }
 
-    [Fact]
-    public void Navigate_To_TextMetrics()
+    [Theory]
+    [MemberData(nameof(IntegrationRuntimeVariants.All), MemberType = typeof(IntegrationRuntimeVariants))]
+    public void Navigate_To_TextMetrics(TestRuntimeVariant runtimeVariant)
     {
-        using var app = new TestSinglePageApp<Application, MainWindow>(WindowSize);
+        using var app = CreateApp(runtimeVariant);
         AddTestAppIntro(app);
         app.MarkdownHeading("Scenario");
         app.MarkdownParagraph("Navigate from home to the TextMetrics example and capture hover/press transitions.");
@@ -49,10 +59,11 @@ public class SdkNavigationTest
         app.Snapshot("TextMetrics");
     }
 
-    [Fact]
-    public void Navigate_Through_All()
+    [Theory]
+    [MemberData(nameof(IntegrationRuntimeVariants.All), MemberType = typeof(IntegrationRuntimeVariants))]
+    public void Navigate_Through_All(TestRuntimeVariant runtimeVariant)
     {
-        using var app = new TestSinglePageApp<Application, MainWindow>(WindowSize);
+        using var app = CreateApp(runtimeVariant);
         AddTestAppIntro(app);
         app.MarkdownHeading("Scenario");
         app.MarkdownParagraph("Visit each example page from home, snapshot it, then return to home.");
@@ -85,10 +96,11 @@ public class SdkNavigationTest
     /// hovered before navigation still shows its hover effect.
     /// Views removed from the tree should receive a pointer-leave event.
     /// </summary>
-    [Fact]
-    public void Pending_Hover_After_Navigation()
+    [Theory]
+    [MemberData(nameof(IntegrationRuntimeVariants.All), MemberType = typeof(IntegrationRuntimeVariants))]
+    public void Pending_Hover_After_Navigation(TestRuntimeVariant runtimeVariant)
     {
-        using var app = new TestSinglePageApp<Application, MainWindow>(WindowSize);
+        using var app = CreateApp(runtimeVariant);
         AddTestAppIntro(app);
         app.MarkdownHeading("Scenario");
         app.MarkdownParagraph("Reproduce stale hover state after navigating to NestedStacks and back.");
@@ -130,10 +142,11 @@ public class SdkNavigationTest
     /// the animated heart stops animating — animation frames no longer
     /// produce different renders at rest vs peak times.
     /// </summary>
-    [Fact]
-    public void Heartbeat_Stops_After_Mouse_Over_Back()
+    [Theory]
+    [MemberData(nameof(IntegrationRuntimeVariants.All), MemberType = typeof(IntegrationRuntimeVariants))]
+    public void Heartbeat_Stops_After_Mouse_Over_Back(TestRuntimeVariant runtimeVariant)
     {
-        using var app = new TestSinglePageApp<Application, MainWindow>(WindowSize);
+        using var app = CreateApp(runtimeVariant);
         AddTestAppIntro(app);
         app.MarkdownHeading("Scenario");
         app.MarkdownParagraph("Verify that heart animation keeps ticking after pointer hover on Back.");

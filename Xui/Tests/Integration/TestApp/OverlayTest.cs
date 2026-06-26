@@ -2,6 +2,7 @@ using Xui.Apps.TestApp;
 using Xui.Core.Math2D;
 using Xui.Core.UI;
 using Xui.Runtime.Test;
+using System.Runtime.CompilerServices;
 
 namespace Xui.Tests.Integration.TestApp;
 
@@ -13,6 +14,12 @@ namespace Xui.Tests.Integration.TestApp;
 public class OverlayTest
 {
     private static readonly Size WindowSize = (800, 560);
+    private static TestSinglePageApp<Application, MainWindow> CreateApp(
+        TestRuntimeVariant runtimeVariant,
+        [CallerFilePath] string callerPath = "",
+        [CallerMemberName] string testName = "") =>
+        IntegrationRuntimeVariants.CreateApp<Application, MainWindow>(
+            WindowSize, runtimeVariant, callerPath, testName);
 
     private static void AddTestAppIntro(TestSinglePageApp<Application, MainWindow> app)
     {
@@ -27,10 +34,11 @@ public class OverlayTest
     // A point clearly outside the overlay (top-left of the preview pane).
     private static readonly Point OutsideOverlay = (220, 40);
 
-    [Fact]
-    public void Overlay_OpenAndDismiss()
+    [Theory]
+    [MemberData(nameof(IntegrationRuntimeVariants.All), MemberType = typeof(IntegrationRuntimeVariants))]
+    public void Overlay_OpenAndDismiss(TestRuntimeVariant runtimeVariant)
     {
-        using var app = new TestSinglePageApp<Application, MainWindow>(WindowSize);
+        using var app = CreateApp(runtimeVariant);
         AddTestAppIntro(app);
         app.MarkdownHeading("Scenario");
         app.MarkdownParagraph("Open the Layers overlay demo, display overlay popup, and dismiss by outside click.");
