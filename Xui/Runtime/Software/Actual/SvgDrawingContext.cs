@@ -615,13 +615,13 @@ public sealed class SvgDrawingContext : IContext, IDisposable
 
         if (resolved.Mode == SvgFontMode.WebLink && resolved.WebUri is not null)
         {
-            styleWriter.WriteLine($"    @font-face {{ font-family: '{fontFace.Family}'; font-weight: {fontFace.Weight}; font-style: {(fontFace.Style.IsItalic ? "italic" : "normal")}; src: url('{resolved.WebUri}'); }}");
+            styleWriter.WriteLine($"    @font-face {{ font-family: '{fontFace.Family}'; font-weight: {fontFace.Weight.Value}; font-style: {(fontFace.Style.IsItalic ? "italic" : "normal")}; src: url('{resolved.WebUri}'); }}");
         }
         else if (resolved.Mode == SvgFontMode.Embedded)
         {
             var data = ttf.TrimToTouchedTablesForSvg();
             var base64 = Convert.ToBase64String(data.Span);
-            styleWriter.WriteLine($"    @font-face {{ font-family: '{fontFace.Family}'; font-weight: {fontFace.Weight}; font-style: {(fontFace.Style.IsItalic ? "italic" : "normal")}; src: url(data:font/ttf;base64,{base64}) format('truetype'); }}");
+            styleWriter.WriteLine($"    @font-face {{ font-family: '{fontFace.Family}'; font-weight: {fontFace.Weight.Value}; font-style: {(fontFace.Style.IsItalic ? "italic" : "normal")}; src: url(data:font/ttf;base64,{base64}) format('truetype'); }}");
         }
     }
 
