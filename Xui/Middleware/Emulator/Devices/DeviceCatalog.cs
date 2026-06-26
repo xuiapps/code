@@ -17,7 +17,7 @@ public static class DeviceCatalog
             SafeAreaInsetsPortrait = new Frame(0, 59, 0, 34),
             SafeAreaInsetsLandscape = new Frame(59, 0, 59, 21),
             NotchType = NotchType.DynamicIsland,
-            NotchFrame = new Rect(147, 59, 98, 37),
+            NotchFrame = new Rect(147, 12, 98, 37),
             ScreenCornerRadius = 44
         },
         new DeviceProfile
@@ -30,7 +30,7 @@ public static class DeviceCatalog
             SafeAreaInsetsPortrait = new Frame(0, 47, 0, 34),
             SafeAreaInsetsLandscape = new Frame(47, 0, 47, 21),
             NotchType = NotchType.Notch,
-            NotchFrame = new Rect(132, 47, 126, 30),
+            NotchFrame = new Rect(132, 0, 126, 32),
             ScreenCornerRadius = 44
         },
         new DeviceProfile
@@ -82,7 +82,7 @@ public static class DeviceCatalog
             SafeAreaInsetsPortrait = new Frame(0, 40, 0, 34),
             SafeAreaInsetsLandscape = new Frame(40, 0, 40, 20),
             NotchType = NotchType.PinHole,
-            NotchFrame = new Rect(190, 40, 32, 32),
+            NotchFrame = new Rect(190, 12, 32, 32),
             ScreenCornerRadius = 28
         },
         new DeviceProfile
@@ -128,14 +128,27 @@ public static class DeviceCatalog
         {
             Brand = Brand.Android,
             DeviceType = DeviceType.Phone,
-            Model = "OnePlus 12",
-            LogicalResolution = new Size(412, 933),
+            Model = "Galaxy A54",
+            LogicalResolution = new Size(393, 873),
             ScaleFactor = 3,
-            SafeAreaInsetsPortrait = new Frame(0, 38, 0, 34),
-            SafeAreaInsetsLandscape = new Frame(38, 0, 38, 20),
-            NotchType = NotchType.PinHole,
-            NotchFrame = new Rect(192, 38, 32, 32),
-            ScreenCornerRadius = 26
+            SafeAreaInsetsPortrait = new Frame(0, 34, 0, 30),
+            SafeAreaInsetsLandscape = new Frame(34, 0, 34, 18),
+            NotchType = NotchType.Notch,
+            NotchFrame = new Rect(152, 0, 88, 24),
+            ScreenCornerRadius = 22
+        },
+        new DeviceProfile
+        {
+            Brand = Brand.Android,
+            DeviceType = DeviceType.Phone,
+            Model = "RedMagic 9 Pro",
+            LogicalResolution = new Size(430, 960),
+            ScaleFactor = 3,
+            SafeAreaInsetsPortrait = new Frame(0, 28, 0, 24),
+            SafeAreaInsetsLandscape = new Frame(28, 0, 28, 18),
+            NotchType = NotchType.None,
+            NotchFrame = new Rect(0, 0, 0, 0),
+            ScreenCornerRadius = 18
         },
         new DeviceProfile
         {

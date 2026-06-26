@@ -9,6 +9,7 @@ using Xui.Core.Actual;
 using Xui.Core.Math2D;
 using Xui.Core.UI;
 using Xui.Middleware.Emulator.Actual;
+using Xui.Middleware.Emulator.Devices;
 using Xui.Runtime.Software.Actual;
 using Xui.Runtime.Software.Font;
 using Xui.Runtime.Test.Actual;
@@ -69,6 +70,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         Size windowSize,
         Action<IServiceCollection>? configure = null,
         TestRuntimeVariant runtimeVariant = TestRuntimeVariant.Desktop,
+        DeviceProfile? emulatorDevice = null,
         EmulatorStatusBarStyle? emulatorStatusBarStyleOverride = null,
         string? snapshotSet = null,
         [CallerFilePath] string callerPath = "",
@@ -77,13 +79,14 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         this.Size = windowSize;
         this.platform = new TestPlatform();
         IRuntime runtime = this.platform;
-        if (runtimeVariant == TestRuntimeVariant.IPhoneEmulator)
+        var isEmulator = runtimeVariant != TestRuntimeVariant.Desktop;
+        if (isEmulator)
             runtime = new EmulatorPlatform(this.platform);
 
-        if (runtimeVariant == TestRuntimeVariant.IPhoneEmulator)
+        if (isEmulator)
             this.fixedClock = new FixedClock(new DateTime(2025, 4, 1, 9, 41, 0));
 
-        IRandom? random = runtimeVariant == TestRuntimeVariant.IPhoneEmulator
+        IRandom? random = isEmulator
             ? new SeededRandom(41)
             : null;
         IClock clock = (IClock?)this.fixedClock ?? SystemClock.Default;
@@ -108,6 +111,8 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         if (createdWindow.Abstract is EmulatorWindow emulator)
         {
             this.emulatorWindow = emulator;
+            if (emulatorDevice.HasValue)
+                this.emulatorWindow.CurrentDevice = emulatorDevice.Value;
             this.emulatorWindow.StatusBarStyleOverride = emulatorStatusBarStyleOverride ?? EmulatorStatusBarStyle.Deterministic;
             this.renderWindow = emulator;
             this.Window = (Window)emulator.AppWindow;

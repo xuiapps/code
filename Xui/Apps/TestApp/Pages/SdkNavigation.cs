@@ -8,6 +8,7 @@ namespace Xui.Apps.TestApp.Pages;
 
 public class SdkNavigation : View
 {
+    private static readonly Frame ContentInsets = new Frame(12, 10, 8, 10);
     private View? content;
 
     private SdkHomePage homePage;
@@ -47,7 +48,8 @@ public class SdkNavigation : View
     {
         if (this.TryFindParent<RootView>(out var rootView))
         {
-            availableBorderEdgeSize = rootView.Window.SafeArea.Size;
+            var safeRect = rootView.Window.SafeArea - ContentInsets;
+            availableBorderEdgeSize = safeRect.Size;
         }
 
         return this.Content?.Measure(availableBorderEdgeSize, context) ?? (0, 0);
@@ -57,7 +59,7 @@ public class SdkNavigation : View
     {
         if (this.TryFindParent<RootView>(out var rootView))
         {
-            rect = rootView.Window.SafeArea;
+            rect = rootView.Window.SafeArea - ContentInsets;
         }
 
         this.Content?.Arrange(rect, context);

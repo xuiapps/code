@@ -36,20 +36,26 @@ internal sealed class EmulatorChromeRenderer
 
         NFloat phoneToTabletT = Easing.Normalize(hostRect.Width, 500, 575);
         var iconTop = geometry.EmulatorRect.Y + 12f;
+        var cutoutRect = new Rect(
+            geometry.EmulatorRect.X + device.NotchFrame.X,
+            geometry.EmulatorRect.Y + device.NotchFrame.Y,
+            device.NotchFrame.Width,
+            device.NotchFrame.Height);
+        RenderCameraCutout(ctx, device, cutoutRect);
 
-        EmulatorWindow.PinholeCutout.Instance.Render(ctx, (
-            geometry.EmulatorRect.Center.X - 45f,
-            iconTop
-        ));
+        var leftInset = geometry.EmulatorRect.X + 16f;
+        var rightInset = geometry.EmulatorRect.Right - 16f;
+        var notchLeft = device.NotchType == NotchType.None ? geometry.EmulatorRect.Center.X - 44f : cutoutRect.Left;
+        var notchRight = device.NotchType == NotchType.None ? geometry.EmulatorRect.Center.X + 44f : cutoutRect.Right;
 
         NFloat clockX = NFloat.Lerp(
-            (geometry.EmulatorRect.Center.X - 22f) / 2,
+            leftInset + (notchLeft - leftInset) * 0.5f,
             (300 / 2f - 22f) / 2,
             Easing.EaseInOutSine(phoneToTabletT));
         EmulatorWindow.ClockIcon.Instance.Render(ctx, (clockX, iconTop + 6f), clock.Now);
 
         NFloat instrumentsX = NFloat.Lerp(
-            geometry.EmulatorRect.Center.X + 45f + (geometry.EmulatorRect.Center.X - 45f - 22f) / 2f,
+            notchRight + (rightInset - notchRight) * 0.5f,
             hostRect.Width - 80f,
             Easing.EaseInOutSine(phoneToTabletT));
 
@@ -71,5 +77,28 @@ internal sealed class EmulatorChromeRenderer
             geometry.EmulatorRect.Center.X,
             geometry.EmulatorRect.Bottom - 3f
         ));
+    }
+
+    private static void RenderCameraCutout(IContext ctx, DeviceProfile device, Rect cutoutRect)
+    {
+        if (device.NotchType == NotchType.None || cutoutRect.Width <= 0 || cutoutRect.Height <= 0)
+            return;
+
+        ctx.BeginPath();
+        if (device.NotchType == NotchType.PinHole)
+        {
+            var radius = NFloat.Min(cutoutRect.Width, cutoutRect.Height) * 0.5f;
+            ctx.Ellipse(cutoutRect.Center, radius, radius, 0, 0, NFloat.Pi * 2f, Winding.ClockWise);
+        }
+        else
+        {
+            var radius = device.NotchType == NotchType.DynamicIsland
+                ? cutoutRect.Height * 0.5f
+                : NFloat.Min(cutoutRect.Height * 0.5f, 10f);
+            ctx.RoundRect(cutoutRect, radius);
+        }
+
+        ctx.SetFill(0x111111FF);
+        ctx.Fill();
     }
 }
