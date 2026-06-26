@@ -80,20 +80,61 @@ internal sealed class EmulatorChromeRenderer
             return;
 
         ctx.BeginPath();
-        if (device.NotchType == NotchType.PinHole)
+        switch (device.NotchType)
         {
-            var radius = NFloat.Min(cutoutRect.Width, cutoutRect.Height) * 0.5f;
-            ctx.Ellipse(cutoutRect.Center, radius, radius, 0, 0, NFloat.Pi * 2f, Winding.ClockWise);
-        }
-        else
-        {
-            var radius = device.NotchType == NotchType.DynamicIsland
-                ? cutoutRect.Height * 0.5f
-                : NFloat.Min(cutoutRect.Height * 0.5f, 10f);
-            ctx.RoundRect(cutoutRect, radius);
+            case NotchType.PinHole:
+            {
+                var radius = NFloat.Min(cutoutRect.Width, cutoutRect.Height) * 0.5f;
+                ctx.Ellipse(cutoutRect.Center, radius, radius, 0, 0, NFloat.Pi * 2f, Winding.ClockWise);
+                break;
+            }
+            case NotchType.DynamicIsland:
+            {
+                var radius = cutoutRect.Height * 0.5f;
+                ctx.RoundRect(cutoutRect, radius);
+                break;
+            }
+            case NotchType.Waterdrop:
+                RenderWaterdropCutout(ctx, cutoutRect);
+                break;
+            case NotchType.Notch:
+                RenderNotchCutout(ctx, cutoutRect);
+                break;
+            default:
+            {
+                var radius = NFloat.Min(cutoutRect.Height * 0.5f, 10f);
+                ctx.RoundRect(cutoutRect, radius);
+                break;
+            }
         }
 
         ctx.SetFill(0x111111FF);
         ctx.Fill();
+    }
+
+    private static void RenderNotchCutout(IContext ctx, Rect cutoutRect)
+    {
+        var bottomRadius = NFloat.Min(cutoutRect.Height * 0.5f, cutoutRect.Width * 0.18f);
+        ctx.RoundRect(cutoutRect, new CornerRadius(0, 0, bottomRadius, bottomRadius));
+    }
+
+    private static void RenderWaterdropCutout(IContext ctx, Rect cutoutRect)
+    {
+        var shoulderY = cutoutRect.Top + cutoutRect.Height * 0.22f;
+        var centerX = cutoutRect.Center.X;
+        var lobeControlX = cutoutRect.Width * 0.28f;
+
+        ctx.MoveTo((cutoutRect.Left, cutoutRect.Top));
+        ctx.LineTo((cutoutRect.Right, cutoutRect.Top));
+        ctx.LineTo((cutoutRect.Right, shoulderY));
+        ctx.CurveTo(
+            (cutoutRect.Right, cutoutRect.Bottom),
+            (centerX + lobeControlX, cutoutRect.Bottom),
+            (centerX, cutoutRect.Bottom));
+        ctx.CurveTo(
+            (centerX - lobeControlX, cutoutRect.Bottom),
+            (cutoutRect.Left, cutoutRect.Bottom),
+            (cutoutRect.Left, shoulderY));
+        ctx.ClosePath();
     }
 }

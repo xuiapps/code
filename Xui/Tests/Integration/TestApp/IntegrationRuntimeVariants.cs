@@ -40,8 +40,8 @@ public static class IntegrationRuntimeVariants
         var size = emulatorDevice is null
             ? desktopSize
             : new Size(
-                nfloat.Max(desktopSize.Width, emulatorDevice.Value.LogicalResolution.Width + 48),
-                nfloat.Max(desktopSize.Height, emulatorDevice.Value.LogicalResolution.Height + 88));
+                emulatorDevice.Value.LogicalResolution.Width + 48,
+                emulatorDevice.Value.LogicalResolution.Height + 88);
         var snapshotSet = ResolveSnapshotSet(runtimeVariant);
 
         return new TestSinglePageApp<TApplication, TWindow>(

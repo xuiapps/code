@@ -7,29 +7,29 @@
   <g clip-path="url(#clip0)">
     <g transform="translate(8,8)">
       <rect x="0" y="0" width="393" height="852" fill="#FFFFFF" />
-      <rect x="41" y="31" width="124.53" height="28.94" fill="#D3D3D3" />
-      <text x="47" y="37" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Inter" xml:space="preserve">Normal text, 14pt</text>
-      <rect x="40.5" y="30.5" width="125.53" height="29.94" fill="none" stroke="#808080" />
-      <rect x="41" y="73.94" width="123.26" height="31.36" fill="#D3D3D3" />
-      <text x="47" y="79.94" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="16" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">Bold text, 16pt</text>
-      <rect x="40.5" y="73.44" width="124.26" height="32.36" fill="none" stroke="#808080" />
-      <rect x="41" y="119.3" width="135.35" height="33.78" fill="#D3D3D3" />
-      <text x="47" y="125.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="18" font-family="Inter" font-style="italic" xml:space="preserve">Italic text, 18pt</text>
-      <rect x="40.5" y="118.8" width="136.35" height="34.78" fill="none" stroke="#808080" />
-      <rect x="41" y="167.08" width="184.31" height="36.2" fill="#D3D3D3" />
-      <text x="47" y="173.08" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="20" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight" font-style="italic" xml:space="preserve">Bold + Italic, 20pt</text>
-      <rect x="40.5" y="166.58" width="185.31" height="37.2" fill="none" stroke="#808080" />
-      <rect x="41" y="217.28" width="200.65" height="41.04" fill="#D3D3D3" />
-      <text x="47" y="223.28" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="24" font-family="Inter" xml:space="preserve">Larger text, 24pt</text>
-      <rect x="40.5" y="216.78" width="201.65" height="42.04" fill="none" stroke="#808080" />
-      <rect x="34" y="0" width="300" height="24" fill="#FFFFFF" />
-      <text x="34" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
-      <text x="107.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Text Layout</text>
+      <rect x="7" y="90" width="124.53" height="28.94" fill="#D3D3D3" />
+      <text x="13" y="96" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Inter" xml:space="preserve">Normal text, 14pt</text>
+      <rect x="6.5" y="89.5" width="125.53" height="29.94" fill="none" stroke="#808080" />
+      <rect x="7" y="132.94" width="123.26" height="31.36" fill="#D3D3D3" />
+      <text x="13" y="138.94" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="16" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">Bold text, 16pt</text>
+      <rect x="6.5" y="132.44" width="124.26" height="32.36" fill="none" stroke="#808080" />
+      <rect x="7" y="178.3" width="135.35" height="33.78" fill="#D3D3D3" />
+      <text x="13" y="184.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="18" font-family="Inter" font-style="italic" xml:space="preserve">Italic text, 18pt</text>
+      <rect x="6.5" y="177.8" width="136.35" height="34.78" fill="none" stroke="#808080" />
+      <rect x="7" y="226.08" width="184.31" height="36.2" fill="#D3D3D3" />
+      <text x="13" y="232.08" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="20" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight" font-style="italic" xml:space="preserve">Bold + Italic, 20pt</text>
+      <rect x="6.5" y="225.58" width="185.31" height="37.2" fill="none" stroke="#808080" />
+      <rect x="7" y="276.28" width="200.65" height="41.04" fill="#D3D3D3" />
+      <text x="13" y="282.28" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="24" font-family="Inter" xml:space="preserve">Larger text, 24pt</text>
+      <rect x="6.5" y="275.78" width="201.65" height="42.04" fill="none" stroke="#808080" />
+      <rect x="0" y="59" width="393" height="24" fill="#FFFFFF" />
+      <text x="0" y="59" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+      <text x="73.18" y="59" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Text Layout</text>
     </g>
   </g>
   <path d="M 52 4 H 357 A 48 48 0 0 1 405 52 V 816 A 48 48 0 0 1 357 864 H 52 A 48 48 0 0 1 4 816 V 52 A 48 48 0 0 1 52 4 Z " fill="none" stroke="#111111" stroke-width="8" />
   <path d="M 49.88 1.25 H 359.13 A 48.63 48.63 0 0 1 407.75 49.88 V 818.13 A 48.63 48.63 0 0 1 359.13 866.75 H 49.88 A 48.63 48.63 0 0 1 1.25 818.13 V 49.88 A 48.63 48.63 0 0 1 49.88 1.25 Z " fill="none" stroke="#444444" stroke-width="2.5" />
-  <path d="M 172.5 20 H 236.5 A 13 13 0 0 1 249.5 33 V 33 A 13 13 0 0 1 236.5 46 H 172.5 A 13 13 0 0 1 159.5 33 V 33 A 13 13 0 0 1 172.5 20 Z " fill="#111111" fill-rule="nonzero" />
+  <path d="M 159.5 19 H 249.5 A 18 18 0 0 1 267.5 37 V 37 A 18 18 0 0 1 249.5 55 H 159.5 A 18 18 0 0 1 141.5 37 V 37 A 18 18 0 0 1 159.5 19 Z " fill="#111111" fill-rule="nonzero" />
   <g transform="translate(91.25,26)">
     <text x="0" y="0" fill="#000000" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">9:41</text>
   </g>
@@ -47,7 +47,7 @@
     <text x="0" y="0" fill="#000000" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">5G</text>
   </g>
   <path d="M 151 853 H 258 A 1.5 1.5 0 0 1 259.5 854.5 V 855.5 A 1.5 1.5 0 0 1 258 857 H 151 A 1.5 1.5 0 0 1 149.5 855.5 V 854.5 A 1.5 1.5 0 0 1 151 853 Z " fill="#111111" fill-rule="nonzero" />
-  <g transform="translate(192 73.26318359375)" opacity="0.9">
+  <g transform="translate(204.5 132.26318359375)" opacity="0.9">
     <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
   </g>
 </svg>

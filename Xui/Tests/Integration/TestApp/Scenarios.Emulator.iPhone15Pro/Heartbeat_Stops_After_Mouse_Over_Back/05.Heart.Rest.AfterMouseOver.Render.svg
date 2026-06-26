@@ -3,7 +3,7 @@
     <clipPath id="clip0">
       <path d="M 52 8 H 357 A 44 44 0 0 1 401 52 V 816 A 44 44 0 0 1 357 860 H 52 A 44 44 0 0 1 8 816 V 52 A 44 44 0 0 1 52 8 Z " clip-rule="nonzero" />
     </clipPath>
-    <linearGradient id="grad1" x1="78" y1="10" x2="222" y2="190" gradientUnits="userSpaceOnUse">
+    <linearGradient id="grad1" x1="124.5" y1="10" x2="268.5" y2="190" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#D642CD" />
       <stop offset="100%" stop-color="#8A05FF" />
     </linearGradient>
@@ -11,21 +11,21 @@
   <g clip-path="url(#clip0)">
     <g transform="translate(8,8)">
       <rect x="0" y="0" width="393" height="852" fill="#FFFFFF" />
-      <g transform="translate(150,100)">
+      <g transform="translate(196.5,100)">
         <g>
           <path d="M 0 -20.25 C 40.5 -76.95, 97.2 -4.05, 0 76.95 C -97.2 -4.05, -40.5 -76.95, 0 -20.25 Z " fill="url(#grad1)" fill-rule="nonzero" />
           <path d="M 0 -20.25 C 40.5 -76.95, 97.2 -4.05, 0 76.95 C -97.2 -4.05, -40.5 -76.95, 0 -20.25 Z " fill="none" stroke="#FFFFFF" stroke-width="2.5" />
         </g>
       </g>
-      <rect x="34" y="0" width="300" height="24" fill="#FFFFFF" />
-      <rect x="34" y="0" width="49.18" height="24" fill="#D3D3D3" />
-      <text x="34" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
-      <text x="107.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Animated Heart</text>
+      <rect x="0" y="59" width="393" height="24" fill="#FFFFFF" />
+      <rect x="0" y="59" width="49.18" height="24" fill="#D3D3D3" />
+      <text x="0" y="59" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+      <text x="73.18" y="59" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Animated Heart</text>
     </g>
   </g>
   <path d="M 52 4 H 357 A 48 48 0 0 1 405 52 V 816 A 48 48 0 0 1 357 864 H 52 A 48 48 0 0 1 4 816 V 52 A 48 48 0 0 1 52 4 Z " fill="none" stroke="#111111" stroke-width="8" />
   <path d="M 49.88 1.25 H 359.13 A 48.63 48.63 0 0 1 407.75 49.88 V 818.13 A 48.63 48.63 0 0 1 359.13 866.75 H 49.88 A 48.63 48.63 0 0 1 1.25 818.13 V 49.88 A 48.63 48.63 0 0 1 49.88 1.25 Z " fill="none" stroke="#444444" stroke-width="2.5" />
-  <path d="M 172.5 20 H 236.5 A 13 13 0 0 1 249.5 33 V 33 A 13 13 0 0 1 236.5 46 H 172.5 A 13 13 0 0 1 159.5 33 V 33 A 13 13 0 0 1 172.5 20 Z " fill="#111111" fill-rule="nonzero" />
+  <path d="M 159.5 19 H 249.5 A 18 18 0 0 1 267.5 37 V 37 A 18 18 0 0 1 249.5 55 H 159.5 A 18 18 0 0 1 141.5 37 V 37 A 18 18 0 0 1 159.5 19 Z " fill="#111111" fill-rule="nonzero" />
   <g transform="translate(91.25,26)">
     <text x="0" y="0" fill="#000000" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">9:41</text>
   </g>
@@ -43,7 +43,7 @@
     <text x="0" y="0" fill="#000000" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">5G</text>
   </g>
   <path d="M 151 853 H 258 A 1.5 1.5 0 0 1 259.5 854.5 V 855.5 A 1.5 1.5 0 0 1 258 857 H 151 A 1.5 1.5 0 0 1 149.5 855.5 V 854.5 A 1.5 1.5 0 0 1 151 853 Z " fill="#111111" fill-rule="nonzero" />
-  <g transform="translate(66.591064453125 20)" opacity="0.9">
+  <g transform="translate(32.591064453125 79)" opacity="0.9">
     <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
   </g>
 </svg>

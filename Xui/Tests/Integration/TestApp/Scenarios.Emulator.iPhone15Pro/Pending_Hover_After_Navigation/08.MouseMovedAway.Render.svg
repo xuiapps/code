@@ -7,24 +7,24 @@
   <g clip-path="url(#clip0)">
     <g transform="translate(8,8)">
       <rect x="0" y="0" width="393" height="852" fill="#FFFFFF" />
-      <text x="34" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="24" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">Xui SDK Examples </text>
-      <text x="37" y="32.04" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">TextMetrics</text>
-      <text x="37" y="56.19" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Text Layout</text>
-      <rect x="37" y="80.34" width="294" height="18.15" fill="#D3D3D3" />
-      <text x="37" y="80.34" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Nested Stacks</text>
-      <text x="37" y="104.49" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Grid Layout</text>
-      <text x="37" y="128.64" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">ViewCollection Alignment</text>
-      <text x="37" y="152.79" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Animated Heart</text>
-      <text x="37" y="176.94" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">TextBox MVP</text>
-      <text x="37" y="201.08" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Canvas Tests</text>
-      <text x="37" y="225.23" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Layers</text>
-      <text x="37" y="249.38" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">3D GPU Rendering</text>
-      <text x="37" y="273.53" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Design System</text>
+      <text x="0" y="59" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="24" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">Xui SDK Examples </text>
+      <text x="3" y="91.04" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">TextMetrics</text>
+      <text x="3" y="115.19" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Text Layout</text>
+      <rect x="3" y="139.34" width="387" height="18.15" fill="#D3D3D3" />
+      <text x="3" y="139.34" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Nested Stacks</text>
+      <text x="3" y="163.49" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Grid Layout</text>
+      <text x="3" y="187.64" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">ViewCollection Alignment</text>
+      <text x="3" y="211.79" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Animated Heart</text>
+      <text x="3" y="235.94" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">TextBox MVP</text>
+      <text x="3" y="260.08" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Canvas Tests</text>
+      <text x="3" y="284.23" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Layers</text>
+      <text x="3" y="308.38" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">3D GPU Rendering</text>
+      <text x="3" y="332.53" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Design System</text>
     </g>
   </g>
   <path d="M 52 4 H 357 A 48 48 0 0 1 405 52 V 816 A 48 48 0 0 1 357 864 H 52 A 48 48 0 0 1 4 816 V 52 A 48 48 0 0 1 52 4 Z " fill="none" stroke="#111111" stroke-width="8" />
   <path d="M 49.88 1.25 H 359.13 A 48.63 48.63 0 0 1 407.75 49.88 V 818.13 A 48.63 48.63 0 0 1 359.13 866.75 H 49.88 A 48.63 48.63 0 0 1 1.25 818.13 V 49.88 A 48.63 48.63 0 0 1 49.88 1.25 Z " fill="none" stroke="#444444" stroke-width="2.5" />
-  <path d="M 172.5 20 H 236.5 A 13 13 0 0 1 249.5 33 V 33 A 13 13 0 0 1 236.5 46 H 172.5 A 13 13 0 0 1 159.5 33 V 33 A 13 13 0 0 1 172.5 20 Z " fill="#111111" fill-rule="nonzero" />
+  <path d="M 159.5 19 H 249.5 A 18 18 0 0 1 267.5 37 V 37 A 18 18 0 0 1 249.5 55 H 159.5 A 18 18 0 0 1 141.5 37 V 37 A 18 18 0 0 1 159.5 19 Z " fill="#111111" fill-rule="nonzero" />
   <g transform="translate(91.25,26)">
     <text x="0" y="0" fill="#000000" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">9:41</text>
   </g>
