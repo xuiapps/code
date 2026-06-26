@@ -7,30 +7,30 @@
   <g clip-path="url(#clip0)">
     <g transform="translate(8,8)">
       <rect x="0" y="0" width="393" height="852" fill="#FFFFFF" />
-      <text x="36" y="28" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Name:</text>
-      <rect x="37" y="55.15" width="294" height="24.15" fill="#FFFFFF" />
-      <text x="40" y="58.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Hello World</text>
-      <rect x="122.08" y="58.15" width="1" height="18.15" fill="#000000" />
-      <rect x="36.5" y="54.65" width="295" height="25.15" fill="none" stroke="#0000FF" />
-      <text x="36" y="88.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Password:</text>
-      <rect x="37" y="115.45" width="294" height="24.15" fill="#FFFFFF" />
-      <rect x="36.5" y="114.95" width="295" height="25.15" fill="none" stroke="#808080" />
-      <text x="36" y="148.6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Number:</text>
-      <rect x="37" y="175.75" width="294" height="24.15" fill="#FFFFFF" />
-      <text x="40" y="178.75" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">0</text>
-      <rect x="36.5" y="175.25" width="295" height="25.15" fill="none" stroke="#808080" />
-      <text x="36" y="208.9" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Color (hex):</text>
-      <rect x="37" y="236.05" width="294" height="24.15" fill="#FFFFFF" />
-      <text x="40" y="239.05" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">#FF0000</text>
-      <rect x="36.5" y="235.55" width="295" height="25.15" fill="none" stroke="#808080" />
-      <rect x="34" y="0" width="300" height="24" fill="#FFFFFF" />
-      <text x="34" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
-      <text x="107.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">TextBox MVP</text>
+      <text x="2" y="87" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Name:</text>
+      <rect x="3" y="114.15" width="387" height="24.15" fill="#FFFFFF" />
+      <text x="6" y="117.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Hello World</text>
+      <rect x="88.08" y="117.15" width="1" height="18.15" fill="#000000" />
+      <rect x="2.5" y="113.65" width="388" height="25.15" fill="none" stroke="#0000FF" />
+      <text x="2" y="147.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Password:</text>
+      <rect x="3" y="174.45" width="387" height="24.15" fill="#FFFFFF" />
+      <rect x="2.5" y="173.95" width="388" height="25.15" fill="none" stroke="#808080" />
+      <text x="2" y="207.6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Number:</text>
+      <rect x="3" y="234.75" width="387" height="24.15" fill="#FFFFFF" />
+      <text x="6" y="237.75" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">0</text>
+      <rect x="2.5" y="234.25" width="388" height="25.15" fill="none" stroke="#808080" />
+      <text x="2" y="267.9" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Color (hex):</text>
+      <rect x="3" y="295.05" width="387" height="24.15" fill="#FFFFFF" />
+      <text x="6" y="298.05" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">#FF0000</text>
+      <rect x="2.5" y="294.55" width="388" height="25.15" fill="none" stroke="#808080" />
+      <rect x="0" y="59" width="393" height="24" fill="#FFFFFF" />
+      <text x="0" y="59" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+      <text x="73.18" y="59" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">TextBox MVP</text>
     </g>
   </g>
   <path d="M 52 4 H 357 A 48 48 0 0 1 405 52 V 816 A 48 48 0 0 1 357 864 H 52 A 48 48 0 0 1 4 816 V 52 A 48 48 0 0 1 52 4 Z " fill="none" stroke="#111111" stroke-width="8" />
   <path d="M 49.88 1.25 H 359.13 A 48.63 48.63 0 0 1 407.75 49.88 V 818.13 A 48.63 48.63 0 0 1 359.13 866.75 H 49.88 A 48.63 48.63 0 0 1 1.25 818.13 V 49.88 A 48.63 48.63 0 0 1 49.88 1.25 Z " fill="none" stroke="#444444" stroke-width="2.5" />
-  <path d="M 172.5 20 H 236.5 A 13 13 0 0 1 249.5 33 V 33 A 13 13 0 0 1 236.5 46 H 172.5 A 13 13 0 0 1 159.5 33 V 33 A 13 13 0 0 1 172.5 20 Z " fill="#111111" fill-rule="nonzero" />
+  <path d="M 159.5 19 H 249.5 A 18 18 0 0 1 267.5 37 V 37 A 18 18 0 0 1 249.5 55 H 159.5 A 18 18 0 0 1 141.5 37 V 37 A 18 18 0 0 1 159.5 19 Z " fill="#111111" fill-rule="nonzero" />
   <g transform="translate(91.25,26)">
     <text x="0" y="0" fill="#000000" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">9:41</text>
   </g>
@@ -48,7 +48,4 @@
     <text x="0" y="0" fill="#000000" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">5G</text>
   </g>
   <path d="M 151 853 H 258 A 1.5 1.5 0 0 1 259.5 854.5 V 855.5 A 1.5 1.5 0 0 1 258 857 H 151 A 1.5 1.5 0 0 1 149.5 855.5 V 854.5 A 1.5 1.5 0 0 1 151 853 Z " fill="#111111" fill-rule="nonzero" />
-  <g transform="translate(192 75.22412109375)" opacity="0.9">
-    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
-  </g>
 </svg>

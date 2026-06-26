@@ -9,6 +9,7 @@ using Xui.Core.Actual;
 using Xui.Core.Math2D;
 using Xui.Core.UI;
 using Xui.Middleware.Emulator.Actual;
+using Xui.Middleware.Emulator.Devices;
 using Xui.Runtime.Software.Actual;
 using Xui.Runtime.Software.Font;
 using Xui.Runtime.Test.Actual;
@@ -35,6 +36,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     private readonly string snapshotsDir;
     private readonly List<SnapshotEntry> snapshots = new();
     private readonly List<ReportEntry> reportEntries = new();
+    private readonly Dictionary<int, Touch> activeTouchContacts = new();
     private int snapshotCounter;
     private Point mousePosition;
     private bool mouseLeftPressed;
@@ -69,6 +71,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         Size windowSize,
         Action<IServiceCollection>? configure = null,
         TestRuntimeVariant runtimeVariant = TestRuntimeVariant.Desktop,
+        DeviceProfile? emulatorDevice = null,
         EmulatorStatusBarStyle? emulatorStatusBarStyleOverride = null,
         string? snapshotSet = null,
         [CallerFilePath] string callerPath = "",
@@ -77,13 +80,14 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         this.Size = windowSize;
         this.platform = new TestPlatform();
         IRuntime runtime = this.platform;
-        if (runtimeVariant == TestRuntimeVariant.IPhoneEmulator)
+        var isEmulator = runtimeVariant != TestRuntimeVariant.Desktop;
+        if (isEmulator)
             runtime = new EmulatorPlatform(this.platform);
 
-        if (runtimeVariant == TestRuntimeVariant.IPhoneEmulator)
+        if (isEmulator)
             this.fixedClock = new FixedClock(new DateTime(2025, 4, 1, 9, 41, 0));
 
-        IRandom? random = runtimeVariant == TestRuntimeVariant.IPhoneEmulator
+        IRandom? random = isEmulator
             ? new SeededRandom(41)
             : null;
         IClock clock = (IClock?)this.fixedClock ?? SystemClock.Default;
@@ -108,7 +112,10 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         if (createdWindow.Abstract is EmulatorWindow emulator)
         {
             this.emulatorWindow = emulator;
+            if (emulatorDevice.HasValue)
+                this.emulatorWindow.CurrentDevice = emulatorDevice.Value;
             this.emulatorWindow.StatusBarStyleOverride = emulatorStatusBarStyleOverride ?? EmulatorStatusBarStyle.Deterministic;
+            this.emulatorWindow.RenderTouchIndicators = false;
             this.renderWindow = emulator;
             this.Window = (Window)emulator.AppWindow;
         }
@@ -135,6 +142,18 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
 
     public void MouseMove(Point position)
     {
+        if (emulatorWindow is not null)
+        {
+            this.hasMouseInteraction = true;
+            if (activeTouchContacts.ContainsKey(0))
+            {
+                var mouseMove = new MouseMoveEventRef { Position = position };
+                this.Window.OnMouseMove(ref mouseMove);
+                PointerMove(position);
+            }
+            return;
+        }
+
         this.mousePosition = position;
         this.hasMouseInteraction = true;
         var runtimePosition = MapInputPoint(position);
@@ -144,6 +163,15 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
 
     public void MouseDown(Point position, MouseButton button = MouseButton.Left)
     {
+        if (emulatorWindow is not null && button == MouseButton.Left)
+        {
+            var mouseDown = new MouseDownEventRef { Position = position, Button = button };
+            this.Window.OnMouseDown(ref mouseDown);
+            this.hasMouseInteraction = true;
+            PointerDown(position);
+            return;
+        }
+
         this.mousePosition = position;
         this.hasMouseInteraction = true;
         if (button == MouseButton.Left) this.mouseLeftPressed = true;
@@ -154,6 +182,15 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
 
     public void MouseUp(Point position, MouseButton button = MouseButton.Left)
     {
+        if (emulatorWindow is not null && button == MouseButton.Left)
+        {
+            var mouseUp = new MouseUpEventRef { Position = position, Button = button };
+            this.Window.OnMouseUp(ref mouseUp);
+            this.hasMouseInteraction = true;
+            PointerUp(position);
+            return;
+        }
+
         this.mousePosition = position;
         this.hasMouseInteraction = true;
         if (button == MouseButton.Left) this.mouseLeftPressed = false;
@@ -165,6 +202,51 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     public void MouseMove(View view) => MouseMove(view.Frame.Center);
     public void MouseDown(View view, MouseButton button = MouseButton.Left) => MouseDown(view.Frame.Center, button);
     public void MouseUp(View view, MouseButton button = MouseButton.Left) => MouseUp(view.Frame.Center, button);
+
+    public void PointerDown(Point position, int index = 0, float radius = 0.5f) =>
+        DispatchTouch([new Touch
+        {
+            Index = index,
+            Phase = TouchPhase.Start,
+            Position = position,
+            Radius = radius
+        }]);
+
+    public void PointerMove(Point position, int index = 0, float radius = 0.5f)
+    {
+        if (!activeTouchContacts.ContainsKey(index))
+            return;
+
+        DispatchTouch([new Touch
+        {
+            Index = index,
+            Phase = TouchPhase.Move,
+            Position = position,
+            Radius = radius
+        }]);
+    }
+
+    public void PointerUp(Point position, int index = 0, float radius = 0.5f)
+    {
+        if (!activeTouchContacts.ContainsKey(index))
+            return;
+
+        DispatchTouch([new Touch
+        {
+            Index = index,
+            Phase = TouchPhase.End,
+            Position = position,
+            Radius = radius
+        }]);
+    }
+
+    public void Touches(params Touch[] touches)
+    {
+        if (touches.Length == 0)
+            return;
+
+        DispatchTouch(touches);
+    }
 
     public void KeyDown(VirtualKey key, bool shift = false)
     {
@@ -256,7 +338,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         var svg = Render();
 
         if (this.hasMouseInteraction)
-            svg = InjectCursor(svg);
+            svg = InjectInputOverlay(svg);
 
         this.snapshotCounter++;
         var prefix = $"{this.snapshotCounter:D2}.{name}.Render";
@@ -391,6 +473,40 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     private Point MapInputPoint(Point appPoint) =>
         emulatorWindow is null ? appPoint : emulatorWindow.MapEmulatorToHost(appPoint, this.Size);
 
+    private void DispatchTouch(ReadOnlySpan<Touch> touches)
+    {
+        this.hasMouseInteraction = true;
+        UpdateTouchOverlay(touches);
+
+        var e = new TouchEventRef(touches);
+        renderWindow.OnTouch(ref e);
+    }
+
+    private void UpdateTouchOverlay(ReadOnlySpan<Touch> touches)
+    {
+        foreach (var touch in touches)
+        {
+            switch (touch.Phase)
+            {
+                case TouchPhase.Start:
+                case TouchPhase.Move:
+                    activeTouchContacts[touch.Index] = touch;
+                    break;
+                case TouchPhase.End:
+                    activeTouchContacts.Remove(touch.Index);
+                    break;
+            }
+        }
+    }
+
+    private string InjectInputOverlay(string svg)
+    {
+        if (emulatorWindow is null)
+            return InjectCursor(svg);
+
+        return InjectTouches(svg);
+    }
+
     private string InjectCursor(string svg)
     {
         var cursorPosition = emulatorWindow is null
@@ -408,6 +524,32 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         var insertPos = svg.LastIndexOf("</svg>");
         if (insertPos >= 0)
             return svg.Insert(insertPos, cursorSvg);
+
+        return svg;
+    }
+
+    private string InjectTouches(string svg)
+    {
+        if (activeTouchContacts.Count == 0)
+            return svg;
+
+        var sb = new StringBuilder();
+        foreach (var touch in activeTouchContacts.Values)
+        {
+            var mapped = emulatorWindow!.MapEmulatorToSnapshot(touch.Position);
+            var x = ((double)mapped.X).ToString(CultureInfo.InvariantCulture);
+            var y = ((double)mapped.Y).ToString(CultureInfo.InvariantCulture);
+            var radius = ((double)(touch.Radius * 30f)).ToString(CultureInfo.InvariantCulture);
+
+            sb.AppendLine($"  <g transform=\"translate({x} {y})\" opacity=\"0.9\">");
+            sb.AppendLine($"    <circle cx=\"0\" cy=\"0\" r=\"{radius}\" fill=\"#66888888\" />");
+            sb.AppendLine($"    <circle cx=\"0\" cy=\"0\" r=\"{radius}\" fill=\"none\" stroke=\"#88AAAAAA\" stroke-width=\"3\" />");
+            sb.AppendLine("  </g>");
+        }
+
+        var insertPos = svg.LastIndexOf("</svg>");
+        if (insertPos >= 0)
+            return svg.Insert(insertPos, sb.ToString());
 
         return svg;
     }

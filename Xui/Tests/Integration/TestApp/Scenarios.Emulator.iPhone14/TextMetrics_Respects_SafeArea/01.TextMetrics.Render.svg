@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="406" height="860" viewBox="0 0 406 860">
+  <defs>
+    <clipPath id="clip0">
+      <path d="M 52 8 H 354 A 44 44 0 0 1 398 52 V 808 A 44 44 0 0 1 354 852 H 52 A 44 44 0 0 1 8 808 V 52 A 44 44 0 0 1 52 8 Z " clip-rule="nonzero" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip0)">
+    <g transform="translate(8,8)">
+      <rect x="0" y="0" width="390" height="844" fill="#FFFFFF" />
+      <text x="195" y="440.5" fill="#000000" text-anchor="middle" dominant-baseline="alphabetic" font-size="64" font-family="Inter" xml:space="preserve">Hello World!</text>
+      <path d="M -5 378.5 L 395 378.5 " fill="none" stroke="#0000FF" stroke-width="2" />
+      <path d="M -5 440.5 L 395 440.5 " fill="none" stroke="#000000" stroke-width="2" />
+      <path d="M -5 455.94 L 395 455.94 " fill="none" stroke="#008000" stroke-width="2" />
+      <rect x="10.69" y="378.5" width="363.63" height="77.44" fill="none" stroke="#008000" stroke-width="5" />
+      <rect x="10.69" y="378.5" width="363.63" height="77.44" fill="none" stroke="#FFA500" stroke-width="3" />
+      <rect x="10.69" y="393.94" width="363.63" height="46.56" fill="none" stroke="#FF0000" />
+      <path d="M 190 440.5 L 200 440.5 M 195 435.5 L 195 445.5 " fill="none" stroke="#FF0000" stroke-width="3" />
+      <rect x="0" y="47" width="390" height="24" fill="#FFFFFF" />
+      <text x="0" y="47" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+      <text x="73.18" y="47" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">TextMetrics</text>
+    </g>
+  </g>
+  <path d="M 52 4 H 354 A 48 48 0 0 1 402 52 V 808 A 48 48 0 0 1 354 856 H 52 A 48 48 0 0 1 4 808 V 52 A 48 48 0 0 1 52 4 Z " fill="none" stroke="#111111" stroke-width="8" />
+  <path d="M 49.88 1.25 H 356.13 A 48.63 48.63 0 0 1 404.75 49.88 V 810.13 A 48.63 48.63 0 0 1 356.13 858.75 H 49.88 A 48.63 48.63 0 0 1 1.25 810.13 V 49.88 A 48.63 48.63 0 0 1 49.88 1.25 Z " fill="none" stroke="#444444" stroke-width="2.5" />
+  <path d="M 122 8 H 284 A 0 0 0 0 1 284 8 V 25 A 17 17 0 0 1 267 42 H 139 A 17 17 0 0 1 122 25 V 8 A 0 0 0 0 1 122 8 Z " fill="#111111" fill-rule="nonzero" />
+  <g transform="translate(90.5,26)">
+    <text x="0" y="0" fill="#000000" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">9:41</text>
+  </g>
+  <g transform="translate(296,39.5)">
+    <path d="M 1.77 -1.77 A 2.5 2.5 0 0 0 -1.77 -1.77 " fill="none" stroke="#000000" stroke-width="4" />
+    <path d="M 5.3 -5.3 A 7.5 7.5 0 0 0 -5.3 -5.3 " fill="none" stroke="#000000" stroke-width="2" />
+    <path d="M 8.13 -8.13 A 11.5 11.5 0 0 0 -8.13 -8.13 " fill="none" stroke="#000000" stroke-width="2" />
+    <path d="M 10.96 -10.96 A 15.5 15.5 0 0 0 -10.96 -10.96 " fill="none" stroke="#000000" stroke-width="2" />
+  </g>
+  <g transform="translate(308,28.5)">
+    <path d="M 3 0 H 17 A 3 3 0 0 1 20 3 V 7 A 3 3 0 0 1 17 10 H 3 A 3 3 0 0 1 0 7 V 3 A 3 3 0 0 1 3 0 Z " fill="none" stroke="#000000" />
+    <path d="M 3.5 1.5 H 8.5 A 2 2 0 0 1 10.5 3.5 V 6.5 A 2 2 0 0 1 8.5 8.5 H 3.5 A 2 2 0 0 1 1.5 6.5 V 3.5 A 2 2 0 0 1 3.5 1.5 Z " fill="#000000" fill-rule="nonzero" />
+  </g>
+  <g transform="translate(344,26)">
+    <text x="0" y="0" fill="#000000" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">5G</text>
+  </g>
+  <path d="M 149.5 845 H 256.5 A 1.5 1.5 0 0 1 258 846.5 V 847.5 A 1.5 1.5 0 0 1 256.5 849 H 149.5 A 1.5 1.5 0 0 1 148 847.5 V 846.5 A 1.5 1.5 0 0 1 149.5 845 Z " fill="#111111" fill-rule="nonzero" />
+</svg>

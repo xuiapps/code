@@ -7,50 +7,50 @@
   <g clip-path="url(#clip0)">
     <g transform="translate(8,8)">
       <rect x="0" y="0" width="393" height="852" fill="#FFFFFF" />
-      <path d="M 50 33 H 318 A 7 7 0 0 1 325 40 V 82.15 A 7 7 0 0 1 318 89.15 H 50 A 7 7 0 0 1 43 82.15 V 40 A 7 7 0 0 1 50 33 Z " fill="#FFFFFF" fill-rule="nonzero" />
-      <text x="59" y="52" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">Row 1:</text>
-      <path d="M 117.44 46 H 133.79 A 3 3 0 0 1 136.79 49 V 73.15 A 3 3 0 0 1 133.79 76.15 H 117.44 A 3 3 0 0 1 114.44 73.15 V 49 A 3 3 0 0 1 117.44 46 Z " fill="#D3D3D3" fill-rule="nonzero" />
-      <text x="120.44" y="52" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">A</text>
-      <path d="M 117.44 45.5 H 133.79 A 3.5 3.5 0 0 1 137.29 49 V 73.15 A 3.5 3.5 0 0 1 133.79 76.65 H 117.44 A 3.5 3.5 0 0 1 113.94 73.15 V 49 A 3.5 3.5 0 0 1 117.44 45.5 Z " fill="none" stroke="#000000" />
-      <path d="M 149.79 46 H 165.61 A 3 3 0 0 1 168.61 49 V 73.15 A 3 3 0 0 1 165.61 76.15 H 149.79 A 3 3 0 0 1 146.79 73.15 V 49 A 3 3 0 0 1 149.79 46 Z " fill="#D3D3D3" fill-rule="nonzero" />
-      <text x="152.79" y="52" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">B</text>
-      <path d="M 149.79 45.5 H 165.61 A 3.5 3.5 0 0 1 169.11 49 V 73.15 A 3.5 3.5 0 0 1 165.61 76.65 H 149.79 A 3.5 3.5 0 0 1 146.29 73.15 V 49 A 3.5 3.5 0 0 1 149.79 45.5 Z " fill="none" stroke="#000000" />
-      <path d="M 181.61 46 H 198.56 A 3 3 0 0 1 201.56 49 V 73.15 A 3 3 0 0 1 198.56 76.15 H 181.61 A 3 3 0 0 1 178.61 73.15 V 49 A 3 3 0 0 1 181.61 46 Z " fill="#D3D3D3" fill-rule="nonzero" />
-      <text x="184.61" y="52" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">C</text>
-      <path d="M 181.61 45.5 H 198.56 A 3.5 3.5 0 0 1 202.06 49 V 73.15 A 3.5 3.5 0 0 1 198.56 76.65 H 181.61 A 3.5 3.5 0 0 1 178.11 73.15 V 49 A 3.5 3.5 0 0 1 181.61 45.5 Z " fill="none" stroke="#000000" />
-      <path d="M 50 32.5 H 318 A 7.5 7.5 0 0 1 325.5 40 V 82.15 A 7.5 7.5 0 0 1 318 89.65 H 50 A 7.5 7.5 0 0 1 42.5 82.15 V 40 A 7.5 7.5 0 0 1 50 32.5 Z " fill="none" stroke="#808080" />
-      <path d="M 50 107.15 H 318 A 7 7 0 0 1 325 114.15 V 156.3 A 7 7 0 0 1 318 163.3 H 50 A 7 7 0 0 1 43 156.3 V 114.15 A 7 7 0 0 1 50 107.15 Z " fill="#FFFFFF" fill-rule="nonzero" />
-      <text x="59" y="126.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">Row 2:</text>
-      <path d="M 120.42 120.15 H 155.5 A 3 3 0 0 1 158.5 123.15 V 147.3 A 3 3 0 0 1 155.5 150.3 H 120.42 A 3 3 0 0 1 117.42 147.3 V 123.15 A 3 3 0 0 1 120.42 120.15 Z " fill="#D3D3D3" fill-rule="nonzero" />
-      <text x="123.42" y="126.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">One</text>
-      <path d="M 120.42 119.65 H 155.5 A 3.5 3.5 0 0 1 159 123.15 V 147.3 A 3.5 3.5 0 0 1 155.5 150.8 H 120.42 A 3.5 3.5 0 0 1 116.92 147.3 V 123.15 A 3.5 3.5 0 0 1 120.42 119.65 Z " fill="none" stroke="#000000" />
-      <path d="M 171.5 120.15 H 207.24 A 3 3 0 0 1 210.24 123.15 V 147.3 A 3 3 0 0 1 207.24 150.3 H 171.5 A 3 3 0 0 1 168.5 147.3 V 123.15 A 3 3 0 0 1 171.5 120.15 Z " fill="#D3D3D3" fill-rule="nonzero" />
-      <text x="174.5" y="126.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Two</text>
-      <path d="M 171.5 119.65 H 207.24 A 3.5 3.5 0 0 1 210.74 123.15 V 147.3 A 3.5 3.5 0 0 1 207.24 150.8 H 171.5 A 3.5 3.5 0 0 1 168 147.3 V 123.15 A 3.5 3.5 0 0 1 171.5 119.65 Z " fill="none" stroke="#000000" />
-      <path d="M 50 106.65 H 318 A 7.5 7.5 0 0 1 325.5 114.15 V 156.3 A 7.5 7.5 0 0 1 318 163.8 H 50 A 7.5 7.5 0 0 1 42.5 156.3 V 114.15 A 7.5 7.5 0 0 1 50 106.65 Z " fill="none" stroke="#808080" />
-      <path d="M 50 181.3 H 318 A 7 7 0 0 1 325 188.3 V 230.45 A 7 7 0 0 1 318 237.45 H 50 A 7 7 0 0 1 43 230.45 V 188.3 A 7 7 0 0 1 50 181.3 Z " fill="#FFFFFF" fill-rule="nonzero" />
-      <text x="59" y="200.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">Row 3:</text>
-      <path d="M 120.66 194.3 H 153.83 A 3 3 0 0 1 156.83 197.3 V 221.45 A 3 3 0 0 1 153.83 224.45 H 120.66 A 3 3 0 0 1 117.66 221.45 V 197.3 A 3 3 0 0 1 120.66 194.3 Z " fill="#D3D3D3" fill-rule="nonzero" />
-      <text x="123.66" y="200.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Left</text>
-      <path d="M 120.66 193.8 H 153.83 A 3.5 3.5 0 0 1 157.33 197.3 V 221.45 A 3.5 3.5 0 0 1 153.83 224.95 H 120.66 A 3.5 3.5 0 0 1 117.16 221.45 V 197.3 A 3.5 3.5 0 0 1 120.66 193.8 Z " fill="none" stroke="#000000" />
-      <path d="M 169.83 194.3 H 223.55 A 3 3 0 0 1 226.55 197.3 V 221.45 A 3 3 0 0 1 223.55 224.45 H 169.83 A 3 3 0 0 1 166.83 221.45 V 197.3 A 3 3 0 0 1 169.83 194.3 Z " fill="#D3D3D3" fill-rule="nonzero" />
-      <text x="172.83" y="200.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Center</text>
-      <path d="M 169.83 193.8 H 223.55 A 3.5 3.5 0 0 1 227.05 197.3 V 221.45 A 3.5 3.5 0 0 1 223.55 224.95 H 169.83 A 3.5 3.5 0 0 1 166.33 221.45 V 197.3 A 3.5 3.5 0 0 1 169.83 193.8 Z " fill="none" stroke="#000000" />
-      <path d="M 239.55 194.3 H 281.81 A 3 3 0 0 1 284.81 197.3 V 221.45 A 3 3 0 0 1 281.81 224.45 H 239.55 A 3 3 0 0 1 236.55 221.45 V 197.3 A 3 3 0 0 1 239.55 194.3 Z " fill="#D3D3D3" fill-rule="nonzero" />
-      <text x="242.55" y="200.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Right</text>
-      <path d="M 239.55 193.8 H 281.81 A 3.5 3.5 0 0 1 285.31 197.3 V 221.45 A 3.5 3.5 0 0 1 281.81 224.95 H 239.55 A 3.5 3.5 0 0 1 236.05 221.45 V 197.3 A 3.5 3.5 0 0 1 239.55 193.8 Z " fill="none" stroke="#000000" />
-      <path d="M 297.81 194.3 H 354.68 A 3 3 0 0 1 357.68 197.3 V 221.45 A 3 3 0 0 1 354.68 224.45 H 297.81 A 3 3 0 0 1 294.81 221.45 V 197.3 A 3 3 0 0 1 297.81 194.3 Z " fill="#D3D3D3" fill-rule="nonzero" />
-      <text x="300.81" y="200.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Stretch</text>
-      <path d="M 297.81 193.8 H 354.68 A 3.5 3.5 0 0 1 358.18 197.3 V 221.45 A 3.5 3.5 0 0 1 354.68 224.95 H 297.81 A 3.5 3.5 0 0 1 294.31 221.45 V 197.3 A 3.5 3.5 0 0 1 297.81 193.8 Z " fill="none" stroke="#000000" />
-      <path d="M 50 180.8 H 318 A 7.5 7.5 0 0 1 325.5 188.3 V 230.45 A 7.5 7.5 0 0 1 318 237.95 H 50 A 7.5 7.5 0 0 1 42.5 230.45 V 188.3 A 7.5 7.5 0 0 1 50 180.8 Z " fill="none" stroke="#808080" />
-      <rect x="34" y="0" width="300" height="24" fill="#FFFFFF" />
-      <text x="34" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
-      <text x="107.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Nested Stacks</text>
+      <path d="M 16 92 H 377 A 7 7 0 0 1 384 99 V 141.15 A 7 7 0 0 1 377 148.15 H 16 A 7 7 0 0 1 9 141.15 V 99 A 7 7 0 0 1 16 92 Z " fill="#FFFFFF" fill-rule="nonzero" />
+      <text x="25" y="111" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">Row 1:</text>
+      <path d="M 83.44 105 H 99.79 A 3 3 0 0 1 102.79 108 V 132.15 A 3 3 0 0 1 99.79 135.15 H 83.44 A 3 3 0 0 1 80.44 132.15 V 108 A 3 3 0 0 1 83.44 105 Z " fill="#D3D3D3" fill-rule="nonzero" />
+      <text x="86.44" y="111" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">A</text>
+      <path d="M 83.44 104.5 H 99.79 A 3.5 3.5 0 0 1 103.29 108 V 132.15 A 3.5 3.5 0 0 1 99.79 135.65 H 83.44 A 3.5 3.5 0 0 1 79.94 132.15 V 108 A 3.5 3.5 0 0 1 83.44 104.5 Z " fill="none" stroke="#000000" />
+      <path d="M 115.79 105 H 131.61 A 3 3 0 0 1 134.61 108 V 132.15 A 3 3 0 0 1 131.61 135.15 H 115.79 A 3 3 0 0 1 112.79 132.15 V 108 A 3 3 0 0 1 115.79 105 Z " fill="#D3D3D3" fill-rule="nonzero" />
+      <text x="118.79" y="111" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">B</text>
+      <path d="M 115.79 104.5 H 131.61 A 3.5 3.5 0 0 1 135.11 108 V 132.15 A 3.5 3.5 0 0 1 131.61 135.65 H 115.79 A 3.5 3.5 0 0 1 112.29 132.15 V 108 A 3.5 3.5 0 0 1 115.79 104.5 Z " fill="none" stroke="#000000" />
+      <path d="M 147.61 105 H 164.56 A 3 3 0 0 1 167.56 108 V 132.15 A 3 3 0 0 1 164.56 135.15 H 147.61 A 3 3 0 0 1 144.61 132.15 V 108 A 3 3 0 0 1 147.61 105 Z " fill="#D3D3D3" fill-rule="nonzero" />
+      <text x="150.61" y="111" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">C</text>
+      <path d="M 147.61 104.5 H 164.56 A 3.5 3.5 0 0 1 168.06 108 V 132.15 A 3.5 3.5 0 0 1 164.56 135.65 H 147.61 A 3.5 3.5 0 0 1 144.11 132.15 V 108 A 3.5 3.5 0 0 1 147.61 104.5 Z " fill="none" stroke="#000000" />
+      <path d="M 16 91.5 H 377 A 7.5 7.5 0 0 1 384.5 99 V 141.15 A 7.5 7.5 0 0 1 377 148.65 H 16 A 7.5 7.5 0 0 1 8.5 141.15 V 99 A 7.5 7.5 0 0 1 16 91.5 Z " fill="none" stroke="#808080" />
+      <path d="M 16 166.15 H 377 A 7 7 0 0 1 384 173.15 V 215.3 A 7 7 0 0 1 377 222.3 H 16 A 7 7 0 0 1 9 215.3 V 173.15 A 7 7 0 0 1 16 166.15 Z " fill="#FFFFFF" fill-rule="nonzero" />
+      <text x="25" y="185.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">Row 2:</text>
+      <path d="M 86.42 179.15 H 121.5 A 3 3 0 0 1 124.5 182.15 V 206.3 A 3 3 0 0 1 121.5 209.3 H 86.42 A 3 3 0 0 1 83.42 206.3 V 182.15 A 3 3 0 0 1 86.42 179.15 Z " fill="#D3D3D3" fill-rule="nonzero" />
+      <text x="89.42" y="185.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">One</text>
+      <path d="M 86.42 178.65 H 121.5 A 3.5 3.5 0 0 1 125 182.15 V 206.3 A 3.5 3.5 0 0 1 121.5 209.8 H 86.42 A 3.5 3.5 0 0 1 82.92 206.3 V 182.15 A 3.5 3.5 0 0 1 86.42 178.65 Z " fill="none" stroke="#000000" />
+      <path d="M 137.5 179.15 H 173.24 A 3 3 0 0 1 176.24 182.15 V 206.3 A 3 3 0 0 1 173.24 209.3 H 137.5 A 3 3 0 0 1 134.5 206.3 V 182.15 A 3 3 0 0 1 137.5 179.15 Z " fill="#D3D3D3" fill-rule="nonzero" />
+      <text x="140.5" y="185.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Two</text>
+      <path d="M 137.5 178.65 H 173.24 A 3.5 3.5 0 0 1 176.74 182.15 V 206.3 A 3.5 3.5 0 0 1 173.24 209.8 H 137.5 A 3.5 3.5 0 0 1 134 206.3 V 182.15 A 3.5 3.5 0 0 1 137.5 178.65 Z " fill="none" stroke="#000000" />
+      <path d="M 16 165.65 H 377 A 7.5 7.5 0 0 1 384.5 173.15 V 215.3 A 7.5 7.5 0 0 1 377 222.8 H 16 A 7.5 7.5 0 0 1 8.5 215.3 V 173.15 A 7.5 7.5 0 0 1 16 165.65 Z " fill="none" stroke="#808080" />
+      <path d="M 16 240.3 H 377 A 7 7 0 0 1 384 247.3 V 289.45 A 7 7 0 0 1 377 296.45 H 16 A 7 7 0 0 1 9 289.45 V 247.3 A 7 7 0 0 1 16 240.3 Z " fill="#FFFFFF" fill-rule="nonzero" />
+      <text x="25" y="259.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">Row 3:</text>
+      <path d="M 86.66 253.3 H 119.83 A 3 3 0 0 1 122.83 256.3 V 280.45 A 3 3 0 0 1 119.83 283.45 H 86.66 A 3 3 0 0 1 83.66 280.45 V 256.3 A 3 3 0 0 1 86.66 253.3 Z " fill="#D3D3D3" fill-rule="nonzero" />
+      <text x="89.66" y="259.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Left</text>
+      <path d="M 86.66 252.8 H 119.83 A 3.5 3.5 0 0 1 123.33 256.3 V 280.45 A 3.5 3.5 0 0 1 119.83 283.95 H 86.66 A 3.5 3.5 0 0 1 83.16 280.45 V 256.3 A 3.5 3.5 0 0 1 86.66 252.8 Z " fill="none" stroke="#000000" />
+      <path d="M 135.83 253.3 H 189.55 A 3 3 0 0 1 192.55 256.3 V 280.45 A 3 3 0 0 1 189.55 283.45 H 135.83 A 3 3 0 0 1 132.83 280.45 V 256.3 A 3 3 0 0 1 135.83 253.3 Z " fill="#D3D3D3" fill-rule="nonzero" />
+      <text x="138.83" y="259.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Center</text>
+      <path d="M 135.83 252.8 H 189.55 A 3.5 3.5 0 0 1 193.05 256.3 V 280.45 A 3.5 3.5 0 0 1 189.55 283.95 H 135.83 A 3.5 3.5 0 0 1 132.33 280.45 V 256.3 A 3.5 3.5 0 0 1 135.83 252.8 Z " fill="none" stroke="#000000" />
+      <path d="M 205.55 253.3 H 247.81 A 3 3 0 0 1 250.81 256.3 V 280.45 A 3 3 0 0 1 247.81 283.45 H 205.55 A 3 3 0 0 1 202.55 280.45 V 256.3 A 3 3 0 0 1 205.55 253.3 Z " fill="#D3D3D3" fill-rule="nonzero" />
+      <text x="208.55" y="259.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Right</text>
+      <path d="M 205.55 252.8 H 247.81 A 3.5 3.5 0 0 1 251.31 256.3 V 280.45 A 3.5 3.5 0 0 1 247.81 283.95 H 205.55 A 3.5 3.5 0 0 1 202.05 280.45 V 256.3 A 3.5 3.5 0 0 1 205.55 252.8 Z " fill="none" stroke="#000000" />
+      <path d="M 263.81 253.3 H 320.68 A 3 3 0 0 1 323.68 256.3 V 280.45 A 3 3 0 0 1 320.68 283.45 H 263.81 A 3 3 0 0 1 260.81 280.45 V 256.3 A 3 3 0 0 1 263.81 253.3 Z " fill="#D3D3D3" fill-rule="nonzero" />
+      <text x="266.81" y="259.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Stretch</text>
+      <path d="M 263.81 252.8 H 320.68 A 3.5 3.5 0 0 1 324.18 256.3 V 280.45 A 3.5 3.5 0 0 1 320.68 283.95 H 263.81 A 3.5 3.5 0 0 1 260.31 280.45 V 256.3 A 3.5 3.5 0 0 1 263.81 252.8 Z " fill="none" stroke="#000000" />
+      <path d="M 16 239.8 H 377 A 7.5 7.5 0 0 1 384.5 247.3 V 289.45 A 7.5 7.5 0 0 1 377 296.95 H 16 A 7.5 7.5 0 0 1 8.5 289.45 V 247.3 A 7.5 7.5 0 0 1 16 239.8 Z " fill="none" stroke="#808080" />
+      <rect x="0" y="59" width="393" height="24" fill="#FFFFFF" />
+      <text x="0" y="59" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+      <text x="73.18" y="59" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Nested Stacks</text>
     </g>
   </g>
   <path d="M 52 4 H 357 A 48 48 0 0 1 405 52 V 816 A 48 48 0 0 1 357 864 H 52 A 48 48 0 0 1 4 816 V 52 A 48 48 0 0 1 52 4 Z " fill="none" stroke="#111111" stroke-width="8" />
   <path d="M 49.88 1.25 H 359.13 A 48.63 48.63 0 0 1 407.75 49.88 V 818.13 A 48.63 48.63 0 0 1 359.13 866.75 H 49.88 A 48.63 48.63 0 0 1 1.25 818.13 V 49.88 A 48.63 48.63 0 0 1 49.88 1.25 Z " fill="none" stroke="#444444" stroke-width="2.5" />
-  <path d="M 172.5 20 H 236.5 A 13 13 0 0 1 249.5 33 V 33 A 13 13 0 0 1 236.5 46 H 172.5 A 13 13 0 0 1 159.5 33 V 33 A 13 13 0 0 1 172.5 20 Z " fill="#111111" fill-rule="nonzero" />
+  <path d="M 159.5 19 H 249.5 A 18 18 0 0 1 267.5 37 V 37 A 18 18 0 0 1 249.5 55 H 159.5 A 18 18 0 0 1 141.5 37 V 37 A 18 18 0 0 1 159.5 19 Z " fill="#111111" fill-rule="nonzero" />
   <g transform="translate(91.25,26)">
     <text x="0" y="0" fill="#000000" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">9:41</text>
   </g>
@@ -68,7 +68,4 @@
     <text x="0" y="0" fill="#000000" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">5G</text>
   </g>
   <path d="M 151 853 H 258 A 1.5 1.5 0 0 1 259.5 854.5 V 855.5 A 1.5 1.5 0 0 1 258 857 H 151 A 1.5 1.5 0 0 1 149.5 855.5 V 854.5 A 1.5 1.5 0 0 1 151 853 Z " fill="#111111" fill-rule="nonzero" />
-  <g transform="translate(192 97.41259765625)" opacity="0.9">
-    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
-  </g>
 </svg>

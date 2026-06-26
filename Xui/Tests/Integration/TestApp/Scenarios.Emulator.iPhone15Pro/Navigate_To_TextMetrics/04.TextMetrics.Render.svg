@@ -7,22 +7,22 @@
   <g clip-path="url(#clip0)">
     <g transform="translate(8,8)">
       <rect x="0" y="0" width="393" height="852" fill="#FFFFFF" />
-      <text x="184" y="438" fill="#000000" text-anchor="middle" dominant-baseline="alphabetic" font-size="64" font-family="Inter" xml:space="preserve">Hello World!</text>
-      <path d="M -16 376 L 384 376 " fill="none" stroke="#0000FF" stroke-width="2" />
-      <path d="M -16 438 L 384 438 " fill="none" stroke="#000000" stroke-width="2" />
-      <path d="M -16 453.44 L 384 453.44 " fill="none" stroke="#008000" stroke-width="2" />
-      <rect x="-0.31" y="376" width="363.63" height="77.44" fill="none" stroke="#008000" stroke-width="5" />
-      <rect x="-0.31" y="376" width="363.63" height="77.44" fill="none" stroke="#FFA500" stroke-width="3" />
-      <rect x="-0.31" y="391.44" width="363.63" height="46.56" fill="none" stroke="#FF0000" />
-      <path d="M 179 438 L 189 438 M 184 433 L 184 443 " fill="none" stroke="#FF0000" stroke-width="3" />
-      <rect x="34" y="0" width="300" height="24" fill="#FFFFFF" />
-      <text x="34" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
-      <text x="107.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">TextMetrics</text>
+      <text x="196.5" y="450.5" fill="#000000" text-anchor="middle" dominant-baseline="alphabetic" font-size="64" font-family="Inter" xml:space="preserve">Hello World!</text>
+      <path d="M -3.5 388.5 L 396.5 388.5 " fill="none" stroke="#0000FF" stroke-width="2" />
+      <path d="M -3.5 450.5 L 396.5 450.5 " fill="none" stroke="#000000" stroke-width="2" />
+      <path d="M -3.5 465.94 L 396.5 465.94 " fill="none" stroke="#008000" stroke-width="2" />
+      <rect x="12.19" y="388.5" width="363.63" height="77.44" fill="none" stroke="#008000" stroke-width="5" />
+      <rect x="12.19" y="388.5" width="363.63" height="77.44" fill="none" stroke="#FFA500" stroke-width="3" />
+      <rect x="12.19" y="403.94" width="363.63" height="46.56" fill="none" stroke="#FF0000" />
+      <path d="M 191.5 450.5 L 201.5 450.5 M 196.5 445.5 L 196.5 455.5 " fill="none" stroke="#FF0000" stroke-width="3" />
+      <rect x="0" y="59" width="393" height="24" fill="#FFFFFF" />
+      <text x="0" y="59" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+      <text x="73.18" y="59" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">TextMetrics</text>
     </g>
   </g>
   <path d="M 52 4 H 357 A 48 48 0 0 1 405 52 V 816 A 48 48 0 0 1 357 864 H 52 A 48 48 0 0 1 4 816 V 52 A 48 48 0 0 1 52 4 Z " fill="none" stroke="#111111" stroke-width="8" />
   <path d="M 49.88 1.25 H 359.13 A 48.63 48.63 0 0 1 407.75 49.88 V 818.13 A 48.63 48.63 0 0 1 359.13 866.75 H 49.88 A 48.63 48.63 0 0 1 1.25 818.13 V 49.88 A 48.63 48.63 0 0 1 49.88 1.25 Z " fill="none" stroke="#444444" stroke-width="2.5" />
-  <path d="M 172.5 20 H 236.5 A 13 13 0 0 1 249.5 33 V 33 A 13 13 0 0 1 236.5 46 H 172.5 A 13 13 0 0 1 159.5 33 V 33 A 13 13 0 0 1 172.5 20 Z " fill="#111111" fill-rule="nonzero" />
+  <path d="M 159.5 19 H 249.5 A 18 18 0 0 1 267.5 37 V 37 A 18 18 0 0 1 249.5 55 H 159.5 A 18 18 0 0 1 141.5 37 V 37 A 18 18 0 0 1 159.5 19 Z " fill="#111111" fill-rule="nonzero" />
   <g transform="translate(91.25,26)">
     <text x="0" y="0" fill="#000000" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">9:41</text>
   </g>
@@ -40,7 +40,4 @@
     <text x="0" y="0" fill="#000000" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">5G</text>
   </g>
   <path d="M 151 853 H 258 A 1.5 1.5 0 0 1 259.5 854.5 V 855.5 A 1.5 1.5 0 0 1 258 857 H 151 A 1.5 1.5 0 0 1 149.5 855.5 V 854.5 A 1.5 1.5 0 0 1 151 853 Z " fill="#111111" fill-rule="nonzero" />
-  <g transform="translate(192 49.11376953125)" opacity="0.9">
-    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
-  </g>
 </svg>

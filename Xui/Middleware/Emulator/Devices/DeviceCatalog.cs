@@ -14,10 +14,10 @@ public static class DeviceCatalog
             Model = "iPhone 15 Pro",
             LogicalResolution = new Size(393, 852),
             ScaleFactor = 3,
-            SafeAreaInsetsPortrait = new Frame(0, 59, 0, 34),
-            SafeAreaInsetsLandscape = new Frame(59, 0, 59, 21),
+            SafeAreaInsetsPortrait = new Frame(59, 0, 34, 0),
+            SafeAreaInsetsLandscape = new Frame(0, 59, 21, 59),
             NotchType = NotchType.DynamicIsland,
-            NotchFrame = new Rect(147, 59, 98, 37),
+            NotchFrame = new Rect(133.5f, 11, 126, 36),
             ScreenCornerRadius = 44
         },
         new DeviceProfile
@@ -27,10 +27,10 @@ public static class DeviceCatalog
             Model = "iPhone 14",
             LogicalResolution = new Size(390, 844),
             ScaleFactor = 3,
-            SafeAreaInsetsPortrait = new Frame(0, 47, 0, 34),
-            SafeAreaInsetsLandscape = new Frame(47, 0, 47, 21),
+            SafeAreaInsetsPortrait = new Frame(47, 0, 34, 0),
+            SafeAreaInsetsLandscape = new Frame(0, 47, 21, 47),
             NotchType = NotchType.Notch,
-            NotchFrame = new Rect(132, 47, 126, 30),
+            NotchFrame = new Rect(114, 0, 162, 34),
             ScreenCornerRadius = 44
         },
         new DeviceProfile
@@ -77,12 +77,12 @@ public static class DeviceCatalog
             Brand = Brand.Android,
             DeviceType = DeviceType.Phone,
             Model = "Pixel 8 Pro",
-            LogicalResolution = new Size(412, 915),
+            LogicalResolution = new Size(448, 1008),
             ScaleFactor = 3,
-            SafeAreaInsetsPortrait = new Frame(0, 40, 0, 34),
-            SafeAreaInsetsLandscape = new Frame(40, 0, 40, 20),
+            SafeAreaInsetsPortrait = new Frame(40, 0, 34, 0),
+            SafeAreaInsetsLandscape = new Frame(0, 40, 20, 40),
             NotchType = NotchType.PinHole,
-            NotchFrame = new Rect(190, 40, 32, 32),
+            NotchFrame = new Rect(208, 14, 32, 32),
             ScreenCornerRadius = 28
         },
         new DeviceProfile
@@ -128,14 +128,27 @@ public static class DeviceCatalog
         {
             Brand = Brand.Android,
             DeviceType = DeviceType.Phone,
-            Model = "OnePlus 12",
-            LogicalResolution = new Size(412, 933),
+            Model = "Galaxy A54",
+            LogicalResolution = new Size(384, 832),
             ScaleFactor = 3,
-            SafeAreaInsetsPortrait = new Frame(0, 38, 0, 34),
-            SafeAreaInsetsLandscape = new Frame(38, 0, 38, 20),
-            NotchType = NotchType.PinHole,
-            NotchFrame = new Rect(192, 38, 32, 32),
-            ScreenCornerRadius = 26
+            SafeAreaInsetsPortrait = new Frame(32, 0, 24, 0),
+            SafeAreaInsetsLandscape = new Frame(0, 32, 16, 32),
+            NotchType = NotchType.Waterdrop,
+            NotchFrame = new Rect(155, 0, 74, 30),
+            ScreenCornerRadius = 22
+        },
+        new DeviceProfile
+        {
+            Brand = Brand.Android,
+            DeviceType = DeviceType.Phone,
+            Model = "RedMagic 9 Pro",
+            LogicalResolution = new Size(486, 1080),
+            ScaleFactor = 3,
+            SafeAreaInsetsPortrait = new Frame(24, 0, 20, 0),
+            SafeAreaInsetsLandscape = new Frame(0, 24, 16, 24),
+            NotchType = NotchType.None,
+            NotchFrame = new Rect(0, 0, 0, 0),
+            ScreenCornerRadius = 18
         },
         new DeviceProfile
         {

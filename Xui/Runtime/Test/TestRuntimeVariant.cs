@@ -3,5 +3,9 @@ namespace Xui.Runtime.Test;
 public enum TestRuntimeVariant
 {
     Desktop,
-    IPhoneEmulator
+    IPhoneEmulator,
+    IPhoneNotchEmulator,
+    AndroidPunchHoleEmulator,
+    AndroidWaterdropEmulator,
+    AndroidNoCutoutEmulator
 }

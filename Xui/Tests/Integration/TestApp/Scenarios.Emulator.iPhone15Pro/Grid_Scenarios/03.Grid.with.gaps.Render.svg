@@ -7,47 +7,47 @@
   <g clip-path="url(#clip0)">
     <g transform="translate(8,8)">
       <rect x="0" y="0" width="393" height="852" fill="#FFFFFF" />
-      <rect x="234" y="24" width="1" height="828" fill="#E0E0E0" />
-      <text x="37" y="27" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Basic fixed grid</text>
-      <rect x="37" y="51.15" width="194" height="18.15" fill="#D3D3D3" />
-      <text x="37" y="51.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Grid with gaps</text>
-      <text x="37" y="75.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Fractional units</text>
-      <text x="37" y="99.45" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Auto tracks</text>
-      <text x="37" y="123.6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Spanning cells</text>
-      <text x="37" y="147.75" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Named areas</text>
-      <text x="37" y="171.9" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Auto flow</text>
-      <text x="37" y="196.05" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Alignment</text>
-      <text x="37" y="220.2" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Fixed container</text>
-      <text x="37" y="244.34" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Scrollable grid</text>
-      <text x="37" y="268.49" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Nested grids</text>
-      <text x="37" y="292.64" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">MinMax tracks</text>
-      <rect x="234" y="24" width="100" height="828" fill="#F5F5F5" />
-      <path d="M 143 347.5 H 221 A 6 6 0 0 1 227 353.5 V 396.5 A 6 6 0 0 1 221 402.5 H 143 A 6 6 0 0 1 137 396.5 V 353.5 A 6 6 0 0 1 143 347.5 Z " fill="#52BE80" fill-rule="nonzero" />
-      <text x="177.17" y="366.53" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Inter" xml:space="preserve">A</text>
-      <path d="M 245 347.5 H 323 A 6 6 0 0 1 329 353.5 V 396.5 A 6 6 0 0 1 323 402.5 H 245 A 6 6 0 0 1 239 396.5 V 353.5 A 6 6 0 0 1 245 347.5 Z " fill="#5DADE8" fill-rule="nonzero" />
-      <text x="279.42" y="366.53" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Inter" xml:space="preserve">B</text>
-      <path d="M 347 347.5 H 425 A 6 6 0 0 1 431 353.5 V 396.5 A 6 6 0 0 1 425 402.5 H 347 A 6 6 0 0 1 341 396.5 V 353.5 A 6 6 0 0 1 347 347.5 Z " fill="#AF7AC5" fill-rule="nonzero" />
-      <text x="380.89" y="366.53" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Inter" xml:space="preserve">C</text>
-      <path d="M 143 410.5 H 221 A 6 6 0 0 1 227 416.5 V 459.5 A 6 6 0 0 1 221 465.5 H 143 A 6 6 0 0 1 137 459.5 V 416.5 A 6 6 0 0 1 143 410.5 Z " fill="#F0B27A" fill-rule="nonzero" />
-      <text x="176.95" y="429.53" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Inter" xml:space="preserve">D</text>
-      <path d="M 245 410.5 H 323 A 6 6 0 0 1 329 416.5 V 459.5 A 6 6 0 0 1 323 465.5 H 245 A 6 6 0 0 1 239 459.5 V 416.5 A 6 6 0 0 1 245 410.5 Z " fill="#85C1E9" fill-rule="nonzero" />
-      <text x="279.79" y="429.53" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Inter" xml:space="preserve">E</text>
-      <path d="M 347 410.5 H 425 A 6 6 0 0 1 431 416.5 V 459.5 A 6 6 0 0 1 425 465.5 H 347 A 6 6 0 0 1 341 459.5 V 416.5 A 6 6 0 0 1 347 410.5 Z " fill="#82E0AA" fill-rule="nonzero" />
-      <text x="381.87" y="429.53" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Inter" xml:space="preserve">F</text>
-      <path d="M 143 473.5 H 221 A 6 6 0 0 1 227 479.5 V 522.5 A 6 6 0 0 1 221 528.5 H 143 A 6 6 0 0 1 137 522.5 V 479.5 A 6 6 0 0 1 143 473.5 Z " fill="#F1948A" fill-rule="nonzero" />
-      <text x="176.78" y="492.53" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Inter" xml:space="preserve">G</text>
-      <path d="M 245 473.5 H 323 A 6 6 0 0 1 329 479.5 V 522.5 A 6 6 0 0 1 323 528.5 H 245 A 6 6 0 0 1 239 522.5 V 479.5 A 6 6 0 0 1 245 473.5 Z " fill="#FAD7A0" fill-rule="nonzero" />
-      <text x="278.8" y="492.53" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Inter" xml:space="preserve">H</text>
-      <path d="M 347 473.5 H 425 A 6 6 0 0 1 431 479.5 V 522.5 A 6 6 0 0 1 425 528.5 H 347 A 6 6 0 0 1 341 522.5 V 479.5 A 6 6 0 0 1 347 473.5 Z " fill="#A9CCE3" fill-rule="nonzero" />
-      <text x="384.12" y="492.53" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Inter" xml:space="preserve">I</text>
-      <rect x="34" y="0" width="300" height="24" fill="#FFFFFF" />
-      <text x="34" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
-      <text x="107.18" y="0" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Grid Layout</text>
+      <rect x="200" y="83" width="1" height="735" fill="#E0E0E0" />
+      <text x="3" y="86" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Basic fixed grid</text>
+      <rect x="3" y="110.15" width="194" height="18.15" fill="#D3D3D3" />
+      <text x="3" y="110.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Grid with gaps</text>
+      <text x="3" y="134.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Fractional units</text>
+      <text x="3" y="158.45" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Auto tracks</text>
+      <text x="3" y="182.6" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Spanning cells</text>
+      <text x="3" y="206.75" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Named areas</text>
+      <text x="3" y="230.9" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Auto flow</text>
+      <text x="3" y="255.05" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Alignment</text>
+      <text x="3" y="279.2" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Fixed container</text>
+      <text x="3" y="303.34" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Scrollable grid</text>
+      <text x="3" y="327.49" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Nested grids</text>
+      <text x="3" y="351.64" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">MinMax tracks</text>
+      <rect x="200" y="83" width="193" height="735" fill="#F5F5F5" />
+      <path d="M 155.5 360 H 233.5 A 6 6 0 0 1 239.5 366 V 409 A 6 6 0 0 1 233.5 415 H 155.5 A 6 6 0 0 1 149.5 409 V 366 A 6 6 0 0 1 155.5 360 Z " fill="#52BE80" fill-rule="nonzero" />
+      <text x="189.67" y="379.03" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Inter" xml:space="preserve">A</text>
+      <path d="M 257.5 360 H 335.5 A 6 6 0 0 1 341.5 366 V 409 A 6 6 0 0 1 335.5 415 H 257.5 A 6 6 0 0 1 251.5 409 V 366 A 6 6 0 0 1 257.5 360 Z " fill="#5DADE8" fill-rule="nonzero" />
+      <text x="291.92" y="379.03" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Inter" xml:space="preserve">B</text>
+      <path d="M 359.5 360 H 437.5 A 6 6 0 0 1 443.5 366 V 409 A 6 6 0 0 1 437.5 415 H 359.5 A 6 6 0 0 1 353.5 409 V 366 A 6 6 0 0 1 359.5 360 Z " fill="#AF7AC5" fill-rule="nonzero" />
+      <text x="393.39" y="379.03" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Inter" xml:space="preserve">C</text>
+      <path d="M 155.5 423 H 233.5 A 6 6 0 0 1 239.5 429 V 472 A 6 6 0 0 1 233.5 478 H 155.5 A 6 6 0 0 1 149.5 472 V 429 A 6 6 0 0 1 155.5 423 Z " fill="#F0B27A" fill-rule="nonzero" />
+      <text x="189.45" y="442.03" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Inter" xml:space="preserve">D</text>
+      <path d="M 257.5 423 H 335.5 A 6 6 0 0 1 341.5 429 V 472 A 6 6 0 0 1 335.5 478 H 257.5 A 6 6 0 0 1 251.5 472 V 429 A 6 6 0 0 1 257.5 423 Z " fill="#85C1E9" fill-rule="nonzero" />
+      <text x="292.29" y="442.03" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Inter" xml:space="preserve">E</text>
+      <path d="M 359.5 423 H 437.5 A 6 6 0 0 1 443.5 429 V 472 A 6 6 0 0 1 437.5 478 H 359.5 A 6 6 0 0 1 353.5 472 V 429 A 6 6 0 0 1 359.5 423 Z " fill="#82E0AA" fill-rule="nonzero" />
+      <text x="394.37" y="442.03" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Inter" xml:space="preserve">F</text>
+      <path d="M 155.5 486 H 233.5 A 6 6 0 0 1 239.5 492 V 535 A 6 6 0 0 1 233.5 541 H 155.5 A 6 6 0 0 1 149.5 535 V 492 A 6 6 0 0 1 155.5 486 Z " fill="#F1948A" fill-rule="nonzero" />
+      <text x="189.28" y="505.03" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Inter" xml:space="preserve">G</text>
+      <path d="M 257.5 486 H 335.5 A 6 6 0 0 1 341.5 492 V 535 A 6 6 0 0 1 335.5 541 H 257.5 A 6 6 0 0 1 251.5 535 V 492 A 6 6 0 0 1 257.5 486 Z " fill="#FAD7A0" fill-rule="nonzero" />
+      <text x="291.3" y="505.03" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Inter" xml:space="preserve">H</text>
+      <path d="M 359.5 486 H 437.5 A 6 6 0 0 1 443.5 492 V 535 A 6 6 0 0 1 437.5 541 H 359.5 A 6 6 0 0 1 353.5 535 V 492 A 6 6 0 0 1 359.5 486 Z " fill="#A9CCE3" fill-rule="nonzero" />
+      <text x="396.62" y="505.03" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Inter" xml:space="preserve">I</text>
+      <rect x="0" y="59" width="393" height="24" fill="#FFFFFF" />
+      <text x="0" y="59" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
+      <text x="73.18" y="59" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Grid Layout</text>
     </g>
   </g>
   <path d="M 52 4 H 357 A 48 48 0 0 1 405 52 V 816 A 48 48 0 0 1 357 864 H 52 A 48 48 0 0 1 4 816 V 52 A 48 48 0 0 1 52 4 Z " fill="none" stroke="#111111" stroke-width="8" />
   <path d="M 49.88 1.25 H 359.13 A 48.63 48.63 0 0 1 407.75 49.88 V 818.13 A 48.63 48.63 0 0 1 359.13 866.75 H 49.88 A 48.63 48.63 0 0 1 1.25 818.13 V 49.88 A 48.63 48.63 0 0 1 49.88 1.25 Z " fill="none" stroke="#444444" stroke-width="2.5" />
-  <path d="M 172.5 20 H 236.5 A 13 13 0 0 1 249.5 33 V 33 A 13 13 0 0 1 236.5 46 H 172.5 A 13 13 0 0 1 159.5 33 V 33 A 13 13 0 0 1 172.5 20 Z " fill="#111111" fill-rule="nonzero" />
+  <path d="M 159.5 19 H 249.5 A 18 18 0 0 1 267.5 37 V 37 A 18 18 0 0 1 249.5 55 H 159.5 A 18 18 0 0 1 141.5 37 V 37 A 18 18 0 0 1 159.5 19 Z " fill="#111111" fill-rule="nonzero" />
   <g transform="translate(91.25,26)">
     <text x="0" y="0" fill="#000000" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">9:41</text>
   </g>
@@ -65,7 +65,4 @@
     <text x="0" y="0" fill="#000000" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">5G</text>
   </g>
   <path d="M 151 853 H 258 A 1.5 1.5 0 0 1 259.5 854.5 V 855.5 A 1.5 1.5 0 0 1 258 857 H 151 A 1.5 1.5 0 0 1 149.5 855.5 V 854.5 A 1.5 1.5 0 0 1 151 853 Z " fill="#111111" fill-rule="nonzero" />
-  <g transform="translate(142 68.22412109375)" opacity="0.9">
-    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
-  </g>
 </svg>

@@ -4,6 +4,7 @@ public enum NotchType
 {
     None,
     Notch,
+    Waterdrop,
     DynamicIsland,
     PinHole,
 }
