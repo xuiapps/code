@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="../Core/Xui.Core.csproj" />
     <ProjectReference Include="../../Runtime/Software/Xui.Runtime.Software.csproj" />
+    <ProjectReference Include="../Fonts/Xui.Core.Fonts.csproj" />
   </ItemGroup>
 
 </Project>
