@@ -17,7 +17,7 @@ public static class DeviceCatalog
             SafeAreaInsetsPortrait = new Frame(0, 59, 0, 34),
             SafeAreaInsetsLandscape = new Frame(59, 0, 59, 21),
             NotchType = NotchType.DynamicIsland,
-            NotchFrame = new Rect(147, 12, 98, 37),
+            NotchFrame = new Rect(151.5f, 12, 90, 26),
             ScreenCornerRadius = 44
         },
         new DeviceProfile

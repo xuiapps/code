@@ -43,19 +43,14 @@ internal sealed class EmulatorChromeRenderer
             device.NotchFrame.Height);
         RenderCameraCutout(ctx, device, cutoutRect);
 
-        var leftInset = geometry.EmulatorRect.X + 16f;
-        var rightInset = geometry.EmulatorRect.Right - 16f;
-        var notchLeft = device.NotchType == NotchType.None ? geometry.EmulatorRect.Center.X - 44f : cutoutRect.Left;
-        var notchRight = device.NotchType == NotchType.None ? geometry.EmulatorRect.Center.X + 44f : cutoutRect.Right;
-
         NFloat clockX = NFloat.Lerp(
-            leftInset + (notchLeft - leftInset) * 0.5f,
+            (geometry.EmulatorRect.Center.X - 22f) / 2,
             (300 / 2f - 22f) / 2,
             Easing.EaseInOutSine(phoneToTabletT));
         EmulatorWindow.ClockIcon.Instance.Render(ctx, (clockX, iconTop + 6f), clock.Now);
 
         NFloat instrumentsX = NFloat.Lerp(
-            notchRight + (rightInset - notchRight) * 0.5f,
+            geometry.EmulatorRect.Center.X + 45f + (geometry.EmulatorRect.Center.X - 45f - 22f) / 2f,
             hostRect.Width - 80f,
             Easing.EaseInOutSine(phoneToTabletT));
 
