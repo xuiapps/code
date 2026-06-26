@@ -21,6 +21,7 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
     private readonly EmulatorChromeRenderer chromeRenderer = new();
     private EmulatorGeometry lastGeometry = EmulatorGeometry.Create(new Rect(0, 0, 430, 940), DeviceCatalog.All[0]);
     private EmulatorStatusBarStyle? statusBarStyleOverride;
+    public bool RenderTouchIndicators { get; set; } = true;
 
     public EmulatorWindow(Xui.Core.Abstract.IWindow appWindow)
     {
@@ -198,7 +199,8 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
         emulator.SafeArea = emulatorRender.Rect - CurrentDevice.SafeAreaInsetsPortrait;
         emulator.ScreenCornerRadius = CurrentDevice.ScreenCornerRadius;
         emulator.Render(ref emulatorRender);
-        emulator.RenderTouchIndicator(ctx);
+        if (RenderTouchIndicators)
+            emulator.RenderTouchIndicator(ctx);
 
         ctx.Restore();
 
@@ -229,7 +231,8 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
         emulator.SafeArea = emulatorRender.Rect - CurrentDevice.SafeAreaInsetsPortrait;
         emulator.ScreenCornerRadius = CurrentDevice.ScreenCornerRadius;
         emulator.Render(ref emulatorRender);
-        emulator.RenderTouchIndicator(ctx);
+        if (RenderTouchIndicators)
+            emulator.RenderTouchIndicator(ctx);
 
         ctx.Restore();
 
