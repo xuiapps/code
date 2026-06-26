@@ -68,7 +68,4 @@
     <text x="0" y="0" fill="#000000" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">5G</text>
   </g>
   <path d="M 151 853 H 258 A 1.5 1.5 0 0 1 259.5 854.5 V 855.5 A 1.5 1.5 0 0 1 258 857 H 151 A 1.5 1.5 0 0 1 149.5 855.5 V 854.5 A 1.5 1.5 0 0 1 151 853 Z " fill="#111111" fill-rule="nonzero" />
-  <g transform="translate(204.5 156.41259765625)" opacity="0.9">
-    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
-  </g>
 </svg>

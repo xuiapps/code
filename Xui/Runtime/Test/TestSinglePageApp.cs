@@ -36,7 +36,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     private readonly string snapshotsDir;
     private readonly List<SnapshotEntry> snapshots = new();
     private readonly List<ReportEntry> reportEntries = new();
-    private readonly Dictionary<int, TouchOverlayContact> activeTouchContacts = new();
+    private readonly Dictionary<int, Touch> activeTouchContacts = new();
     private int snapshotCounter;
     private Point mousePosition;
     private bool mouseLeftPressed;
@@ -146,7 +146,11 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         {
             this.hasMouseInteraction = true;
             if (activeTouchContacts.ContainsKey(0))
+            {
+                var mouseMove = new MouseMoveEventRef { Position = position };
+                this.Window.OnMouseMove(ref mouseMove);
                 PointerMove(position);
+            }
             return;
         }
 
@@ -161,6 +165,8 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     {
         if (emulatorWindow is not null && button == MouseButton.Left)
         {
+            var mouseDown = new MouseDownEventRef { Position = position, Button = button };
+            this.Window.OnMouseDown(ref mouseDown);
             this.hasMouseInteraction = true;
             PointerDown(position);
             return;
@@ -178,6 +184,8 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     {
         if (emulatorWindow is not null && button == MouseButton.Left)
         {
+            var mouseUp = new MouseUpEventRef { Position = position, Button = button };
+            this.Window.OnMouseUp(ref mouseUp);
             this.hasMouseInteraction = true;
             PointerUp(position);
             return;
@@ -195,7 +203,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     public void MouseDown(View view, MouseButton button = MouseButton.Left) => MouseDown(view.Frame.Center, button);
     public void MouseUp(View view, MouseButton button = MouseButton.Left) => MouseUp(view.Frame.Center, button);
 
-    public void PointerDown(Point position, int index = 0, nfloat radius = 0.5f) =>
+    public void PointerDown(Point position, int index = 0, float radius = 0.5f) =>
         DispatchTouch([new Touch
         {
             Index = index,
@@ -204,7 +212,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
             Radius = radius
         }]);
 
-    public void PointerMove(Point position, int index = 0, nfloat radius = 0.5f)
+    public void PointerMove(Point position, int index = 0, float radius = 0.5f)
     {
         if (!activeTouchContacts.ContainsKey(index))
             return;
@@ -218,7 +226,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
         }]);
     }
 
-    public void PointerUp(Point position, int index = 0, nfloat radius = 0.5f)
+    public void PointerUp(Point position, int index = 0, float radius = 0.5f)
     {
         if (!activeTouchContacts.ContainsKey(index))
             return;
@@ -482,7 +490,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
             {
                 case TouchPhase.Start:
                 case TouchPhase.Move:
-                    activeTouchContacts[touch.Index] = new TouchOverlayContact(touch.Position, touch.Radius);
+                    activeTouchContacts[touch.Index] = touch;
                     break;
                 case TouchPhase.End:
                     activeTouchContacts.Remove(touch.Index);
@@ -719,7 +727,6 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
     private abstract record ReportEntry;
     private sealed record MarkdownReportEntry(string Markdown) : ReportEntry;
     private sealed record SnapshotReportEntry(SnapshotEntry Snapshot) : ReportEntry;
-    private readonly record struct TouchOverlayContact(Point Position, nfloat Radius);
 
     private record SnapshotEntry(
         int Index,

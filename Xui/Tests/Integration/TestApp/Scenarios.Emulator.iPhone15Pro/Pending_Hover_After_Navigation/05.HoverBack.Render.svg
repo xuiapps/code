@@ -44,7 +44,6 @@
       <path d="M 263.81 252.8 H 320.68 A 3.5 3.5 0 0 1 324.18 256.3 V 280.45 A 3.5 3.5 0 0 1 320.68 283.95 H 263.81 A 3.5 3.5 0 0 1 260.31 280.45 V 256.3 A 3.5 3.5 0 0 1 263.81 252.8 Z " fill="none" stroke="#000000" />
       <path d="M 16 239.8 H 377 A 7.5 7.5 0 0 1 384.5 247.3 V 289.45 A 7.5 7.5 0 0 1 377 296.95 H 16 A 7.5 7.5 0 0 1 8.5 289.45 V 247.3 A 7.5 7.5 0 0 1 16 239.8 Z " fill="none" stroke="#808080" />
       <rect x="0" y="59" width="393" height="24" fill="#FFFFFF" />
-      <rect x="0" y="59" width="49.18" height="24" fill="#D3D3D3" />
       <text x="0" y="59" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
       <text x="73.18" y="59" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Nested Stacks</text>
     </g>
@@ -69,7 +68,4 @@
     <text x="0" y="0" fill="#000000" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">5G</text>
   </g>
   <path d="M 151 853 H 258 A 1.5 1.5 0 0 1 259.5 854.5 V 855.5 A 1.5 1.5 0 0 1 258 857 H 151 A 1.5 1.5 0 0 1 149.5 855.5 V 854.5 A 1.5 1.5 0 0 1 151 853 Z " fill="#111111" fill-rule="nonzero" />
-  <g transform="translate(32.591064453125 79)" opacity="0.9">
-    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
-  </g>
 </svg>

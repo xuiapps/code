@@ -11,7 +11,6 @@
       <text x="3" y="86" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">BorderLayer</text>
       <text x="3" y="110.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">TextBox (layered)</text>
       <text x="3" y="134.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">DockLayer widgets</text>
-      <rect x="3" y="158.45" width="194" height="18.15" fill="#D3D3D3" />
       <text x="3" y="158.45" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Overlay (IOverlay)</text>
       <rect x="200" y="83" width="193" height="735" fill="#F5F5F5" />
       <path d="M 222.5 402.5 H 370.5 A 6 6 0 0 1 376.5 408.5 V 432.5 A 6 6 0 0 1 370.5 438.5 H 222.5 A 6 6 0 0 1 216.5 432.5 V 408.5 A 6 6 0 0 1 222.5 402.5 Z " fill="#0078D4" fill-rule="nonzero" />
@@ -42,7 +41,4 @@
     <text x="0" y="0" fill="#000000" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Verdana" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">5G</text>
   </g>
   <path d="M 151 853 H 258 A 1.5 1.5 0 0 1 259.5 854.5 V 855.5 A 1.5 1.5 0 0 1 258 857 H 151 A 1.5 1.5 0 0 1 149.5 855.5 V 854.5 A 1.5 1.5 0 0 1 151 853 Z " fill="#111111" fill-rule="nonzero" />
-  <g transform="translate(508 270)" opacity="0.9">
-    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="white" stroke="black" stroke-width="0.7"/>
-  </g>
 </svg>

@@ -28,8 +28,6 @@
       <rect x="0" y="59" width="393" height="24" fill="#FFFFFF" />
       <text x="0" y="59" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
       <text x="73.18" y="59" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">TextBox MVP</text>
-      <path d="M 57 123.15 A 15 15 0 0 1 27 123.15 A 15 15 0 0 1 57 123.15 " fill="#668888" fill-rule="nonzero" fill-opacity="0.53" />
-      <path d="M 57 123.15 A 15 15 0 0 1 27 123.15 A 15 15 0 0 1 57 123.15 " fill="none" stroke="#88AAAA" stroke-width="3" stroke-opacity="0.67" />
     </g>
   </g>
   <path d="M 52 4 H 357 A 48 48 0 0 1 405 52 V 816 A 48 48 0 0 1 357 864 H 52 A 48 48 0 0 1 4 816 V 52 A 48 48 0 0 1 52 4 Z " fill="none" stroke="#111111" stroke-width="8" />
@@ -53,6 +51,7 @@
   </g>
   <path d="M 151 853 H 258 A 1.5 1.5 0 0 1 259.5 854.5 V 855.5 A 1.5 1.5 0 0 1 258 857 H 151 A 1.5 1.5 0 0 1 149.5 855.5 V 854.5 A 1.5 1.5 0 0 1 151 853 Z " fill="#111111" fill-rule="nonzero" />
   <g transform="translate(50 131.1494140625)" opacity="0.9">
-    <polygon points="0,0 0,12 3,9 5,12 7,11 5,8 9,8" fill="#FFCC00" stroke="black" stroke-width="0.7"/>
+    <circle cx="0" cy="0" r="15" fill="#66888888" />
+    <circle cx="0" cy="0" r="15" fill="none" stroke="#88AAAAAA" stroke-width="3" />
   </g>
 </svg>
