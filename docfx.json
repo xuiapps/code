@@ -41,7 +41,7 @@
         "src": "www/index"
       },
       {
-        "files": ["docs/**/*.svg"],
+        "files": ["docs/**/*.{svg,ttf,txt}"],
         "src": "www"
       }
     ],

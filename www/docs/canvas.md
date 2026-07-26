@@ -165,6 +165,21 @@ context.FillText("Hello", new Point(20, 40));
 var metrics = context.MeasureText("Hello");
 ```
 
+`MeasureText` returns the glyph, font, and baseline metrics used for precise placement and diagnostics. Select the font before measuring, then use the same font to render the text:
+
+```csharp
+context.SetFont(new Font(64, ["Inter"], FontWeight.Normal));
+context.TextAlign = TextAlign.Center;
+context.TextBaseline = TextBaseline.Alphabetic;
+
+var metrics = context.MeasureText("Hello World!");
+context.FillText("Hello World!", new Point(300, 158));
+```
+
+The figure shows the Inter 64 px metrics emitted by that code. The red rectangle is the actual glyph bound, green is the em height, and orange is the font bounding box. The baseline labels hang below the lines they describe.
+
+![Inter text metrics](img/fonts/text-metrics.svg)
+
 ## Sub-interfaces
 
 `IContext` is composed of these sub-interfaces — useful for narrowing what a helper method needs:

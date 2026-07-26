@@ -6,6 +6,8 @@
   href: architecture.md
 - name: Canvas API
   href: canvas.md
+- name: Documents
+  href: documents.md
 - name: View System
   href: views/toc.yml
   topicHref: views/index.md

@@ -584,7 +584,7 @@ public sealed class SvgDrawingContext : IContext, IDisposable
         }
 
         if (font.FontWeight != FontWeight.Normal)
-            bodyWriter.Write($" font-weight=\"{font.FontWeight}\"");
+            bodyWriter.Write($" font-weight=\"{F(font.FontWeight.Value)}\"");
 
         if (font.FontStyle.IsItalic)
             bodyWriter.Write($" font-style=\"italic\"");
@@ -615,14 +615,24 @@ public sealed class SvgDrawingContext : IContext, IDisposable
 
         if (resolved.Mode == SvgFontMode.WebLink && resolved.WebUri is not null)
         {
-            styleWriter.WriteLine($"    @font-face {{ font-family: '{fontFace.Family}'; src: url('{resolved.WebUri}'); }}");
+            WriteFontFace(fontFace, $"url('{resolved.WebUri}')");
         }
         else if (resolved.Mode == SvgFontMode.Embedded && sourceUri is not null)
         {
             var data = catalog.LoadFromUri(sourceUri);
             var base64 = Convert.ToBase64String(data.Span);
-            styleWriter.WriteLine($"    @font-face {{ font-family: '{fontFace.Family}'; src: url(data:font/ttf;base64,{base64}); }}");
+            WriteFontFace(fontFace, $"url(data:font/ttf;base64,{base64})");
         }
+    }
+
+    private void WriteFontFace(FontFace fontFace, string source)
+    {
+        var style = fontFace.Style.IsItalic
+            ? "italic"
+            : fontFace.Style.IsOblique
+                ? $"oblique {F(fontFace.Style.ObliqueAngle)}deg"
+                : "normal";
+        styleWriter.WriteLine($"    @font-face {{ font-family: '{fontFace.Family}'; src: {source}; font-weight: {F(fontFace.Weight.Value)}; font-style: {style}; font-stretch: {F(fontFace.Stretch.Value)}%; }}");
     }
 
     TextMetrics ITextMeasureContext.MeasureText(string text)

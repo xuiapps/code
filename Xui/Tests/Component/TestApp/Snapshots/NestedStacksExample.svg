@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
   <path d="M 16 9 H 584 A 7 7 0 0 1 591 16 V 58.15 A 7 7 0 0 1 584 65.15 H 16 A 7 7 0 0 1 9 58.15 V 16 A 7 7 0 0 1 16 9 Z " fill="#FFFFFF" fill-rule="nonzero" />
-  <text x="25" y="28" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">Row 1:</text>
+  <text x="25" y="28" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" font-weight="700" xml:space="preserve">Row 1:</text>
   <path d="M 83.44 22 H 99.79 A 3 3 0 0 1 102.79 25 V 49.15 A 3 3 0 0 1 99.79 52.15 H 83.44 A 3 3 0 0 1 80.44 49.15 V 25 A 3 3 0 0 1 83.44 22 Z " fill="#D3D3D3" fill-rule="nonzero" />
   <text x="86.44" y="28" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">A</text>
   <path d="M 83.44 21.5 H 99.79 A 3.5 3.5 0 0 1 103.29 25 V 49.15 A 3.5 3.5 0 0 1 99.79 52.65 H 83.44 A 3.5 3.5 0 0 1 79.94 49.15 V 25 A 3.5 3.5 0 0 1 83.44 21.5 Z " fill="none" stroke="#000000" />
@@ -12,7 +12,7 @@
   <path d="M 147.61 21.5 H 164.56 A 3.5 3.5 0 0 1 168.06 25 V 49.15 A 3.5 3.5 0 0 1 164.56 52.65 H 147.61 A 3.5 3.5 0 0 1 144.11 49.15 V 25 A 3.5 3.5 0 0 1 147.61 21.5 Z " fill="none" stroke="#000000" />
   <path d="M 16 8.5 H 584 A 7.5 7.5 0 0 1 591.5 16 V 58.15 A 7.5 7.5 0 0 1 584 65.65 H 16 A 7.5 7.5 0 0 1 8.5 58.15 V 16 A 7.5 7.5 0 0 1 16 8.5 Z " fill="none" stroke="#808080" />
   <path d="M 16 83.15 H 584 A 7 7 0 0 1 591 90.15 V 132.3 A 7 7 0 0 1 584 139.3 H 16 A 7 7 0 0 1 9 132.3 V 90.15 A 7 7 0 0 1 16 83.15 Z " fill="#FFFFFF" fill-rule="nonzero" />
-  <text x="25" y="102.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">Row 2:</text>
+  <text x="25" y="102.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" font-weight="700" xml:space="preserve">Row 2:</text>
   <path d="M 86.42 96.15 H 121.5 A 3 3 0 0 1 124.5 99.15 V 123.3 A 3 3 0 0 1 121.5 126.3 H 86.42 A 3 3 0 0 1 83.42 123.3 V 99.15 A 3 3 0 0 1 86.42 96.15 Z " fill="#D3D3D3" fill-rule="nonzero" />
   <text x="89.42" y="102.15" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">One</text>
   <path d="M 86.42 95.65 H 121.5 A 3.5 3.5 0 0 1 125 99.15 V 123.3 A 3.5 3.5 0 0 1 121.5 126.8 H 86.42 A 3.5 3.5 0 0 1 82.92 123.3 V 99.15 A 3.5 3.5 0 0 1 86.42 95.65 Z " fill="none" stroke="#000000" />
@@ -21,7 +21,7 @@
   <path d="M 137.5 95.65 H 173.24 A 3.5 3.5 0 0 1 176.74 99.15 V 123.3 A 3.5 3.5 0 0 1 173.24 126.8 H 137.5 A 3.5 3.5 0 0 1 134 123.3 V 99.15 A 3.5 3.5 0 0 1 137.5 95.65 Z " fill="none" stroke="#000000" />
   <path d="M 16 82.65 H 584 A 7.5 7.5 0 0 1 591.5 90.15 V 132.3 A 7.5 7.5 0 0 1 584 139.8 H 16 A 7.5 7.5 0 0 1 8.5 132.3 V 90.15 A 7.5 7.5 0 0 1 16 82.65 Z " fill="none" stroke="#808080" />
   <path d="M 16 157.3 H 584 A 7 7 0 0 1 591 164.3 V 206.45 A 7 7 0 0 1 584 213.45 H 16 A 7 7 0 0 1 9 206.45 V 164.3 A 7 7 0 0 1 16 157.3 Z " fill="#FFFFFF" fill-rule="nonzero" />
-  <text x="25" y="176.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">Row 3:</text>
+  <text x="25" y="176.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" font-weight="700" xml:space="preserve">Row 3:</text>
   <path d="M 86.66 170.3 H 119.83 A 3 3 0 0 1 122.83 173.3 V 197.45 A 3 3 0 0 1 119.83 200.45 H 86.66 A 3 3 0 0 1 83.66 197.45 V 173.3 A 3 3 0 0 1 86.66 170.3 Z " fill="#D3D3D3" fill-rule="nonzero" />
   <text x="89.66" y="176.3" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Left</text>
   <path d="M 86.66 169.8 H 119.83 A 3.5 3.5 0 0 1 123.33 173.3 V 197.45 A 3.5 3.5 0 0 1 119.83 200.95 H 86.66 A 3.5 3.5 0 0 1 83.16 197.45 V 173.3 A 3.5 3.5 0 0 1 86.66 169.8 Z " fill="none" stroke="#000000" />
