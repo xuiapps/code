@@ -19,7 +19,7 @@
   <g clip-path="url(#clip0)">
     <path d="M 428 280 H 572 A 8 8 0 0 1 580 288 V 392 A 8 8 0 0 1 572 400 H 428 A 8 8 0 0 1 420 392 V 288 A 8 8 0 0 1 428 280 Z " fill="#FFFFFF" fill-rule="nonzero" />
     <path d="M 428 280 H 572 A 8 8 0 0 1 580 288 V 392 A 8 8 0 0 1 572 400 H 428 A 8 8 0 0 1 420 392 V 288 A 8 8 0 0 1 428 280 Z " fill="none" stroke="#000000" stroke-opacity="0.1" />
-    <text x="436" y="296" fill="#1A1A1A" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Segoe UI" font-weight="Xui.Core.Canvas.FontWeight" xml:space="preserve">Overlay content</text>
+    <text x="436" y="296" fill="#1A1A1A" text-anchor="start" dominant-baseline="text-before-edge" font-size="14" font-family="Segoe UI" font-weight="600" xml:space="preserve">Overlay content</text>
     <text x="436" y="320" fill="#606060" text-anchor="start" dominant-baseline="text-before-edge" font-size="13" font-family="Segoe UI" xml:space="preserve">Cross-platform in-window overlay</text>
     <text x="436" y="340" fill="#606060" text-anchor="start" dominant-baseline="text-before-edge" font-size="13" font-family="Segoe UI" xml:space="preserve">Works on Windows, macOS, iOS, Browser</text>
   </g>
