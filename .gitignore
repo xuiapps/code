@@ -6,8 +6,5 @@ _site/
 api/
 *.user
 
-## Custom Settings for Claude
-.claude/settings.local.json
-
 ## Generated shader files
 *.hlsl
