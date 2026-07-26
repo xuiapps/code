@@ -69,7 +69,7 @@ public class CanvasDocsTest
     {
         public override SvgDrawingContext.Resolved Resolve(Xui.Runtime.Software.Font.FontFace face, Uri? uri) =>
             string.Equals(face.Family, "Inter", StringComparison.OrdinalIgnoreCase)
-                ? new(SvgDrawingContext.SvgFontMode.WebLink, new Uri("Inter-Regular.ttf", UriKind.Relative))
+                ? new(SvgDrawingContext.SvgFontMode.Embedded, null)
                 : base.Resolve(face, uri);
     }
 }
