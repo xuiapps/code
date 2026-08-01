@@ -24,6 +24,7 @@ public partial class MacOSDrawingContext : IContext
     private AffineTransform? baseTransform;
 
     private NFloat lineDashOffset = 0f;
+    private NFloat[] lineDashSegments = [];
 
     public MacOSDrawingContext()
     {
@@ -34,19 +35,19 @@ public partial class MacOSDrawingContext : IContext
     LineCap IPenContext.LineCap { set => CGContextRef.CGContextSetLineCap(this.cgContextRef, (CGLineCap)value); }
     LineJoin IPenContext.LineJoin { set => CGContextRef.CGContextSetLineJoin(this.cgContextRef, (CGLineJoin)value); }
     NFloat IPenContext.LineWidth { set => CGContextRef.CGContextSetLineWidth(this.cgContextRef, value); }
-    NFloat IPenContext.MiterLimit
+    NFloat IPenContext.MiterLimit { set => CGContextRef.CGContextSetMiterLimit(this.cgContextRef, value); }
+
+    NFloat IPenContext.LineDashOffset
     {
         set
         {
-            if (this.lineDashOffset != value)
-            {
-                this.lineDashOffset = value;
-                // TODO: Re-do the CGContextRef.CGContextSetLineDash calls and apply the offset
-            }
+            if (this.lineDashOffset == value)
+                return;
+
+            this.lineDashOffset = value;
+            ApplyLineDash();
         }
     }
-
-    public NFloat LineDashOffset { get; set; }
 
     public TextAlign TextAlign { get => textMeasure.TextAlign; set => textMeasure.TextAlign = value; }
 
@@ -71,24 +72,29 @@ public partial class MacOSDrawingContext : IContext
 
     void IPenContext.SetLineDash(ReadOnlySpan<NFloat> segments)
     {
-        // TODO: Offset the segments with LineDashOffset...
+        this.lineDashSegments = segments.ToArray();
+        ApplyLineDash();
+    }
 
-        if (segments.Length == 0)
+    private void ApplyLineDash()
+    {
+        var segments = this.lineDashSegments.AsSpan();
+        if (segments.IsEmpty)
         {
-            CGContextRef.CGContextSetLineDash(this.cgContextRef, this.LineDashOffset, nint.Zero, nint.Zero);
+            CGContextRef.CGContextSetLineDash(this.cgContextRef, this.lineDashOffset, nint.Zero, nint.Zero);
         }
         else if (segments.Length % 2 == 0)
         {
-            CGContextRef.CGContextSetLineDash(this.cgContextRef, this.LineDashOffset, ref MemoryMarshal.GetReference(segments), segments.Length);
+            CGContextRef.CGContextSetLineDash(this.cgContextRef, this.lineDashOffset, ref MemoryMarshal.GetReference(segments), segments.Length);
         }
         else
         {
             Span<NFloat> mirrored = stackalloc NFloat[segments.Length * 2];
             for(var i = 0; i < segments.Length; i++)
             {
-                mirrored[i] = mirrored[i * 2] = segments[i];
+                mirrored[i] = mirrored[i + segments.Length] = segments[i];
             }
-            CGContextRef.CGContextSetLineDash(this.cgContextRef, this.LineDashOffset, ref MemoryMarshal.GetReference(mirrored), mirrored.Length);
+            CGContextRef.CGContextSetLineDash(this.cgContextRef, this.lineDashOffset, ref MemoryMarshal.GetReference(mirrored), mirrored.Length);
         }
     }
 
@@ -371,6 +377,12 @@ public partial class MacOSDrawingContext : IContext
     void ITextDrawingContext.FillText(string text, Point pos)
     {
         using var nsStringRef = new CFStringRef(text);
+        if (this.fill.style != PaintStyle.SolidColor)
+        {
+            FillTextWithPaint(nsStringRef, pos);
+            return;
+        }
+
         using var attributes = new CFMutableDictionaryRef();
 
         using var foreground = new NSColorRef(this.fill.color);
@@ -432,6 +444,12 @@ public partial class MacOSDrawingContext : IContext
     void ITextDrawingContext.FillText(ReadOnlySpan<char> text, Point pos)
     {
         using var nsStringRef = new CFStringRef(text);
+        if (this.fill.style != PaintStyle.SolidColor)
+        {
+            FillTextWithPaint(nsStringRef, pos);
+            return;
+        }
+
         using var attributes = new CFMutableDictionaryRef();
 
         using var foreground = new NSColorRef(this.fill.color);
@@ -487,6 +505,81 @@ public partial class MacOSDrawingContext : IContext
 
         // === Final draw ===
         NSString.objc_msgSend(nsStringRef, NSString.DrawAtPointWithAttributesSel, pos + offset, attributes);
+    }
+
+    private void FillTextWithPaint(CFStringRef text, Point pos)
+    {
+        using var attributes = new CFMutableDictionaryRef();
+        using var foreground = new NSColorRef(new Color(0, 0, 0, 255));
+        attributes.SetValue(NSAttributedString.Key.ForegroundColor, foreground);
+
+        if (textMeasure.nsFont != 0)
+            attributes.SetValue(NSAttributedString.Key.Font, textMeasure.nsFont);
+
+        Vector offset = (0, 0);
+        if (this.TextAlign != TextAlign.Left && this.TextAlign != TextAlign.Start)
+        {
+            var size = ObjC.objc_msgSend_retCGSize(text, NSString.SizeWithAttributesSel, attributes);
+            offset.X -= this.TextAlign switch
+            {
+                TextAlign.Center => size.Width * 0.5f,
+                TextAlign.End or TextAlign.Right => size.Width,
+                _ => 0f,
+            };
+        }
+
+        if (this.TextBaseline != TextBaseline.Top && textMeasure.nsFont != 0)
+        {
+            var ctFont = new CTFontRef(textMeasure.nsFont);
+            var ascent = ctFont.Ascent;
+            var descent = ctFont.Descent;
+            offset.Y -= this.TextBaseline switch
+            {
+                TextBaseline.Middle => (ascent + descent) * 0.5f,
+                TextBaseline.Alphabetic => ascent,
+                TextBaseline.Hanging => ascent - ctFont.CapHeight,
+                TextBaseline.Ideographic => ascent - ctFont.XHeight * 1.25f,
+                TextBaseline.Bottom => ascent + descent,
+                _ => ascent,
+            };
+        }
+
+        CGContextRef.CGContextSaveGState(this.cgContextRef);
+        // Text clipping filled the whole context; reconsider it later if this layer becomes a hotspot.
+        CGContextRef.CGContextBeginTransparencyLayer(this.cgContextRef, nint.Zero);
+        NSString.objc_msgSend(text, NSString.DrawAtPointWithAttributesSel, pos + offset, attributes);
+        CGContextRef.CGContextSetBlendMode(this.cgContextRef, CGBlendMode.SourceIn);
+        DrawFillThroughCurrentClip();
+        CGContextRef.CGContextEndTransparencyLayer(this.cgContextRef);
+        CGContextRef.CGContextRestoreGState(this.cgContextRef);
+    }
+
+    private void DrawFillThroughCurrentClip()
+    {
+        switch (this.fill.style)
+        {
+            case PaintStyle.LinearGradient:
+                CGContextRef.CGContextDrawLinearGradient(
+                    this.cgContextRef,
+                    this.fill.cgGradientRef,
+                    this.fill.startPoint,
+                    this.fill.endPoint);
+                break;
+
+            case PaintStyle.RadialGradient:
+                CGContextRef.CGContextDrawRadialGradient(
+                    this.cgContextRef,
+                    this.fill.cgGradientRef,
+                    this.fill.startPoint,
+                    this.fill.startRadius,
+                    this.fill.endPoint,
+                    this.fill.endRadius);
+                break;
+
+            case PaintStyle.BitmapBrush:
+                TileImagePattern(this.fill);
+                break;
+        }
     }
 
     TextMetrics ITextMeasureContext.MeasureText(string text) => textMeasure.MeasureText(text);

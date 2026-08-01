@@ -34,12 +34,14 @@ public readonly struct FontMetrics
     public readonly nfloat AlphabeticBaseline;
 
     /// <summary>
-    /// Vertical position of the hanging baseline (used in scripts like Devanagari).
+    /// Vertical position of the hanging baseline (used in scripts like Devanagari),
+    /// relative to the alphabetic baseline. Negative values are above it.
     /// </summary>
     public readonly nfloat HangingBaseline;
 
     /// <summary>
-    /// Vertical position of the ideographic baseline (used in CJK layout).
+    /// Vertical position of the ideographic baseline (used in CJK layout),
+    /// relative to the alphabetic baseline. Positive values are below it.
     /// </summary>
     public readonly nfloat IdeographicBaseline;
 

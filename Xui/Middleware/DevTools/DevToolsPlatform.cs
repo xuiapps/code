@@ -27,12 +27,11 @@ public class DevToolsPlatform : IRuntime
     /// Intercepts window creation to insert a <see cref="DevToolsWindow"/> between
     /// the abstract application window and the real platform window.
     /// </summary>
-    public Xui.Core.Actual.IWindow CreateWindow(Xui.Core.Abstract.IWindow windowAbstract)
+    public Xui.Core.Actual.IWindow CreateWindow(Xui.Core.Abstract.IWindow windowAbstract, IServiceProvider applicationServices)
     {
-        var dw = new DevToolsWindow(this);
-        dw.Abstract = windowAbstract;
-        var pw = Base.CreateWindow(dw);
-        dw.Platform = pw;
+        var dw = new DevToolsWindow(this, windowAbstract, applicationServices);
+        var pw = Base.CreateWindow(dw, applicationServices);
+        dw.AttachActual(pw);
         Window = dw;
         return dw;
     }

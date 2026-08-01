@@ -1,5 +1,4 @@
 using Xui.Core.Abstract.Events;
-using Xui.Core.Canvas;
 using Xui.Core.Math2D;
 
 namespace Xui.Core.Abstract;
@@ -30,8 +29,8 @@ public partial interface IContent
     /// <summary>Invoked on each animation frame tick.</summary>
     void OnAnimationFrame(ref FrameEventRef e);
 
-    /// <summary>Performs layout and renders this content into the provided drawing context.</summary>
-    void Update(ref RenderEventRef @event, IContext context);
+    /// <summary>Performs layout and renders this content into <see cref="RenderEventRef.Context"/>.</summary>
+    void Update(ref RenderEventRef @event);
 
     /// <summary>Invoked when a keyboard key is pressed.</summary>
     void OnKeyDown(ref KeyEventRef e);

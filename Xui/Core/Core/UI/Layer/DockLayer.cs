@@ -45,15 +45,6 @@ public static class DockLayer
         private Size s1, s2;
 
         /// <inheritdoc/>
-        public void Update(TView view, ref LayoutGuide guide)
-        {
-            if (guide.IsAnimate) Animate(view, guide.PreviousTime, guide.CurrentTime);
-            if (guide.IsMeasure) guide.DesiredSize = Measure(view, guide.AvailableSize, guide.MeasureContext!);
-            if (guide.IsArrange) Arrange(view, guide.ArrangedRect, guide.MeasureContext!);
-            if (guide.IsRender)  Render(view, guide.RenderContext!);
-        }
-
-        /// <inheritdoc/>
         public Size Measure(TView view, Size available, IMeasureContext ctx)
         {
             nfloat fixedW = 0, maxH = 0;
@@ -116,15 +107,6 @@ public static class DockLayer
         public Docked<T3> Child3;
 
         private Size s1, s2, s3;
-
-        /// <inheritdoc/>
-        public void Update(TView view, ref LayoutGuide guide)
-        {
-            if (guide.IsAnimate) Animate(view, guide.PreviousTime, guide.CurrentTime);
-            if (guide.IsMeasure) guide.DesiredSize = Measure(view, guide.AvailableSize, guide.MeasureContext!);
-            if (guide.IsArrange) Arrange(view, guide.ArrangedRect, guide.MeasureContext!);
-            if (guide.IsRender)  Render(view, guide.RenderContext!);
-        }
 
         /// <inheritdoc/>
         public Size Measure(TView view, Size available, IMeasureContext ctx)
@@ -197,15 +179,6 @@ public static class DockLayer
         public Docked<T4> Child4;
 
         private Size s1, s2, s3, s4;
-
-        /// <inheritdoc/>
-        public void Update(TView view, ref LayoutGuide guide)
-        {
-            if (guide.IsAnimate) Animate(view, guide.PreviousTime, guide.CurrentTime);
-            if (guide.IsMeasure) guide.DesiredSize = Measure(view, guide.AvailableSize, guide.MeasureContext!);
-            if (guide.IsArrange) Arrange(view, guide.ArrangedRect, guide.MeasureContext!);
-            if (guide.IsRender)  Render(view, guide.RenderContext!);
-        }
 
         /// <inheritdoc/>
         public Size Measure(TView view, Size available, IMeasureContext ctx)

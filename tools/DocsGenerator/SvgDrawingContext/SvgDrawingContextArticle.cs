@@ -190,17 +190,12 @@ public class SvgDrawingContextArticle : Article
             ]
         };
 
-        root.Update(new LayoutGuide()
-        {
-            AvailableSize = size,
-            Anchor = (0, 0),
-            XAlign = LayoutGuide.Align.Start,
-            YAlign = LayoutGuide.Align.Start,
-            XSize = LayoutGuide.SizeTo.Exact,
-            YSize = LayoutGuide.SizeTo.Exact,
-            Pass = LayoutGuide.LayoutPass.Measure | LayoutGuide.LayoutPass.Arrange | LayoutGuide.LayoutPass.Render,
-            MeasureContext = context,
-            RenderContext = context
-        });
+        var frame = new LayoutFrameContext(TimeSpan.Zero, TimeSpan.Zero, context, context, default);
+        var update = new LayoutUpdate(
+            LayoutPass.Measure | LayoutPass.Arrange | LayoutPass.Render,
+            new MeasureConstraints(size, LayoutSizeMode.Exact, LayoutSizeMode.Exact),
+            new ArrangeConstraints(size, default, (0, 0)));
+        LayoutMeasurements measurements = default;
+        root.Update(in frame, in update, ref measurements);
     }
 }

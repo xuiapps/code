@@ -637,7 +637,7 @@ public partial class Direct2DContext : IContext
 
     void ITextMeasureContext.SetFont(Xui.Core.Canvas.Font font)
     {
-        string fontFamilyName = font.FontFamily[0];
+        string fontFamilyName = font.FontFamily;
 
         // Use system default
         FontCollection? fontCollection = null;

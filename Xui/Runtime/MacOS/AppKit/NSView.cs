@@ -37,6 +37,10 @@ public static partial class AppKit
 
         public static readonly Sel SetFlippedSel = new Sel("setFlipped:");
 
+        public static readonly Sel ClipsToBoundsSel = new Sel("clipsToBounds");
+
+        public static readonly Sel SetClipsToBoundsSel = new Sel("setClipsToBounds:");
+
         public static readonly Sel WantsLayerSel = new Sel("wantsLayer");
 
         public static readonly Sel SetWantsLayerSel = new Sel("setWantsLayer:");
@@ -108,6 +112,13 @@ public static partial class AppKit
         {
             get => objc_msgSend_retBool(this, FlippedSel);
             set => objc_msgSend(this, SetFlippedSel, value);
+        }
+
+        /// <summary>Whether subviews are clipped to this view's bounds.</summary>
+        public bool ClipsToBounds
+        {
+            get => objc_msgSend_retBool(this, ClipsToBoundsSel);
+            set => objc_msgSend(this, SetClipsToBoundsSel, value);
         }
 
         public bool WantsLayer

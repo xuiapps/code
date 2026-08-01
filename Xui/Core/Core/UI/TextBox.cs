@@ -31,11 +31,7 @@ public class TextBox : LayerView<View, FocusBorderLayer<View, TextInputLayer>>
         Layer.Border.Child.Color                    = Colors.Black;
         Layer.Border.Child.SelectedColor            = Colors.White;
         Layer.Border.Child.SelectionBackgroundColor = Colors.Blue;
-        Layer.Border.Child.FontFamily               = ["Inter"];
-        Layer.Border.Child.FontSize                 = 15;
-        Layer.Border.Child.FontWeight               = FontWeight.Normal;
-        Layer.Border.Child.FontStretch              = FontStretch.Normal;
-        Layer.Border.Child.FontStyle                = FontStyle.Normal;
+        Layer.Border.Child.Font                     = new Font(15, "Inter");
     }
 
     /// <summary>Gets or sets the text content of this input.</summary>
@@ -94,38 +90,45 @@ public class TextBox : LayerView<View, FocusBorderLayer<View, TextInputLayer>>
         set => Layer.Border.Child.SelectionBackgroundColor = value;
     }
 
-    /// <summary>Gets or sets the font family name.</summary>
-    public string[] FontFamily
+    /// <summary>Gets or sets the complete text font.</summary>
+    public Font Font
     {
-        get => Layer.Border.Child.FontFamily ?? ["Inter"];
-        set => Layer.Border.Child.FontFamily = value;
+        get => Layer.Border.Child.Font;
+        set => Layer.Border.Child.Font = value;
+    }
+
+    /// <summary>Gets or sets the font family name.</summary>
+    public string FontFamily
+    {
+        get => Font.FontFamily;
+        set => Font = new Font(Font.FontSize, value, Font.FontWeight, Font.FontStyle, Font.FontStretch, Font.LineHeight);
     }
 
     /// <summary>Gets or sets the font size.</summary>
     public nfloat FontSize
     {
-        get => Layer.Border.Child.FontSize;
-        set => Layer.Border.Child.FontSize = value;
+        get => Font.FontSize;
+        set => Font = new Font(value, Font.FontFamily, Font.FontWeight, Font.FontStyle, Font.FontStretch, Font.LineHeight);
     }
 
     /// <summary>Gets or sets the font style.</summary>
     public FontStyle FontStyle
     {
-        get => Layer.Border.Child.FontStyle;
-        set => Layer.Border.Child.FontStyle = value;
+        get => Font.FontStyle;
+        set => Font = new Font(Font.FontSize, Font.FontFamily, Font.FontWeight, value, Font.FontStretch, Font.LineHeight);
     }
 
     /// <summary>Gets or sets the font weight.</summary>
     public FontWeight FontWeight
     {
-        get => Layer.Border.Child.FontWeight;
-        set => Layer.Border.Child.FontWeight = value;
+        get => Font.FontWeight;
+        set => Font = new Font(Font.FontSize, Font.FontFamily, value, Font.FontStyle, Font.FontStretch, Font.LineHeight);
     }
 
     /// <summary>Gets or sets the font stretch.</summary>
     public FontStretch FontStretch
     {
-        get => Layer.Border.Child.FontStretch;
-        set => Layer.Border.Child.FontStretch = value;
+        get => Font.FontStretch;
+        set => Font = new Font(Font.FontSize, Font.FontFamily, Font.FontWeight, Font.FontStyle, value, Font.LineHeight);
     }
 }

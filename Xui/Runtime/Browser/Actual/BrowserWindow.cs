@@ -31,14 +31,18 @@ public partial class BrowserWindow : Xui.Core.Actual.IWindow
 
     public static BrowserWindow? Instance { get; internal set; }
 
-    private Xui.Core.Abstract.IWindow Abstract;
+    public Xui.Core.Abstract.IWindow Abstract { get; }
 
     private string _title = "";
     private bool invalidated = false;
+    private readonly BrowserDrawingContext drawingContext = new();
 
-    public BrowserWindow(Xui.Core.Abstract.IWindow windowAbstract)
+    public IServiceProvider NextServiceProvider { get; }
+
+    public BrowserWindow(Xui.Core.Abstract.IWindow windowAbstract, IServiceProvider nextServiceProvider)
     {
         this.Abstract = windowAbstract;
+        this.NextServiceProvider = nextServiceProvider;
     }
 
     public string Title
@@ -66,7 +70,7 @@ public partial class BrowserWindow : Xui.Core.Actual.IWindow
     {
     }
 
-    public object? GetService(Type serviceType) => null;
+    public object? GetService(Type serviceType) => NextServiceProvider.GetService(serviceType);
 
     private void SendAnimationFrameEvent(double width, double height, double timestamp, double pixelRatio)
     {
@@ -82,7 +86,7 @@ public partial class BrowserWindow : Xui.Core.Actual.IWindow
             this.invalidated = false;
 
             Rect rect = new Rect(0, 0, (NFloat)width, (NFloat)height);
-            RenderEventRef renderEventRef = new RenderEventRef(rect, frameEventRef);
+            RenderEventRef renderEventRef = new RenderEventRef(rect, frameEventRef, drawingContext);
 
             BrowserDrawingContext.CanvasReset();
             BrowserDrawingContext.CanvasScale(pixelRatio, pixelRatio);

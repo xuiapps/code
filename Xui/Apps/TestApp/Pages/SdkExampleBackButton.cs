@@ -15,7 +15,7 @@ public class SdkExampleBackButton : Label
     {
         this.Id = "Back";
         this.Text = "< Back";
-        this.FontFamily = ["Inter"];
+        this.FontFamily = "Inter";
     }
 
     private void NavigateBack()

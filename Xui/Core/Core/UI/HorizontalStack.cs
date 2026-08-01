@@ -40,7 +40,7 @@ public class HorizontalStack : ViewCollection
 
             // Arrange child at (X, Y), with width/height = desired
             var childRect = new Rect(x, rect.Y, desired.Width, rect.Height);
-            child.Arrange(childRect, context);
+            child.Arrange(childRect, context, desired);
 
             x += desired.Width;
         }

@@ -16,6 +16,10 @@ public class RootView : View, IContent, IFocus
     private View? focusedView;
     private Point lastMousePosition;
     private readonly List<PopupOverlay> overlays = new();
+    private readonly InstrumentedMeasureContext? instrumentedMeasureContext;
+
+    /// <summary>The render-surface instruments that own this visual tree, if instrumentation is enabled.</summary>
+    public IRenderSurfaceInstrumentsSink? RenderSurfaceInstruments => this.Window.RenderSurfaceInstruments;
 
     /// <summary>The input event router for this view tree.</summary>
     public EventRouter EventRouter { get; }
@@ -62,11 +66,13 @@ public class RootView : View, IContent, IFocus
         this.Window = window;
         this.EventRouter = new EventRouter(this);
 
-        var instruments = window.GetService(typeof(IInstruments)) as IInstruments;
+        var instrumentsAccessor = new InstrumentsAccessor(this.RenderSurfaceInstruments);
         var attachEvent = new AttachEventRef
         {
-            Instruments = new InstrumentsAccessor(instruments?.CreateSink())
+            Instruments = instrumentsAccessor,
         };
+        if (this.RenderSurfaceInstruments is not null)
+            this.instrumentedMeasureContext = new InstrumentedMeasureContext(instrumentsAccessor);
         AttachSubtree(this, ref attachEvent);
         ActivateSubtree(this);
     }
@@ -144,42 +150,52 @@ public class RootView : View, IContent, IFocus
     {
         if ((this.Flags & (ViewFlags.Animated | ViewFlags.DescendantAnimated)) != 0)
         {
+            this.Instruments.BeginFrame();
             this.Animate(e.Previous, e.Next);
         }
     }
 
-    void IContent.Update(ref RenderEventRef @event, IContext context)
+    void IContent.Update(ref RenderEventRef @event)
     {
+        var context = @event.Context;
         var instruments = this.Instruments;
+        instruments.BeginFrame();
+        IMeasureContext measureContext = context;
+        if (instrumentedMeasureContext is not null)
+        {
+            instrumentedMeasureContext.SetInner(context);
+            measureContext = instrumentedMeasureContext;
+        }
         var rect = @event.Rect;
         using var _ = instruments.Trace(Scope.Rendering, LevelOfDetail.Essential,
             $"RootView.Update Rect({rect.X:F1}, {rect.Y:F1}, {rect.Width:F1}, {rect.Height:F1})");
 
-        var guide = new LayoutGuide()
+        var frame = new LayoutFrameContext(
+            @event.Frame.Previous,
+            @event.Frame.Next,
+            measureContext,
+            context,
+            instruments);
+        var constraints = new ArrangeConstraints(@event.Rect.Size, default, @event.Rect.TopLeft);
+        var update = new LayoutUpdate(
+            LayoutPass.Measure | LayoutPass.Arrange | LayoutPass.Render,
+            new MeasureConstraints(@event.Rect.Size, LayoutSizeMode.Exact, LayoutSizeMode.Exact),
+            constraints);
+        LayoutMeasurements measurements = default;
+        try
         {
-            Anchor = @event.Rect.TopLeft,
-            PreviousTime = @event.Frame.Previous,
-            CurrentTime = @event.Frame.Next,
-            Pass =
-                LayoutGuide.LayoutPass.Measure |
-                LayoutGuide.LayoutPass.Arrange |
-                LayoutGuide.LayoutPass.Render,
-            AvailableSize = @event.Rect.Size,
-            MeasureContext = context,
-            XAlign = LayoutGuide.Align.Start,
-            YAlign = LayoutGuide.Align.Start,
-            XSize = LayoutGuide.SizeTo.Exact,
-            YSize = LayoutGuide.SizeTo.Exact,
-            RenderContext = context,
-            Instruments = instruments,
-        };
-        this.Update(guide);
+            this.Update(in frame, in update, ref measurements);
 
-        // Render in-window popup overlays on top of all content
-        for (int i = 0; i < overlays.Count; i++)
-            overlays[i].Render(guide);
+            // Render in-window popup overlays on top of all content
+            for (int i = 0; i < overlays.Count; i++)
+                overlays[i].Render(in frame);
 
-        instruments.DumpVisualTree(this, LevelOfDetail.Diagnostic);
+            instruments.DumpVisualTree(this, LevelOfDetail.Diagnostic);
+        }
+        finally
+        {
+            instruments.EndFrame();
+        }
     }
 
     private void MoveFocus(int direction)
@@ -245,6 +261,7 @@ public class RootView : View, IContent, IFocus
     public override object? GetService(Type serviceType)
     {
         if (serviceType == typeof(IFocus)) return this;
+        if (serviceType == typeof(IViewInstrumentsSink)) return this.RenderSurfaceInstruments;
         return this.Window.GetService(serviceType);
     }
 

@@ -1,6 +1,6 @@
 namespace Xui.Core.Canvas;
 
-public ref partial struct Font
+public partial struct Font
 {
     /// <summary>
     /// Implicitly creates a <see cref="Font"/> from a font size.

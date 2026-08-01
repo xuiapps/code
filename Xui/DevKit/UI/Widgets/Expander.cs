@@ -10,7 +10,7 @@ namespace Xui.DevKit.UI.Widgets;
 /// A card-like container with a clickable title that expands/collapses its content
 /// with an animated transition. Consumes motion tokens from the design system.
 /// </summary>
-public class Expander : View
+public class Expander : View, IDesignSystemChangeNotifications
 {
     private View? content;
     private bool isExpanded;
@@ -19,6 +19,7 @@ public class Expander : View
     private TimeSpan? animStartTime;
     private nfloat animFrom;
     private nfloat animTo;
+    private string title = "";
 
     // Cached design tokens
     private Color backgroundColor;
@@ -30,9 +31,19 @@ public class Expander : View
     private nfloat titleHeight;
     private TextStyle titleStyle;
     private CurveToken curve;
+    private readonly DesignSystemCache designSystem = new();
 
     /// <summary>The title text shown in the header.</summary>
-    public string Title { get; set; } = "";
+    public string Title
+    {
+        get => title;
+        set
+        {
+            if (title == value) return;
+            title = value;
+            this.Invalidate();
+        }
+    }
 
     /// <summary>Gets or sets whether the expander is expanded.</summary>
     public bool IsExpanded
@@ -44,8 +55,7 @@ public class Expander : View
             isExpanded = value;
             StartAnimation(value ? 1 : 0);
             // Force immediate layout update
-            this.InvalidateMeasure();
-            this.InvalidateRender();
+            this.Invalidate();
         }
     }
 
@@ -67,14 +77,19 @@ public class Expander : View
     protected override void OnActivate()
     {
         base.OnActivate();
-        ApplyDesignSystem();
         animProgress = isExpanded ? 1 : 0;
     }
 
     private void ApplyDesignSystem()
     {
-        var ds = this.GetService(typeof(IDesignSystem)) as IDesignSystem;
-        if (ds == null) return;
+        designSystem.Resolve(this, this);
+    }
+
+    /// <inheritdoc/>
+    public void OnDesignTokenChange()
+    {
+        var ds = designSystem.Current;
+        if (ds is null) return;
 
         backgroundColor = ds.Colors.Surface.Background;
         outlineColor = ds.Colors.OutlineVariant;
@@ -85,6 +100,14 @@ public class Expander : View
         titleHeight = ds.Spacing.Passive.XXL;
         titleStyle = ds.Typography.Label.L;
         curve = ds.Motion.EmphasizedDecelerate; // 400ms, smooth settle
+        this.Invalidate();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnDeactivate()
+    {
+        designSystem.Deactivate(this);
+        base.OnDeactivate();
     }
 
     private void StartAnimation(nfloat target)
@@ -94,8 +117,7 @@ public class Expander : View
         {
             animProgress = target;
             animating = false;
-            this.InvalidateMeasure();
-            this.InvalidateRender();
+            this.Invalidate();
             return;
         }
 
@@ -104,8 +126,7 @@ public class Expander : View
         animating = true;
         animStartTime = null;
         this.RequestAnimationFrame();
-        this.InvalidateMeasure();
-        this.InvalidateRender();
+        this.Invalidate();
     }
 
     /// <inheritdoc/>
@@ -133,8 +154,7 @@ public class Expander : View
                 this.RequestAnimationFrame();
             }
 
-            this.InvalidateMeasure();
-            this.InvalidateRender();
+            this.Invalidate();
         }
 
         base.AnimateCore(previousTime, currentTime);
@@ -213,7 +233,7 @@ public class Expander : View
         // Title text
         context.SetFont(new Font(
             titleStyle.FontSize,
-            [titleStyle.FontFamily],
+            titleStyle.FontFamily,
             titleStyle.FontWeight,
             titleStyle.FontStyle
         ));

@@ -286,9 +286,24 @@ public partial class BrowserDrawingContext : IContext
     {
         using var jObj = CanvasMeasureText(text);
         var width = (NFloat)jObj.GetPropertyAsDouble("width");
-        var height = (NFloat)jObj.GetPropertyAsDouble("height");
-        var line = new LineMetrics(width, left: 0, right: width, ascent: height, descent: 0);
-        return new TextMetrics(line, default);
+        var line = new LineMetrics(
+            width,
+            left: (NFloat)jObj.GetPropertyAsDouble("actualBoundingBoxLeft"),
+            right: (NFloat)jObj.GetPropertyAsDouble("actualBoundingBoxRight"),
+            ascent: (NFloat)jObj.GetPropertyAsDouble("actualBoundingBoxAscent"),
+            descent: (NFloat)jObj.GetPropertyAsDouble("actualBoundingBoxDescent"));
+
+        // Canvas reports baseline distances in a y-up coordinate system. Xui's
+        // metrics are positions in its y-down drawing coordinates.
+        var font = new FontMetrics(
+            fontAscent: (NFloat)jObj.GetPropertyAsDouble("fontBoundingBoxAscent"),
+            fontDescent: (NFloat)jObj.GetPropertyAsDouble("fontBoundingBoxDescent"),
+            emAscent: (NFloat)jObj.GetPropertyAsDouble("emHeightAscent"),
+            emDescent: (NFloat)jObj.GetPropertyAsDouble("emHeightDescent"),
+            alphabeticBaseline: -(NFloat)jObj.GetPropertyAsDouble("alphabeticBaseline"),
+            hangingBaseline: -(NFloat)jObj.GetPropertyAsDouble("hangingBaseline"),
+            ideographicBaseline: -(NFloat)jObj.GetPropertyAsDouble("ideographicBaseline"));
+        return new TextMetrics(line, font);
     }
 
     public void MoveTo(Point to) => CanvasMoveTo(to.X, to.Y);
@@ -374,11 +389,8 @@ public partial class BrowserDrawingContext : IContext
         }
 
         f += $"{Math.Round((double)font.FontWeight)} {font.FontSize}px/{font.LineHeight}px ";
-        foreach(var fName in font.FontFamily)
-        {
-            // TODO: Escape " in font name...
-            f += $"\"{fName}\"";
-        }
+        // TODO: Escape " in font name...
+        f += $"\"{font.FontFamily}\"";
 
         // TODO: <font-stretch>
         

@@ -23,14 +23,14 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard, IService
     public IServiceProvider Context { get; }
 
     /// <inheritdoc/>
-    /// Checks the window's DI service provider first; if not found, falls back to the
-    /// platform window's own services (e.g. <see cref="Xui.Core.Actual.IImagePipeline"/> from Win32).
+    /// Resolves platform and middleware services through the actual-window chain, then
+    /// falls back to this window's DI scope. The chain is strictly forward: actual
+    /// windows must never consult their abstract event receiver for services.
     /// For <see cref="IOverlay"/>, falls back to the cross-platform in-window overlay
     /// when neither DI nor the platform provide one.
     public virtual object? GetService(Type serviceType)
     {
-        // Resolve from the window's DI context and then the platform window.
-        var service = this.Context.GetService(serviceType) ?? this.Actual?.GetService(serviceType);
+        var service = this.Actual.GetService(serviceType);
 
         if (service is not null)
             return service;
@@ -84,6 +84,14 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard, IService
     /// <summary>The root view that hosts the window's content hierarchy.</summary>
     public RootView RootView { get; }
 
+    /// <summary>
+    /// Stable name used to identify this window's render surface in instrumentation.
+    /// </summary>
+    public string InstrumentationName => this.GetType().Name;
+
+    /// <summary>The instrumentation sink created for this window's render surface, if enabled.</summary>
+    public IRenderSurfaceInstrumentsSink? RenderSurfaceInstruments { get; }
+
     /// <summary>Sets the root content view of this window.</summary>
     public View Content { init => this.RootView.Content = value; }
 
@@ -100,6 +108,8 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard, IService
         this.Context = context!;
         this.Runtime = (IRuntime)this.Context.GetService(typeof(IRuntime))!;
         this.Actual = this.CreateActualWindow();
+        var instruments = this.Context.GetService(typeof(IInstruments)) as IInstruments;
+        this.RenderSurfaceInstruments = instruments?.CreateSink().CreateRenderSurface(this.InstrumentationName);
         this.RootView = new RootView(this);
     }
 
@@ -136,8 +146,7 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard, IService
         var rect = renderEventRef.Rect;
         // using var trace = Runtime.CurrentInstruments.Trace(Scope.Rendering, LevelOfDetail.Essential,
         //     $"Window.Render Rect({rect.X:F1}, {rect.Y:F1}, {rect.Width:F1}, {rect.Height:F1})");
-        var context = this.GetRequiredService<IContext>();
-        ((IContent)this.RootView).Update(ref renderEventRef, context);
+        ((IContent)this.RootView).Update(ref renderEventRef);
     }
 
     /// <inheritdoc/>
@@ -191,6 +200,7 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard, IService
 
             foreach (var item in DisposeQueue) item.Dispose();
             DisposeQueue.Clear();
+            this.RenderSurfaceInstruments?.Dispose();
         }
     }
 
@@ -198,7 +208,7 @@ public class Window : Abstract.IWindow, Abstract.IWindow.ISoftKeyboard, IService
     /// Creates the platform-specific window for this abstract window.
     /// </summary>
     /// <returns>The platform implementation of <see cref="Actual.IWindow"/>.</returns>
-    protected virtual Actual.IWindow CreateActualWindow() => this.Runtime.CreateWindow(this);
+    protected virtual Actual.IWindow CreateActualWindow() => this.Runtime.CreateWindow(this, this.Context);
 
     /// <summary>
     /// Requests a visual invalidation/redraw of this window.

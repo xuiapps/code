@@ -34,9 +34,12 @@ public class IOSWindow : UIWindow, Xui.Core.Actual.IWindow
     private TimeSpan previousFrameTime;
     private TimeSpan nextFrameTime;
 
-    public IOSWindow(Xui.Core.Abstract.IWindow @abstract) : base(Class.New())
+    public IServiceProvider NextServiceProvider { get; }
+
+    public IOSWindow(Xui.Core.Abstract.IWindow @abstract, IServiceProvider nextServiceProvider) : base(Class.New())
     {
         this.Abstract = @abstract;
+        this.NextServiceProvider = nextServiceProvider;
         this.Title = "";
         this.RootView = new IOSWindowRootView(this);
 
@@ -166,7 +169,7 @@ public class IOSWindow : UIWindow, Xui.Core.Actual.IWindow
 
     public string Title { get; set; }
     
-    protected internal Xui.Core.Abstract.IWindow Abstract { get; }
+    public Xui.Core.Abstract.IWindow Abstract { get; }
 
     protected IOSWindowRootView RootView { get; }
 
@@ -190,12 +193,12 @@ public class IOSWindow : UIWindow, Xui.Core.Actual.IWindow
 
     void Xui.Core.Actual.IWindow.Show() => this.MakeKeyAndVisible();
 
-    object? IServiceProvider.GetService(Type serviceType) => null;
+    object? IServiceProvider.GetService(Type serviceType) => NextServiceProvider.GetService(serviceType);
 
     internal void Render(CGRect rect)
     {
         FrameEventRef frame = new (this.previousFrameTime, this.nextFrameTime);
-        RenderEventRef render = new (rect, frame);
+        RenderEventRef render = new (rect, frame, new IOSDrawingContext());
 
         this.Abstract.Render(ref render);
     }

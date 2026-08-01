@@ -1,9 +1,12 @@
 using Xui.Apps.TestApp.Examples;
 using Xui.Apps.TestApp.Examples.DesignSystem;
 using Xui.Apps.TestApp.Pages.Canvas;
+using Xui.Apps.TestApp.Pages.Gestures;
 using Xui.Apps.TestApp.Pages.Grid;
 using Xui.Apps.TestApp.Pages.Layers;
 using Xui.Apps.TestApp.Pages.ThreeD;
+using Xui.Apps.TestApp.Pages.WindowModes.MacOS;
+using Xui.Core.DI;
 using Xui.Core.UI;
 using static Xui.Core.Canvas.FontWeight;
 
@@ -15,7 +18,7 @@ public class SdkHomePage : VerticalStack
     {
         this.Add(new Label {
             Text = "Xui SDK Examples ",
-            FontFamily = ["Inter"],
+            FontFamily = "Inter",
             FontSize = 24,
             FontWeight = Bold
         });
@@ -73,6 +76,17 @@ public class SdkHomePage : VerticalStack
             Id = "DesignSystem",
             Margin = 3,
             Text = "Design System"
+        });
+        this.Add(new SdkExampleButton<GesturesExample>() {
+            Id = "Gestures",
+            Margin = 3,
+            Text = "Gestures"
+        });
+        this.Add(new SdkExampleButton<WindowModesMacOS>() {
+            Id = "WindowModes",
+            Margin = 3,
+            Text = "Window Modes (macOS)",
+            RequiredPlatform = DevicePlatform.MacOS,
         });
     }
 }

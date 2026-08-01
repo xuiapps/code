@@ -123,19 +123,13 @@ public class ImageLoadPixelsTest
         using var stream = new MemoryStream();
         using (var context = new SvgDrawingContext(size, stream, Xui.Core.Fonts.Inter.URIs, keepOpen: true))
         {
-            // Layout + render
-            view.Update(new LayoutGuide
-            {
-                Anchor = (0, 0),
-                AvailableSize = size,
-                Pass = LayoutGuide.LayoutPass.Measure | LayoutGuide.LayoutPass.Arrange | LayoutGuide.LayoutPass.Render,
-                MeasureContext = context,
-                RenderContext = context,
-                XAlign = LayoutGuide.Align.Start,
-                YAlign = LayoutGuide.Align.Start,
-                XSize = LayoutGuide.SizeTo.Exact,
-                YSize = LayoutGuide.SizeTo.Exact
-            });
+            var frame = new LayoutFrameContext(TimeSpan.Zero, TimeSpan.Zero, context, context, default);
+            var update = new LayoutUpdate(
+                LayoutPass.Measure | LayoutPass.Arrange | LayoutPass.Render,
+                new MeasureConstraints(size, LayoutSizeMode.Exact, LayoutSizeMode.Exact),
+                new ArrangeConstraints(size, default, (0, 0)));
+            LayoutMeasurements measurements = default;
+            view.Update(in frame, in update, ref measurements);
         }
         stream.Position = 0;
         var svg = new StreamReader(stream).ReadToEnd();

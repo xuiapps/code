@@ -140,7 +140,7 @@ internal sealed class OverlayContext(IContext inner, Point? pos, bool isTouch, s
     {
         if (label == null) return;
 
-        inner.SetFont(new Font(11, ["Inter"]));
+        inner.SetFont(new Font(11, "Inter"));
         var m = inner.MeasureText(label);
         var pad = (nfloat)3;
         var w = (nfloat)m.Size.Width + pad * 2;

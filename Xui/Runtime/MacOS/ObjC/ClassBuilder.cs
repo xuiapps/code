@@ -104,6 +104,23 @@ public partial class ObjC
             return this;
         }
 
+        public unsafe Builder AddMethod(string selector, ObjC.IdSelIdNUInt_NUInt method)
+        {
+            nint objCSelector = sel_registerName(selector);
+            if (objCSelector == 0)
+            {
+                throw new ObjCException($"Objective-C sel_registerName for '{selector}' returned 0.");
+            }
+
+            GCHandle.Alloc(method);
+            if (!class_addMethod(this, objCSelector, method, "Q@:@Q"))
+            {
+                throw new ObjCException($"Objective-C class_addMethod_retBool for '{selector}' returned 0.");
+            }
+
+            return this;
+        }
+
         public unsafe Builder AddMethod(string selector, ObjC.IdSel_Void method)
         {
             nint objCSelector = sel_registerName(selector);
@@ -130,7 +147,7 @@ public partial class ObjC
             }
 
             GCHandle.Alloc(method);
-            if (!class_addMethod(this, objCSelector, method, "@@:@"))
+            if (!class_addMethod(this, objCSelector, method, "@@:"))
             {
                 throw new ObjCException($"Objective-C class_addMethod_retBool for '{selector}' returned 0.");
             }

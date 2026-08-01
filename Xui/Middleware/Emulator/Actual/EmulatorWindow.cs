@@ -14,18 +14,21 @@ namespace Xui.Middleware.Emulator.Actual;
 /// Host window shown on desktop runtimes. It owns host chrome/input and links to a virtual
 /// mobile window that drives the emulated app UI lifecycle.
 /// </summary>
-public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow, Xui.Core.Abstract.IWindow.IDesktopStyle
+public partial class EmulatorWindow : Xui.Core.Middleware.IWindow, Xui.Core.Abstract.IWindow.IDesktopStyle
 {
     private readonly LinkedEmulatorWindow emulator;
     private readonly EmulatorControlRootView controls = new();
+    private readonly EmulatorDeviceInfo deviceInfo;
     private readonly EmulatorChromeRenderer chromeRenderer = new();
     private EmulatorGeometry lastGeometry = EmulatorGeometry.Create(new Rect(0, 0, 430, 940), DeviceCatalog.All[0]);
     private EmulatorStatusBarStyle? statusBarStyleOverride;
     public bool RenderTouchIndicators { get; set; } = true;
 
-    public EmulatorWindow(Xui.Core.Abstract.IWindow appWindow)
+    public EmulatorWindow(Xui.Core.Abstract.IWindow appWindow, IServiceProvider nextServiceProvider)
     {
         this.emulator = new LinkedEmulatorWindow(appWindow);
+        this.deviceInfo = new EmulatorDeviceInfo(this);
+        this.NextServiceProvider = nextServiceProvider;
     }
 
     /// <summary>The linked emulated app window abstraction.</summary>
@@ -33,6 +36,11 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
 
     /// <summary>The wrapped app window abstraction.</summary>
     public Xui.Core.Abstract.IWindow AppWindow => emulator.AppWindow;
+
+    Xui.Core.Abstract.IWindow Xui.Core.Actual.IWindow.Abstract => AppWindow;
+
+    /// <summary>The actual window immediately downstream of this middleware layer.</summary>
+    public Xui.Core.Actual.IWindow? Actual { get; private set; }
 
     public EmulatorStatusBarStyle? StatusBarStyleOverride
     {
@@ -46,8 +54,16 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
 
     public NFloat ScreenCornerRadius { get => emulator.ScreenCornerRadius; set => emulator.ScreenCornerRadius = value; }
 
-    /// <summary>The underlying platform window from the base runtime.</summary>
-    public Xui.Core.Actual.IWindow? Platform { get; set; }
+    internal void AttachActual(Xui.Core.Actual.IWindow actual)
+    {
+        if (this.Actual is not null)
+            throw new InvalidOperationException("The emulator window is already attached to an actual window.");
+
+        this.Actual = actual;
+    }
+
+    /// <summary>Application services reached after the complete actual-window chain.</summary>
+    public IServiceProvider NextServiceProvider { get; }
 
     WindowBackdrop Xui.Core.Abstract.IWindow.IDesktopStyle.Backdrop => WindowBackdrop.Chromeless;
 
@@ -57,28 +73,28 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
         (CurrentDevice.LogicalResolution.Width + 48, CurrentDevice.LogicalResolution.Height + 88);
 
 #region Platform.IWindow
-    string Xui.Core.Actual.IWindow.Title { get => Platform!.Title; set => Platform!.Title = value; }
+    string Xui.Core.Actual.IWindow.Title { get => Actual!.Title; set => Actual!.Title = value; }
 
-    public bool RequireKeyboard { get => Platform?.RequireKeyboard ?? false; set { if (Platform != null) Platform.RequireKeyboard = value; } }
+    public bool RequireKeyboard { get => Actual?.RequireKeyboard ?? false; set { if (Actual != null) Actual.RequireKeyboard = value; } }
 
-    public ITextMeasureContext? TextMeasureContext => Platform?.TextMeasureContext;
+    public ITextMeasureContext? TextMeasureContext => Actual?.TextMeasureContext;
 
-    void Xui.Core.Actual.IWindow.Invalidate() => Platform!.Invalidate();
+    void Xui.Core.Actual.IWindow.Invalidate() => Actual!.Invalidate();
 
-    void Xui.Core.Actual.IWindow.Show() => Platform!.Show();
+    void Xui.Core.Actual.IWindow.Show() => Actual!.Show();
 
-    void Xui.Core.Actual.IWindow.Close() => Platform?.Close();
+    void Xui.Core.Actual.IWindow.Close() => Actual?.Close();
 
     public object? GetService(Type serviceType)
     {
-        var platformService = Platform?.GetService(serviceType);
+        if (serviceType == typeof(IDeviceInfo))
+            return deviceInfo;
+
+        var platformService = Actual?.GetService(serviceType);
         if (platformService != null)
             return platformService;
 
-        if (AppWindow is Window window)
-            return window.Context.GetService(serviceType);
-
-        return (AppWindow as IServiceProvider)?.GetService(serviceType);
+        return NextServiceProvider.GetService(serviceType);
     }
 
     /// <summary>The device profile currently shown by the emulator.</summary>
@@ -177,8 +193,7 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
     void Xui.Core.Abstract.IWindow.Render(ref RenderEventRef render)
     {
         lastGeometry = EmulatorGeometry.Create(render.Rect, CurrentDevice);
-
-        var ctx = this.GetRequiredService<IContext>();
+        var ctx = render.Context;
 
         ctx.Save();
         ctx.BeginPath();
@@ -189,7 +204,8 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
 
         RenderEventRef emulatorRender = new RenderEventRef(
             rect: new Rect(0, 0, lastGeometry.EmulatorRect.Width, lastGeometry.EmulatorRect.Height),
-            frame: render.Frame
+            frame: render.Frame,
+            context: ctx
         );
 
         ctx.SetFill(Colors.White);
@@ -212,7 +228,7 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
     public void RenderSnapshot(ref RenderEventRef render)
     {
         var geometry = EmulatorGeometry.CreateSnapshot(CurrentDevice);
-        var ctx = this.GetRequiredService<IContext>();
+        var ctx = render.Context;
 
         ctx.Save();
         ctx.BeginPath();
@@ -222,7 +238,8 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
 
         RenderEventRef emulatorRender = new RenderEventRef(
             rect: new Rect(0, 0, geometry.EmulatorRect.Width, geometry.EmulatorRect.Height),
-            frame: render.Frame);
+            frame: render.Frame,
+            context: ctx);
 
         ctx.SetFill(Colors.White);
         ctx.FillRect(emulatorRender.Rect);
@@ -330,7 +347,7 @@ public partial class EmulatorWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual
         statusBarStyleOverride ?? default;
 
     private IClock ResolveClock() =>
-        GetService(typeof(IClock)) as IClock ?? SystemClock.Default;
+        NextServiceProvider.GetService(typeof(IClock)) as IClock ?? SystemClock.Default;
 
     private EmulatorGeometry UpdateHostGeometry(Size hostSize)
     {

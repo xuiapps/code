@@ -8,16 +8,28 @@ namespace Xui.DevKit.UI.Design;
 /// </summary>
 public class XuiDesignSystem : IDesignSystem
 {
-    private readonly XuiColorSystem colors;
-    private readonly XuiTypographySystem typography;
-    private readonly XuiSpacingSystem spacing;
-    private readonly XuiShapeSystem shape;
-    private readonly XuiMotionSystem motion;
+    private XuiColorSystem colors = null!;
+    private XuiTypographySystem typography = null!;
+    private XuiSpacingSystem spacing = null!;
+    private XuiShapeSystem shape = null!;
+    private XuiMotionSystem motion = null!;
 
     /// <summary>
     /// Creates a new design system from the given options and device info.
     /// </summary>
     public XuiDesignSystem(XuiDesignSystemOptions options, IDeviceInfo device)
+    {
+        UpdateTokens(options, device);
+    }
+
+    /// <summary>Replaces all derived token groups while preserving this provider's identity.</summary>
+    public void Update(XuiDesignSystemOptions options, IDeviceInfo device)
+    {
+        UpdateTokens(options, device);
+        Changed?.Invoke();
+    }
+
+    private void UpdateTokens(XuiDesignSystemOptions options, IDeviceInfo device)
     {
         colors = new XuiColorSystem(options, device);
         typography = new XuiTypographySystem(options, device);
@@ -47,7 +59,10 @@ public class XuiDesignSystem : IDesignSystem
     /// <summary>
     /// Raises the <see cref="Changed"/> event, causing widgets to re-query tokens.
     /// </summary>
-    public void NotifyChanged() => Changed?.Invoke();
+    public void NotifyChanged()
+    {
+        Changed?.Invoke();
+    }
 }
 
 /// <summary>

@@ -1,3 +1,4 @@
+using System;
 using Xui.Core.Abstract;
 using Xui.Core.Actual;
 namespace Xui.Middleware.Emulator.Actual;
@@ -40,12 +41,13 @@ public class EmulatorPlatform : IRuntime
     /// allowing for input redirection, visual chrome, and runtime controls (e.g., orientation switching).
     /// </summary>
     /// <param name="windowAbstract">The abstract window defined by the application.</param>
+    /// <param name="applicationServices">The window/application service chain reached after platform services.</param>
     /// <returns>An actual window with emulator middleware applied.</returns>
-    public Xui.Core.Actual.IWindow CreateWindow(Xui.Core.Abstract.IWindow windowAbstract)
+    public Xui.Core.Actual.IWindow CreateWindow(Xui.Core.Abstract.IWindow windowAbstract, IServiceProvider applicationServices)
     {
-        var middleware = new EmulatorWindow(windowAbstract);
-        var window = this.BasePlatform.CreateWindow(middleware);
-        middleware.Platform = window;
+        var middleware = new EmulatorWindow(windowAbstract, applicationServices);
+        var window = this.BasePlatform.CreateWindow(middleware, applicationServices);
+        middleware.AttachActual(window);
         return middleware;
     }
 }

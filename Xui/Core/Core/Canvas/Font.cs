@@ -1,103 +1,80 @@
 namespace Xui.Core.Canvas;
 
 /// <summary>
-/// Describes a font used for text layout and rendering, similar to the CSS font model.
+/// Immutable description of one font face used for canvas text measurement and rendering.
 /// </summary>
 /// <remarks>
-/// This type mirrors a simplified subset of CSS font properties as documented at:
-/// https://developer.mozilla.org/en-US/docs/Web/CSS/font
-///
-/// <para><b>Key differences:</b></para>
-/// <list type="bullet">
-/// <item><description><see cref="FontFamily"/> refers to a single font name only. No fallback list or character substitution is provided.</description></item>
-/// <item><description><see cref="FontSize"/> and <see cref="LineHeight"/> are specified in user-space units (e.g., pixels or points).</description></item>
-/// <item><description>Font weight is numeric and roughly corresponds to CSS values between 100–900.</description></item>
-/// </list>
+/// Xui currently selects one named family. Font fallback and per-run font selection are not
+/// supported by this value and must bypass font-metric caches when introduced in the future.
 /// </remarks>
-public ref partial struct Font
+public readonly partial struct Font : IEquatable<Font>
 {
-    /// <summary>
-    /// The primary font family name. No fallback fonts are supported.
-    /// </summary>
-    public ReadOnlySpan<string> FontFamily;
+    /// <summary>Initializes the default Inter text font.</summary>
+    public Font() : this(15, "Inter") { }
 
-    /// <summary>
-    /// The font size in user-space units.
-    /// </summary>
-    public nfloat FontSize;
-
-    /// <summary>
-    /// The font style (normal, italic, oblique).
-    /// </summary>
-    public FontStyle FontStyle;
-
-    // Not implemented: FontVariant
-
-    /// <summary>
-    /// The numeric weight of the font. Matches common web font weights:
-    /// <code>
-    /// 100 - Thin
-    /// 200 - Extra Light
-    /// 300 - Light
-    /// 400 - Normal
-    /// 500 - Medium
-    /// 600 - Semi Bold
-    /// 700 - Bold
-    /// 800 - Extra Bold
-    /// 900 - Black
-    /// </code>
-    /// </summary>
-    public FontWeight FontWeight;
-
-    /// <summary>
-    /// The stretch or width of the font relative to its normal width (100%).
-    /// Values correspond to common CSS/OpenType stretch percentages:
-    /// <code>
-    ///  50 - Ultra Condensed
-    ///  62.5 - Extra Condensed
-    ///  75 - Condensed
-    ///  87.5 - Semi Condensed
-    /// 100 - Normal
-    /// 112.5 - Semi Expanded
-    /// 125 - Expanded
-    /// 150 - Extra Expanded
-    /// 200 - Ultra Expanded
-    /// </code>
-    /// </summary>
-    /// <remarks>
-    /// Font stretch controls the horizontal expansion or compression of glyphs.
-    /// A value of 100 indicates normal width. Values less than 100 indicate
-    /// condensed fonts; values greater than 100 indicate expanded fonts.
-    /// </remarks>
-    public FontStretch FontStretch;
-
-    /// <summary>
-    /// The line height in user-space units. Controls vertical spacing between lines.
-    /// </summary>
-    public nfloat LineHeight;
-
-    /// <summary>
-    /// Initializes a <see cref="Font"/> with specified size and optional styling attributes.
-    /// </summary>
-    /// <param name="fontSize">The font size in user-space units (e.g., pixels).</param>
-    /// <param name="fontFamily">The font family (optional; no fallback list).</param>
-    /// <param name="fontWeight">The font weight (default: <see cref="FontWeight.Normal"/>).</param>
-    /// <param name="fontStyle">The font style (default: <see cref="FontStyle.Normal"/>).</param>
-    /// <param name="fontStretch">The font stretch (default: <see cref="FontStretch.Normal"/>).</param>
-    /// <param name="lineHeight">The line height (default: 1.2 × font size).</param>
+    /// <summary>Initializes a font face.</summary>
     public Font(
         nfloat fontSize,
-        ReadOnlySpan<string> fontFamily = default,
+        string fontFamily,
         FontWeight? fontWeight = null,
         FontStyle? fontStyle = null,
         FontStretch? fontStretch = null,
         nfloat? lineHeight = null)
     {
-        FontSize = fontSize;
         FontFamily = fontFamily;
+        FontSize = fontSize;
         FontWeight = fontWeight ?? FontWeight.Normal;
         FontStyle = fontStyle ?? FontStyle.Normal;
         FontStretch = fontStretch ?? FontStretch.Normal;
         LineHeight = lineHeight ?? fontSize * 1.2f;
     }
+
+    /// <summary>The one selected font family name.</summary>
+    public string FontFamily { get; init; }
+
+    /// <summary>The font size in user-space units.</summary>
+    public nfloat FontSize { get; init; }
+
+    /// <summary>The font style.</summary>
+    public FontStyle FontStyle { get; init; }
+
+    /// <summary>The numeric font weight.</summary>
+    public FontWeight FontWeight { get; init; }
+
+    /// <summary>The font stretch.</summary>
+    public FontStretch FontStretch { get; init; }
+
+    /// <summary>The requested line height. Layout will own line-spacing semantics.</summary>
+    public nfloat LineHeight { get; init; }
+
+    /// <inheritdoc/>
+    public bool Equals(Font other) =>
+        StringComparer.Ordinal.Equals(FontFamily, other.FontFamily) &&
+        FontSize.Equals(other.FontSize) &&
+        FontWeight == other.FontWeight &&
+        FontStyle.IsItalic == other.FontStyle.IsItalic &&
+        FontStyle.IsOblique == other.FontStyle.IsOblique &&
+        FontStyle.ObliqueAngle.Equals(other.FontStyle.ObliqueAngle) &&
+        FontStretch == other.FontStretch &&
+        LineHeight.Equals(other.LineHeight);
+
+    /// <inheritdoc/>
+    public override bool Equals(object? obj) => obj is Font other && Equals(other);
+
+    /// <inheritdoc/>
+    public override int GetHashCode() => HashCode.Combine(
+        StringComparer.Ordinal.GetHashCode(FontFamily ?? string.Empty),
+        FontSize,
+        FontWeight,
+        FontStyle.IsItalic,
+        FontStyle.IsOblique,
+        FontStyle.ObliqueAngle,
+        FontStretch,
+        LineHeight);
+
+    /// <summary>Returns whether two font descriptions are equal.</summary>
+    public static bool operator ==(Font left, Font right) => left.Equals(right);
+
+    /// <summary>Returns whether two font descriptions differ.</summary>
+    public static bool operator !=(Font left, Font right) => !left.Equals(right);
 }

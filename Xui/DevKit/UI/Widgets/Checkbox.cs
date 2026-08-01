@@ -11,7 +11,7 @@ namespace Xui.DevKit.UI.Widgets;
 /// A checkbox with a checkmark drawn via path commands.
 /// Consumes design system tokens for colors, shape, and sizing.
 /// </summary>
-public class Checkbox : View
+public class Checkbox : View, IDesignSystemChangeNotifications
 {
     private bool isChecked;
     private bool hover;
@@ -24,6 +24,7 @@ public class Checkbox : View
     private Color hoverBorderColor;
     private CornerRadius cornerRadius;
     private NFloat boxSize;
+    private readonly DesignSystemCache designSystem = new();
 
     /// <summary>Gets or sets whether the checkbox is checked.</summary>
     public bool IsChecked
@@ -45,16 +46,16 @@ public class Checkbox : View
     public override int Count => 0;
     public override View this[int index] => throw new IndexOutOfRangeException();
 
-    protected override void OnActivate()
-    {
-        base.OnActivate();
-        ApplyDesignSystem();
-    }
-
     private void ApplyDesignSystem()
     {
-        var ds = this.GetService(typeof(IDesignSystem)) as IDesignSystem;
-        if (ds == null) return;
+        designSystem.Resolve(this, this);
+    }
+
+    /// <inheritdoc/>
+    public void OnDesignTokenChange()
+    {
+        var ds = designSystem.Current;
+        if (ds is null) return;
 
         checkedFillColor = ds.Colors.Primary.Background;
         uncheckedFillColor = ds.Colors.Surface.Background;
@@ -63,6 +64,14 @@ public class Checkbox : View
         hoverBorderColor = ds.Colors.Primary.Background;
         cornerRadius = ds.Shape.ExtraSmall;
         boxSize = ds.Spacing.Passive.XL;
+        this.Invalidate();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnDeactivate()
+    {
+        designSystem.Deactivate(this);
+        base.OnDeactivate();
     }
 
     protected override Size MeasureCore(Size available, IMeasureContext context)
@@ -113,7 +122,7 @@ public class Checkbox : View
         else if (e.Type == PointerEventType.Leave) { hover = false; InvalidateRender(); }
         else if (phase == EventPhase.Tunnel && e.Type == PointerEventType.Down)
         {
-            CapturePointer(e.PointerId);
+            CapturePointer(e.PointerId, PointerGestures.Tap);
             pressed = true;
             InvalidateRender();
         }

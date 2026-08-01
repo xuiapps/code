@@ -5,6 +5,7 @@ packages/
 _site/
 api/
 *.user
+*.Backup.tmp
 
 ## Generated shader files
 *.hlsl

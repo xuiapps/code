@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using Xui.Core.UI;
 
 namespace Xui.Core.Debug;
 
@@ -8,15 +9,31 @@ namespace Xui.Core.Debug;
 /// </summary>
 public readonly struct InstrumentsAccessor
 {
-    internal readonly IInstrumentsSink? Sink;
+    internal readonly IViewInstrumentsSink? Sink;
 
     /// <summary>Initializes a new accessor backed by the given sink.</summary>
     /// <param name="sink">The sink to write to, or <c>null</c> to produce a no-op accessor.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public InstrumentsAccessor(IInstrumentsSink? sink)
+    public InstrumentsAccessor(IViewInstrumentsSink? sink)
     {
         this.Sink = sink;
     }
+
+    /// <summary>Begins a render-surface update frame when supported by the current sink.</summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void BeginFrame() => (Sink as IRenderSurfaceInstrumentsSink)?.BeginFrame();
+
+    /// <summary>Completes a render-surface update frame when supported by the current sink.</summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void EndFrame() => (Sink as IRenderSurfaceInstrumentsSink)?.EndFrame();
+
+    /// <summary>Reports structured traversal of <paramref name="view"/> without formatting a message.</summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void TrackView(Scope scope, View view) => Sink?.TrackView(scope, view);
+
+    /// <summary>Reports an underlying text measurement without formatting a message.</summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void TrackTextMeasure(long elapsedTicks) => Sink?.TrackTextMeasure(elapsedTicks);
 
     /// <summary>Logs a formatted message at the given scope and level of detail.</summary>
     /// <param name="scope">The instrumentation scope.</param>

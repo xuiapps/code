@@ -19,13 +19,6 @@ namespace Xui.Core.UI.Layer;
 public interface ILayer<in TView>
     where TView : ILayerHost
 {
-    /// <summary>
-    /// Drives one or more layout passes. Mirrors <see cref="View.Update"/>.
-    /// The default per-pass methods are preferred for clarity; override this only when a
-    /// single-DFS LuminarFlow traversal is needed (leaf layers or single-child-stretch containers).
-    /// </summary>
-    void Update(TView view, ref LayoutGuide guide);
-
     /// <summary>Advances time-based state (animations, blinking cursors, etc.).</summary>
     void Animate(TView view, TimeSpan previousTime, TimeSpan currentTime);
 

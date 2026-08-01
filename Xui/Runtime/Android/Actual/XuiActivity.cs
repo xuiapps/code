@@ -23,6 +23,16 @@ public class XuiActivity : global::Android.App.Activity, Xui.Core.Actual.IWindow
 
     public Xui.Core.Abstract.IWindow? Abstract { get; internal set; }
     public bool RequireKeyboard { get; set; }
+    private IServiceProvider nextServiceProvider = IServiceProvider.Empty;
+    public IServiceProvider NextServiceProvider => nextServiceProvider;
+
+    internal void SetNextServiceProvider(IServiceProvider value)
+    {
+        if (nextServiceProvider != IServiceProvider.Empty)
+            throw new InvalidOperationException("The Android window service chain has already been initialized.");
+
+        nextServiceProvider = value;
+    }
 
     protected override void OnCreate(Bundle? savedInstanceState)
     {
@@ -57,7 +67,7 @@ public class XuiActivity : global::Android.App.Activity, Xui.Core.Actual.IWindow
     {
     }
 
-    object? IServiceProvider.GetService(Type serviceType) => null;
+    object? IServiceProvider.GetService(Type serviceType) => NextServiceProvider.GetService(serviceType);
 
     public override bool OnTouchEvent(MotionEvent? e)
     {
@@ -116,6 +126,7 @@ public class XuiActivity : global::Android.App.Activity, Xui.Core.Actual.IWindow
         };
         canvas.Scale(density, density);
 
+        render.Context = Context;
         this.Abstract!.Render(ref render);
     }
 

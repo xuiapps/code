@@ -63,7 +63,7 @@ public partial class EmulatorWindow
             ctx.TextBaseline = TextBaseline.Top;
             ctx.SetFont(new Font()
             {
-                FontFamily = ["Verdana"],
+                FontFamily = "Verdana",
                 FontSize = 12,
                 FontWeight = 600,
                 FontStyle = FontStyle.Normal,
@@ -168,7 +168,7 @@ public partial class EmulatorWindow
             ctx.TextAlign = TextAlign.Center;
             ctx.SetFont(new Font
             {
-                FontFamily = ["Verdana"],
+                FontFamily = "Verdana",
                 FontSize = 12,
                 FontWeight = 600,
                 FontStyle = FontStyle.Normal,

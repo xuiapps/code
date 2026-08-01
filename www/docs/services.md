@@ -13,8 +13,9 @@ Every `View` implements `IServiceProvider`. Calling `GetService(typeof(T))` walk
 
 ```
 View → … → RootView → Window.GetService()
-                           ├─ Context  (DI scope / IServiceProvider injected at construction)
-                           └─ Actual.GetService()  (platform runtime services)
+                           → middleware actual windows
+                           → native actual window
+                           → window DI scope / application services
 ```
 
 Each `View` delegates upward to its `Parent`:
@@ -25,16 +26,25 @@ public virtual object? GetService(Type serviceType) =>
     this.Parent?.GetService(serviceType);
 ```
 
-`RootView` delegates to its `Window`. `Window.GetService()` checks two sources in order:
+`RootView` delegates to its `Window`. The window starts a forward-only service
+chain through its actual window. Middleware can override a platform service and
+otherwise forwards to the next actual window; the terminal native window falls
+back to the window's DI scope.
 
 ```csharp
 // Window.cs
 public virtual object? GetService(Type serviceType) =>
-    this.Context.GetService(serviceType) ?? this.Actual.GetService(serviceType);
+    this.Actual.GetService(serviceType);
 ```
 
-1. **`Context`** — the `IServiceProvider` injected when the window was constructed (e.g., a DI scope from `Microsoft.Extensions.DependencyInjection`).
-2. **`Actual.GetService()`** — the underlying platform window, which exposes platform services such as `IImagePipeline` and `ITextMeasureContext`.
+1. **Actual-window chain** — native services such as images and device information,
+   with middleware able to replace a capability (for example, the emulator's device).
+2. **`Context`** — the `IServiceProvider` injected when the window was constructed
+   (normally a DI scope from `Microsoft.Extensions.DependencyInjection`).
+
+Native callbacks use their explicit paired-window interfaces and do not use this
+service chain to call back toward the application. This separation is what keeps
+middleware composition acyclic.
 
 ## Calling from a view
 
@@ -53,13 +63,16 @@ Both methods are defined in `Xui.Core.UI` (no extra `using` required).
 
 ## Platform services
 
-These are provided by the platform runtime via `Actual.GetService()` — no DI registration needed:
+These are provided by the native window through the forward service chain — no DI registration needed:
 
 | Service | Description |
 |---|---|
 | `IImage` | Self-loading image handle — one instance per logical image |
 | `IImagePipeline` | Factory that loads and caches image data |
 | `ITextMeasureContext` | Font shaping and text metrics |
+
+`IContext` is intentionally different: it is frame-bound and is supplied directly
+to `View.RenderCore`. Do not resolve or retain it as a service.
 
 See [Image Loading](images.md) for how to use `IImage`.
 
@@ -90,7 +103,7 @@ The window scope is created when the window opens and disposed when it closes. S
 
 ## Without DI
 
-If you construct a `Window` without the host, pass `IServiceProvider.Empty` (or a minimal provider) as the context. Platform services are still available via `Actual.GetService()`:
+If you construct a `Window` without the host, pass `IServiceProvider.Empty` (or a minimal provider) as the context. Platform services are still available through the window's actual chain:
 
 ```csharp
 var window = new MainWindow(IServiceProvider.Empty);
@@ -99,4 +112,6 @@ var window = new MainWindow(IServiceProvider.Empty);
 
 ## Direction rule
 
-Service resolution flows **abstract → actual** only. The platform runtime never calls back into abstract code through `GetService`. This keeps `Xui.Core` free of all platform dependencies.
+Service resolution flows only toward the next actual window and then the window's
+application scope. Native events travel in the other direction through explicit
+window callbacks, never through `GetService`.

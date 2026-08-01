@@ -99,14 +99,14 @@ public class FeatureCard : View
         }
 
         // Card title
-        context.SetFont(new Font(14, ["Segoe UI"], fontWeight: FontWeight.SemiBold));
+        context.SetFont(new Font(14, "Inter", fontWeight: FontWeight.SemiBold));
         context.TextBaseline = TextBaseline.Top;
         context.TextAlign = TextAlign.Left;
         context.SetFill(new Color(0x1A1A1AFF));
         context.FillText(Title, new Point(drawRect.X + 16, drawRect.Y + 16));
 
         // Description line 1
-        context.SetFont(new Font(12, ["Segoe UI"]));
+        context.SetFont(new Font(12, "Inter"));
         context.SetFill(new Color(0x606060FF));
         context.FillText(Line1, new Point(drawRect.X + 16, drawRect.Y + 40));
 

@@ -15,13 +15,13 @@ public class ContactPage : View
     {
         var rect = this.Frame;
 
-        context.SetFont(new Font(32, ["Segoe UI"], fontWeight: FontWeight.Light));
+        context.SetFont(new Font(32, "Inter", fontWeight: FontWeight.Light));
         context.TextBaseline = TextBaseline.Top;
         context.TextAlign = TextAlign.Left;
         context.SetFill(new Color(0x1A1A1AFF));
         context.FillText("Contact", new Point(rect.X + 40, rect.Y + 40));
 
-        context.SetFont(new Font(14, ["Segoe UI"]));
+        context.SetFont(new Font(14, "Inter"));
         context.SetFill(new Color(0x606060FF));
         context.FillText("Get in touch with the Xui team", new Point(rect.X + 40, rect.Y + 82));
 
@@ -36,14 +36,14 @@ public class ContactPage : View
         foreach (var (label, value) in contacts)
         {
             // Label
-            context.SetFont(new Font(13, ["Segoe UI"], fontWeight: FontWeight.SemiBold));
+            context.SetFont(new Font(13, "Inter", fontWeight: FontWeight.SemiBold));
             context.TextBaseline = TextBaseline.Top;
             context.TextAlign = TextAlign.Left;
             context.SetFill(new Color(0x0078D4FF));
             context.FillText(label, new Point(rect.X + 56, itemY));
 
             // Value
-            context.SetFont(new Font(13, ["Segoe UI"]));
+            context.SetFont(new Font(13, "Inter"));
             context.SetFill(new Color(0x333333FF));
             context.FillText(value, new Point(rect.X + 160, itemY));
 

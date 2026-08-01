@@ -33,7 +33,7 @@ public class NestedGridsTest : View
             Content = new Label
             {
                 Text = "Plain cell",
-                FontFamily = ["Inter"],
+                FontFamily = "Inter",
                 FontSize = 12,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Middle,
@@ -103,7 +103,7 @@ public class NestedGridsTest : View
             Content = new Label
             {
                 Text = "Plain cell",
-                FontFamily = ["Inter"],
+                FontFamily = "Inter",
                 FontSize = 12,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Middle,
@@ -131,7 +131,7 @@ public class NestedGridsTest : View
         Content = new Label
         {
             Text = text,
-            FontFamily = ["Inter"],
+            FontFamily = "Inter",
             FontSize = 11,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Middle,

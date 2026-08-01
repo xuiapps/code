@@ -78,14 +78,14 @@ public class ScrollDemoPage : View
             context.RoundRect(new Rect(badgeX, badgeY, badgeSize, badgeSize), 8);
             context.Fill(FillRule.NonZero);
 
-            context.SetFont(new Font(13, ["Segoe UI"], fontWeight: FontWeight.SemiBold));
+            context.SetFont(new Font(13, "Inter", fontWeight: FontWeight.SemiBold));
             context.TextBaseline = TextBaseline.Middle;
             context.TextAlign = TextAlign.Center;
             context.SetFill(Colors.White);
             context.FillText(Number.ToString(), new Point(badgeX + badgeSize / 2, rect.Y + RowHeight / 2));
 
             // Row label
-            context.SetFont(new Font(14, ["Segoe UI"]));
+            context.SetFont(new Font(14, "Inter"));
             context.TextAlign = TextAlign.Left;
             context.TextBaseline = TextBaseline.Middle;
             context.SetFill(new Color(0x1A1A1AFF));

@@ -89,6 +89,7 @@ public class MainWindow : Window
 
     public override void Render(ref RenderEventRef render)
     {
+        var ctx = render.Context;
         // Capture once per frame and diff against previous frame.
         // (This avoids calling GetAllocatedBytesForCurrentThread twice.)
         long memNow = GC.GetAllocatedBytesForCurrentThread();
@@ -107,7 +108,6 @@ public class MainWindow : Window
         this.previousFrameMemory = memNow;
         this.hasPreviousFrameMemory = true;
 
-        var ctx = this.GetRequiredService<IContext>();
 
         // Clear background
         ctx.SetFill(Colors.Black);
@@ -123,7 +123,7 @@ public class MainWindow : Window
 
         ctx.SetFont(new Font
         {
-            FontFamily = ["Inter", "sans-serif"],
+            FontFamily = "Inter",
             FontSize = 11,
             FontWeight = 400
         });
@@ -168,7 +168,7 @@ public class MainWindow : Window
         // Overlay (one metric per line, stable-ish formatting)
         ctx.SetFont(new Font
         {
-            FontFamily = ["Inter", "sans-serif"],
+            FontFamily = "Inter",
             FontSize = 14,
             FontWeight = 700
         });

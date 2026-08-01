@@ -1,3 +1,5 @@
+using System;
+
 namespace Xui.Runtime.IOS.Actual;
 
 public class IOSPlatform : Xui.Core.Actual.IRuntime
@@ -13,5 +15,6 @@ public class IOSPlatform : Xui.Core.Actual.IRuntime
 
     public Xui.Core.Actual.IRunLoop CreateRunloop(Xui.Core.Abstract.Application applicationAbstract) => this.iOSRunLoop = new IOSRunLoop(applicationAbstract);
 
-    public Xui.Core.Actual.IWindow CreateWindow(Xui.Core.Abstract.IWindow windowAbstract) => new IOSWindow(windowAbstract);
+    public Xui.Core.Actual.IWindow CreateWindow(Xui.Core.Abstract.IWindow windowAbstract, IServiceProvider applicationServices) =>
+        new IOSWindow(windowAbstract, applicationServices);
 }

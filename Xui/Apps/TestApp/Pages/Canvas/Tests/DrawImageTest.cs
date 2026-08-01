@@ -36,18 +36,28 @@ public class DrawImageTest : View
         context.FillRect(this.Frame);
 
         NFloat margin = 10f;
-        var dest = new Rect(
-            this.Frame.X + margin,
-            this.Frame.Y + margin,
-            this.Frame.Width  - margin * 2,
-            this.Frame.Height - margin * 2);
 
         if (image is not null && image.Size != Size.Empty)
         {
+            var scale = NFloat.Min(
+                (this.Frame.Width - margin * 2) / image.Size.Width,
+                (this.Frame.Height - margin * 2) / image.Size.Height);
+            var size = new Size(image.Size.Width * scale, image.Size.Height * scale);
+            var dest = new Rect(
+                this.Frame.Center.X - size.Width / 2,
+                this.Frame.Center.Y - size.Height / 2,
+                size.Width,
+                size.Height);
             context.DrawImage(image, dest);
         }
         else
         {
+            var side = NFloat.Min(this.Frame.Width, this.Frame.Height) - margin * 2;
+            var dest = new Rect(
+                this.Frame.Center.X - side / 2,
+                this.Frame.Center.Y - side / 2,
+                side,
+                side);
             context.SetFill(LightGray);
             context.FillRect(dest);
         }

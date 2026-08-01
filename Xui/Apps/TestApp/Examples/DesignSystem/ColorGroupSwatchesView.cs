@@ -57,7 +57,7 @@ internal class ColorGroupSwatchesView : View
     private static void DrawGroup(IContext context, string label, ColorGroup group,
         NFloat x, NFloat y, NFloat size, NFloat gap)
     {
-        context.SetFont(new() { FontFamily = ["Inter"], FontSize = 11 });
+        context.SetFont(new() { FontFamily = "Inter", FontSize = 11 });
         context.TextBaseline = TextBaseline.Top;
         context.SetFill(new Color(0x666666FF));
         context.FillText(label, new Point(x, y));

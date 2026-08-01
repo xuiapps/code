@@ -19,8 +19,9 @@ public interface IRuntime
     /// Creates a platform-specific window that is bound to the given abstract window definition.
     /// </summary>
     /// <param name="windowAbstract">The abstract window definition provided by user code.</param>
+    /// <param name="applicationServices">The window/application service chain reached after platform services.</param>
     /// <returns>A concrete window implementation for the current platform.</returns>
-    Actual.IWindow CreateWindow(Abstract.IWindow windowAbstract);
+    Actual.IWindow CreateWindow(Abstract.IWindow windowAbstract, IServiceProvider applicationServices);
 
     /// <summary>
     /// Creates a platform-specific run loop associated with the given abstract application.

@@ -12,16 +12,17 @@ namespace Xui.Runtime.MacOS.Actual;
 internal sealed class MacOSTextMeasureContext : ITextMeasureContext
 {
     internal nint nsFont;
+    private readonly FontMetricsCache fontMetrics = new();
+    private readonly CoreTextFontCache coreTextFonts = new();
+    private Font currentFont;
+    private bool hasCurrentFont;
 
     public TextAlign TextAlign { get; set; }
 
     public void Dispose()
     {
-        if (nsFont != 0)
-        {
-            CFRelease(nsFont);
-            nsFont = 0;
-        }
+        nsFont = 0;
+        coreTextFonts.Dispose();
     }
 
     public TextMetrics MeasureText(string text)
@@ -58,28 +59,24 @@ internal sealed class MacOSTextMeasureContext : ITextMeasureContext
 
         var lineMetrics = new LineMetrics(
             width: typographicWidth,
-            left: alignOffset,
-            right: typographicWidth - alignOffset,
+            // CTLine bounds are relative to the left-aligned line origin. Xui's
+            // Canvas-style left/right values are distances from the aligned
+            // drawing origin to the actual glyph-path bounds.
+            left: alignOffset - glyphBounds.X,
+            right: glyphBounds.X + glyphBounds.Width - alignOffset,
             ascent: glyphBounds.Height + glyphBounds.Y,
             descent: -glyphBounds.Y
         );
 
         FontMetrics font;
-        if (nsFont != 0)
+        if (nsFont != 0 && hasCurrentFont)
         {
-            var ct = new CTFontRef(nsFont);
-            var ascent = ct.Ascent;
-            var descent = ct.Descent;
-
-            font = new FontMetrics(
-                fontAscent: ascent,
-                fontDescent: descent,
-                emAscent: ascent,
-                emDescent: descent,
-                alphabeticBaseline: 0,
-                hangingBaseline: -ascent,
-                ideographicBaseline: descent
-            );
+            if (!fontMetrics.TryGet(currentFont, out font))
+            {
+                var ct = new CTFontRef(nsFont);
+                font = ct.FontMetrics;
+                fontMetrics.Set(currentFont, font);
+            }
         }
         else
         {
@@ -91,32 +88,25 @@ internal sealed class MacOSTextMeasureContext : ITextMeasureContext
 
     public void SetFont(Font font)
     {
-        if (nsFont != 0)
-        {
-            CFRelease(nsFont);
-            nsFont = 0;
-        }
+        if (hasCurrentFont && currentFont == font)
+            return;
+
+        currentFont = font;
+        hasCurrentFont = true;
+
+        if (coreTextFonts.TryGet(font, out nsFont))
+            return;
+
+        nsFont = 0;
 
         try
         {
             using var attributes = new CFMutableDictionaryRef();
 
-            if (font.FontFamily.Length >= 1)
+            if (!string.IsNullOrEmpty(font.FontFamily))
             {
-                using var fontFamilyNameRef = new CFStringRef(font.FontFamily[0]);
+                using var fontFamilyNameRef = new CFStringRef(font.FontFamily);
                 attributes.SetValue(CTFontDescriptor.FontAttributes.FamilyName, fontFamilyNameRef);
-
-                if (font.FontFamily.Length > 1)
-                {
-                    using var nsCascadingFontArray = new CFMutableArrayRef();
-                    foreach (var f in font.FontFamily)
-                    {
-                        using var desc = new CTFontDescriptorRef(f);
-                        nsCascadingFontArray.Add(desc);
-                    }
-                    // TODO: Here the dictionary does not retain the array and the array is disposed...
-                    attributes.SetValue(CTFontDescriptor.FontAttributes.CascadeList, nsCascadingFontArray);
-                }
             }
 
             using var fontSizeRef = new CFNumberRef(font.FontSize);
@@ -155,9 +145,10 @@ internal sealed class MacOSTextMeasureContext : ITextMeasureContext
             using var descriptor = CTFontDescriptorRef.WithAttributes(attributes);
             nint options = 0;
 
-            // Important - do not dispose, no "using", we will keep it manually
+            // Ownership transfers to the cache. It releases this handle on eviction or disposal.
             var ctFont = new CTFontRef(descriptor, options);
-            nsFont = ctFont;
+            nsFont = ctFont.Self;
+            coreTextFonts.Set(font, nsFont);
         }
         catch (Exception e)
         {

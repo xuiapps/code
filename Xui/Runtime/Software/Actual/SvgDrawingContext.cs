@@ -65,6 +65,13 @@ public sealed class SvgDrawingContext : IContext, IDisposable
     private SvgFontResolver resolver;
     private readonly HashSet<FontFace> emittedFontFaces = new(); // to avoid duplicate @font-face
 
+    // Text is emitted immediately, but embedded fonts are emitted at disposal after all text runs
+    // have contributed their character and pair usage.
+    private readonly Dictionary<FontFace, FontUsage> fontUsage = new(FontFace.Comparer);
+
+    /// <summary>Characters and adjacent pairs rendered for each resolved font face.</summary>
+    public IReadOnlyDictionary<FontFace, FontUsage> FontUsage => fontUsage;
+
     private NumericFormat numericFormat;
 
     // Holds resolved font emission mode per FontFace to avoid recomputing.
@@ -109,6 +116,8 @@ public sealed class SvgDrawingContext : IContext, IDisposable
             disposed = true;
 
             PopGroupsUntilDepth(0);
+
+            EmitTrackedFontFaces();
 
             styleWriter.Flush();
             defsWriter.Flush();
@@ -535,15 +544,16 @@ public sealed class SvgDrawingContext : IContext, IDisposable
 
         var fill = ToSvgColor(currentFillColor.Value, out var opacity);
 
-        // Emit @font-face if needed
-        if (font.FontFamily.Count > 0)
+        // Capture the run before serializing it. Embedded fonts are emitted only after all runs
+        // have been collected, when Dispose writes the buffered style section.
+        if (!string.IsNullOrEmpty(font.FontFamily))
         {
-            EmitFontFaceIfNeeded(new (
-                family: font.FontFamily[0],
+            TrackFontUsage(new (
+                family: font.FontFamily,
                 weight: font.FontWeight,
                 style: font.FontStyle,
                 stretch: font.FontStretch
-            ));
+            ), text);
         }
 
         Ident();
@@ -577,10 +587,9 @@ public sealed class SvgDrawingContext : IContext, IDisposable
         // Font
         bodyWriter.Write($" font-size=\"{F(font.FontSize)}\"");
 
-        if (font.FontFamily.Count > 0)
+        if (!string.IsNullOrEmpty(font.FontFamily))
         {
-            var family = string.Join(",", font.FontFamily.Select(name => $"\"{name}\""));
-            bodyWriter.Write($" font-family={family}");
+            bodyWriter.Write($" font-family=\"{font.FontFamily}\"");
         }
 
         if (font.FontWeight != FontWeight.Normal)
@@ -619,10 +628,32 @@ public sealed class SvgDrawingContext : IContext, IDisposable
         }
         else if (resolved.Mode == SvgFontMode.Embedded && sourceUri is not null)
         {
-            var data = catalog.LoadFromUri(sourceUri);
+            var usage = fontUsage[fontFace];
+            var data = TrueTypeFontSubset.Create(ttf, usage);
             var base64 = Convert.ToBase64String(data.Span);
             WriteFontFace(fontFace, $"url(data:font/ttf;base64,{base64})");
         }
+    }
+
+    private void TrackFontUsage(FontFace fontFace, string text)
+    {
+        // Only record a face that the catalog can resolve; unresolvable/system fallback fonts
+        // cannot be embedded or subset by this document.
+        if (catalog.FontForFace(fontFace) is null)
+            return;
+
+        if (!fontUsage.TryGetValue(fontFace, out var usage))
+        {
+            usage = new FontUsage();
+            fontUsage.Add(fontFace, usage);
+        }
+        usage.Add(text);
+    }
+
+    private void EmitTrackedFontFaces()
+    {
+        foreach (var fontFace in fontUsage.Keys)
+            EmitFontFaceIfNeeded(fontFace);
     }
 
     private void WriteFontFace(FontFace fontFace, string source)
@@ -965,43 +996,19 @@ public sealed class SvgDrawingContext : IContext, IDisposable
     /// </summary>
     private struct FontSnapshot
     {
-        public readonly List<string> FontFamily = new List<string>();
+        private Xui.Core.Canvas.Font font;
 
-        public nfloat FontSize;
-        public FontWeight FontWeight;
-        public FontStyle FontStyle;
-        public FontStretch FontStretch;
-        public nfloat LineHeight;
-
-        public FontSnapshot()
-        {
-        }
+        public readonly string FontFamily => font.FontFamily;
+        public readonly nfloat FontSize => font.FontSize;
+        public readonly FontWeight FontWeight => font.FontWeight;
+        public readonly FontStyle FontStyle => font.FontStyle;
+        public readonly FontStretch FontStretch => font.FontStretch;
+        public readonly nfloat LineHeight => font.LineHeight;
 
         public Xui.Core.Canvas.Font Font
         {
-            readonly get
-            {
-                return new Xui.Core.Canvas.Font(FontSize,
-                    CollectionsMarshal.AsSpan(FontFamily),
-                    FontWeight,
-                    FontStyle,
-                    FontStretch,
-                    LineHeight);
-            }
-
-            set
-            {
-                this.FontSize = value.FontSize;
-                FontWeight = value.FontWeight;
-                FontStyle = value.FontStyle;
-                FontStretch = value.FontStretch;
-                LineHeight = value.LineHeight;
-
-                FontFamily.Clear();
-                var span = value.FontFamily;
-                for (int i = 0; i < span.Length; i++)
-                    FontFamily.Add(span[i]);
-            }
+            readonly get => font;
+            set => font = value;
         }
     }
 

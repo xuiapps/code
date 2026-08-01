@@ -126,7 +126,7 @@ internal sealed class EmulatorHeaderButtonView : View
 
         context.SetFont(new Font
         {
-            FontFamily = ["Inter"],
+            FontFamily = "Inter",
             FontSize = 12,
             FontWeight = 600,
             FontStyle = FontStyle.Normal,
