@@ -7,17 +7,18 @@ using static Xui.Core.Abstract.IWindow.IDesktopStyle;
 
 namespace Xui.Apps.XuiSDK;
 
-public class MainWindow : Xui.Core.Abstract.Window, IWindow.IDesktopStyle
+public class MainWindow : Xui.Core.Abstract.Window, IWindow.IDesktopStyle, IMacOSWindowStyle
 {
-    private NFloat HeaderHeight = 48;
-
     public WindowRenderingMetrics PerformanceMetrics { get; } = new();
 
     WindowBackdrop IWindow.IDesktopStyle.Backdrop =>
-        RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? WindowBackdrop.Acrylic : WindowBackdrop.Mica;
+        RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? WindowBackdrop.Default : WindowBackdrop.Mica;
     Size? IWindow.IDesktopStyle.StartupSize => new Size(900, 600);
     WindowClientArea IWindow.IDesktopStyle.ClientArea => WindowClientArea.Extended;
-    Point? IWindow.IDesktopStyle.MacOSWindowSystemButtonsOffset => new Point(16, 38);
+
+    MacOSWindowTitle IMacOSWindowStyle.Title => MacOSWindowTitle.Hidden;
+    MacOSWindowTitleHeight IMacOSWindowStyle.TitleHeight => MacOSWindowTitleHeight.Large;
+    MacOSWindowBackground IMacOSWindowStyle.Background => MacOSWindowBackground.Acrylic;
 
     public MainWindow(IServiceProvider context) : base(context)
     {
@@ -32,9 +33,4 @@ public class MainWindow : Xui.Core.Abstract.Window, IWindow.IDesktopStyle
         PerformanceMetrics.EndFrame();
     }
 
-    public override void WindowHitTest(ref WindowHitTestEventRef evRef)
-    {
-        if (evRef.Point.Y < HeaderHeight)
-            evRef.Area = WindowHitTestEventRef.WindowArea.Title;
-    }
 }

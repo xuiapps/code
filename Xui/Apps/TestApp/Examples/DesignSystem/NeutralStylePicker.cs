@@ -134,7 +134,7 @@ internal class NeutralStylePicker : View
             context.Stroke();
 
             // Label
-            context.SetFont(new() { FontFamily = ["Inter"], FontSize = 9 });
+            context.SetFont(new() { FontFamily = "Inter", FontSize = 9 });
             context.TextBaseline = TextBaseline.Top;
             context.SetFill(isActive ? ds.Colors.Primary.OnContainer : ds.Colors.Surface.Foreground);
             context.FillText(styleNames[i], new Point(x + 4, y + ItemHeight + 2));

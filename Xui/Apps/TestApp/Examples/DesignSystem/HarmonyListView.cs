@@ -72,7 +72,7 @@ internal class HarmonyListView : View
         var editor = this.GetService<IDesignSystemEditor>();
         if (ds == null || editor == null) return;
 
-        context.SetFont(new() { FontFamily = ["Inter"], FontSize = 13, FontWeight = FontWeight.Medium });
+        context.SetFont(new() { FontFamily = "Inter", FontSize = 13, FontWeight = FontWeight.Medium });
         context.TextBaseline = TextBaseline.Top;
 
         for (int i = 0; i < harmonies.Length; i++)

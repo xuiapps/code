@@ -124,6 +124,15 @@ public static partial class CoreGraphics
         public static partial void CGContextSetTextDrawingMode(nint cgContextRef, CGTextDrawingMode mode);
 
         [LibraryImport(CoreGraphicsLib)]
+        public static partial void CGContextBeginTransparencyLayer(nint cgContextRef, nint auxiliaryInfo);
+
+        [LibraryImport(CoreGraphicsLib)]
+        public static partial void CGContextEndTransparencyLayer(nint cgContextRef);
+
+        [LibraryImport(CoreGraphicsLib)]
+        public static partial void CGContextSetBlendMode(nint cgContextRef, CGBlendMode blendMode);
+
+        [LibraryImport(CoreGraphicsLib)]
         public static partial void CGContextDrawImage(nint cgContextRef, CGRect rect, nint image);
 
         [LibraryImport(CoreGraphicsLib)]

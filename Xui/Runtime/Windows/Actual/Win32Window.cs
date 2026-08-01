@@ -69,11 +69,12 @@ public partial class Win32Window : Xui.Core.Actual.IWindow, IDirectXHost
     internal readonly Win32Platform platform;
     internal readonly InstrumentsAccessor instruments;
 
-    public Win32Window(Win32Platform platform, Xui.Core.Abstract.IWindow @abstract)
+    public Win32Window(Win32Platform platform, Xui.Core.Abstract.IWindow @abstract, IServiceProvider nextServiceProvider)
     {
         this.platform = platform;
         this.Abstract = @abstract;
-        var instrumentsFactory = (@abstract as IServiceProvider)?.GetService(typeof(IInstruments)) as IInstruments;
+        this.NextServiceProvider = nextServiceProvider;
+        var instrumentsFactory = nextServiceProvider.GetService(typeof(IInstruments)) as IInstruments;
         this.instruments = new InstrumentsAccessor(instrumentsFactory?.CreateSink());
         this.Title = "";
 
@@ -204,9 +205,12 @@ public partial class Win32Window : Xui.Core.Actual.IWindow, IDirectXHost
     HWND IDirectXHost.Hwnd => this.Hwnd;
     NFloat IDirectXHost.ExtendedFrameTopOffset => this.extendedFrameTopOffset;
     InstrumentsAccessor IDirectXHost.Instruments => this.instruments;
-    void IDirectXHost.Render(RenderEventRef render) => this.Abstract.Render(ref render);
+    void IDirectXHost.Render(RenderEventRef render)
+    {
+        this.Abstract.Render(ref render);
+    }
 
-    protected internal Xui.Core.Abstract.IWindow Abstract { get; }
+    public Xui.Core.Abstract.IWindow Abstract { get; }
 
     public DirectXContext Renderer { get; }
 
@@ -237,6 +241,8 @@ public partial class Win32Window : Xui.Core.Actual.IWindow, IDirectXHost
         }
     }
 
+    public IServiceProvider NextServiceProvider { get; }
+
     // GPU device pipeline (D3D11 hardware-accelerated 3D rendering)
     private Xui.GPU.Hardware.D3D11.DirectXGpuDevice? _gpuDevice;
 
@@ -256,13 +262,12 @@ public partial class Win32Window : Xui.Core.Actual.IWindow, IDirectXHost
 
     public object? GetService(Type serviceType)
     {
-        if (serviceType == typeof(IContext)) return Win32Platform.DisplayContextStack.Count > 0 ? Win32Platform.DisplayContextStack.Peek() : null;
         if (serviceType == typeof(IImage)) return this.Renderer.ImageFactory?.CreateImage();
         if (serviceType == typeof(ITextMeasureContext)) return this.TextMeasureContext;
         if (serviceType == typeof(IDeviceInfo)) return Win32DeviceInfo.Instance;
         if (serviceType == typeof(Xui.GPU.Hardware.IGpuDevice)) return GpuDevice;
         if (serviceType == typeof(Xui.GPU.Backends.IShaderBackend)) return new Xui.GPU.Backends.Hlsl.HlslCodeGenerator();
-        return null;
+        return this.NextServiceProvider.GetService(serviceType);
     }
 
     public int OnMessage(HWND hWnd, WindowMessage uMsg, WPARAM wParam, LPARAM lParam)
@@ -698,13 +703,6 @@ public partial class Win32Window : Xui.Core.Actual.IWindow, IDirectXHost
                 $"Win32Window.Render SKIPPED (invalid=false)");
         }
     }
-
-    internal void Render(RenderEventRef render)
-    {
-        // Console.WriteLine("Render()");
-        this.Abstract.Render(ref render);
-    }
-
 
     private static void SetLevel(HWND hwnd, DesktopWindowLevel level)
     {

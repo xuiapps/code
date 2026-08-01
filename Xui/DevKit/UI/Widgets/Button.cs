@@ -10,7 +10,7 @@ namespace Xui.DevKit.UI.Widgets;
 /// A button that consumes design system tokens for colors, shape, and typography.
 /// Supports <see cref="ButtonVariant"/> (Filled, Outline, Text) and hover/pressed states.
 /// </summary>
-public class Button : View
+public class Button : View, IDesignSystemChangeNotifications
 {
     private bool hover;
     private bool pressed;
@@ -33,9 +33,20 @@ public class Button : View
     private nfloat paddingH;
     private nfloat paddingV;
     private TextStyle textStyle;
+    private string text = "";
+    private readonly DesignSystemCache designSystem = new();
 
     /// <summary>The button label text.</summary>
-    public string Text { get; set; } = "";
+    public string Text
+    {
+        get => text;
+        set
+        {
+            if (text == value) return;
+            text = value;
+            this.Invalidate();
+        }
+    }
 
     /// <summary>Which color group to use. Default is Primary.</summary>
     public ColorRole Role { get; set; } = ColorRole.Primary;
@@ -52,13 +63,6 @@ public class Button : View
     /// <inheritdoc/>
     public override View this[int index] => throw new IndexOutOfRangeException();
 
-    /// <inheritdoc/>
-    protected override void OnActivate()
-    {
-        base.OnActivate();
-        ApplyDesignSystem();
-    }
-
     private ColorGroup ResolveGroup(IColorSystem colors) => Role switch
     {
         ColorRole.Secondary => colors.Secondary,
@@ -71,8 +75,14 @@ public class Button : View
 
     private void ApplyDesignSystem()
     {
-        var ds = this.GetService(typeof(IDesignSystem)) as IDesignSystem;
-        if (ds == null) return;
+        designSystem.Resolve(this, this);
+    }
+
+    /// <inheritdoc/>
+    public void OnDesignTokenChange()
+    {
+        var ds = designSystem.Current;
+        if (ds is null) return;
 
         var group = ResolveGroup(ds.Colors);
         var isDark = ds.Colors.IsDark;
@@ -104,6 +114,14 @@ public class Button : View
         paddingH = ds.Spacing.Active.L;
         paddingV = ds.Spacing.Active.S;
         textStyle = ds.Typography.Label.L;
+        this.Invalidate();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnDeactivate()
+    {
+        designSystem.Deactivate(this);
+        base.OnDeactivate();
     }
 
     /// <inheritdoc/>
@@ -112,7 +130,7 @@ public class Button : View
         ApplyDesignSystem();
         context.SetFont(new Font(
             textStyle.FontSize,
-            [textStyle.FontFamily],
+            textStyle.FontFamily,
             textStyle.FontWeight,
             textStyle.FontStyle
         ));
@@ -201,7 +219,7 @@ public class Button : View
     {
         context.SetFont(new Font(
             textStyle.FontSize,
-            [textStyle.FontFamily],
+            textStyle.FontFamily,
             textStyle.FontWeight,
             textStyle.FontStyle
         ));
@@ -229,16 +247,19 @@ public class Button : View
         }
         else if (phase == EventPhase.Tunnel && e.Type == PointerEventType.Down)
         {
-            this.CapturePointer(e.PointerId);
+            this.CapturePointer(e.PointerId, PointerGestures.Tap);
             pressed = true;
             this.InvalidateRender();
         }
         else if (phase == EventPhase.Tunnel && e.Type == PointerEventType.Up)
         {
-            this.ReleasePointer(e.PointerId);
-            if (pressed && this.Frame.Contains(e.State.Position))
-                Clicked?.Invoke();
+            // Snapshot before release: ReleasePointer fires LostCapture synchronously,
+            // and the LostCapture handler below clears `pressed`.
+            var wasPressed = pressed;
             pressed = false;
+            this.ReleasePointer(e.PointerId);
+            if (wasPressed && this.Frame.Contains(e.State.Position))
+                Clicked?.Invoke();
             this.InvalidateRender();
         }
         else if (e.Type == PointerEventType.LostCapture)

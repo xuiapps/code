@@ -54,7 +54,7 @@ public class FractionalGridTest : View
         Content = new Label
         {
             Text = text,
-            FontFamily = ["Inter"],
+            FontFamily = "Inter",
             FontSize = 12,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Middle,

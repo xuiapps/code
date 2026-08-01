@@ -186,7 +186,7 @@ namespace Xui.Core.UI.Input
                             e.State,
                             ReadOnlySpan<PointerState>.Empty,
                             ReadOnlySpan<PointerState>.Empty);
-                        tracking.OverTarget.OnPointerEvent(ref outEvent, EventPhase.Bubble);
+                        DispatchToView(tracking.OverTarget, ref outEvent, EventPhase.Bubble);
                     }
 
                     if (targetView != null)
@@ -199,7 +199,7 @@ namespace Xui.Core.UI.Input
                             e.State,
                             ReadOnlySpan<PointerState>.Empty,
                             ReadOnlySpan<PointerState>.Empty);
-                        targetView.OnPointerEvent(ref overEvent, EventPhase.Bubble);
+                        DispatchToView(targetView, ref overEvent, EventPhase.Bubble);
                     }
 
                     tracking = _pointerTracking[e.PointerId];
@@ -220,7 +220,7 @@ namespace Xui.Core.UI.Input
                             e.State,
                             ReadOnlySpan<PointerState>.Empty,
                             ReadOnlySpan<PointerState>.Empty);
-                        tracking.PreviousTarget.OnPointerEvent(ref leaveEvent, EventPhase.Bubble);
+                        DispatchToView(tracking.PreviousTarget, ref leaveEvent, EventPhase.Bubble);
                     }
 
                     if (targetView != null)
@@ -233,7 +233,7 @@ namespace Xui.Core.UI.Input
                             e.State,
                             ReadOnlySpan<PointerState>.Empty,
                             ReadOnlySpan<PointerState>.Empty);
-                        targetView.OnPointerEvent(ref enterEvent, EventPhase.Tunnel);
+                        DispatchToView(targetView, ref enterEvent, EventPhase.Tunnel);
                     }
 
                     tracking = _pointerTracking[e.PointerId];
@@ -249,10 +249,10 @@ namespace Xui.Core.UI.Input
             BuildRoute(targetView);
 
             for (int i = _route.Count - 1; i >= 0; i--)
-                _route[i].OnPointerEvent(ref e, EventPhase.Tunnel);
+                DispatchToView(_route[i], ref e, EventPhase.Tunnel);
 
             for (int i = 0; i < _route.Count; i++)
-                _route[i].OnPointerEvent(ref e, EventPhase.Bubble);
+                DispatchToView(_route[i], ref e, EventPhase.Bubble);
 
             tracking = _pointerTracking[e.PointerId];
             tracking.LastPosition = e.State.Position;
@@ -263,26 +263,36 @@ namespace Xui.Core.UI.Input
         /// <summary>Captures all subsequent pointer events for the given pointer ID to <paramref name="view"/>.</summary>
         /// <param name="view">The view that will exclusively receive events for this pointer.</param>
         /// <param name="pointerId">The pointer identifier to capture.</param>
-        public void CapturePointer(View view, int pointerId)
+        /// <param name="gesture">
+        /// Optional marker describing what kind of gesture the view is tracking
+        /// (<see cref="ITap"/>, <see cref="IDrag"/>, …). Ancestor views can read this
+        /// via <see cref="GetCapturedGesture(int)"/> to decide whether to steal capture.
+        /// </param>
+        public void CapturePointer(View view, int pointerId, IPointerGesture? gesture = null)
         {
             if (_pointerTracking.TryGetValue(pointerId, out var tracking))
             {
                 if (tracking.Captured == view)
+                {
+                    tracking.CapturedGesture = gesture;
+                    _pointerTracking[pointerId] = tracking;
                     return;
+                }
 
                 // Send LostCapture to previous holder before transferring
                 var previousCapture = tracking.Captured;
                 tracking.Captured = view;
+                tracking.CapturedGesture = gesture;
                 _pointerTracking[pointerId] = tracking;
 
                 if (previousCapture != null)
                 {
                     var lostEvt = new PointerEventRef(PointerEventType.LostCapture, pointerId, 0, true, tracking.LastState, ReadOnlySpan<PointerState>.Empty, ReadOnlySpan<PointerState>.Empty);
-                    previousCapture.OnPointerEvent(ref lostEvt, EventPhase.Bubble);
+                    DispatchToView(previousCapture, ref lostEvt, EventPhase.Bubble);
                 }
 
                 var evt = new PointerEventRef(PointerEventType.GotCapture, pointerId, 0, true, tracking.LastState, ReadOnlySpan<PointerState>.Empty, ReadOnlySpan<PointerState>.Empty);
-                view.OnPointerEvent(ref evt, EventPhase.Bubble);
+                DispatchToView(view, ref evt, EventPhase.Bubble);
             }
         }
 
@@ -294,11 +304,35 @@ namespace Xui.Core.UI.Input
             if (_pointerTracking.TryGetValue(pointerId, out var tracking) && tracking.Captured == view)
             {
                 tracking.Captured = null;
+                tracking.CapturedGesture = null;
                 _pointerTracking[pointerId] = tracking;
 
                 var evt = new PointerEventRef(PointerEventType.LostCapture, pointerId, 0, true, tracking.LastState, ReadOnlySpan<PointerState>.Empty, ReadOnlySpan<PointerState>.Empty);
-                view.OnPointerEvent(ref evt, EventPhase.Bubble);
+                DispatchToView(view, ref evt, EventPhase.Bubble);
             }
+        }
+
+        /// <summary>
+        /// Returns the gesture marker associated with the current capture for
+        /// <paramref name="pointerId"/>, or <c>null</c> if the pointer is not
+        /// captured or was captured without a gesture marker.
+        /// </summary>
+        public IPointerGesture? GetCapturedGesture(int pointerId)
+        {
+            return _pointerTracking.TryGetValue(pointerId, out var tracking)
+                ? tracking.CapturedGesture
+                : null;
+        }
+
+        /// <summary>
+        /// Returns the view currently holding pointer capture for
+        /// <paramref name="pointerId"/>, or <c>null</c> if the pointer is not captured.
+        /// </summary>
+        public View? GetCapturedView(int pointerId)
+        {
+            return _pointerTracking.TryGetValue(pointerId, out var tracking)
+                ? tracking.Captured
+                : null;
         }
 
         /// <summary>
@@ -307,18 +341,18 @@ namespace Xui.Core.UI.Input
         /// </summary>
         public void Dispatch(ref ScrollWheelEventRef e, Point position)
         {
-            DispatchScrollWheel(_rootView, ref e, position);
+            DispatchScrollWheel(_rootView, ref e, _rootView.TransformPoint(position));
         }
 
         private static void DispatchScrollWheel(View view, ref ScrollWheelEventRef e, Point position)
         {
             if (e.Handled) return;
-            if (!view.Frame.Contains(position)) return;
+            if (!view.HitTest(position)) return;
 
             // Depth-first: innermost child first
             for (int i = view.Count - 1; i >= 0; i--)
             {
-                DispatchScrollWheel(view[i], ref e, position);
+                DispatchScrollWheel(view[i], ref e, view[i].TransformPoint(position));
                 if (e.Handled) return;
             }
 
@@ -328,13 +362,37 @@ namespace Xui.Core.UI.Input
 
         private View? HitTest(View view, Point position)
         {
+            position = view.TransformPoint(position);
+            return HitTestLocal(view, position);
+        }
+
+        private View? HitTestLocal(View view, Point position)
+        {
+            if (!view.HitTest(position))
+                return null;
+
             for (int i = view.Count - 1; i >= 0; i--)
             {
-                var hit = HitTest(view[i], position);
+                var hit = HitTestLocal(view[i], view[i].TransformPoint(position));
                 if (hit != null)
                     return hit;
             }
-            return view.HitTest(position) ? view : null;
+            return view;
+        }
+
+        private static void DispatchToView(View view, ref PointerEventRef e, EventPhase phase)
+        {
+            var localState = e.State.WithPosition(view.GlobalToLocal(e.State.Position));
+            var localEvent = new PointerEventRef(
+                e.Type,
+                e.PointerId,
+                e.PersistentDeviceId,
+                e.IsPrimary,
+                localState,
+                e.CoalescedStates,
+                e.PredictedStates,
+                e.TextMeasure);
+            view.OnPointerEvent(ref localEvent, phase);
         }
 
         private void BuildRoute(View target)
@@ -347,6 +405,7 @@ namespace Xui.Core.UI.Input
         private struct PointerTracking
         {
             public View? Captured;
+            public IPointerGesture? CapturedGesture;
             public View? PreviousTarget;
             public View? OverTarget;
             public Point LastPosition;

@@ -254,7 +254,7 @@ public class AndroidDrawingContext : IContext
 
         // TODO: Custom font weight,
         
-        Typeface? tf = Typeface.Create(font.FontFamily[0], typefaceStyle);
+        Typeface? tf = Typeface.Create(font.FontFamily, typefaceStyle);
         this.aFillPaint.SetTypeface(tf);
     }
 

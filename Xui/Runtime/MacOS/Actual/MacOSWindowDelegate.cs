@@ -12,9 +12,8 @@ public class MacOSWindowDelegate : NSObject
             .Extend("XUIMacOSWindowDelegate")
             .AddProtocol(new Protocol(AppKit.Lib, "NSWindowDelegate"))
             .AddMethod("windowShouldClose:", WindowShouldClose)
+            .AddMethod("window:willUseFullScreenPresentationOptions:", WindowWillUseFullScreenPresentationOptions)
             .AddMethod("windowWillEnterFullScreen:", WindowWillEnterFullScreen)
-            .AddMethod("windowWillExitFullScreen:", WindowWillExitFullScreen)
-            .AddMethod("windowDidExitFullScreen:", WindowDidExitFullScreen)
             .AddMethod("windowDidResize:", WindowDidResize)
             .Register();
 
@@ -24,26 +23,11 @@ public class MacOSWindowDelegate : NSObject
     private bool WindowShouldClose()
         => this.window.Closing();
 
+    protected static nuint WindowWillUseFullScreenPresentationOptions(nint self, nint sel, nint window, nuint proposedOptions) =>
+        proposedOptions | (nuint)AppKit.NSApplicationPresentationOptions.AutoHideToolbar;
+
     protected static void WindowWillEnterFullScreen(nint self, nint sel, nint notification)
     {
-    }
-
-    protected static void WindowWillExitFullScreen(nint self, nint sel, nint notification) =>
-        Marshalling.Get<MacOSWindowDelegate>(self).WindowWillExitFullScreen();
-
-    private void WindowWillExitFullScreen()
-    {
-        this.window.IsExitingFullScreen = true;
-        this.window.PositionSystemButtons();
-    }
-
-    protected static void WindowDidExitFullScreen(nint self, nint sel, nint notification) =>
-        Marshalling.Get<MacOSWindowDelegate>(self).WindowDidExitFullScreen();
-
-    private void WindowDidExitFullScreen()
-    {
-        this.window.IsExitingFullScreen = false;
-        this.window.PositionSystemButtons();
     }
 
     protected static void WindowDidResize(nint self, nint sel, nint notification) =>
@@ -51,11 +35,10 @@ public class MacOSWindowDelegate : NSObject
 
     private void WindowDidResize()
     {
-        var contentFrame = this.window.ContentView!.Frame;
-        var area = new Rect(0, 0, contentFrame.Size.width, contentFrame.Size.height);
+        this.window.OnWindowDidResize();
+        var area = this.window.LayoutArea;
         this.window.Abstract.DisplayArea = area;
         this.window.Abstract.SafeArea = area;
-        this.window.PositionSystemButtons();
         this.window.Invalidate();
     }
 

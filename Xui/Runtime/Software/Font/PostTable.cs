@@ -95,4 +95,12 @@ public class PostTable
             return _glyphNames[glyphIndex];
         return null;
     }
+
+    /// <summary>Creates a post format-3 table, retaining metrics but dropping glyph names.</summary>
+    public static byte[] CreateSubset(ReadOnlySpan<byte> source)
+    {
+        var result = source.Slice(0, 32).ToArray();
+        BinaryPrimitives.WriteUInt32BigEndian(result.AsSpan(0, 4), 0x00030000);
+        return result;
+    }
 }

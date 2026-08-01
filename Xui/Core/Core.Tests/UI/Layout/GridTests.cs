@@ -9,17 +9,6 @@ namespace Xui.Core.UI.Tests.Layout;
 
 public class GridTests
 {
-    private static readonly LayoutGuide DeviceScreen = new LayoutGuide()
-    {
-        Pass = LayoutGuide.LayoutPass.Measure | LayoutGuide.LayoutPass.Arrange,
-        Anchor = (0, 0),
-        AvailableSize = (400, 800),
-        XAlign = LayoutGuide.Align.Start,
-        YAlign = LayoutGuide.Align.Start,
-        XSize = LayoutGuide.SizeTo.Exact,
-        YSize = LayoutGuide.SizeTo.Exact
-    };
-
     [Fact]
     public void Grid_TwoColumn_FormLayout()
     {

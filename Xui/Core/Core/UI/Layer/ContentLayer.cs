@@ -17,15 +17,6 @@ public struct ContentLayer : ILayer<View>
     public View? Child;
 
     /// <inheritdoc/>
-    public void Update(View view, ref LayoutGuide guide)
-    {
-        if (guide.IsAnimate) Animate(view, guide.PreviousTime, guide.CurrentTime);
-        if (guide.IsMeasure) guide.DesiredSize = Measure(view, guide.AvailableSize, guide.MeasureContext!);
-        if (guide.IsArrange) Arrange(view, guide.ArrangedRect, guide.MeasureContext!);
-        if (guide.IsRender)  Render(view, guide.RenderContext!);
-    }
-
-    /// <inheritdoc/>
     public Size Measure(View view, Size availableSize, IMeasureContext context)
         => Child?.Measure(availableSize, context) ?? Size.Empty;
 
@@ -35,7 +26,10 @@ public struct ContentLayer : ILayer<View>
 
     /// <inheritdoc/>
     public void Render(View view, IContext context)
-        => Child?.Render(context);
+    {
+        if (Child is not null)
+            view.RenderChild(context, Child);
+    }
 
     /// <inheritdoc/>
     public void Animate(View view, TimeSpan previousTime, TimeSpan currentTime)

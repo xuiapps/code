@@ -74,7 +74,7 @@ public class IOSDrawingContext : IContext
             Span<NFloat> mirrored = stackalloc NFloat[segments.Length * 2];
             for(var i = 0; i < segments.Length; i++)
             {
-                mirrored[i] = mirrored[i * 2] = segments[i];
+                mirrored[i] = mirrored[i + segments.Length] = segments[i];
             }
             CGContextRef.CGContextSetLineDash(this.cgContextRef, this.LineDashOffset, ref MemoryMarshal.GetReference(mirrored), mirrored.Length);
         }
@@ -515,22 +515,10 @@ public class IOSDrawingContext : IContext
         {
             using var attributes = new CFMutableDictionaryRef();
 
-            if (font.FontFamily.Length >= 1)
+            if (!string.IsNullOrEmpty(font.FontFamily))
             {
-                using var fontFamilyNameRef = new CFStringRef(font.FontFamily[0]);
+                using var fontFamilyNameRef = new CFStringRef(font.FontFamily);
                 attributes.SetValue(CTFontDescriptor.FontAttributes.FamilyName, fontFamilyNameRef);
-
-                if (font.FontFamily.Length > 1)
-                {
-                    using var nsCascadingFontArray = new CFMutableArrayRef();
-                    foreach(var f in font.FontFamily)
-                    {
-                        using var desc = new CTFontDescriptorRef(f);
-                        nsCascadingFontArray.Add(desc);
-                    }
-                    // TODO: Here the dictionary does not retain the array and the array is disposed...
-                    attributes.SetValue(CTFontDescriptor.FontAttributes.CascadeList, nsCascadingFontArray);
-                }
             }
 
             using var fontSizeRef = new CFNumberRef(font.FontSize);

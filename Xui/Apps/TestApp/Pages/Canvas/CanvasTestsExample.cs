@@ -61,8 +61,10 @@ public class CanvasTestsExample : Example
             this.AddTest<TransformTest>("Transform");
             this.AddTest<StarTest>("Star");
             this.AddTest<GlobalAlphaTest>("GlobalAlpha");
-            this.AddTest<BitmapFillTest>("BitmapFill");
+            this.AddTest<TextMetricsTest>("TextMetrics");
+            this.AddTest<RainbowTextFillTest>("RainbowTextFill");
             this.AddTest<DrawImageTest>("DrawImage");
+            this.AddTest<BitmapFillTest>("BitmapFill");
 
             // Select first test by default
             this.Canvas = new FillRectTest();
@@ -78,14 +80,14 @@ public class CanvasTestsExample : Example
                 Id = name,
                 Margin = 3,
                 Text = name,
-                FontFamily = ["Inter"],
+                FontFamily = "Inter",
             });
         }
 
         protected override Size MeasureCore(Size availableBorderEdgeSize, IMeasureContext context)
         {
             NFloat listWidth = 250;
-            var canvasSize = new Size(300, 300);
+            var canvasSize = new Size(600, 300);
 
             this.list.Measure(new Size(listWidth, availableBorderEdgeSize.Height), context);
             this.canvas?.Measure(canvasSize, context);
@@ -102,7 +104,7 @@ public class CanvasTestsExample : Example
             this.canvas?.Arrange(new Rect(
                 rect.X + listWidth + canvasPadding,
                 rect.Y + canvasPadding,
-                300, 300), context);
+                600, 300), context);
         }
 
         protected override void RenderCore(IContext context)

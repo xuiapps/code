@@ -4,22 +4,23 @@ namespace Xui.Core.UI.Tests;
 
 public class LayoutTests
 {
-    public static readonly LayoutGuide DeviceScreen = new LayoutGuide()
+    public static LayoutMeasurements UpdateDeviceScreen(View view)
     {
-        Pass = LayoutGuide.LayoutPass.Measure | LayoutGuide.LayoutPass.Arrange,
-        Anchor = (0, 0),
-        AvailableSize = (400, 800),
-        XAlign = LayoutGuide.Align.Start,
-        YAlign = LayoutGuide.Align.Start,
-        XSize = LayoutGuide.SizeTo.Exact,
-        YSize = LayoutGuide.SizeTo.Exact
-    };
+        var frame = default(LayoutFrameContext);
+        var update = new LayoutUpdate(
+            LayoutPass.Measure | LayoutPass.Arrange,
+            new MeasureConstraints((400, 800), LayoutSizeMode.Exact, LayoutSizeMode.Exact),
+            new ArrangeConstraints((400, 800), default, (0, 0)));
+        LayoutMeasurements measurements = default;
+        view.Update(in frame, in update, ref measurements);
+        return measurements;
+    }
 
     [Fact]
     public void FixedView_Should_Be_Stretched_By_Exact_DeviceScreen()
     {
         var view = new FixedView { Size = (100, 50) };
-        var result = view.Update(DeviceScreen);
+        var result = UpdateDeviceScreen(view);
 
         // DeviceScreen forces an exact 400x800 layout, so FixedView is overridden
         Assert.Equal(new Size(400, 800), result.DesiredSize);
@@ -30,7 +31,7 @@ public class LayoutTests
     public void FixedView_Should_Account_For_Margin_When_Arranged()
     {
         var view = new FixedView { Size = (100, 50), Margin = (10, 20) };
-        var result = view.Update(DeviceScreen);
+        var result = UpdateDeviceScreen(view);
         Assert.Equal(new Size(400, 800), result.DesiredSize);
         Assert.Equal(new Rect(20, 10, 360, 780), result.ArrangedRect);
     }
@@ -39,7 +40,7 @@ public class LayoutTests
     public void FixedView_With_HorizontalAlignment_Center_Should_Not_Stretch()
     {
         var view = new FixedView { Size = (100, 50), HorizontalAlignment = HorizontalAlignment.Center };
-        var result = view.Update(DeviceScreen);
+        var result = UpdateDeviceScreen(view);
         Assert.Equal(new Size(100, 800), result.DesiredSize);
         Assert.Equal(new Rect(150, 0, 100, 800), result.ArrangedRect);
     }
@@ -48,7 +49,7 @@ public class LayoutTests
     public void FixedView_With_VerticalAlignment_Bottom_Should_Not_Stretch()
     {
         var view = new FixedView { Size = (100, 50), VerticalAlignment = VerticalAlignment.Bottom };
-        var result = view.Update(DeviceScreen);
+        var result = UpdateDeviceScreen(view);
 
         // Height should be taken from the view (50), width still stretches to 400
         Assert.Equal(new Size(400, 50), result.DesiredSize);
@@ -65,7 +66,7 @@ public class LayoutTests
             VerticalAlignment = VerticalAlignment.Top
         };
 
-        var result = view.Update(DeviceScreen);
+        var result = UpdateDeviceScreen(view);
 
         Assert.Equal(new Size(100, 50), result.DesiredSize);
         Assert.Equal(new Rect(300, 0, 100, 50), result.ArrangedRect); // X = 400 - 100
@@ -81,7 +82,7 @@ public class LayoutTests
             VerticalAlignment = VerticalAlignment.Bottom
         };
 
-        var result = view.Update(DeviceScreen);
+        var result = UpdateDeviceScreen(view);
 
         Assert.Equal(new Size(100, 50), result.DesiredSize);
         Assert.Equal(new Rect(0, 750, 100, 50), result.ArrangedRect); // Y = 800 - 50
@@ -97,7 +98,7 @@ public class LayoutTests
             VerticalAlignment = VerticalAlignment.Bottom
         };
 
-        var result = view.Update(DeviceScreen);
+        var result = UpdateDeviceScreen(view);
 
         Assert.Equal(new Size(100, 50), result.DesiredSize);
         Assert.Equal(new Rect(300, 750, 100, 50), result.ArrangedRect);
@@ -113,7 +114,7 @@ public class LayoutTests
             VerticalAlignment = VerticalAlignment.Middle
         };
 
-        var result = view.Update(DeviceScreen);
+        var result = UpdateDeviceScreen(view);
 
         Assert.Equal(new Size(100, 50), result.DesiredSize);
         Assert.Equal(new Rect(150, 375, 100, 50), result.ArrangedRect); // center of 400x800
@@ -129,7 +130,7 @@ public class LayoutTests
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Bottom
         };
-        var result = view.Update(DeviceScreen);
+        var result = UpdateDeviceScreen(view);
         Assert.Equal(new Size(140, 70), result.DesiredSize);
         Assert.Equal(new Rect(280, 740, 100, 50), result.ArrangedRect);
     }

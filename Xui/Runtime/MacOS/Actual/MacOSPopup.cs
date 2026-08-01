@@ -155,33 +155,22 @@ internal sealed class MacOSPopup : IPopup
 
         var drawCtx = drawingContext.Bind();
         IContext ctx = drawCtx;
-        MacOSPlatform.DisplayContextStack.Push(drawCtx);
         try
         {
             // White background
             ctx.SetFill(new Color(0xFF, 0xFF, 0xFF, 0xFF));
             ctx.FillRect(rect);
 
-            // Full layout + render pass via the view's Update method
-            content.Update(new LayoutGuide()
-            {
-                Anchor = rect.TopLeft,
-                Pass =
-                    LayoutGuide.LayoutPass.Measure |
-                    LayoutGuide.LayoutPass.Arrange |
-                    LayoutGuide.LayoutPass.Render,
-                AvailableSize = rect.Size,
-                MeasureContext = ctx,
-                XAlign = LayoutGuide.Align.Start,
-                YAlign = LayoutGuide.Align.Start,
-                XSize = LayoutGuide.SizeTo.Exact,
-                YSize = LayoutGuide.SizeTo.Exact,
-                RenderContext = ctx,
-            });
+            var frameContext = new LayoutFrameContext(TimeSpan.Zero, TimeSpan.Zero, ctx, ctx, default);
+            var update = new LayoutUpdate(
+                LayoutPass.Measure | LayoutPass.Arrange | LayoutPass.Render,
+                new MeasureConstraints(rect.Size, LayoutSizeMode.Exact, LayoutSizeMode.Exact),
+                new ArrangeConstraints(rect.Size, default, rect.TopLeft));
+            LayoutMeasurements measurements = default;
+            content.Update(in frameContext, in update, ref measurements);
         }
         finally
         {
-            MacOSPlatform.DisplayContextStack.Pop();
         }
     }
 

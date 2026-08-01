@@ -66,14 +66,14 @@ public class HomePage : ViewCollection
         var rect = this.Frame;
 
         // Title
-        context.SetFont(new Font(32, ["Segoe UI"], fontWeight: FontWeight.Light));
+        context.SetFont(new Font(32, "Inter", fontWeight: FontWeight.Light));
         context.TextBaseline = TextBaseline.Top;
         context.TextAlign = TextAlign.Left;
         context.SetFill(new Color(0x1A1A1AFF));
         context.FillText("Welcome to Xui", new Point(rect.X + 40, rect.Y + 40));
 
         // Subtitle
-        context.SetFont(new Font(14, ["Segoe UI"]));
+        context.SetFont(new Font(14, "Inter"));
         context.SetFill(new Color(0x606060FF));
         context.FillText("Cross-platform UI framework for .NET", new Point(rect.X + 40, rect.Y + 82));
 

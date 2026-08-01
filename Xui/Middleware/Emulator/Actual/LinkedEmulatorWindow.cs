@@ -13,6 +13,9 @@ internal sealed class LinkedEmulatorWindow : Xui.Core.Abstract.IWindow
 
     public Xui.Core.Abstract.IWindow AppWindow { get; }
 
+    // This is an internal event adapter, not a node in the composed-window chain.
+    public Xui.Core.Actual.IWindow? Actual => null;
+
     public LinkedEmulatorWindow(Xui.Core.Abstract.IWindow appWindow)
     {
         AppWindow = appWindow;
@@ -32,8 +35,7 @@ internal sealed class LinkedEmulatorWindow : Xui.Core.Abstract.IWindow
 
     public bool Closing() => AppWindow.Closing();
 
-    public object? GetService(Type serviceType) =>
-        (AppWindow as IServiceProvider)?.GetService(serviceType);
+    public object? GetService(Type serviceType) => null;
 
     public void OnAnimationFrame(ref FrameEventRef animationFrame) =>
         AppWindow.OnAnimationFrame(ref animationFrame);

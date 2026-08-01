@@ -87,34 +87,15 @@ public struct TextInputLayer : ILayer<View>
     /// <summary>Inset applied to the arranged rect before text layout and hit-testing.</summary>
     public Frame Padding { get; set; }
 
-    // ── Font properties ──────────────────────────────────────────────────
-
-    /// <summary>Gets or sets the font family name.</summary>
-    public string[]? FontFamily { get; set; }
-    /// <summary>Gets or sets the font size in points.</summary>
-    public nfloat FontSize { get; set; }
-    /// <summary>Gets or sets the font style.</summary>
-    public FontStyle FontStyle { get; set; }
-    /// <summary>Gets or sets the font weight.</summary>
-    public FontWeight FontWeight { get; set; }
-    /// <summary>Gets or sets the font stretch.</summary>
-    public FontStretch FontStretch { get; set; }
+    /// <summary>Font used for input measurement, hit testing, and rendering.</summary>
+    public Font Font { get; set; }
 
     // ── ILayer<View> ─────────────────────────────────────────────────────
 
     /// <inheritdoc/>
-    public void Update(View view, ref LayoutGuide guide)
-    {
-        if (guide.IsAnimate) Animate(view, guide.PreviousTime, guide.CurrentTime);
-        if (guide.IsMeasure) guide.DesiredSize = Measure(view, guide.AvailableSize, guide.MeasureContext!);
-        if (guide.IsArrange) Arrange(view, guide.ArrangedRect, guide.MeasureContext!);
-        if (guide.IsRender)  Render(view, guide.RenderContext!);
-    }
-
-    /// <inheritdoc/>
     public Size Measure(View view, Size availableSize, IMeasureContext context)
     {
-        context.SetFont(GetFont());
+        context.SetFont(Font);
         var len = TextBuffer.Length;
         char[]? pooled = null;
         Span<char> buf = len <= MaxStackBufferSize
@@ -145,7 +126,7 @@ public struct TextInputLayer : ILayer<View>
         var focused = view.IsFocused;
         var frame = contentRect;
 
-        context.SetFont(GetFont());
+        context.SetFont(Font);
         context.TextBaseline = TextBaseline.Top;
         context.TextAlign = TextAlign.Left;
 
@@ -262,7 +243,8 @@ public struct TextInputLayer : ILayer<View>
                 anchor = cursorPos.Value;
                 selection = new Interval<uint>.ClosedOpen(cursorPos.Value, cursorPos.Value);
                 isMouseSelecting = true;
-                view.CapturePointer(e.PointerId);
+                // Text selection is an ongoing drag — ancestor scroll views must not steal capture.
+                view.CapturePointer(e.PointerId, PointerGestures.Drag);
             }
             else if (!wasFocused && SelectAllOnFocus)
             {
@@ -412,15 +394,6 @@ public struct TextInputLayer : ILayer<View>
     // Stack-allocate display text for up to this many characters; rent from ArrayPool beyond that.
     private const int MaxStackBufferSize = 256;
 
-    private Font GetFont() => new Font
-    {
-        FontFamily  = FontFamily ?? ["Inter"],
-        FontSize    = FontSize > 0 ? FontSize : 15,
-        FontWeight  = FontWeight.Value > 0 ? FontWeight : FontWeight.Normal,
-        FontStretch = FontStretch.Value > 0 ? FontStretch : FontStretch.Normal,
-        FontStyle   = FontStyle,
-    };
-
     /// <summary>
     /// Fills <paramref name="buf"/> with the display characters (bullets for password,
     /// raw text otherwise) and returns a <see cref="ReadOnlySpan{T}"/> over the filled region.
@@ -467,7 +440,7 @@ public struct TextInputLayer : ILayer<View>
         if (textMeasure == null)
             return null;
 
-        textMeasure.SetFont(GetFont());
+        textMeasure.SetFont(Font);
         var clickX = pointerPosition.X - contentRect.X;
         var len = TextBuffer.Length;
         char[]? pooled = null;

@@ -61,22 +61,13 @@ public sealed class SVGDocument
             numericFormat: this.NumericFormat,
             keepOpen: true))
         {
-            this.Content?.Update(new LayoutGuide
-            {
-                Anchor = (0, 0),
-                AvailableSize = this.Size,
-                Pass = LayoutGuide.LayoutPass.Measure
-                     | LayoutGuide.LayoutPass.Arrange
-                     | LayoutGuide.LayoutPass.Render,
-                PreviousTime = this.Time,
-                CurrentTime = this.Time,
-                MeasureContext = context,
-                RenderContext = context,
-                XAlign = LayoutGuide.Align.Start,
-                YAlign = LayoutGuide.Align.Start,
-                XSize = LayoutGuide.SizeTo.Exact,
-                YSize = LayoutGuide.SizeTo.Exact,
-            });
+            var frame = new LayoutFrameContext(this.Time, this.Time, context, context, default);
+            var update = new LayoutUpdate(
+                LayoutPass.Measure | LayoutPass.Arrange | LayoutPass.Render,
+                new MeasureConstraints(this.Size, LayoutSizeMode.Exact, LayoutSizeMode.Exact),
+                new ArrangeConstraints(this.Size, default, (0, 0)));
+            LayoutMeasurements measurements = default;
+            this.Content?.Update(in frame, in update, ref measurements);
         }
 
         return Encoding.UTF8.GetString(stream.ToArray());

@@ -61,15 +61,6 @@ public struct FocusBorderLayer<TView, TChild> : ILayer<TView>
     // ── ILayer<TView> ────────────────────────────────────────────────────
 
     /// <inheritdoc/>
-    public void Update(TView view, ref LayoutGuide guide)
-    {
-        if (guide.IsAnimate) Animate(view, guide.PreviousTime, guide.CurrentTime);
-        if (guide.IsMeasure) guide.DesiredSize = Measure(view, guide.AvailableSize, guide.MeasureContext!);
-        if (guide.IsArrange) Arrange(view, guide.ArrangedRect, guide.MeasureContext!);
-        if (guide.IsRender)  Render(view, guide.RenderContext!);
-    }
-
-    /// <inheritdoc/>
     public Size Measure(TView view, Size availableSize, IMeasureContext context)
         => Border.Measure(view, availableSize, context);
 

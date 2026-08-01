@@ -41,7 +41,7 @@ public class PopupDemo : View
         ctx.SetFill(bg);
         ctx.Fill();
 
-        ctx.SetFont(new Font(14, ["Segoe UI"], fontWeight: pressed ? FontWeight.SemiBold : FontWeight.Normal));
+        ctx.SetFont(new Font(14, "Inter", fontWeight: pressed ? FontWeight.SemiBold : FontWeight.Normal));
         ctx.TextAlign = TextAlign.Center;
         ctx.TextBaseline = TextBaseline.Middle;
         ctx.SetFill(Colors.White);
@@ -49,7 +49,7 @@ public class PopupDemo : View
             new Point(btnRect.X + btnRect.Width / 2, btnRect.Y + btnRect.Height / 2));
 
         // Hint
-        ctx.SetFont(new Font(12, ["Segoe UI"]));
+        ctx.SetFont(new Font(12, "Inter"));
         ctx.TextAlign = TextAlign.Center;
         ctx.TextBaseline = TextBaseline.Top;
         ctx.SetFill(new Color(0x808080FF));
@@ -145,13 +145,13 @@ public class PopupDemo : View
             ctx.Stroke();
 
             // Content
-            ctx.SetFont(new Font(14, ["Segoe UI"], fontWeight: FontWeight.SemiBold));
+            ctx.SetFont(new Font(14, "Inter", fontWeight: FontWeight.SemiBold));
             ctx.TextBaseline = TextBaseline.Top;
             ctx.TextAlign = TextAlign.Left;
             ctx.SetFill(new Color(0x1A1A1AFF));
             ctx.FillText("Overlay content", new Point(rect.X + 16, rect.Y + 16));
 
-            ctx.SetFont(new Font(13, ["Segoe UI"]));
+            ctx.SetFont(new Font(13, "Inter"));
             ctx.SetFill(new Color(0x606060FF));
             ctx.FillText("Cross-platform in-window overlay", new Point(rect.X + 16, rect.Y + 40));
             ctx.FillText("Works on Windows, macOS, iOS, Browser", new Point(rect.X + 16, rect.Y + 60));

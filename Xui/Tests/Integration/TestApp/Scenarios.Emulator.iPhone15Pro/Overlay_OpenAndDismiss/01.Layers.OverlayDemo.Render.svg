@@ -15,8 +15,8 @@
       <text x="3" y="158.45" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Overlay (IOverlay)</text>
       <rect x="200" y="83" width="193" height="735" fill="#F5F5F5" />
       <path d="M 222.5 402.5 H 370.5 A 6 6 0 0 1 376.5 408.5 V 432.5 A 6 6 0 0 1 370.5 438.5 H 222.5 A 6 6 0 0 1 216.5 432.5 V 408.5 A 6 6 0 0 1 222.5 402.5 Z " fill="#0078D4" fill-rule="nonzero" />
-      <text x="296.5" y="420.5" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central" font-size="14" font-family="Segoe UI" xml:space="preserve">Open Overlay</text>
-      <text x="296.5" y="454.5" fill="#808080" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Segoe UI" xml:space="preserve">IOverlay — cross-platform in-window overlay, auto-dismiss on outside click</text>
+      <text x="296.5" y="420.5" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central" font-size="14" font-family="Inter" xml:space="preserve">Open Overlay</text>
+      <text x="296.5" y="454.5" fill="#808080" text-anchor="middle" dominant-baseline="text-before-edge" font-size="12" font-family="Inter" xml:space="preserve">IOverlay — cross-platform in-window overlay, auto-dismiss on outside click</text>
       <rect x="0" y="59" width="393" height="24" fill="#FFFFFF" />
       <text x="0" y="59" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>
       <text x="73.18" y="59" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">Layers</text>

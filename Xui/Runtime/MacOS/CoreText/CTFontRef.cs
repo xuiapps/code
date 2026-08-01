@@ -94,8 +94,10 @@ public static partial class CoreText
                     emAscent: emHeight ? emAscent * scale : ascent,
                     emDescent: emHeight ? -emDescent * scale : descent,
                     alphabeticBaseline: 0,
-                    hangingBaseline: baselines ? hangingBaseline * scale : -ascent,
-                    ideographicBaseline: baselines ? ideographicBaseline * scale : descent
+                    // OpenType baseline coordinates are positive upward; Canvas/Xui
+                    // coordinates are positive downward from the alphabetic baseline.
+                    hangingBaseline: baselines ? -hangingBaseline * scale : -this.PointSize * 0.8f,
+                    ideographicBaseline: baselines ? -ideographicBaseline * scale : descent
                 );
             }
         }

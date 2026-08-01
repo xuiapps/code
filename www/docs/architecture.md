@@ -43,7 +43,8 @@ Each platform package (`Xui.Runtime.Windows`, `Xui.Runtime.macOS`, …) implemen
 
 ## Service resolution chain
 
-Platform services (images, text measurement) flow from the platform up to views via `IServiceProvider`:
+Platform services (images, text measurement) are exposed to views through one
+forward-only service chain:
 
 ```
 view.GetService<IImage>()
@@ -51,8 +52,9 @@ view.GetService<IImage>()
   → ... (walks up the view tree)
   → RootView.GetService()
   → Window.GetService()
-      → DI container (if using Xui.Core.DI / Microsoft.Extensions.DI)
-      → Actual.GetService()  ← Win32Window returns IImage via DirectXImageFactory
+      → middleware actual windows (if present)
+      → native actual window  ← Win32Window returns IImage via DirectXImageFactory
+      → window DI scope / application services
 ```
 
 Generic helpers in `Xui.Core.DI`:
@@ -73,6 +75,7 @@ Middleware sits between abstract and actual and swaps out the platform implement
 ## DI integration (`Xui.Core.DI`)
 
 `Xui.Core.DI` adds optional Microsoft.Extensions.Hosting integration:
-- `HostApplication` — wraps an `IHost`, calls `base.Run()` inside the host lifecycle.
-- `HostWindow` — creates a DI scope per window; disposes on close.
-- Window-scoped services resolve through the host's DI container before falling back to platform services.
+- `Run<TApplication>()` starts the host and then the Xui application.
+- `CreateAndShowOnce<TWindow>()` creates one DI scope per window and disposes it on close.
+- Actual-window and middleware services are resolved before the window's DI scope;
+  native callbacks never resolve services back through the abstract window.

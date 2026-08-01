@@ -26,7 +26,7 @@ public class AndroidPlatform : IRuntime
         return XuiApplication.Instance;
     }
 
-    public Core.Actual.IWindow CreateWindow(Core.Abstract.IWindow windowAbstract)
+    public Core.Actual.IWindow CreateWindow(Core.Abstract.IWindow windowAbstract, IServiceProvider applicationServices)
     {
         if (XuiActivity.Instance == null)
         {
@@ -39,6 +39,7 @@ public class AndroidPlatform : IRuntime
         }
 
         XuiActivity.Instance!.Abstract = windowAbstract;
+        XuiActivity.Instance.SetNextServiceProvider(applicationServices);
         return XuiActivity.Instance;
     }
 }

@@ -9,7 +9,7 @@ namespace Xui.DevKit.UI.Widgets;
 /// A card container that uses design system tokens for background, outline, shape, and padding.
 /// By default uses Surface colors. Set <see cref="Role"/> to use a specific color group.
 /// </summary>
-public class Card : View
+public class Card : View, IDesignSystemChangeNotifications
 {
     private View? content;
 
@@ -17,6 +17,7 @@ public class Card : View
     private Color outlineColor;
     private CornerRadius cornerRadius;
     private nfloat padding;
+    private readonly DesignSystemCache designSystem = new();
 
     /// <summary>The content view inside the card.</summary>
     public View? Content
@@ -38,17 +39,16 @@ public class Card : View
     public override View this[int index] =>
         index == 0 && content is not null ? content : throw new IndexOutOfRangeException();
 
-    /// <inheritdoc/>
-    protected override void OnActivate()
-    {
-        base.OnActivate();
-        ApplyDesignSystem();
-    }
-
     private void ApplyDesignSystem()
     {
-        var ds = this.GetService(typeof(IDesignSystem)) as IDesignSystem;
-        if (ds == null) return;
+        designSystem.Resolve(this, this);
+    }
+
+    /// <inheritdoc/>
+    public void OnDesignTokenChange()
+    {
+        var ds = designSystem.Current;
+        if (ds is null) return;
 
         if (Role.HasValue)
         {
@@ -73,6 +73,14 @@ public class Card : View
 
         cornerRadius = ds.Shape.Large;
         padding = ds.Spacing.Passive.L;
+        this.Invalidate();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnDeactivate()
+    {
+        designSystem.Deactivate(this);
+        base.OnDeactivate();
     }
 
     /// <inheritdoc/>

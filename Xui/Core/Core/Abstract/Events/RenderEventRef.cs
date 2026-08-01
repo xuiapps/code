@@ -1,3 +1,4 @@
+using Xui.Core.Canvas;
 using Xui.Core.Math2D;
 
 namespace Xui.Core.Abstract.Events;
@@ -24,14 +25,22 @@ public ref struct RenderEventRef
     public FrameEventRef Frame;
 
     /// <summary>
+    /// The frame-bound drawing context for this render pass. It must not be retained
+    /// after the event returns to the render surface.
+    /// </summary>
+    public IContext Context;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="RenderEventRef"/> struct
     /// with the given invalidation region and frame timing data.
     /// </summary>
     /// <param name="rect">The region to be rendered.</param>
     /// <param name="frame">The timing information for this frame.</param>
-    public RenderEventRef(Rect rect, FrameEventRef frame)
+    /// <param name="context">The drawing context for this render pass.</param>
+    public RenderEventRef(Rect rect, FrameEventRef frame, IContext context)
     {
         Frame = frame;
         Rect = rect;
+        Context = context;
     }
 }

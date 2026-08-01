@@ -30,13 +30,13 @@ public class TextBoxLayerTest : View
 
     public TextBoxLayerTest()
     {
-        label1 = new Label { Text = "Text", FontFamily = ["Inter"], FontWeight = FontWeight.Normal };
+        label1 = new Label { Text = "Text", FontFamily = "Inter", FontWeight = FontWeight.Normal };
         box1   = new TextBox { Text = "Hello, layers!", FontWeight = FontWeight.Normal };
 
-        label2 = new Label { Text = "Password", FontFamily = ["Inter"], FontWeight = FontWeight.Normal };
+        label2 = new Label { Text = "Password", FontFamily = "Inter", FontWeight = FontWeight.Normal };
         box2   = new TextBox { IsPassword = true, FontWeight = FontWeight.Normal };
 
-        label3 = new Label { Text = "Digits only", FontFamily = ["Inter"], FontWeight = FontWeight.Normal };
+        label3 = new Label { Text = "Digits only", FontFamily = "Inter", FontWeight = FontWeight.Normal };
         box3   = new TextBox
         {
             Text        = "42",

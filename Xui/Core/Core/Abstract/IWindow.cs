@@ -1,4 +1,5 @@
 using Xui.Core.Abstract.Events;
+using Xui.Core.Canvas;
 using Xui.Core.Math2D;
 
 namespace Xui.Core.Abstract;
@@ -14,6 +15,13 @@ namespace Xui.Core.Abstract;
 /// </remarks>
 public partial interface IWindow
 {
+    /// <summary>
+    /// Gets the actual window immediately downstream of this abstract window.
+    /// Together with <see cref="Actual.IWindow.Abstract"/>, this forms the
+    /// bidirectional composed-window chain.
+    /// </summary>
+    Actual.IWindow? Actual { get; }
+
     /// <summary>
     /// Gets or sets the total visible area of the window, including content that may
     /// be obscured by hardware cutouts, rounded corners, or system UI overlays.

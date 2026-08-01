@@ -15,13 +15,13 @@ public class TechPage : View
     {
         var rect = this.Frame;
 
-        context.SetFont(new Font(32, ["Segoe UI"], fontWeight: FontWeight.Light));
+        context.SetFont(new Font(32, "Inter", fontWeight: FontWeight.Light));
         context.TextBaseline = TextBaseline.Top;
         context.TextAlign = TextAlign.Left;
         context.SetFill(new Color(0x1A1A1AFF));
         context.FillText("Technology", new Point(rect.X + 40, rect.Y + 40));
 
-        context.SetFont(new Font(14, ["Segoe UI"]));
+        context.SetFont(new Font(14, "Inter"));
         context.SetFill(new Color(0x606060FF));
         context.FillText("Core technologies powering Xui", new Point(rect.X + 40, rect.Y + 82));
 
@@ -35,7 +35,7 @@ public class TechPage : View
             "Platform Backends \u2014 Win32, Cocoa, UIKit, Android, Browser",
         ];
 
-        context.SetFont(new Font(14, ["Segoe UI"]));
+        context.SetFont(new Font(14, "Inter"));
         foreach (var item in items)
         {
             // Bullet

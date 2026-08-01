@@ -134,11 +134,21 @@ setModuleImports('main.js', {
                         },
                         measureText(text) {
                             const metrics = xuiCanvasContext.measureText(text);
-                            const res = {
+                            const numberOrZero = value => typeof value === "number" ? value : 0;
+                            return {
                                 width: metrics.width,
-                                height: metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent
+                                actualBoundingBoxLeft: numberOrZero(metrics.actualBoundingBoxLeft),
+                                actualBoundingBoxRight: numberOrZero(metrics.actualBoundingBoxRight),
+                                actualBoundingBoxAscent: numberOrZero(metrics.actualBoundingBoxAscent),
+                                actualBoundingBoxDescent: numberOrZero(metrics.actualBoundingBoxDescent),
+                                fontBoundingBoxAscent: numberOrZero(metrics.fontBoundingBoxAscent),
+                                fontBoundingBoxDescent: numberOrZero(metrics.fontBoundingBoxDescent),
+                                emHeightAscent: numberOrZero(metrics.emHeightAscent),
+                                emHeightDescent: numberOrZero(metrics.emHeightDescent),
+                                alphabeticBaseline: numberOrZero(metrics.alphabeticBaseline),
+                                hangingBaseline: numberOrZero(metrics.hangingBaseline),
+                                ideographicBaseline: numberOrZero(metrics.ideographicBaseline)
                             };
-                            return res;
                         },
                         moveTo(x, y) {
                             xuiCanvasContext.moveTo(x, y);

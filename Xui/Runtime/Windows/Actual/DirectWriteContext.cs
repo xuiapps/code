@@ -25,7 +25,7 @@ public class DirectWriteContext : ITextMeasureContext
 
     void ITextMeasureContext.SetFont(Font font)
     {
-        string fontFamilyName = font.FontFamily[0];
+        string fontFamilyName = font.FontFamily;
 
         DWrite.FontWeight fontWeight = (DWrite.FontWeight)(uint)font.FontWeight;
         DWrite.FontStyle fontStyle =

@@ -215,7 +215,7 @@ public class MainWindow : Window
 
     public override void Render(ref RenderEventRef render)
     {
-        var ctx = this.GetRequiredService<IContext>();
+        var ctx = render.Context;
 
         var centerGuide = render.Rect.Width / 2f;
 
@@ -236,7 +236,7 @@ public class MainWindow : Window
         ctx.SetFill(0x000000FF);
         ctx.TextAlign = TextAlign.Center;
         ctx.SetFont(new Font() {
-            FontFamily = ["Inter"],
+            FontFamily = "Inter",
             FontSize = 18,
             FontStyle = FontStyle.Normal,
             FontWeight = 700,
@@ -244,7 +244,7 @@ public class MainWindow : Window
         });
         ctx.FillText("Delightful App Development", (centerGuide, 320 + this.scrollPoint.Y));
         ctx.SetFont(new Font() {
-            FontFamily = ["Inter"],
+            FontFamily = "Inter",
             FontSize = 14,
             FontStyle = FontStyle.Normal,
             FontWeight = 400,
@@ -260,7 +260,7 @@ public class MainWindow : Window
         // ctx.SetStroke(Colors.Black);
         // ctx.StrokeRect((left + 5, 470 + 12 + this.scrollPoint.Y, right - left - 5 - 5, 20));
         // ctx.SetFont(new Font() {
-        //     FontFamily = ["Inter"],
+        //     FontFamily = "Inter",
         //     FontSize = 18,
         //     FontStyle = FontStyle.Normal,
         //     FontWeight = 700,
@@ -271,7 +271,7 @@ public class MainWindow : Window
         // ctx.FillText(this.textContent, (left + 32, 470 + 12 + this.scrollPoint.Y));
 
         ctx.SetFont(new Font() {
-            FontFamily = ["Inter"],
+            FontFamily = "Inter",
             FontSize = 18,
             FontStyle = FontStyle.Normal,
             FontWeight = 700,
@@ -287,7 +287,7 @@ public class MainWindow : Window
         ctx.SetFill(0xE8BEEDFF);
         ctx.Fill();
         ctx.SetFont(new Font() {
-            FontFamily = ["Inter"],
+            FontFamily = "Inter",
             FontSize = 14,
             FontStyle = FontStyle.Normal,
             FontWeight = 400,
@@ -303,7 +303,7 @@ public class MainWindow : Window
         ctx.SetFill(0xE8BEEDFF);
         ctx.Fill();
         ctx.SetFont(new Font() {
-            FontFamily = ["Inter"],
+            FontFamily = "Inter",
             FontSize = 14,
             FontStyle = FontStyle.Normal,
             FontWeight = 400,
@@ -319,7 +319,7 @@ public class MainWindow : Window
         ctx.SetFill(0xE8BEEDFF);
         ctx.Fill();
         ctx.SetFont(new Font() {
-            FontFamily = ["Inter"],
+            FontFamily = "Inter",
             FontSize = 14,
             FontStyle = FontStyle.Normal,
             FontWeight = 400,
@@ -330,7 +330,7 @@ public class MainWindow : Window
         ctx.FillText("Widgets", widgetsFrame.TopLeft + (16, 12));
 
         ctx.SetFont(new Font() {
-            FontFamily = ["Inter"],
+            FontFamily = "Inter",
             FontSize = 18,
             FontStyle = FontStyle.Normal,
             FontWeight = 700,
@@ -404,7 +404,7 @@ public class MainWindow : Window
         ctx.SetFill(0x000000FF);
         ctx.TextAlign = TextAlign.Center;
         ctx.SetFont(new Font() {
-            FontFamily = ["Inter"],
+            FontFamily = "Inter",
             FontSize = 32f, // NFloat.Lerp(32f, 22f, EaseInOutSine(titleContentToHeaderProgress))
             FontStyle = FontStyle.Normal,
             FontWeight = 700,
@@ -464,7 +464,7 @@ public class MainWindow : Window
         Home.Instance.Render(ctx);
         ctx.Restore();
         ctx.SetFont(new Font() {
-            FontFamily = ["Inter"],
+            FontFamily = "Inter",
             FontSize = 10f, // NFloat.Lerp(32f, 22f, EaseInOutSine(titleContentToHeaderProgress))
             FontStyle = FontStyle.Normal,
             FontWeight = 700,
@@ -482,7 +482,7 @@ public class MainWindow : Window
         LocationPin.Instance.Render(ctx);
         ctx.Restore();
         ctx.SetFont(new Font() {
-            FontFamily = ["Inter"],
+            FontFamily = "Inter",
             FontSize = 10f,
             FontStyle = FontStyle.Normal,
             FontWeight = 700,
@@ -500,7 +500,7 @@ public class MainWindow : Window
         Wallet.Instance.Render(ctx);
         ctx.Restore();
         ctx.SetFont(new Font() {
-            FontFamily = ["Inter"],
+            FontFamily = "Inter",
             FontSize = 10f,
             FontStyle = FontStyle.Normal,
             FontWeight = 700,

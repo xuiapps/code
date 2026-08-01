@@ -201,7 +201,7 @@ public class NavButton : View
         }
 
         // Label
-        context.SetFont(new Font(13, ["Segoe UI"], fontWeight: FontWeight.Normal));
+        context.SetFont(new Font(13, "Inter", fontWeight: FontWeight.Normal));
         context.TextBaseline = TextBaseline.Middle;
         context.TextAlign = TextAlign.Left;
         context.SetFill(isSelected ? Colors.White : new Color(0x1A1A1AFF));

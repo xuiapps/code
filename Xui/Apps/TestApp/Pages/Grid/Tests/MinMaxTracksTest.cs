@@ -58,7 +58,7 @@ public class MinMaxTracksTest : View
         Content = new Label
         {
             Text = text,
-            FontFamily = ["Inter"],
+            FontFamily = "Inter",
             FontSize = 10,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Middle,

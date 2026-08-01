@@ -65,6 +65,9 @@ public static partial class ObjC
     public static partial nint objc_msgSend_retIntPtr(nint obj, nint sel, nint id1);
 
     [LibraryImport(LibObjCLib, EntryPoint = "objc_msgSend")]
+    public static partial nint objc_msgSend_retIntPtr(nint obj, nint sel, NFloat value);
+
+    [LibraryImport(LibObjCLib, EntryPoint = "objc_msgSend")]
     public static partial int objc_msgSend_retInt(nint obj, nint sel);
 
     [LibraryImport(LibObjCLib, EntryPoint = "objc_msgSend")]
@@ -156,6 +159,13 @@ public static partial class ObjC
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     public delegate bool IdSelIdId_Bool(nint self, nint sel, nint v1, nint v2);
+
+    [LibraryImport(LibObjCLib, EntryPoint = "class_addMethod")]
+    [return: MarshalAs(UnmanagedType.I1)]
+    public static unsafe partial bool class_addMethod(nint objcclass, nint name, [MarshalAs(UnmanagedType.FunctionPtr)] IdSelIdNUInt_NUInt fun, [MarshalAs(UnmanagedType.LPStr)] string types);
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+    public delegate nuint IdSelIdNUInt_NUInt(nint self, nint sel, nint v1, nuint v2);
 
     [LibraryImport(LibObjCLib, EntryPoint = "class_addMethod")]
     [return: MarshalAs(UnmanagedType.I1)]

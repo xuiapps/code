@@ -58,7 +58,7 @@ public class LayersExample : Example
                 Id = name,
                 Margin = 3,
                 Text = name,
-                FontFamily = ["Inter"],
+                FontFamily = "Inter",
             });
         }
 

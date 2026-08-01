@@ -62,4 +62,13 @@ public class HeaderTable
             return macEpoch;
         }
     }
+
+    /// <summary>Copies a head table configured for long loca offsets and a new checksum.</summary>
+    public static byte[] CreateSubset(ReadOnlySpan<byte> source)
+    {
+        var result = source.ToArray();
+        BinaryPrimitives.WriteUInt32BigEndian(result.AsSpan(8, 4), 0);
+        BinaryPrimitives.WriteInt16BigEndian(result.AsSpan(50, 2), 1);
+        return result;
+    }
 }

@@ -11,7 +11,7 @@ namespace Xui.DevKit.UI.Widgets;
 /// A toggle switch that slides a thumb circle between on/off positions.
 /// Consumes design system tokens for colors, shape, and sizing.
 /// </summary>
-public class Toggle : View
+public class Toggle : View, IDesignSystemChangeNotifications
 {
     private bool isOn;
     private bool hover;
@@ -25,6 +25,7 @@ public class Toggle : View
     private NFloat trackWidth;
     private NFloat trackHeight;
     private NFloat thumbRadius;
+    private readonly DesignSystemCache designSystem = new();
 
     /// <summary>Gets or sets whether the toggle is on.</summary>
     public bool IsOn
@@ -46,16 +47,16 @@ public class Toggle : View
     public override int Count => 0;
     public override View this[int index] => throw new IndexOutOfRangeException();
 
-    protected override void OnActivate()
-    {
-        base.OnActivate();
-        ApplyDesignSystem();
-    }
-
     private void ApplyDesignSystem()
     {
-        var ds = this.GetService(typeof(IDesignSystem)) as IDesignSystem;
-        if (ds == null) return;
+        designSystem.Resolve(this, this);
+    }
+
+    /// <inheritdoc/>
+    public void OnDesignTokenChange()
+    {
+        var ds = designSystem.Current;
+        if (ds is null) return;
 
         trackOnColor = ds.Colors.Primary.Background;
         trackOffColor = ds.Colors.Surface.Container;
@@ -66,6 +67,14 @@ public class Toggle : View
         trackWidth = ds.Spacing.Passive.XXXL;
         trackHeight = ds.Spacing.Passive.XL;
         thumbRadius = (trackHeight - 4) / 2;
+        this.Invalidate();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnDeactivate()
+    {
+        designSystem.Deactivate(this);
+        base.OnDeactivate();
     }
 
     protected override Size MeasureCore(Size available, IMeasureContext context)
@@ -119,7 +128,7 @@ public class Toggle : View
         else if (e.Type == PointerEventType.Leave) { hover = false; InvalidateRender(); }
         else if (phase == EventPhase.Tunnel && e.Type == PointerEventType.Down)
         {
-            CapturePointer(e.PointerId);
+            CapturePointer(e.PointerId, PointerGestures.Tap);
             pressed = true;
             InvalidateRender();
         }

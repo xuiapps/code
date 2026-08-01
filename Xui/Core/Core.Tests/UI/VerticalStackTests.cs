@@ -56,7 +56,7 @@ public class VerticalStackTests
             Box(out var b3, (90, 50)),
         ]);
 
-        stack.Update(LayoutTests.DeviceScreen);
+        LayoutTests.UpdateDeviceScreen(stack);
 
         Assert.Equal((0, 0, 400, 800), stack.Frame);
         Assert.Equal((0, 0, 400, 40), b1.Frame);
@@ -77,7 +77,7 @@ public class VerticalStackTests
             Box(out var b3, (90, 50)),
         ]);
 
-        stack.Update(LayoutTests.DeviceScreen);
+        LayoutTests.UpdateDeviceScreen(stack);
 
         Assert.Equal((140, 340, 120, 120), stack.Frame);
         Assert.Equal((140, 340, 120, 40), b1.Frame);

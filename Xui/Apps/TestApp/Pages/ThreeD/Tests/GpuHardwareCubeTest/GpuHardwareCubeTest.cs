@@ -92,7 +92,7 @@ public class GpuHardwareCubeTestView : View
 
         // Draw backend label
         context.SetFill(new Color(0x00, 0x00, 0x00, 0xCC));
-        context.SetFont(new Font(11, new[] { "Inter" }));
+        context.SetFont(new Font(11, "Inter"));
         context.FillText(
             $"GPU: {_backendName}",
             new Point(this.Frame.X + 6, this.Frame.Y + 16));

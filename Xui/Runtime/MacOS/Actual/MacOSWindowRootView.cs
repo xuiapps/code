@@ -11,10 +11,14 @@ public class MacOSWindowRootView : NSView
     protected static unsafe new readonly Class Class = NSView.Class
         .Extend("XUIMacOSWindowRootView")
         .AddMethod("drawRect:", DrawRect)
+        .AddMethod("cornerConfiguration", CornerConfiguration)
         .Register();
     
     public static void DrawRect(nint self, nint sel, NSRect rect) =>
         Marshalling.Get<MacOSWindowRootView>(self).DrawRect(rect);
+
+    public static nint CornerConfiguration(nint self, nint sel) =>
+        Marshalling.Get<MacOSWindowRootView>(self).GetCornerConfiguration();
 
     private readonly MacOSWindow window;
     
@@ -25,4 +29,12 @@ public class MacOSWindowRootView : NSView
     }
 
     private void DrawRect(NSRect rect) => this.window.Render(rect);
+
+    private nint GetCornerConfiguration()
+    {
+        if (!this.window.UsesGlassCornerConfiguration || !NSViewCornerConfiguration.IsAvailable)
+            return 0;
+
+        return NSViewCornerConfiguration.CreateContainerConcentric(12);
+    }
 }

@@ -63,7 +63,7 @@ public class ThreeDExample : Example
                 Id = name.Replace(" ", ""),
                 Margin = 3,
                 Text = name,
-                FontFamily = ["Inter"],
+                FontFamily = "Inter",
             });
         }
 
