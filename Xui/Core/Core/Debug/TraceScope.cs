@@ -8,12 +8,12 @@ namespace Xui.Core.Debug;
 /// </summary>
 public ref struct TraceScope : IDisposable
 {
-    private IInstrumentsSink? sink;
+    private IViewInstrumentsSink? sink;
 
     /// <summary>Initializes a new <see cref="TraceScope"/> that will call <see cref="IInstrumentsSink.EndTrace"/> on the given sink when disposed.</summary>
     /// <param name="sink">The sink to notify on dispose, or <c>null</c> for a no-op scope.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TraceScope(IInstrumentsSink? sink)
+    public TraceScope(IViewInstrumentsSink? sink)
     {
         this.sink = sink;
     }

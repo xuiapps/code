@@ -10,7 +10,7 @@ namespace Xui.DevKit.UI.Widgets;
 /// A horizontal group of buttons that share a continuous border.
 /// Supports <see cref="ButtonVariant"/> (Filled, Outline, Text) and single selection.
 /// </summary>
-public class ButtonGroup : ViewCollection
+public class ButtonGroup : ViewCollection, IDesignSystemChangeNotifications
 {
     private int selectedIndex;
 
@@ -21,6 +21,7 @@ public class ButtonGroup : ViewCollection
     private Color hoverFillColor;
     private Color pressedFillColor;
     private CornerRadius cornerRadius;
+    private readonly DesignSystemCache designSystem = new();
 
     /// <summary>Gets or sets the selected button index (0-based).</summary>
     public int SelectedIndex
@@ -47,8 +48,14 @@ public class ButtonGroup : ViewCollection
 
     private void ApplyDesignSystem()
     {
-        var ds = this.GetService(typeof(IDesignSystem)) as IDesignSystem;
-        if (ds == null) return;
+        designSystem.Resolve(this, this);
+    }
+
+    /// <inheritdoc/>
+    public void OnDesignTokenChange()
+    {
+        var ds = designSystem.Current;
+        if (ds is null) return;
 
         var group = ResolveGroup(ds);
 
@@ -59,6 +66,14 @@ public class ButtonGroup : ViewCollection
         hoverFillColor = ds.Colors.Surface.Container;
         pressedFillColor = group.Ramp[ds.Colors.IsDark ? 0.40f : 0.85f];
         cornerRadius = ds.Shape.Full;
+        this.Invalidate();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnDeactivate()
+    {
+        designSystem.Deactivate(this);
+        base.OnDeactivate();
     }
 
     /// <inheritdoc/>
@@ -87,7 +102,7 @@ public class ButtonGroup : ViewCollection
         {
             var child = this[i];
             var desired = child.Measure(new Size(nfloat.PositiveInfinity, rect.Height), context);
-            child.Arrange(new Rect(x, rect.Y, desired.Width, rect.Height), context);
+            child.Arrange(new Rect(x, rect.Y, desired.Width, rect.Height), context, desired);
             x += desired.Width;
         }
     }
@@ -180,7 +195,7 @@ public class ButtonGroup : ViewCollection
 /// <summary>
 /// A single item inside a <see cref="ButtonGroup"/>. Renders only text — the group draws backgrounds.
 /// </summary>
-public class ButtonGroupItem : View
+public class ButtonGroupItem : View, IDesignSystemChangeNotifications
 {
     internal bool IsHovered;
     internal bool IsPressed;
@@ -188,9 +203,20 @@ public class ButtonGroupItem : View
     private TextStyle textStyle;
     private nfloat paddingH;
     private nfloat paddingV;
+    private string text = "";
+    private readonly DesignSystemCache designSystem = new();
 
     /// <summary>The item label.</summary>
-    public string Text { get; set; } = "";
+    public string Text
+    {
+        get => text;
+        set
+        {
+            if (text == value) return;
+            text = value;
+            this.Invalidate();
+        }
+    }
 
     /// <inheritdoc/>
     public override int Count => 0;
@@ -200,19 +226,33 @@ public class ButtonGroupItem : View
 
     private void ApplyDesignSystem()
     {
-        var ds = this.GetService(typeof(IDesignSystem)) as IDesignSystem;
-        if (ds == null) return;
+        designSystem.Resolve(this, this);
+    }
+
+    /// <inheritdoc/>
+    public void OnDesignTokenChange()
+    {
+        var ds = designSystem.Current;
+        if (ds is null) return;
 
         textStyle = ds.Typography.Label.M;
         paddingH = ds.Spacing.Active.M;
         paddingV = ds.Spacing.Active.S;
+        this.Invalidate();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnDeactivate()
+    {
+        designSystem.Deactivate(this);
+        base.OnDeactivate();
     }
 
     /// <inheritdoc/>
     protected override Size MeasureCore(Size available, IMeasureContext context)
     {
         ApplyDesignSystem();
-        context.SetFont(new Font(textStyle.FontSize, [textStyle.FontFamily], textStyle.FontWeight, textStyle.FontStyle));
+        context.SetFont(new Font(textStyle.FontSize, textStyle.FontFamily, textStyle.FontWeight, textStyle.FontStyle));
         var textSize = context.MeasureText(Text).Size;
         return new Size(textSize.Width + paddingH * 2, textSize.Height + paddingV * 2);
     }
@@ -221,7 +261,7 @@ public class ButtonGroupItem : View
     protected override void RenderCore(IContext context)
     {
         ApplyDesignSystem();
-        var ds = this.GetService(typeof(IDesignSystem)) as IDesignSystem;
+        var ds = designSystem.Current;
         if (ds == null) return;
 
         var parentGroup = this.Parent as ButtonGroup;
@@ -246,7 +286,7 @@ public class ButtonGroupItem : View
             // Default: group color for text
             textColor = isSelected ? group.OnContainer : group.Background;
 
-        context.SetFont(new Font(textStyle.FontSize, [textStyle.FontFamily], textStyle.FontWeight, textStyle.FontStyle));
+        context.SetFont(new Font(textStyle.FontSize, textStyle.FontFamily, textStyle.FontWeight, textStyle.FontStyle));
         context.TextBaseline = TextBaseline.Top;
         context.SetFill(textColor);
 
@@ -281,7 +321,7 @@ public class ButtonGroupItem : View
         }
         else if (phase == EventPhase.Tunnel && e.Type == PointerEventType.Down)
         {
-            CapturePointer(e.PointerId);
+            CapturePointer(e.PointerId, PointerGestures.Tap);
             pressed = true;
             IsPressed = true;
             this.Parent?.InvalidateRender();

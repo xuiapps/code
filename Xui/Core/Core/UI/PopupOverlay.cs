@@ -46,35 +46,23 @@ internal sealed class PopupOverlay : IOverlay
 
     public void Dispose() => Close();
 
-    /// <summary>Renders this overlay's content into the window via a LayoutGuide, clipped to its frame.</summary>
-    internal void Render(LayoutGuide parentGuide)
+    /// <summary>Renders this overlay's content into the window, clipped to its frame.</summary>
+    internal void Render(in LayoutFrameContext frame)
     {
         if (Content == null) return;
 
-        var ctx = parentGuide.RenderContext;
+        var ctx = frame.RenderContext;
         ctx?.Save();
         ctx?.BeginPath();
         ctx?.Rect(Frame);
         ctx?.Clip();
 
-        Content.Update(new LayoutGuide
-        {
-            Anchor = Frame.TopLeft,
-            PreviousTime = parentGuide.PreviousTime,
-            CurrentTime = parentGuide.CurrentTime,
-            Pass =
-                LayoutGuide.LayoutPass.Measure |
-                LayoutGuide.LayoutPass.Arrange |
-                LayoutGuide.LayoutPass.Render,
-            AvailableSize = Frame.Size,
-            XAlign = LayoutGuide.Align.Start,
-            YAlign = LayoutGuide.Align.Start,
-            XSize = LayoutGuide.SizeTo.Exact,
-            YSize = LayoutGuide.SizeTo.Exact,
-            MeasureContext = parentGuide.MeasureContext,
-            RenderContext = parentGuide.RenderContext,
-            Instruments = parentGuide.Instruments,
-        });
+        var update = new LayoutUpdate(
+            LayoutPass.Measure | LayoutPass.Arrange | LayoutPass.Render,
+            new MeasureConstraints(Frame.Size, LayoutSizeMode.Exact, LayoutSizeMode.Exact),
+            new ArrangeConstraints(Frame.Size, default, Frame.TopLeft));
+        LayoutMeasurements measurements = default;
+        Content.Update(in frame, in update, ref measurements);
 
         ctx?.Restore();
     }

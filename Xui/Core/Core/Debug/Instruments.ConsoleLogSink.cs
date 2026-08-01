@@ -11,6 +11,14 @@ public static partial class Instruments
     {
         private int traceDepth;
 
+        public void BeginFrame() { }
+
+        public void EndFrame() { }
+
+        public void TrackView(Scope scope, UI.View view) { }
+
+        public void TrackTextMeasure(long elapsedTicks) { }
+
         public bool IsEnabled(Scope scope, LevelOfDetail lod) => true;
 
         public void Log(Scope scope, LevelOfDetail lod, ReadOnlySpan<char> message)

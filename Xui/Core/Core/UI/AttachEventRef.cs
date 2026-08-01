@@ -13,7 +13,7 @@ public ref struct AttachEventRef
     /// Instrumentation sink for the visual tree. Views receive this during attach
     /// and store it so invalidation methods (e.g. <see cref="View.InvalidateRender"/>,
     /// <see cref="View.RequestAnimationFrame"/>) can log consistently with the
-    /// layout-pass instrumentation carried by <see cref="LayoutGuide.Instruments"/>.
+    /// render-surface instrumentation carried by <see cref="LayoutFrameContext.Instruments"/>.
     /// </summary>
     public InstrumentsAccessor Instruments;
 

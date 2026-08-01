@@ -40,5 +40,20 @@ public class HorizontalMetricsTable
         return _metrics[^1];
     }
 
+    /// <summary>Creates a compact hmtx table with one full metric per retained glyph.</summary>
+    public byte[] CreateSubset(IEnumerable<int> glyphIndices)
+    {
+        var result = new List<byte>();
+        foreach (var glyphIndex in glyphIndices)
+        {
+            var metric = GetMetric(glyphIndex);
+            result.Add((byte)(metric.AdvanceWidth >> 8));
+            result.Add((byte)metric.AdvanceWidth);
+            result.Add((byte)((ushort)metric.LeftSideBearing >> 8));
+            result.Add((byte)metric.LeftSideBearing);
+        }
+        return result.ToArray();
+    }
+
     public record struct HorizontalMetric(ushort AdvanceWidth, short LeftSideBearing);
 }

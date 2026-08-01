@@ -8,12 +8,12 @@
     <g transform="translate(8,8)">
       <rect x="0" y="0" width="486" height="1080" fill="#FFFFFF" />
       <text x="243" y="554" fill="#000000" text-anchor="middle" dominant-baseline="alphabetic" font-size="64" font-family="Inter" xml:space="preserve">Hello World!</text>
-      <path d="M 43 492 L 443 492 " fill="none" stroke="#0000FF" stroke-width="2" />
+      <path d="M 43 502.8 L 443 502.8 " fill="none" stroke="#0000FF" stroke-width="2" />
       <path d="M 43 554 L 443 554 " fill="none" stroke="#000000" stroke-width="2" />
       <path d="M 43 569.44 L 443 569.44 " fill="none" stroke="#008000" stroke-width="2" />
-      <rect x="58.69" y="492" width="363.63" height="77.44" fill="none" stroke="#008000" stroke-width="5" />
-      <rect x="58.69" y="492" width="363.63" height="77.44" fill="none" stroke="#FFA500" stroke-width="3" />
-      <rect x="58.69" y="507.44" width="363.63" height="46.56" fill="none" stroke="#FF0000" />
+      <rect x="58.69" y="492" width="368.63" height="77.44" fill="none" stroke="#008000" stroke-width="5" />
+      <rect x="58.69" y="492" width="368.63" height="77.44" fill="none" stroke="#FFA500" stroke-width="3" />
+      <rect x="64.31" y="507.44" width="358" height="46.56" fill="none" stroke="#FF0000" />
       <path d="M 238 554 L 248 554 M 243 549 L 243 559 " fill="none" stroke="#FF0000" stroke-width="3" />
       <rect x="0" y="24" width="486" height="24" fill="#FFFFFF" />
       <text x="0" y="24" fill="#000000" text-anchor="start" dominant-baseline="text-before-edge" font-size="15" font-family="Inter" xml:space="preserve">&lt; Back</text>

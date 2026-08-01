@@ -9,7 +9,8 @@ public static class Platform
     public static IHostBuilder UseRuntime(this IHostBuilder @this) =>
         @this.ConfigureServices(config =>
         {
-            // services.AddSingleton<IInstruments>(_ => Instruments.File("instruments.log"));
+            config.AddSingleton<LayoutFrameInstruments>();
+            config.AddSingleton<Xui.Core.Debug.IInstruments>(services => services.GetRequiredService<LayoutFrameInstruments>());
             IRuntime? runtime = null;
 #if MACOS && EMULATOR
             runtime = new Xui.Middleware.Emulator.Actual.EmulatorPlatform(

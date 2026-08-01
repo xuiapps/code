@@ -35,15 +35,22 @@
         canvas {
             background: white;
             display: block;
+            width: 600px;
+            height: 300px;
         }
     </style>
 </head>
 <body>
     <div id="sidebar"></div>
     <div id="canvas-area">
-        <canvas id="canvas" width="300" height="300"></canvas>
+        <canvas id="canvas" width="600" height="300"></canvas>
     </div>
     <script>
+        // Canvas drawing and metrics stay in CSS pixels. The backing store is
+        // increased below to use the display's physical pixels.
+        const canvasLogicalWidth = 600;
+        const canvasLogicalHeight = 300;
+
         const tests = {
             FillRect(ctx) {
                 ctx.fillStyle = "red";
@@ -795,16 +802,100 @@
                 ctx.lineTo(280, 270);
                 ctx.stroke();
             },
+
+            TextMetrics(ctx) {
+                const text = "Hello World!";
+                const origin = { x: canvasLogicalWidth / 2, y: canvasLogicalHeight / 2 + 8 };
+
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, 0, canvasLogicalWidth, canvasLogicalHeight);
+                ctx.font = "400 64px Inter";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "alphabetic";
+                const metrics = ctx.measureText(text);
+
+                function strokeRect(x, y, width, height, color, lineWidth) {
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = lineWidth;
+                    ctx.strokeRect(x, y, width, height);
+                }
+
+                // Selection follows advance width; actual bounds deliberately remain tight to outlines.
+                strokeRect(origin.x - metrics.width / 2, origin.y - metrics.fontBoundingBoxAscent,
+                    metrics.width, metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent, "orange", 4);
+                strokeRect(origin.x - metrics.actualBoundingBoxLeft, origin.y - metrics.actualBoundingBoxAscent,
+                    metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight,
+                    metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent, "red", 1);
+
+                function drawBaseline(y, color, label) {
+                    ctx.beginPath();
+                    ctx.moveTo(origin.x - metrics.width / 2, y);
+                    ctx.lineTo(origin.x + metrics.width / 2, y);
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    ctx.fillStyle = color;
+                    ctx.font = "400 11px Inter";
+                    ctx.textAlign = "right";
+                    ctx.textBaseline = "middle";
+                    ctx.fillText(label, origin.x - metrics.width / 2 - 8, y);
+                }
+
+                drawBaseline(origin.y - metrics.hangingBaseline, "blue", "hanging baseline");
+                drawBaseline(origin.y + metrics.alphabeticBaseline, "black", "alphabetic baseline");
+                drawBaseline(origin.y - metrics.ideographicBaseline, "green", "ideographic baseline");
+
+                ctx.fillStyle = "black";
+                ctx.font = "400 64px Inter";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "alphabetic";
+                ctx.fillText(text, origin.x, origin.y);
+            },
+
+            RainbowTextFill(ctx) {
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, 0, canvasLogicalWidth, canvasLogicalHeight);
+
+                const rainbow = ctx.createLinearGradient(50, canvasLogicalHeight / 2, canvasLogicalWidth - 50, canvasLogicalHeight / 2);
+                rainbow.addColorStop(0.00, "#e63946");
+                rainbow.addColorStop(0.17, "#f4a261");
+                rainbow.addColorStop(0.33, "#f9c74f");
+                rainbow.addColorStop(0.50, "#2a9d8f");
+                rainbow.addColorStop(0.67, "#4576b5");
+                rainbow.addColorStop(0.83, "#5e54a4");
+                rainbow.addColorStop(1.00, "#9b5da5");
+                ctx.fillStyle = rainbow;
+                ctx.font = "700 112px Inter";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "alphabetic";
+                ctx.fillText("Rainbow", canvasLogicalWidth / 2, canvasLogicalHeight / 2 + 40);
+            },
+
             DrawImage(ctx) {
                 ctx.fillStyle = "white";
-                ctx.fillRect(0, 0, 300, 300);
+                ctx.fillRect(0, 0, canvasLogicalWidth, canvasLogicalHeight);
 
                 const margin = 10;
-                const dest = { x: margin, y: margin, w: 300 - margin * 2, h: 300 - margin * 2 };
 
                 if (_testImage.complete && _testImage.naturalWidth > 0) {
+                    const scale = Math.min(
+                        (canvasLogicalWidth - margin * 2) / _testImage.naturalWidth,
+                        (canvasLogicalHeight - margin * 2) / _testImage.naturalHeight);
+                    const dest = {
+                        w: _testImage.naturalWidth * scale,
+                        h: _testImage.naturalHeight * scale,
+                    };
+                    dest.x = (canvasLogicalWidth - dest.w) / 2;
+                    dest.y = (canvasLogicalHeight - dest.h) / 2;
                     ctx.drawImage(_testImage, dest.x, dest.y, dest.w, dest.h);
                 } else {
+                    const side = Math.min(canvasLogicalWidth, canvasLogicalHeight) - margin * 2;
+                    const dest = {
+                        x: (canvasLogicalWidth - side) / 2,
+                        y: (canvasLogicalHeight - side) / 2,
+                        w: side,
+                        h: side,
+                    };
                     ctx.fillStyle = "lightgray";
                     ctx.fillRect(dest.x, dest.y, dest.w, dest.h);
                 }
@@ -868,17 +959,23 @@
         const sidebar = document.getElementById("sidebar");
         const canvas = document.getElementById("canvas");
         let selectedBtn = null;
+        let canvasScale = 1;
+
+        function updateCanvasResolution() {
+            canvasScale = window.devicePixelRatio || 1;
+            canvas.width = Math.round(canvasLogicalWidth * canvasScale);
+            canvas.height = Math.round(canvasLogicalHeight * canvasScale);
+            canvas.style.width = `${canvasLogicalWidth}px`;
+            canvas.style.height = `${canvasLogicalHeight}px`;
+        }
 
         function runTest(name) {
             const ctx = canvas.getContext("2d");
-            ctx.save();
             ctx.setTransform(1, 0, 0, 1, 0, 0);
-            ctx.globalAlpha = 1.0;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.restore();
 
-            // Reset full state
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            // Reset full state and retain a CSS-pixel coordinate system.
+            ctx.setTransform(canvasScale, 0, 0, canvasScale, 0, 0);
             ctx.globalAlpha = 1.0;
             ctx.lineWidth = 1;
             ctx.lineCap = "butt";
@@ -904,10 +1001,19 @@
         }
 
         // Select first test by default
+        updateCanvasResolution();
         const firstName = Object.keys(tests)[0];
         sidebar.firstChild.classList.add("selected");
         selectedBtn = sidebar.firstChild;
         runTest(firstName);
+
+        window.addEventListener("resize", () => {
+            const scale = window.devicePixelRatio || 1;
+            if (scale !== canvasScale) {
+                updateCanvasResolution();
+                if (selectedBtn) runTest(selectedBtn.textContent);
+            }
+        });
     </script>
 </body>
 </html>

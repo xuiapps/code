@@ -2,6 +2,7 @@ using Xui.Core.Abstract;
 using Xui.Core.Math2D;
 using Xui.Middleware.Emulator.Devices;
 using Xui.Runtime.Test;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Xui.Tests.Integration.TestApp;
 
@@ -46,6 +47,14 @@ public static class IntegrationRuntimeVariants
 
         return new TestSinglePageApp<TApplication, TWindow>(
             size,
+            configure: services =>
+            {
+                var settings = new Xui.Apps.TestApp.TestSettings();
+                services.AddSingleton<Xui.Apps.TestApp.ITestSettings>(settings);
+                services.AddSingleton<IRandom>(_ => settings.RandomSeed is { } seed
+                    ? new SeededRandom(seed)
+                    : SystemRandom.Default);
+            },
             runtimeVariant: runtimeVariant,
             emulatorDevice: emulatorDevice,
             snapshotSet: snapshotSet,

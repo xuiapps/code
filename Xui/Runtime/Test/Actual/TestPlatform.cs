@@ -14,9 +14,9 @@ public class TestPlatform : IRuntime, IDispatcher
     public IRunLoop CreateRunloop(Xui.Core.Abstract.Application applicationAbstract) =>
         new TestRunLoop(this, applicationAbstract);
 
-    public IWindow CreateWindow(Xui.Core.Abstract.IWindow windowAbstract)
+    public IWindow CreateWindow(Xui.Core.Abstract.IWindow windowAbstract, IServiceProvider applicationServices)
     {
-        var window = new TestWindow(this, windowAbstract);
+        var window = new TestWindow(this, windowAbstract, applicationServices);
         Windows.Add(window);
         return window;
     }

@@ -52,7 +52,7 @@ public class ScrollableGridTest : View
                     Content = new Label
                     {
                         Text = $"Row {r + 1}, Col {c + 1}",
-                        FontFamily = ["Inter"],
+                        FontFamily = "Inter",
                         FontSize = 11,
                         HorizontalAlignment = HorizontalAlignment.Center,
                         VerticalAlignment = VerticalAlignment.Middle,

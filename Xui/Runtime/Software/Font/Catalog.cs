@@ -14,6 +14,8 @@ public class Catalog
 
     private readonly Dictionary<Uri, FontFace?> uriToFace = new();
 
+    private readonly FontMetricsCache fontMetrics = new();
+
     public Catalog(params IEnumerable<Uri>[] sources)
     {
         var list = new List<Uri>();
@@ -127,7 +129,13 @@ public class Catalog
         var ttf = FontForFace(ToFace(in font));
         if (ttf is not null)
         {
-            return ttf.MeasureText(text, font, textAlign, textBaseline);
+            var line = ttf.MeasureLine(text, font, textAlign, textBaseline);
+            if (!fontMetrics.TryGet(font, out var metrics))
+            {
+                metrics = ttf.Metrics(font);
+                fontMetrics.Set(font, metrics);
+            }
+            return new TextMetrics(line, metrics);
         }
 
         return default;
@@ -172,9 +180,7 @@ public class Catalog
     {
         // TODO: Add mechanism to specify the default font for the system.
 
-        var family = font.FontFamily.Length > 0
-            ? font.FontFamily[0]
-            : "Default";
+        var family = string.IsNullOrEmpty(font.FontFamily) ? "Default" : font.FontFamily;
 
         return new FontFace(
             family,

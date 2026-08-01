@@ -41,7 +41,8 @@ public partial class View
         if ((this.Flags & ViewFlags.Active) != 0)
             ActivateSubtree(child);
 
-        // Attaching a child changes layout + visuals.
+        // Attaching a child changes the parent's desired size, layout, and visuals.
+        this.InvalidateMeasure();
         this.InvalidateArrange();
         this.InvalidateRender();
     }
@@ -68,7 +69,8 @@ public partial class View
 
         child.Parent = null;
 
-        // Detaching a child changes layout + visuals.
+        // Detaching a child changes the parent's desired size, layout, and visuals.
+        this.InvalidateMeasure();
         this.InvalidateArrange();
         this.InvalidateRender();
     }

@@ -1,5 +1,6 @@
 using System;
 using System.Buffers.Binary;
+using System.Text;
 
 namespace Xui.Runtime.Software.Font;
 
@@ -89,7 +90,7 @@ public sealed partial class GPosTable
     /// Gets the kerning adjustment between two characters using GPOS LookupType 2 or ExtensionPositioning.
     /// Returns a default ValueRecord if no adjustment is defined.
     /// </summary>
-    public TrueTypeFont.ValueRecord this[char left, char right]
+    public TrueTypeFont.ValueRecord this[Rune left, Rune right]
     {
         get
         {

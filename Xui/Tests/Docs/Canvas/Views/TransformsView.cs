@@ -72,7 +72,7 @@ public class TransformsView : View
     private static void DrawLabel(IContext context, string text, NFloat x, NFloat y)
     {
         context.SetFill(new Color(0x60, 0x60, 0x60, 0xFF));
-        context.SetFont(new Font(12, ["Inter"], FontWeight.Normal));
+        context.SetFont(new Font(12, "Inter", FontWeight.Normal));
         context.TextAlign = TextAlign.Center;
         context.TextBaseline = TextBaseline.Top;
         context.FillText(text, new Point(x, y));

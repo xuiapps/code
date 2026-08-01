@@ -53,7 +53,7 @@ public class AutoFlowTest : View
                 Content = new Label
                 {
                     Text = n.ToString(),
-                    FontFamily = ["Inter"],
+                    FontFamily = "Inter",
                     FontSize = 13,
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Middle,

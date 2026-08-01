@@ -15,13 +15,13 @@ public class ArchitecturePage : View
     {
         var rect = this.Frame;
 
-        context.SetFont(new Font(32, ["Segoe UI"], fontWeight: FontWeight.Light));
+        context.SetFont(new Font(32, "Inter", fontWeight: FontWeight.Light));
         context.TextBaseline = TextBaseline.Top;
         context.TextAlign = TextAlign.Left;
         context.SetFill(new Color(0x1A1A1AFF));
         context.FillText("Architecture", new Point(rect.X + 40, rect.Y + 40));
 
-        context.SetFont(new Font(14, ["Segoe UI"]));
+        context.SetFont(new Font(14, "Inter"));
         context.SetFill(new Color(0x606060FF));
         context.FillText("Layered architecture for maximum portability", new Point(rect.X + 40, rect.Y + 82));
 
@@ -71,14 +71,14 @@ public class ArchitecturePage : View
         context.Fill();
 
         // Title
-        context.SetFont(new Font(14, ["Segoe UI"], fontWeight: FontWeight.SemiBold));
+        context.SetFont(new Font(14, "Inter", fontWeight: FontWeight.SemiBold));
         context.TextBaseline = TextBaseline.Top;
         context.TextAlign = TextAlign.Left;
         context.SetFill(new Color(0x1A1A1AFF));
         context.FillText(title, new Point(x + 20, y + 8));
 
         // Subtitle
-        context.SetFont(new Font(12, ["Segoe UI"]));
+        context.SetFont(new Font(12, "Inter"));
         context.SetFill(new Color(0x606060FF));
         context.FillText(subtitle, new Point(x + 20, y + 28));
     }

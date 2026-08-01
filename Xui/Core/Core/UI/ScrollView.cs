@@ -28,7 +28,7 @@ public enum ScrollDirection
 /// </summary>
 public class ScrollView : View
 {
-    private View? content;
+    private ScrollContent? scrollContent;
     private nfloat scrollOffsetY;
     private nfloat scrollOffsetX;
     private nfloat contentHeight;       // captured in MeasureCore
@@ -36,14 +36,28 @@ public class ScrollView : View
     private nfloat viewportHeight;      // captured in ArrangeCore
     private nfloat viewportWidth;       // captured in ArrangeCore
 
+    internal Vector ScrollOffset => new(scrollOffsetX, scrollOffsetY);
+
     // Drag tracking
-    private bool isDragging;
-    private bool isScrollGesture;       // true after delta exceeds ScrollThreshold
+    private ScrollGestureMode gestureMode;
     private Point dragStartPos;
     private Point lastPointerPos;
     private long lastPointerTick;       // Environment.TickCount64 (ms)
     private nfloat dragVelocityY;       // pts/sec, positive = scroll down (offset increases)
     private nfloat dragVelocityX;       // pts/sec, positive = scroll right (offset increases)
+
+    // Negotiation state for the active pointer.
+    // - None:               not tracking a pointer
+    // - WaitingForTapSteal: a descendant captured ITap; we may steal once movement exceeds ScrollThreshold
+    // - WatchingTentative:  a descendant captured IDragHorizontalTentative; we may steal if vertical dominates at ScrollThreshold
+    // - Scrolling:          we hold capture (IDrag or tentative) and are translating motion into scroll offset
+    // - StandDown:          a descendant captured IDrag — we ignore this pointer entirely
+    private enum ScrollGestureMode { None, WaitingForTapSteal, WatchingTentative, Scrolling, StandDown }
+
+    // True while we hold capture with PointerGestures.DragHorizontalTentative.
+    // Promotes to a firm IDrag once horizontal travel exceeds TentativePromoteThreshold.
+    private bool tentative;
+    private static readonly nfloat TentativePromoteThreshold = 20f; // pts of horizontal travel before promotion
 
     // Fling animation
     private ExponentialDecayCurve? flingCurveY;
@@ -69,16 +83,23 @@ public class ScrollView : View
     /// </summary>
     public View? Content
     {
-        get => content;
-        set => SetProtectedChild(ref content, value);
+        get => scrollContent?.Content;
+        set
+        {
+            if (ReferenceEquals(value, scrollContent?.Content))
+                return;
+
+            scrollContent?.ClearContent();
+            SetProtectedChild(ref scrollContent, value is null ? null : new ScrollContent(this, value));
+        }
     }
 
     /// <summary>Number of child views.</summary>
-    public override int Count => content is not null ? 1 : 0;
+    public override int Count => scrollContent is not null ? 1 : 0;
 
     /// <summary>Gets the child view at the given index.</summary>
-    public override View this[int index] => index == 0 && content is not null
-        ? content : throw new IndexOutOfRangeException();
+    public override View this[int index] => index == 0 && scrollContent is not null
+        ? scrollContent : throw new IndexOutOfRangeException();
 
     /// <inheritdoc/>
     protected override void OnActivate()
@@ -97,7 +118,7 @@ public class ScrollView : View
         contentWidth = 0;
         contentHeight = 0;
 
-        if (content != null)
+        if (scrollContent != null)
         {
             var measureSize = Direction switch
             {
@@ -105,7 +126,7 @@ public class ScrollView : View
                 ScrollDirection.Both       => new Size(nfloat.PositiveInfinity, nfloat.PositiveInfinity),
                 _                          => new Size(available.Width, nfloat.PositiveInfinity)
             };
-            var desired = content.Measure(measureSize, context);
+            var desired = scrollContent.Measure(measureSize, context);
             contentWidth = desired.Width;
             contentHeight = desired.Height;
         }
@@ -122,10 +143,10 @@ public class ScrollView : View
         viewportWidth = rect.Width;
         ClampScrollOffset();
 
-        if (content != null)
+        if (scrollContent != null)
         {
-            var contentRect = new Rect(rect.X - scrollOffsetX, rect.Y - scrollOffsetY, contentWidth, contentHeight);
-            content.Arrange(contentRect, context, new Size(contentWidth, contentHeight));
+            var contentRect = new Rect(0, 0, contentWidth, contentHeight);
+            scrollContent.Arrange(contentRect, context, new Size(contentWidth, contentHeight));
         }
     }
 
@@ -139,25 +160,42 @@ public class ScrollView : View
     private nfloat MaxScrollOffsetX => nfloat.Max(0, contentWidth - viewportWidth);
 
     /// <inheritdoc/>
+    public override Point TransformPoint(Point point) => point - new Vector(this.Frame.X, this.Frame.Y);
+
+    /// <inheritdoc/>
+    public override Point InverseTransformPoint(Point point) => point + this.Frame.TopLeft;
+
+    /// <inheritdoc/>
+    public override Rect TransformRect(Rect rect) =>
+        new(rect.X - this.Frame.X, rect.Y - this.Frame.Y, rect.Width, rect.Height);
+
+    /// <inheritdoc/>
+    public override Rect InverseTransformRect(Rect rect) =>
+        new(rect.X + this.Frame.X, rect.Y + this.Frame.Y, rect.Width, rect.Height);
+
+    /// <inheritdoc/>
+    /// <inheritdoc/>
     public override bool HitTest(Point point)
     {
-        if (!this.Frame.Contains(point)) return false;
-        for (int i = this.Count - 1; i >= 0; i--)
-            if (this[i].HitTest(point))
-                return true;
-        return true; // ScrollView always captures input within its bounds
+        return new Rect(0, 0, this.Frame.Width, this.Frame.Height).Contains(point);
     }
 
     /// <inheritdoc/>
     protected override void RenderCore(IContext context)
     {
         context.Save();
+        context.Translate(this.Frame.TopLeft);
 
         context.BeginPath();
-        context.Rect(this.Frame);
+        context.Rect(new Rect(0, 0, this.Frame.Width, this.Frame.Height));
         context.Clip();
 
-        content?.Render(context);
+        if (scrollContent is not null)
+        {
+            var viewportCullingFrame = new Rect(0, 0, viewportWidth, viewportHeight);
+            scrollContent.Render(context, viewportCullingFrame);
+        }
+
         DrawScrollbarIndicatorV(context);
         DrawScrollbarIndicatorH(context);
 
@@ -174,8 +212,8 @@ public class ScrollView : View
         nfloat ratio = viewportHeight / contentHeight;
         nfloat barH = nfloat.Max(trackH * ratio, 20f);
         nfloat scrollProgress = scrollOffsetY / MaxScrollOffsetY;
-        nfloat barTop = this.Frame.Y + ScrollbarEndInset + (trackH - barH) * scrollProgress;
-        nfloat barX = this.Frame.Right - ScrollbarWidth - 2f;
+        nfloat barTop = ScrollbarEndInset + (trackH - barH) * scrollProgress;
+        nfloat barX = this.Frame.Width - ScrollbarWidth - 2f;
 
         context.SetFill(new Color(0f, 0f, 0f, 0.35f));
         context.BeginPath();
@@ -192,8 +230,8 @@ public class ScrollView : View
         nfloat ratio = viewportWidth / contentWidth;
         nfloat barW = nfloat.Max(trackW * ratio, 20f);
         nfloat scrollProgress = scrollOffsetX / MaxScrollOffsetX;
-        nfloat barLeft = this.Frame.X + ScrollbarEndInset + (trackW - barW) * scrollProgress;
-        nfloat barY = this.Frame.Bottom - ScrollbarWidth - 2f;
+        nfloat barLeft = ScrollbarEndInset + (trackW - barW) * scrollProgress;
+        nfloat barY = this.Frame.Height - ScrollbarWidth - 2f;
 
         context.SetFill(new Color(0f, 0f, 0f, 0.35f));
         context.BeginPath();
@@ -209,8 +247,11 @@ public class ScrollView : View
         switch (e.Type)
         {
             case PointerEventType.Down:
-                isDragging = true;
-                isScrollGesture = false;
+            {
+                // Tunnel ran first — descendants have already had their chance to capture.
+                // Inspect what (if anything) they took to decide our negotiation mode.
+                var captured = GetCapturedGesture(e.PointerId);
+
                 dragStartPos = e.State.Position;
                 lastPointerPos = e.State.Position;
                 lastPointerTick = Environment.TickCount64;
@@ -220,24 +261,97 @@ public class ScrollView : View
                 flingCurveX = null;
                 pendingFlingVelocityY = null;
                 pendingFlingVelocityX = null;
-                // Do NOT capture pointer yet — wait for ScrollThreshold
-                break;
 
-            case PointerEventType.Move when isDragging:
+                if (captured == null)
+                {
+                    // Nobody else wants this pointer — claim it now and scroll on first Move (no threshold).
+                    // If we are a horizontal scroll view we capture tentatively, so a vertical ancestor
+                    // can take over when the user's intent reveals itself.
+                    gestureMode = ScrollGestureMode.Scrolling;
+                    if (Direction == ScrollDirection.Horizontal)
+                    {
+                        tentative = true;
+                        CapturePointer(e.PointerId, PointerGestures.DragHorizontalTentative);
+                    }
+                    else
+                    {
+                        tentative = false;
+                        CapturePointer(e.PointerId, PointerGestures.Drag);
+                    }
+                }
+                else if (captured is IDragHorizontalTentative && Direction == ScrollDirection.Vertical)
+                {
+                    // Inner horizontal ScrollView is being tentative; we may steal if vertical dominates.
+                    gestureMode = ScrollGestureMode.WatchingTentative;
+                }
+                else if (captured is ITap)
+                {
+                    // Tap-style descendant. We may steal capture once movement exceeds ScrollThreshold.
+                    gestureMode = ScrollGestureMode.WaitingForTapSteal;
+                }
+                else
+                {
+                    // IDrag (color wheel, slider, nested scroll view, …) or unknown gesture marker.
+                    // Default to standing down — never steal.
+                    gestureMode = ScrollGestureMode.StandDown;
+                }
+                break;
+            }
+
+            case PointerEventType.Move when gestureMode == ScrollGestureMode.WaitingForTapSteal:
             {
                 var totalDx = (nfloat)(e.State.Position.X - dragStartPos.X);
                 var totalDy = (nfloat)(e.State.Position.Y - dragStartPos.Y);
 
-                if (!isScrollGesture && nfloat.Max(nfloat.Abs(totalDx), nfloat.Abs(totalDy)) > ScrollThreshold)
+                if (nfloat.Max(nfloat.Abs(totalDx), nfloat.Abs(totalDy)) > ScrollThreshold)
                 {
-                    isScrollGesture = true;
-                    CapturePointer(e.PointerId);
-                    lastPointerPos = e.State.Position; // reset for accurate velocity
-                    lastPointerTick = Environment.TickCount64;
+                    // Re-check the current gesture: in nested ScrollView setups, an inner
+                    // ScrollView's bubble runs before ours and may have already stolen.
+                    // If the pointer is now an IDrag, we must stand down.
+                    var current = GetCapturedGesture(e.PointerId);
+                    if (current is ITap)
+                    {
+                        gestureMode = ScrollGestureMode.Scrolling;
+                        CapturePointer(e.PointerId, PointerGestures.Drag);
+                        lastPointerPos = e.State.Position; // reset for accurate velocity
+                        lastPointerTick = Environment.TickCount64;
+                    }
+                    else
+                    {
+                        gestureMode = ScrollGestureMode.StandDown;
+                    }
                 }
+                break;
+            }
 
-                if (!isScrollGesture) break;
+            case PointerEventType.Move when gestureMode == ScrollGestureMode.WatchingTentative:
+            {
+                var totalDx = (nfloat)(e.State.Position.X - dragStartPos.X);
+                var totalDy = (nfloat)(e.State.Position.Y - dragStartPos.Y);
 
+                if (nfloat.Max(nfloat.Abs(totalDx), nfloat.Abs(totalDy)) > ScrollThreshold)
+                {
+                    // Re-check: the inner may have promoted itself to firm IDrag in this same Move.
+                    var current = GetCapturedGesture(e.PointerId);
+                    if (current is IDragHorizontalTentative && nfloat.Abs(totalDy) > nfloat.Abs(totalDx))
+                    {
+                        // Vertical dominates — steal capture from the tentative inner.
+                        gestureMode = ScrollGestureMode.Scrolling;
+                        CapturePointer(e.PointerId, PointerGestures.Drag);
+                        lastPointerPos = e.State.Position;
+                        lastPointerTick = Environment.TickCount64;
+                    }
+                    else
+                    {
+                        // Horizontal dominates, or inner already promoted to firm IDrag.
+                        gestureMode = ScrollGestureMode.StandDown;
+                    }
+                }
+                break;
+            }
+
+            case PointerEventType.Move when gestureMode == ScrollGestureMode.Scrolling:
+            {
                 var dx = (nfloat)(e.State.Position.X - lastPointerPos.X);
                 var dy = (nfloat)(e.State.Position.Y - lastPointerPos.Y);
                 var dt = (Environment.TickCount64 - lastPointerTick) / 1000.0;
@@ -264,17 +378,25 @@ public class ScrollView : View
                 lastPointerPos = e.State.Position;
                 lastPointerTick = Environment.TickCount64;
 
-                InvalidateArrange();
-                InvalidateRender();
+                // Promote tentative-horizontal capture once travel exceeds the commit threshold.
+                if (tentative)
+                {
+                    var totalDx = (nfloat)(e.State.Position.X - dragStartPos.X);
+                    if (nfloat.Abs(totalDx) > TentativePromoteThreshold)
+                    {
+                        tentative = false;
+                        CapturePointer(e.PointerId, PointerGestures.Drag);
+                    }
+                }
+
+                InvalidateScrollOffset();
                 break;
             }
 
-            case PointerEventType.Up when isDragging:
-                isDragging = false;
-
-                if (isScrollGesture)
+            case PointerEventType.Up:
+            {
+                if (gestureMode == ScrollGestureMode.Scrolling)
                 {
-                    isScrollGesture = false;
                     ReleasePointer(e.PointerId);
 
                     if (Direction != ScrollDirection.Horizontal && nfloat.Abs(dragVelocityY) > 50f)
@@ -288,20 +410,31 @@ public class ScrollView : View
                         RequestAnimationFrame();
                     }
                 }
+                gestureMode = ScrollGestureMode.None;
+                tentative = false;
                 break;
+            }
 
-            case PointerEventType.Cancel when isDragging:
-                isDragging = false;
-                if (isScrollGesture)
-                {
-                    isScrollGesture = false;
+            case PointerEventType.Cancel:
+            {
+                if (gestureMode == ScrollGestureMode.Scrolling)
                     ReleasePointer(e.PointerId);
-                }
+                gestureMode = ScrollGestureMode.None;
+                tentative = false;
                 flingCurveY = null;
                 flingCurveX = null;
                 pendingFlingVelocityY = null;
                 pendingFlingVelocityX = null;
                 break;
+            }
+
+            case PointerEventType.LostCapture:
+            {
+                // Some other view stole capture from us — bail out cleanly.
+                gestureMode = ScrollGestureMode.None;
+                tentative = false;
+                break;
+            }
         }
     }
 
@@ -330,8 +463,7 @@ public class ScrollView : View
         pendingFlingVelocityY = null;
         pendingFlingVelocityX = null;
         e.Handled = true;
-        InvalidateArrange();
-        InvalidateRender();
+        InvalidateScrollOffset();
     }
 
     /// <inheritdoc/>
@@ -360,7 +492,7 @@ public class ScrollView : View
         bool needsFrame = false;
         bool changed = false;
 
-        if (flingCurveY is { } curveY && !isDragging)
+        if (flingCurveY is { } curveY && gestureMode != ScrollGestureMode.Scrolling)
         {
             nfloat newOffset = curveY[current];
             nfloat clamped = nfloat.Clamp(newOffset, 0, MaxScrollOffsetY);
@@ -373,7 +505,7 @@ public class ScrollView : View
                 flingCurveY = null;
         }
 
-        if (flingCurveX is { } curveX && !isDragging)
+        if (flingCurveX is { } curveX && gestureMode != ScrollGestureMode.Scrolling)
         {
             nfloat newOffset = curveX[current];
             nfloat clamped = nfloat.Clamp(newOffset, 0, MaxScrollOffsetX);
@@ -391,11 +523,16 @@ public class ScrollView : View
 
         if (changed)
         {
-            InvalidateArrange();
-            InvalidateRender();
+            InvalidateScrollOffset();
         }
 
         // Propagate animation to children (e.g. Expander inside ScrollView).
         base.AnimateCore(previous, current);
+    }
+
+    private void InvalidateScrollOffset()
+    {
+        this.InvalidateHitTest();
+        this.InvalidateRender();
     }
 }

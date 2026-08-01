@@ -78,7 +78,7 @@ public class MainWindow : Window, IWindow.IDesktopStyle
 
     public override void Render(ref RenderEventRef renderEventRef)
     {
-        var ctx = this.GetRequiredService<IContext>();
+        var ctx = renderEventRef.Context;
 
         var rect = renderEventRef.Rect;
         var insetRect = rect - 2.5;
@@ -101,7 +101,7 @@ public class MainWindow : Window, IWindow.IDesktopStyle
         ctx.SetFill(Black);
         ctx.SetFont(new Font
         {
-            FontFamily = ["Inter"],
+            FontFamily = "Inter",
             FontSize = 14,
             FontWeight = 600,
             LineHeight = 14
@@ -120,7 +120,7 @@ public class MainWindow : Window, IWindow.IDesktopStyle
         ctx.SetFill(Black);
         ctx.SetFont(new Font
         {
-            FontFamily = ["Segoe UI", "Inter"],
+            FontFamily = "Inter",
             FontSize = 11,
             FontWeight = 500,
             LineHeight = 11
@@ -165,7 +165,7 @@ public class MainWindow : Window, IWindow.IDesktopStyle
         // Draw hour markers
         ctx.SetFont(new Font
         {
-            FontFamily = ["Inter"],
+            FontFamily = "Inter",
             FontSize = 12,
             FontWeight = 600,
             LineHeight = 12

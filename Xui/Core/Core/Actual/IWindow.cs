@@ -14,6 +14,20 @@ namespace Xui.Core.Actual;
 public interface IWindow : IServiceProvider
 {
     /// <summary>
+    /// Gets the abstract window immediately upstream of this actual window.
+    /// Together with <see cref="Abstract.IWindow.Actual"/>, this forms the
+    /// bidirectional composed-window chain.
+    /// </summary>
+    Abstract.IWindow? Abstract { get; }
+
+    /// <summary>
+    /// The service provider reached after this actual window. Middleware uses this
+    /// exclusively for its forward service chain; it must never use its abstract
+    /// event receiver as a service fallback.
+    /// </summary>
+    IServiceProvider NextServiceProvider { get; }
+
+    /// <summary>
     /// Gets or sets the window title, where supported by the platform (e.g., desktop).
     /// </summary>
     string Title { get; set; }

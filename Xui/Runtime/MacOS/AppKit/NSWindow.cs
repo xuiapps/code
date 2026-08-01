@@ -28,6 +28,8 @@ public static partial class AppKit
 
         private static readonly Sel ContentViewSel = new Sel("contentView");
 
+        private static readonly Sel ContentLayoutRectSel = new Sel("contentLayoutRect");
+
         private static readonly Sel SetContentViewSel = new Sel("setContentView:");
 
         private static readonly Prop OpaqueProp = new Prop("isOpaque", "setOpaque:");
@@ -43,6 +45,8 @@ public static partial class AppKit
         private static readonly Prop.NInt ToolbarStyleProp = new Prop.NInt("toolbarStyle", "setToolbarStyle:");
 
         private static readonly Prop.Bool TitlebarAppearsTransparentProp = new Prop.Bool("titlebarAppearsTransparent", "setTitlebarAppearsTransparent:");
+
+        private static readonly Prop.Bool ZoomedProp = new Prop.Bool("isZoomed", "setIsZoomed:");
 
         private static readonly Prop.NInt DelegateProp = new Prop.NInt("delegate", "setDelegate:");
 
@@ -96,6 +100,20 @@ public static partial class AppKit
             get => Marshalling.Get<NSView>(ObjC.objc_msgSend_retIntPtr(this, ContentViewSel));
             set => ObjC.objc_msgSend_retIntPtr(this, SetContentViewSel, value == null ? 0 : value);
         }
+
+        /// <summary>
+        /// Gets the borrowed native handle for AppKit's current content view without
+        /// creating a C# wrapper. This is required for AppKit-owned views, which do
+        /// not participate in Xui's C#-to-Objective-C ownership map.
+        /// </summary>
+        protected nint ContentViewHandle => ObjC.objc_msgSend_retIntPtr(this, ContentViewSel);
+
+        /// <summary>
+        /// Gets the portion of the content view not covered by AppKit title-bar or
+        /// toolbar chrome. The returned rectangle is borrowed native geometry and
+        /// does not require a managed view wrapper.
+        /// </summary>
+        public NSRect ContentLayoutRect => ObjC.objc_msgSend_retNSRect(this, ContentLayoutRectSel);
         
         public NSSize MinSize
         {
@@ -172,6 +190,9 @@ public static partial class AppKit
             get => (NSWindowTitleVisibility)ObjC.objc_msgSend_retIntPtr(this, TitleVisibilityProp.GetSel);
             set => objc_msgSend(this, TitleVisibilityProp.SetSel, (nint)value);
         }
+
+        /// <summary>Whether AppKit has zoomed this window to its standard maximum frame.</summary>
+        public bool IsZoomed => ZoomedProp.Get(this);
 
         public bool TitlebarAppearsTransparent
         {

@@ -11,14 +11,14 @@ public partial class BrowserPlatform : Xui.Core.Actual.IRuntime
 
     public IRunLoop CreateRunloop(Application applicationAbstract) => new BrowserRunLoop(applicationAbstract);
 
-    public Core.Actual.IWindow CreateWindow(Core.Abstract.IWindow windowAbstract)
+    public Core.Actual.IWindow CreateWindow(Core.Abstract.IWindow windowAbstract, IServiceProvider applicationServices)
     {
         if (BrowserWindow.Instance != null)
         {
             throw new Exception("Only one instance of Window is supported in Browser Xui App.");
         }
 
-        BrowserWindow.Instance = new BrowserWindow(windowAbstract);
+        BrowserWindow.Instance = new BrowserWindow(windowAbstract, applicationServices);
         return BrowserWindow.Instance;
     }
 

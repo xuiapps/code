@@ -11,8 +11,10 @@ namespace Xui.DevKit.UI.Widgets;
 /// + <see cref="TextInputLayer"/> layer stack as <see cref="TextBox"/>, but fills all visual
 /// properties from <see cref="IDesignSystem"/> tokens instead of exposing them individually.
 /// </summary>
-public class TextInput : LayerView<View, FocusBorderLayer<View, TextInputLayer>>
+public class TextInput : LayerView<View, FocusBorderLayer<View, TextInputLayer>>, IDesignSystemChangeNotifications
 {
+    private readonly DesignSystemCache designSystem = new();
+    private bool appliedFallback;
     /// <inheritdoc/>
     public override bool Focusable => true;
 
@@ -31,13 +33,6 @@ public class TextInput : LayerView<View, FocusBorderLayer<View, TextInputLayer>>
     }
 
     /// <inheritdoc/>
-    protected override void OnActivate()
-    {
-        base.OnActivate();
-        ApplyDesignSystem();
-    }
-
-    /// <inheritdoc/>
     protected override Size MeasureCore(Size availableSize, IMeasureContext context)
     {
         ApplyDesignSystem();
@@ -53,30 +48,40 @@ public class TextInput : LayerView<View, FocusBorderLayer<View, TextInputLayer>>
 
     private void ApplyDesignSystem()
     {
-        var ds = this.GetService(typeof(IDesignSystem)) as IDesignSystem;
-        if (ds == null)
+        designSystem.Resolve(this, this);
+        if (designSystem.Current is null)
         {
+            if (appliedFallback)
+                return;
+
+            appliedFallback = true;
             // Fallback defaults if no design system
             Layer.BackgroundColor = Colors.White;
             Layer.BorderColor = Colors.Gray;
             Layer.FocusedBorderColor = Colors.Blue;
             Layer.BorderThickness = 1;
             Layer.Padding = 3;
-            Layer.Border.Child.FontFamily = ["Inter"];
-            Layer.Border.Child.FontSize = 15;
+            Layer.Border.Child.Font = new Font(15, "Inter");
             Layer.Border.Child.Color = Colors.Black;
             Layer.Border.Child.SelectedColor = Colors.White;
             Layer.Border.Child.SelectionBackgroundColor = Colors.Blue;
             return;
         }
 
+        appliedFallback = false;
+
+    }
+
+    /// <inheritdoc/>
+    public void OnDesignTokenChange()
+    {
+        var ds = designSystem.Current;
+        if (ds is null) return;
+
         var textStyle = ds.Typography.Body.M;
 
         // Typography
-        Layer.Border.Child.FontFamily = [textStyle.FontFamily];
-        Layer.Border.Child.FontSize = textStyle.FontSize;
-        Layer.Border.Child.FontWeight = textStyle.FontWeight;
-        Layer.Border.Child.FontStyle = textStyle.FontStyle;
+        Layer.Border.Child.Font = new Font(textStyle.FontSize, textStyle.FontFamily, textStyle.FontWeight, textStyle.FontStyle);
         Layer.Border.Child.SelectAllOnFocus = true;
 
         // Colors
@@ -93,5 +98,13 @@ public class TextInput : LayerView<View, FocusBorderLayer<View, TextInputLayer>>
 
         // Spacing — active scale for interactive element
         Layer.Padding = ds.Spacing.Active.S;
+        this.Invalidate();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnDeactivate()
+    {
+        designSystem.Deactivate(this);
+        base.OnDeactivate();
     }
 }

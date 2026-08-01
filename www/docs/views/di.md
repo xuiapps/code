@@ -14,7 +14,9 @@ public virtual object? GetService(Type serviceType) =>
     this.Parent?.GetService(serviceType);
 ```
 
-The default implementation delegates to the parent. `RootView` overrides to return `this` for `IFocus` and then delegates to `Window` for everything else. `Window` in turn can delegate to a platform-provided or DI-scope-provided `IServiceProvider`.
+The default implementation delegates to the parent. `RootView` overrides to return
+itself for `IFocus` and then delegates to `Window` for everything else. From there,
+the window follows its forward actual-window chain and finally its DI scope.
 
 The generic extension (from `Xui.Core.DI`) is the preferred call site:
 
@@ -33,7 +35,8 @@ View.GetService
       → ... (ancestor chain)
           → RootView.GetService  (returns IFocus)
               → Window.GetService
-                  → platform services / DI scope
+                  → middleware / native platform services
+                  → window DI scope / application services
 ```
 
 ## Registering services

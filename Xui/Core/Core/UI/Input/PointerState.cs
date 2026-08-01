@@ -101,5 +101,19 @@ namespace Xui.Core.UI.Input
             Button = button;
             Buttons = buttons;
         }
+
+        /// <summary>Returns this state with a coordinate-space-specific position.</summary>
+        public PointerState WithPosition(Point position) => new(
+            position,
+            ContactSize,
+            Pressure,
+            TangentialPressure,
+            Tilt,
+            Twist,
+            AltitudeAngle,
+            AzimuthAngle,
+            PointerType,
+            Button,
+            Buttons);
     }
 }

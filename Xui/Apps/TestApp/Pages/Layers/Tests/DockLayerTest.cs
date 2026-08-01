@@ -55,7 +55,7 @@ public class DockLayerTest : View
     private static Label MakeLabel(string text) => new Label
     {
         Text       = text,
-        FontFamily = ["Inter"],
+        FontFamily = "Inter",
         FontSize   = 12,
         FontWeight = FontWeight.Normal,
     };
@@ -121,11 +121,7 @@ public class DockLayerTest : View
             inp.SelectedColor            = White;
             inp.SelectionBackgroundColor = new Color(0x00, 0x78, 0xD4, 0xFF);
             inp.Padding                  = 3;
-            inp.FontFamily               = ["Inter"];
-            inp.FontSize                 = 15;
-            inp.FontWeight               = FontWeight.Normal;
-            inp.FontStretch              = FontStretch.Normal;
-            inp.FontStyle                = FontStyle.Normal;
+            inp.Font                     = new Font(15, "Inter");
             inp.SelectAllOnFocus         = true;
 
             // Clear button (hidden until text is present)
@@ -138,7 +134,7 @@ public class DockLayerTest : View
                 HoverColor   = new Color(0xC8, 0xC8, 0xC8, 0xFF),
                 PressedColor = new Color(0xA8, 0xA8, 0xA8, 0xFF),
                 LabelColor   = new Color(0x44, 0x44, 0x44, 0xFF),
-                FontSize     = 14,
+                Font         = new Font(14, "Inter"),
                 Visible      = false,
             };
         }
@@ -207,11 +203,7 @@ public class DockLayerTest : View
             inp.SelectedColor            = White;
             inp.SelectionBackgroundColor = new Color(0x00, 0x78, 0xD4, 0xFF);
             inp.Padding                  = 3;
-            inp.FontFamily               = ["Inter"];
-            inp.FontSize                 = 15;
-            inp.FontWeight               = FontWeight.Normal;
-            inp.FontStretch              = FontStretch.Normal;
-            inp.FontStyle                = FontStyle.Normal;
+            inp.Font                     = new Font(15, "Inter");
             inp.SelectAllOnFocus         = true;
 
             // Dropdown arrow button — no margin, right corners rounded to match border
@@ -224,7 +216,7 @@ public class DockLayerTest : View
                 HoverColor   = new Color(0xD8, 0xD8, 0xD8, 0xFF),
                 PressedColor = new Color(0xC0, 0xC0, 0xC0, 0xFF),
                 LabelColor   = new Color(0x44, 0x44, 0x44, 0xFF),
-                FontSize     = 12,
+                Font         = new Font(12, "Inter"),
                 Visible      = true,
             };
         }
@@ -287,7 +279,7 @@ public class DockLayerTest : View
         private static Label MakeItem(string text) => new Label
         {
             Text       = text,
-            FontFamily = ["Inter"],
+            FontFamily = "Inter",
             FontSize   = 14,
             FontWeight = FontWeight.Normal,
         };
@@ -351,7 +343,7 @@ public class DockLayerTest : View
                 HoverColor   = new Color(0xD8, 0xD8, 0xD8, 0xFF),
                 PressedColor = new Color(0xC0, 0xC0, 0xC0, 0xFF),
                 LabelColor   = new Color(0x22, 0x22, 0x22, 0xFF),
-                FontSize     = 16,
+                Font         = new Font(16, "Inter"),
                 Visible      = true,
             };
 
@@ -361,11 +353,7 @@ public class DockLayerTest : View
             inp.SelectedColor            = White;
             inp.SelectionBackgroundColor = new Color(0x00, 0x78, 0xD4, 0xFF);
             inp.Padding                  = 3;
-            inp.FontFamily               = ["Inter"];
-            inp.FontSize                 = 15;
-            inp.FontWeight               = FontWeight.Normal;
-            inp.FontStretch              = FontStretch.Normal;
-            inp.FontStyle                = FontStyle.Normal;
+            inp.Font                     = new Font(15, "Inter");
             inp.SelectAllOnFocus         = true;
             inp.Text                     = "0";
 
@@ -379,7 +367,7 @@ public class DockLayerTest : View
                 HoverColor   = new Color(0xD8, 0xD8, 0xD8, 0xFF),
                 PressedColor = new Color(0xC0, 0xC0, 0xC0, 0xFF),
                 LabelColor   = new Color(0x22, 0x22, 0x22, 0xFF),
-                FontSize     = 16,
+                Font         = new Font(16, "Inter"),
                 Visible      = true,
             };
         }

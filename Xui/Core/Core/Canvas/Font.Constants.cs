@@ -1,6 +1,6 @@
 namespace Xui.Core.Canvas;
 
-public ref partial struct Font
+public partial struct Font
 {
     #pragma warning disable CS1591
     // FontWeight re-exports

@@ -46,7 +46,7 @@ public class PerformanceFooter : View
         var rect = Frame;
         var metrics = _metrics;
 
-        context.SetFont(new Font(10, ["Segoe UI", "Inter", "sans-serif"]));
+        context.SetFont(new Font(10, "Inter"));
         context.TextBaseline = TextBaseline.Middle;
         context.TextAlign = TextAlign.Left;
         context.SetFill(ColorText);

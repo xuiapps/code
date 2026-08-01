@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Text;
 using Xui.Core.Canvas;
 using Xui.Core.Math2D;
 
@@ -47,18 +48,19 @@ public class TextLayout
         NFloat boundingBoxRight = 0;
         NFloat boundingBoxTop = 0;
         NFloat boundingBoxBottom = 0;
+        bool hasGlyphBounds = false;
 
-        char? prevChar = null;
+        Rune? previous = null;
 
-        foreach (char ch in text)
+        foreach (var rune in text.EnumerateRunes())
         {
-            int? glyphId = font.GetGlyphIndexFromChar(ch);
+            int? glyphId = font.GetGlyphIndex(rune);
             if (glyphId is not int id)
                 continue;
 
-            if (prevChar is char prev)
+            if (previous is Rune previousRune)
             {
-                var kern = font.Kerning[prev, ch];
+                var kern = font.Kerning[previousRune, rune];
                 x += (kern.XAdvance ?? 0) * _scale;
             }
 
@@ -73,14 +75,25 @@ public class TextLayout
                 var scaledTop = bounds.YMax * _scale;
                 var scaledBottom = bounds.YMin * _scale;
 
-                boundingBoxLeft = nfloat.Min(boundingBoxLeft, scaledLeft);
-                boundingBoxRight = nfloat.Max(boundingBoxRight, scaledRight);
-                boundingBoxTop = nfloat.Max(boundingBoxTop, scaledTop);
-                boundingBoxBottom = nfloat.Max(boundingBoxBottom, scaledBottom);
+                if (hasGlyphBounds)
+                {
+                    boundingBoxLeft = nfloat.Min(boundingBoxLeft, scaledLeft);
+                    boundingBoxRight = nfloat.Max(boundingBoxRight, scaledRight);
+                    boundingBoxTop = nfloat.Max(boundingBoxTop, scaledTop);
+                    boundingBoxBottom = nfloat.Max(boundingBoxBottom, scaledBottom);
+                }
+                else
+                {
+                    boundingBoxLeft = scaledLeft;
+                    boundingBoxRight = scaledRight;
+                    boundingBoxTop = scaledTop;
+                    boundingBoxBottom = scaledBottom;
+                    hasGlyphBounds = true;
+                }
             }
 
             x += metric.AdvanceWidth * _scale;
-            prevChar = ch;
+            previous = rune;
         }
 
         // Horizontal alignment offset
@@ -91,7 +104,7 @@ public class TextLayout
             _ => 0
         };
 
-        LineMetrics = new LineMetrics(x, boundingBoxLeft + dx, boundingBoxRight - dx, boundingBoxTop, boundingBoxBottom);
+        LineMetrics = new LineMetrics(x, dx - boundingBoxLeft, boundingBoxRight - dx, boundingBoxTop, boundingBoxBottom);
     }
 
     /// <summary>

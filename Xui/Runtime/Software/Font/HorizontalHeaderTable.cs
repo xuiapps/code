@@ -39,4 +39,12 @@ public class HorizontalHeaderTable
         MetricDataFormat = BinaryPrimitives.ReadInt16BigEndian(data.Slice(32, 2));
         NumberOfHMetrics = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(34, 2));
     }
+
+    /// <summary>Copies an hhea table for a compact hmtx table with one metric per glyph.</summary>
+    public static byte[] CreateSubset(ReadOnlySpan<byte> source, ushort numberOfHMetrics)
+    {
+        var result = source.ToArray();
+        BinaryPrimitives.WriteUInt16BigEndian(result.AsSpan(34, 2), numberOfHMetrics);
+        return result;
+    }
 }

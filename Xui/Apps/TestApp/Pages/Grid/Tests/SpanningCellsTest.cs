@@ -36,7 +36,7 @@ public class SpanningCellsTest : View
             Content = new Label
             {
                 Text = "col-span 3  (cols 1–3, row 1)",
-                FontFamily = ["Inter"],
+                FontFamily = "Inter",
                 FontSize = 12,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Middle,
@@ -56,7 +56,7 @@ public class SpanningCellsTest : View
             Content = new Label
             {
                 Text = "row\nspan\n4\n(col 4)",
-                FontFamily = ["Inter"],
+                FontFamily = "Inter",
                 FontSize = 12,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Middle,
@@ -77,7 +77,7 @@ public class SpanningCellsTest : View
             Content = new Label
             {
                 Text = "2×2 span\n(rows 2–3, cols 1–2)",
-                FontFamily = ["Inter"],
+                FontFamily = "Inter",
                 FontSize = 12,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Middle,
@@ -117,7 +117,7 @@ public class SpanningCellsTest : View
         Content = new Label
         {
             Text = text,
-            FontFamily = ["Inter"],
+            FontFamily = "Inter",
             FontSize = 11,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Middle,

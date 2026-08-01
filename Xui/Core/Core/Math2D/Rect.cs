@@ -137,6 +137,14 @@ public struct Rect : INonEnumerableSet<Point>
         point.X <= this.X + this.Width &&
         point.Y <= this.Y + this.Height;
 
+    /// <summary>Returns whether this rectangle overlaps or touches <paramref name="other"/>.</summary>
+    [DebuggerStepThrough]
+    public bool Intersects(Rect other) =>
+        this.Left <= other.Right &&
+        this.Right >= other.Left &&
+        this.Top <= other.Bottom &&
+        this.Bottom >= other.Top;
+
     /// <summary>
     /// Returns a rectangle expanded horizontally and vertically by the specified amounts.
     /// </summary>

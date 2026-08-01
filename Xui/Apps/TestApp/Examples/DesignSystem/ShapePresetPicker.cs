@@ -127,7 +127,7 @@ internal class ShapePresetPicker : View
             context.SetFill(ds.Colors.Primary.Background);
             context.Fill(FillRule.NonZero);
 
-            context.SetFont(new() { FontFamily = ["Inter"], FontSize = 10 });
+            context.SetFont(new() { FontFamily = "Inter", FontSize = 10 });
             context.TextBaseline = TextBaseline.Top;
             context.SetFill(isActive ? ds.Colors.Primary.OnContainer : ds.Colors.Surface.Foreground);
             context.FillText(presetNames[i], new Point(x + 4, y + ItemHeight + 2));

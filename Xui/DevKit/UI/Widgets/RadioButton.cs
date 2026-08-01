@@ -11,7 +11,7 @@ namespace Xui.DevKit.UI.Widgets;
 /// A radio button (circle with filled dot when selected).
 /// Consumes design system tokens for colors and sizing.
 /// </summary>
-public class RadioButton : View
+public class RadioButton : View, IDesignSystemChangeNotifications
 {
     private bool isSelected;
     private bool hover;
@@ -22,6 +22,7 @@ public class RadioButton : View
     private Color dotColor;
     private Color hoverBorderColor;
     private NFloat outerRadius;
+    private readonly DesignSystemCache designSystem = new();
 
     /// <summary>Gets or sets whether the radio button is selected.</summary>
     public bool IsSelected
@@ -43,22 +44,30 @@ public class RadioButton : View
     public override int Count => 0;
     public override View this[int index] => throw new IndexOutOfRangeException();
 
-    protected override void OnActivate()
-    {
-        base.OnActivate();
-        ApplyDesignSystem();
-    }
-
     private void ApplyDesignSystem()
     {
-        var ds = this.GetService(typeof(IDesignSystem)) as IDesignSystem;
-        if (ds == null) return;
+        designSystem.Resolve(this, this);
+    }
+
+    /// <inheritdoc/>
+    public void OnDesignTokenChange()
+    {
+        var ds = designSystem.Current;
+        if (ds is null) return;
 
         selectedFillColor = ds.Colors.Primary.Background;
         unselectedBorderColor = ds.Colors.Outline;
         dotColor = ds.Colors.Primary.Foreground;
         hoverBorderColor = ds.Colors.Primary.Background;
         outerRadius = ds.Spacing.Passive.XL / 2;
+        this.Invalidate();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnDeactivate()
+    {
+        designSystem.Deactivate(this);
+        base.OnDeactivate();
     }
 
     protected override Size MeasureCore(Size available, IMeasureContext context)
@@ -105,7 +114,7 @@ public class RadioButton : View
         else if (e.Type == PointerEventType.Leave) { hover = false; InvalidateRender(); }
         else if (phase == EventPhase.Tunnel && e.Type == PointerEventType.Down)
         {
-            CapturePointer(e.PointerId);
+            CapturePointer(e.PointerId, PointerGestures.Tap);
             pressed = true;
             InvalidateRender();
         }

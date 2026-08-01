@@ -106,6 +106,45 @@ public partial class View
     public ViewFlags Flags { get; private set; }
 
     /// <summary>
+    /// Invalidates every phase affected by a change to the view's layout contract.
+    /// Used by the base layout properties so cached measurements cannot survive a
+    /// change to constraints, alignment, or spacing.
+    /// </summary>
+    protected void Invalidate()
+    {
+        this.InvalidateMeasure();
+        this.InvalidateArrange();
+        this.InvalidateRender();
+    }
+
+    /// <summary>
+    /// Assigns a layout-affecting property when its value changes, then invalidates
+    /// the view's measure, arrange, and render state.
+    /// </summary>
+    /// <returns><c>true</c> when <paramref name="field"/> changed.</returns>
+    protected bool SetViewProperty<T>(ref T field, T value)
+    {
+        if (EqualityComparer<T>.Default.Equals(field, value))
+            return false;
+
+        field = value;
+        this.Invalidate();
+        return true;
+    }
+
+    /// <summary>Assigns a render-only property when its value changes.</summary>
+    /// <returns><c>true</c> when <paramref name="field"/> changed.</returns>
+    protected bool SetViewRenderProperty<T>(ref T field, T value)
+    {
+        if (EqualityComparer<T>.Default.Equals(field, value))
+            return false;
+
+        field = value;
+        this.InvalidateRender();
+        return true;
+    }
+
+    /// <summary>
     /// Clears per-frame animation flags so this view will not be considered animated
     /// unless <see cref="RequestAnimationFrame"/> is called during this pass.
     /// </summary>
@@ -259,6 +298,10 @@ public partial class View
     /// <param name="child">The child view whose measure state has changed.</param>
     protected virtual void OnChildMeasureChanged(View child)
     {
+        // A parent's desired size is normally derived from its children. Marking
+        // the measure state here also invalidates the parent's one-entry measure
+        // cache and propagates that fact all the way to the layout root.
+        this.InvalidateMeasure();
         this.InvalidateArrange();
     }
 
@@ -317,11 +360,18 @@ public partial class View
     /// receive pointer events even if the pointer moves outside its bounds.
     /// </summary>
     /// <param name="pointerId">The platform-assigned pointer identifier.</param>
-    public void CapturePointer(int pointerId)
+    /// <param name="gesture">
+    /// Optional marker describing what kind of gesture this view is tracking
+    /// (e.g. <see cref="Xui.Core.UI.Input.PointerGestures.Tap"/> for a button,
+    /// <see cref="Xui.Core.UI.Input.PointerGestures.Drag"/> for a slider). Ancestor
+    /// containers (e.g. <c>ScrollView</c>) inspect this via
+    /// <c>EventRouter.GetCapturedGesture</c> to decide whether they may steal capture.
+    /// </param>
+    public void CapturePointer(int pointerId, Xui.Core.UI.Input.IPointerGesture? gesture = null)
     {
         if (this.TryFindParent<RootView>(out var rootView))
         {
-            rootView.EventRouter.CapturePointer(this, pointerId);
+            rootView.EventRouter.CapturePointer(this, pointerId, gesture);
         }
     }
 
@@ -336,5 +386,19 @@ public partial class View
         {
             rootView.EventRouter.ReleasePointer(this, pointerId);
         }
+    }
+
+    /// <summary>
+    /// Returns the gesture marker for the view currently capturing
+    /// <paramref name="pointerId"/>, or <c>null</c> if the pointer is not captured
+    /// or was captured without a gesture marker.
+    /// </summary>
+    public Xui.Core.UI.Input.IPointerGesture? GetCapturedGesture(int pointerId)
+    {
+        if (this.TryFindParent<RootView>(out var rootView))
+        {
+            return rootView.EventRouter.GetCapturedGesture(pointerId);
+        }
+        return null;
     }
 }

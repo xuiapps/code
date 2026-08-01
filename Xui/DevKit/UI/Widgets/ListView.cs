@@ -12,7 +12,7 @@ namespace Xui.DevKit.UI.Widgets;
 /// Each <see cref="ListViewItem"/> supports hover and selection states
 /// using design system tokens.
 /// </summary>
-public class ListView : View
+public class ListView : View, IDesignSystemChangeNotifications
 {
     private int selectedIndex = -1;
     private readonly ScrollView scrollView;
@@ -23,6 +23,7 @@ public class ListView : View
     private Color hoverFillColor;
     private Color outlineColor;
     private CornerRadius itemRadius;
+    private readonly DesignSystemCache designSystem = new();
 
     /// <summary>Gets or sets the selected item index (-1 for no selection).</summary>
     public int SelectedIndex
@@ -64,8 +65,14 @@ public class ListView : View
 
     internal void ApplyDesignSystem()
     {
-        var ds = this.GetService(typeof(IDesignSystem)) as IDesignSystem;
-        if (ds == null) return;
+        designSystem.Resolve(this, this);
+    }
+
+    /// <inheritdoc/>
+    public void OnDesignTokenChange()
+    {
+        var ds = designSystem.Current;
+        if (ds is null) return;
 
         var group = Role switch
         {
@@ -79,6 +86,14 @@ public class ListView : View
         hoverFillColor = ds.Colors.Surface.Container;
         outlineColor = ds.Colors.Outline;
         itemRadius = ds.Shape.Small;
+        this.Invalidate();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnDeactivate()
+    {
+        designSystem.Deactivate(this);
+        base.OnDeactivate();
     }
 
     internal Color SelectedFillColor => selectedFillColor;
@@ -162,11 +177,12 @@ internal class ListViewContent : ViewCollection
 /// A single selectable item inside a <see cref="ListView"/>.
 /// Renders hover/selection backgrounds and hosts a content view.
 /// </summary>
-public class ListViewItem : View
+public class ListViewItem : View, IDesignSystemChangeNotifications
 {
     private View? content;
     private bool hover;
     private nfloat itemPadding;
+    private readonly DesignSystemCache designSystem = new();
 
     /// <summary>The content view displayed inside this item.</summary>
     public View? ItemContent
@@ -184,9 +200,24 @@ public class ListViewItem : View
 
     private void ApplyDesignSystem()
     {
-        var ds = this.GetService(typeof(IDesignSystem)) as IDesignSystem;
-        if (ds == null) return;
+        designSystem.Resolve(this, this);
+    }
+
+    /// <inheritdoc/>
+    public void OnDesignTokenChange()
+    {
+        var ds = designSystem.Current;
+        if (ds is null) return;
+
         itemPadding = ds.Spacing.Passive.S;
+        this.Invalidate();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnDeactivate()
+    {
+        designSystem.Deactivate(this);
+        base.OnDeactivate();
     }
 
     /// <inheritdoc/>

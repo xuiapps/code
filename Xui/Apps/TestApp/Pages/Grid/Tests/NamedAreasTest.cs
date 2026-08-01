@@ -57,7 +57,7 @@ public class NamedAreasTest : View
         Content = new Label
         {
             Text = text,
-            FontFamily = ["Inter"],
+            FontFamily = "Inter",
             FontSize = 13,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Middle,

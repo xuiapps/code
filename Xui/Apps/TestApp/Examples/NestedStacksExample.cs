@@ -35,7 +35,7 @@ public class NestedStacksExample : Example
                     new List<View>() {
                         new Label {
                             Text = label,
-                            FontFamily = ["Inter"],
+                            FontFamily = "Inter",
                             Margin = (11, 4, 8, 8),
                             FontWeight = Xui.Core.Canvas.FontWeight.Bold
                         }
@@ -48,7 +48,7 @@ public class NestedStacksExample : Example
                             BorderColor = Black,
                             BackgroundColor = LightGray,
                             Content = new Label {
-                                FontFamily = ["Inter"],
+                                FontFamily = "Inter",
                                 Text = text
                             }
                         }

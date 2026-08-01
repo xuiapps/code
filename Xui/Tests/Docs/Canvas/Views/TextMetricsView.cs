@@ -11,67 +11,66 @@ public sealed class TextMetricsView : View
     protected override void RenderCore(IContext context)
     {
         const string text = "Hello World!";
-        var origin = new Point(350, 158);
+        var origin = new Point(this.Frame.Center.X, this.Frame.Center.Y + 8);
 
         context.SetFill(White);
         context.FillRect(this.Frame);
 
-        context.SetFont(new Font(64, ["Inter"], FontWeight.Normal));
+        context.SetFont(new Font(64, "Inter", FontWeight.Normal));
         context.TextAlign = TextAlign.Center;
         context.TextBaseline = TextBaseline.Alphabetic;
         var metrics = context.MeasureText(text);
 
-        DrawBox(context, origin, metrics, metrics.Font.FontBoundingBoxAscent, metrics.Font.FontBoundingBoxDescent, Orange, 4);
-        DrawBox(context, origin, metrics, metrics.Font.EmHeightAscent, metrics.Font.EmHeightDescent, Green, 2);
-        DrawBox(context, origin, metrics, metrics.Line.ActualBoundingBoxAscent, metrics.Line.ActualBoundingBoxDescent, Red, 1);
+        DrawAdvanceBox(context, origin, metrics, metrics.Font.FontBoundingBoxAscent, metrics.Font.FontBoundingBoxDescent, Orange, 4);
+        DrawActualGlyphBox(context, origin, metrics, Red, 1);
 
-        DrawLine(context, origin.Y + metrics.Font.HangingBaseline, Blue, 1, "hanging baseline");
-        DrawLine(context, origin.Y + metrics.Font.AlphabeticBaseline, Black, 1, "alphabetic baseline");
-        DrawLine(context, origin.Y + metrics.Font.IdeographicBaseline, Green, 1, "ideographic baseline");
+        DrawLine(context, origin, metrics.Line.Width, origin.Y + metrics.Font.HangingBaseline, Blue, "hanging baseline");
+        DrawLine(context, origin, metrics.Line.Width, origin.Y + metrics.Font.AlphabeticBaseline, Black, "alphabetic baseline");
+        DrawLine(context, origin, metrics.Line.Width, origin.Y + metrics.Font.IdeographicBaseline, Green, "ideographic baseline");
 
         context.SetFill(Black);
-        context.SetFont(new Font(64, ["Inter"], FontWeight.Normal));
+        context.SetFont(new Font(64, "Inter", FontWeight.Normal));
         context.TextAlign = TextAlign.Center;
         context.TextBaseline = TextBaseline.Alphabetic;
         context.FillText(text, origin);
 
-        context.SetFont(new Font(13, ["Inter"], FontWeight.Normal));
-        context.TextAlign = TextAlign.Left;
-        context.TextBaseline = TextBaseline.Top;
-        context.SetFill(Orange);
-        context.FillText("font bounding box", (24, 18));
-        context.SetFill(Green);
-        context.FillText("em height", (24, 38));
-        context.SetFill(Red);
-        context.FillText("actual glyph bounds", (24, 58));
-        context.SetFill(Black);
-        context.FillText("Inter · 64 px", (24, 278));
     }
 
-    private static void DrawBox(IContext context, Point origin, TextMetrics metrics, nfloat ascent, nfloat descent, Color color, nfloat lineWidth)
+    private static void DrawAdvanceBox(IContext context, Point origin, TextMetrics metrics, nfloat ascent, nfloat descent, Color color, nfloat lineWidth)
+    {
+        context.SetStroke(color);
+        context.LineWidth = lineWidth;
+        context.StrokeRect(new Rect(
+            origin.X - metrics.Line.Width / 2,
+            origin.Y - ascent,
+            metrics.Line.Width,
+            ascent + descent));
+    }
+
+    private static void DrawActualGlyphBox(IContext context, Point origin, TextMetrics metrics, Color color, nfloat lineWidth)
     {
         context.SetStroke(color);
         context.LineWidth = lineWidth;
         context.StrokeRect(new Rect(
             origin.X - metrics.Line.ActualBoundingBoxLeft,
-            origin.Y - ascent,
+            origin.Y - metrics.Line.ActualBoundingBoxAscent,
             metrics.Line.ActualBoundingBoxLeft + metrics.Line.ActualBoundingBoxRight,
-            ascent + descent));
+            metrics.Line.ActualBoundingBoxAscent + metrics.Line.ActualBoundingBoxDescent));
     }
 
-    private static void DrawLine(IContext context, nfloat y, Color color, nfloat lineWidth, string label)
+    private static void DrawLine(IContext context, Point origin, nfloat width, nfloat y, Color color, string label)
     {
         context.BeginPath();
-        context.MoveTo((140, y));
-        context.LineTo((550, y));
+        context.MoveTo((origin.X - width / 2, y));
+        context.LineTo((origin.X + width / 2, y));
         context.SetStroke(color);
-        context.LineWidth = lineWidth;
+        context.LineWidth = 1;
         context.Stroke();
 
         context.SetFill(color);
-        context.SetFont(new Font(11, ["Inter"], FontWeight.Normal));
-        context.TextAlign = TextAlign.Left;
+        context.SetFont(new Font(11, "Inter", FontWeight.Normal));
+        context.TextAlign = TextAlign.Right;
         context.TextBaseline = TextBaseline.Middle;
-        context.FillText(label, (20, y));
+        context.FillText(label, (origin.X - width / 2 - 8, y));
     }
 }

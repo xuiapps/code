@@ -33,8 +33,7 @@ public struct ButtonLayer<THost, TAction> : ILayer<THost>
     public Color HoverColor;
     public Color PressedColor;
     public Color LabelColor;
-    public string[]? FontFamily;
-    public NFloat FontSize;
+    public Font Font;
 
     /// <summary>
     /// When false, <see cref="Measure"/> returns zero width so the dock slot collapses.
@@ -50,19 +49,11 @@ public struct ButtonLayer<THost, TAction> : ILayer<THost>
 
     // ── ILayer<THost> ────────────────────────────────────────────────────
 
-    public void Update(THost view, ref LayoutGuide guide)
-    {
-        if (guide.IsAnimate) Animate(view, guide.PreviousTime, guide.CurrentTime);
-        if (guide.IsMeasure) guide.DesiredSize = Measure(view, guide.AvailableSize, guide.MeasureContext!);
-        if (guide.IsArrange) Arrange(view, guide.ArrangedRect, guide.MeasureContext!);
-        if (guide.IsRender)  Render(view, guide.RenderContext!);
-    }
-
     public Size Measure(THost view, Size available, IMeasureContext ctx)
     {
         if (!Visible) return new Size(0, available.Height);
         NFloat side = NFloat.IsFinite(available.Height) ? available.Height
-                    : FontSize > 0 ? FontSize * 2 : (NFloat)30;
+                    : ResolvedFont.FontSize * 2;
         return new Size(side, side);
     }
 
@@ -96,12 +87,7 @@ public struct ButtonLayer<THost, TAction> : ILayer<THost>
 
         if (!string.IsNullOrEmpty(Label))
         {
-            ctx.SetFont(new Font
-            {
-                FontFamily = FontFamily ?? ["Inter"],
-                FontSize   = FontSize > 0 ? FontSize : 13,
-                FontWeight = FontWeight.Normal,
-            });
+            ctx.SetFont(ResolvedFont);
             ctx.TextAlign    = TextAlign.Center;
             ctx.TextBaseline = TextBaseline.Middle;
             ctx.SetFill(LabelColor);
@@ -110,6 +96,8 @@ public struct ButtonLayer<THost, TAction> : ILayer<THost>
     }
 
     public void Animate(THost view, TimeSpan p, TimeSpan c) { }
+
+    private Font ResolvedFont => Font.FontSize > 0 ? Font : new Font(13, "Inter");
 
     public void OnPointerEvent(THost view, ref PointerEventRef e, EventPhase phase)
     {

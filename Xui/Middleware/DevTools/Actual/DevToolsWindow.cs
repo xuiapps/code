@@ -12,7 +12,7 @@ namespace Xui.Middleware.DevTools.Actual;
 /// delegating in both directions while adding DevTools capabilities:
 /// SVG screenshot capture, UI-tree inspection, and synthetic input injection.
 /// </summary>
-internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actual.IWindow
+internal sealed class DevToolsWindow : Xui.Core.Middleware.IWindow
 {
     private readonly DevToolsPlatform platform;
 
@@ -30,49 +30,60 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
     private string? overlayLabel;
 
     /// <summary>The abstract application window (app layer).</summary>
-    public Xui.Core.Abstract.IWindow? Abstract { get; set; }
+    public Xui.Core.Abstract.IWindow Abstract { get; }
 
-    /// <summary>The underlying real platform window.</summary>
-    public Xui.Core.Actual.IWindow? Platform { get; set; }
+    /// <summary>The actual window immediately downstream of this middleware layer.</summary>
+    public Xui.Core.Actual.IWindow? Actual { get; private set; }
 
-    public DevToolsWindow(DevToolsPlatform platform) => this.platform = platform;
+    /// <summary>Application services reached after the complete actual-window chain.</summary>
+    public IServiceProvider NextServiceProvider { get; }
+
+    public DevToolsWindow(
+        DevToolsPlatform platform,
+        Xui.Core.Abstract.IWindow @abstract,
+        IServiceProvider nextServiceProvider)
+    {
+        this.platform = platform;
+        this.Abstract = @abstract;
+        this.NextServiceProvider = nextServiceProvider;
+    }
+
+    internal void AttachActual(Xui.Core.Actual.IWindow actual)
+    {
+        if (this.Actual is not null)
+            throw new InvalidOperationException("The DevTools window is already attached to an actual window.");
+
+        this.Actual = actual;
+    }
 
     string Xui.Core.Actual.IWindow.Title
     {
-        get => Platform!.Title;
-        set => Platform!.Title = value;
+        get => Actual!.Title;
+        set => Actual!.Title = value;
     }
 
-    void Xui.Core.Actual.IWindow.Show() => Platform!.Show();
-    void Xui.Core.Actual.IWindow.Invalidate() => Platform!.Invalidate();
-    void Xui.Core.Actual.IWindow.Close() => Platform!.Close();
+    void Xui.Core.Actual.IWindow.Show() => Actual!.Show();
+    void Xui.Core.Actual.IWindow.Invalidate() => Actual!.Invalidate();
+    void Xui.Core.Actual.IWindow.Close() => Actual!.Close();
 
     bool Xui.Core.Actual.IWindow.RequireKeyboard
     {
-        get => Platform!.RequireKeyboard;
-        set => Platform!.RequireKeyboard = value;
+        get => Actual!.RequireKeyboard;
+        set => Actual!.RequireKeyboard = value;
     }
 
     Xui.Core.Canvas.ITextMeasureContext? Xui.Core.Actual.IWindow.TextMeasureContext
-        => Platform!.TextMeasureContext;
+        => Actual!.TextMeasureContext;
 
     /// <summary>
     /// Returns a <see cref="SplicingContext"/> when a screenshot is pending so the next
     /// render pass writes simultaneously to the real display and an SVG capture stream.
     /// </summary>
-    object? IServiceProvider.GetService(Type t)
+    private IContext WrapContext(IContext realCtx)
     {
-        // During construction, Platform is not yet wired — fall back to the abstract window's services.
-        if (Platform == null)
-            return (Abstract as IServiceProvider)?.GetService(t);
-
-        if (t != typeof(IContext))
-            return Platform.GetService(t);
-
         IContext ctx;
         if (pendingScreenshot != null && svgStream != null)
         {
-            var realCtx = (Platform!.GetService(t) as IContext)!;
             var svgCtx = new SvgDrawingContext(
                 new Size(pendingRect.Width, pendingRect.Height),
                 svgStream,
@@ -82,7 +93,7 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
         }
         else
         {
-            ctx = (Platform!.GetService(t) as IContext)!;
+            ctx = realCtx;
         }
 
         // Wrap with OverlayContext when there's an interaction point or a client label to show.
@@ -101,6 +112,9 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
 
         return ctx;
     }
+
+    object? IServiceProvider.GetService(Type t) =>
+        Actual?.GetService(t) ?? NextServiceProvider.GetService(t);
 
     Rect Xui.Core.Abstract.IWindow.DisplayArea
     {
@@ -146,6 +160,7 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
         }
 
         pendingOverlayCtx = null;
+        render.Context = WrapContext(render.Context);
         Abstract!.Render(ref render);
 
         // Draw the overlay on top of the app content (and into the SVG stream if screenshotting).
@@ -195,7 +210,7 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
         platform.MainDispatcher.Post(() =>
         {
             pendingScreenshot = tcs;
-            Platform!.Invalidate();
+            Actual!.Invalidate();
         });
         return tcs.Task.ContinueWith(
             t => new ScreenshotResult(t.Result),
@@ -212,7 +227,7 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
             Abstract!.OnMouseDown(ref down);
             var up = new MouseUpEventRef { Position = pos, Button = MouseButton.Left };
             Abstract!.OnMouseUp(ref up);
-            Platform!.Invalidate();
+            Actual!.Invalidate();
         });
         return Task.CompletedTask;
     }
@@ -230,7 +245,7 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
             touch.Phase = TouchPhase.End;
             te = new TouchEventRef([touch]);
             Abstract!.OnTouch(ref te);
-            Platform!.Invalidate();
+            Actual!.Invalidate();
         });
         return Task.CompletedTask;
     }
@@ -251,7 +266,7 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
             var touch = new Touch { Index = p.Index, Phase = phase, Position = pos, Radius = 0.5f };
             var te = new TouchEventRef([touch]);
             Abstract!.OnTouch(ref te);
-            Platform!.Invalidate();
+            Actual!.Invalidate();
         });
         return Task.CompletedTask;
     }
@@ -264,14 +279,14 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
             lastInputOverlay = (pos, isTouch: false);
             var move = new MouseMoveEventRef { Position = pos };
             Abstract!.OnMouseMove(ref move);
-            Platform!.Invalidate();
+            Actual!.Invalidate();
         });
         return Task.CompletedTask;
     }
 
     internal Task HandleInvalidate()
     {
-        platform.MainDispatcher.Post(() => Platform!.Invalidate());
+        platform.MainDispatcher.Post(() => Actual!.Invalidate());
         return Task.CompletedTask;
     }
 
@@ -281,7 +296,7 @@ internal sealed class DevToolsWindow : Xui.Core.Abstract.IWindow, Xui.Core.Actua
         platform.MainDispatcher.Post(() =>
         {
             overlayLabel = string.IsNullOrWhiteSpace(p.Label) ? null : p.Label;
-            Platform!.Invalidate();
+            Actual!.Invalidate();
             tcs.SetResult();
         });
         return tcs.Task;

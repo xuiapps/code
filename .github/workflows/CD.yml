@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: read
 
@@ -18,12 +21,12 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0  # Required for Nerdbank.GitVersioning commit height
 
       - name: Setup .NET 10
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
 
@@ -37,7 +40,7 @@ jobs:
           "name=$branch" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       - name: Upload NuGet packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: nuget-${{ steps.branch.outputs.name }}-${{ github.run_number }}
           path: packages/*.nupkg
@@ -53,12 +56,12 @@ jobs:
 
     steps:
       - name: Setup .NET 10
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
 
       - name: Download NuGet packages
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: nuget-main-${{ github.run_number }}
           path: .  # artifact strips the packages/ prefix; .nupkg files land at repo root

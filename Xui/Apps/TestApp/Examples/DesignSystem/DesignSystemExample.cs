@@ -172,42 +172,36 @@ public class DesignSystemExample : Example, IDesignSystemEditor
     {
         primaryHue = hue;
         RebuildDesignSystem();
-        this.InvalidateRender();
     }
 
     void IDesignSystemEditor.SetHarmony(ColorHarmony h)
     {
         harmony = h;
         RebuildDesignSystem();
-        this.InvalidateRender();
     }
 
     void IDesignSystemEditor.SetShapePreset(ShapePreset preset)
     {
         shapePreset = preset;
         RebuildDesignSystem();
-        this.InvalidateRender();
     }
 
     void IDesignSystemEditor.SetSizingPreset(SizingPreset preset)
     {
         sizingPreset = preset;
         RebuildDesignSystem();
-        this.InvalidateRender();
     }
 
     void IDesignSystemEditor.SetNeutralStyle(NeutralStyle style)
     {
         neutralStyle = style;
         RebuildDesignSystem();
-        this.InvalidateRender();
     }
 
     void IDesignSystemEditor.SetMotionPreset(MotionPreset preset)
     {
         motionPreset = preset;
         RebuildDesignSystem();
-        this.InvalidateRender();
     }
 
     private void RebuildDesignSystem()
@@ -215,18 +209,22 @@ public class DesignSystemExample : Example, IDesignSystemEditor
         var device = this.GetService(typeof(IDeviceInfo)) as IDeviceInfo;
         if (device == null) return;
 
-        designSystem = new XuiDesignSystem(
-            new XuiDesignSystemOptions
-            {
-                PrimaryHue = primaryHue,
-                Harmony = harmony,
-                Chroma = 0.15f,
-                Shape = shapePreset,
-                Sizing = sizingPreset,
-                NeutralStyle = neutralStyle,
-                Motion = motionPreset,
-            },
-            device
-        );
+        var options = new XuiDesignSystemOptions
+        {
+            PrimaryHue = primaryHue,
+            Harmony = harmony,
+            Chroma = 0.15f,
+            Shape = shapePreset,
+            Sizing = sizingPreset,
+            NeutralStyle = neutralStyle,
+            Motion = motionPreset,
+        };
+
+        if (designSystem is null)
+            designSystem = new XuiDesignSystem(options, device);
+        else
+            designSystem.Update(options, device);
+
+        this.InvalidateRender();
     }
 }

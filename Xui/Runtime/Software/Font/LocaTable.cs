@@ -1,5 +1,6 @@
 using System;
 using System.Buffers.Binary;
+using System.Collections.Generic;
 
 namespace Xui.Runtime.Software.Font;
 
@@ -38,5 +39,14 @@ public class LocaTable
         int start = _offsets[glyphIndex];
         int end = _offsets[glyphIndex + 1];
         return (start, end - start);
+    }
+
+    /// <summary>Creates a long-format loca table from glyph offsets.</summary>
+    public static byte[] CreateLong(IReadOnlyList<int> offsets)
+    {
+        var result = new byte[offsets.Count * 4];
+        for (int i = 0; i < offsets.Count; i++)
+            BinaryPrimitives.WriteUInt32BigEndian(result.AsSpan(i * 4, 4), (uint)offsets[i]);
+        return result;
     }
 }

@@ -201,7 +201,8 @@ public sealed class DirectXContext
             var frame = new FrameEventRef(this.LastNextEstimatedFrameTime, this.NextEstimatedFrameTime);
             var render = new RenderEventRef(
                 new Rect(0, 0, dipW, dipH),
-                frame);
+                frame,
+                this.Direct2DContext);
 
             this.D2D1DeviceContext.BeginDraw();
             this.D2D1DeviceContext.Clear(new ColorF { A = 0f });
@@ -218,16 +219,8 @@ public sealed class DirectXContext
                 _32 = (float)topOffset
             });
 
-            Win32Platform.DisplayContextStack.Push(this.Direct2DContext);
-            try
-            {
-                this.host.Render(render);
-                this.Direct2DContext.EndDraw();
-            }
-            finally
-            {
-                Win32Platform.DisplayContextStack.Pop();
-            }
+            this.host.Render(render);
+            this.Direct2DContext.EndDraw();
 
             this.D2D1DeviceContext.EndDraw();
 

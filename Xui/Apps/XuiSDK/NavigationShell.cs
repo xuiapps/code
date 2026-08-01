@@ -224,7 +224,7 @@ public class NavigationShell : ViewCollection
         context.Restore();
 
         // Header title
-        context.SetFont(new Font(13, ["Segoe UI"], fontWeight: FontWeight.SemiBold));
+        context.SetFont(new Font(13, "Inter", fontWeight: FontWeight.SemiBold));
         context.TextBaseline = TextBaseline.Middle;
         context.TextAlign = TextAlign.Left;
         context.SetFill(new Color(0x1A1A1AFF));

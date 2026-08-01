@@ -312,7 +312,7 @@ public class TestSinglePageApp<TApplication, TWindow> : IDisposable
 
             var frame = new FrameEventRef(this.lastFramePrevious, this.lastFrameNext);
             var rect = new Rect(0, 0, renderSize.Width, renderSize.Height);
-            var render = new RenderEventRef(rect, frame);
+            var render = new RenderEventRef(rect, frame, context);
             if (emulatorWindow is null)
                 renderWindow.Render(ref render);
             else

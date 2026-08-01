@@ -79,12 +79,12 @@ public partial class TrueTypeFont
 
     public TextMetrics MeasureText(string text, Xui.Core.Canvas.Font font, TextAlign textAlign = TextAlign.Left, TextBaseline textBaseline = TextBaseline.Alphabetic)
     {
-        var layout = new TextLayout(this, text, font.FontSize, textAlign, textBaseline);
-        var lineMetrics = layout.LineMetrics;
-        var fontMetrics = this.Metrics(font);
-
-        return new TextMetrics(lineMetrics, fontMetrics);
+        return new TextMetrics(MeasureLine(text, font, textAlign, textBaseline), this.Metrics(font));
     }
+
+    /// <summary>Measures metrics which depend on the text's glyphs and shaping.</summary>
+    public LineMetrics MeasureLine(string text, Xui.Core.Canvas.Font font, TextAlign textAlign = TextAlign.Left, TextBaseline textBaseline = TextBaseline.Alphabetic)
+        => new TextLayout(this, text, font.FontSize, textAlign, textBaseline).LineMetrics;
 
     public FontMetrics Metrics(Xui.Core.Canvas.Font font)
     {
@@ -106,16 +106,11 @@ public partial class TrueTypeFont
         nfloat hangingBaseline;
         nfloat ideographicBaseline;
 
-        if (OS2 is not null)
-        {
-            hangingBaseline = OS2.TypoAscender != 0 ? -OS2.TypoAscender * scale : emAscent;
-            ideographicBaseline = OS2.TypoDescender != 0 ? -OS2.TypoDescender * scale : emDescent;
-        }
-        else
-        {
-            hangingBaseline = emAscent;
-            ideographicBaseline = -emDescent;
-        }
+        // OpenType's core metric tables do not define script baselines. Until BASE
+        // support is added, use the CSS Canvas fallback: hanging is 0.8em above
+        // alphabetic and ideographic is at the bottom of the em box.
+        hangingBaseline = -font.FontSize * 0.8f;
+        ideographicBaseline = emDescent;
 
         return new FontMetrics(
             fontAscent,
@@ -147,7 +142,7 @@ public partial class TrueTypeFont
         return false;
     }
 
-    public int? GetGlyphIndexFromChar(int unicode) => Cmap?.GetGlyphIndex(unicode);
+    public int? GetGlyphIndex(Rune rune) => Cmap?.GetGlyphIndex(rune);
 
     public string? GetGlyphName(int glyphId) => Post?.GetGlyphName(glyphId);
 
@@ -159,7 +154,7 @@ public partial class TrueTypeFont
 
         public KerningQuery(TrueTypeFont font) => _font = font;
 
-        public ValueRecord this[char left, char right]
+        public ValueRecord this[Rune left, Rune right]
         {
             get
             {

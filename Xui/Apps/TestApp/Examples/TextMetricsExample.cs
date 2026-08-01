@@ -22,7 +22,7 @@ public class TextMetricsExample : Example
         {
             context.SetFont(new()
             {
-                FontFamily = ["Inter"],
+                FontFamily = "Inter",
                 FontSize = 64,
                 FontStretch = FontStretch.Normal,
                 FontStyle = FontStyle.Normal,
@@ -65,18 +65,18 @@ public class TextMetricsExample : Example
             context.SetStroke(Green);
             context.LineWidth = 5;
             context.StrokeRect(new Rect(
-                x: c1.X - metrics.Line.ActualBoundingBoxLeft,
+                x: c1.X - metrics.Line.Width / 2,
                 y: c1.Y - metrics.Font.EmHeightAscent,
-                width: metrics.Line.ActualBoundingBoxLeft + metrics.Line.ActualBoundingBoxRight,
+                width: metrics.Line.Width,
                 height: metrics.Font.EmHeightAscent + metrics.Font.EmHeightDescent
             ));
 
             context.SetStroke(Orange);
             context.LineWidth = 3;
             context.StrokeRect(new Rect(
-                x: c1.X - metrics.Line.ActualBoundingBoxLeft,
+                x: c1.X - metrics.Line.Width / 2,
                 y: c1.Y - metrics.Font.FontBoundingBoxAscent,
-                width: metrics.Line.ActualBoundingBoxLeft + metrics.Line.ActualBoundingBoxRight,
+                width: metrics.Line.Width,
                 height: metrics.Font.FontBoundingBoxAscent + metrics.Font.FontBoundingBoxDescent
             ));
 
